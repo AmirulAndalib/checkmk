@@ -44,7 +44,12 @@ from cmk.dev_deploy.execution.step_registry import (
     STEP_TO_DEPLOYER,
 )
 from cmk.dev_deploy.manifest.registry import uncovered_changed_files
-from cmk.dev_deploy.site.overlay_paths import OVERLAY_BASE
+from cmk.dev_deploy.site.preparation import (
+    check_backend_conflict,
+    create_backend,
+    DEFAULT_BACKEND,
+    resolve_backend_name,
+)
 from cmk.dev_deploy.site.privilege import SSHState
 from cmk.dev_deploy.site.site_resolver import find_repo_root, resolve_site
 from cmk.dev_deploy.site.warnings import check_branch_mismatch, check_edition_mismatch
@@ -63,6 +68,7 @@ from cmk.dev_deploy.state.deploy_state import (
     get_current_branch,
     get_head_commit,
     load_state,
+    STATE_BASE,
     state_file_path,
 )
 from cmk.dev_deploy.state.path_skip import check_skip
@@ -165,7 +171,7 @@ def _print_timing_display(
     results: list[StepResult],
     total_elapsed: float,
     manifest_elapsed: float = 0.0,
-    overlay_elapsed: float = 0.0,
+    prepare_elapsed: float = 0.0,
     services_elapsed: float = 0.0,
 ) -> None:
     """Print total deploy time and optional verbose timing breakdown."""
@@ -175,7 +181,7 @@ def _print_timing_display(
             results,
             total_elapsed,
             manifest_elapsed,
-            overlay_elapsed,
+            prepare_elapsed,
             services_elapsed,
         )
 
@@ -186,7 +192,7 @@ def _run_deploy_cycle(
     site: SiteInfo,
     ssh_state: SSHState,
     manifest_elapsed: float = 0.0,
-    overlay_elapsed: float = 0.0,
+    prepare_elapsed: float = 0.0,
 ) -> DeployCycleResult:
     """Execute one deploy cycle: change detection through parallel execution."""
     import time as _time
@@ -468,7 +474,9 @@ def _run_deploy_cycle(
             current_branch,
             successful_deployers=set(),
             previous_state=state,
-            backend=args.backend or "",
+            # With a single backend, the resolved name is always
+            # DEFAULT_BACKEND -- create_backend raises for anything else.
+            backend=DEFAULT_BACKEND,
             uncovered_files=uncovered_files,
         )
         return _make_result(0, all_skipped=True)
@@ -522,7 +530,7 @@ def _run_deploy_cycle(
             state,
             deployer_dirty_hashes=_deployer_dirty,
             all_succeeded=False,
-            backend=args.backend or "",
+            backend=DEFAULT_BACKEND,
             uncovered_files=uncovered_files,
         )
         return _make_result(1)
@@ -568,18 +576,18 @@ def _run_deploy_cycle(
         successful_deployers,
         state,
         deployer_dirty_hashes=_deployer_dirty,
-        backend=args.backend or "",
+        backend=DEFAULT_BACKEND,
         uncovered_files=uncovered_files,
     )
 
     # Total deploy time and optional verbose timing table
     _cycle_elapsed = _time.monotonic() - _cycle_start
-    _total_elapsed = _cycle_elapsed + manifest_elapsed + overlay_elapsed
+    _total_elapsed = _cycle_elapsed + manifest_elapsed + prepare_elapsed
     _print_timing_display(
         results,
         _total_elapsed,
         manifest_elapsed,
-        overlay_elapsed,
+        prepare_elapsed,
         svc_elapsed,
     )
 
@@ -737,14 +745,12 @@ def _infer_phase(error: BaseException) -> str:
         ConfigDeployError,
         FrontendError,
         IBazelError,
-        OverlayError,
         WheelDeployError,
     )
 
     phase_map: dict[type, str] = {
         ManifestBuildError: "manifest_build",
         ChangeDetectionError: "change_detection",
-        OverlayError: "overlay",
         CloneError: "clone",
         SudoersError: "sudoers",
         BazelBuildError: "bazel_build",
@@ -813,7 +819,7 @@ def main(argv: list[str] | None = None) -> int:
     # This allows purging even if the site is partially deleted (or removed
     # via ``omd rm``).  We try the lightweight find_site_root first, then
     # fall back to the normal name resolution chain (.site file, $SITE,
-    # omd sites), and finally scan the overlay directory for orphaned data.
+    # omd sites), and finally scan the deploy data dirs for orphaned data.
     if args.purge:
         from cmk.dev_deploy.site.site_resolver import find_site_root, resolve_site_name
 
@@ -821,12 +827,12 @@ def main(argv: list[str] | None = None) -> int:
         site_root = find_site_root(site_name)
 
         # Last resort: scan the deploy data dirs for orphaned site data
-        # (overlay upper layers / deploy state, version clones).
+        # (deploy state, version clones).
         if site_root is None:
             from cmk.dev_deploy.site.sudoers import DEV_VERSIONS_DIR
 
             candidates: set[str] = set()
-            for base in (OVERLAY_BASE, DEV_VERSIONS_DIR):
+            for base in (STATE_BASE, DEV_VERSIONS_DIR):
                 if base.is_dir():
                     # Hidden dirs (e.g. the .uv-cache next to the clones)
                     # are not site data.
@@ -851,22 +857,16 @@ def main(argv: list[str] | None = None) -> int:
                 "  Specify explicitly: cmk-dev-deploy --purge --site SITENAME"
             )
             return 1
-        from cmk.dev_deploy.site.preparation import create_backend, resolve_backend_name
-
         # Read the state before teardown -- teardown removes the state file.
         state = load_state(site_root)
-        backend = create_backend(
-            resolve_backend_name(args.backend, state.backend if state else "", site_root),
-            SSHState(),
-        )
+        backend = create_backend(resolve_backend_name(state.backend if state else "", site_root))
         try:
             backend.teardown(site_root)
         except DeployError as e:
             output.error(str(e))
             return 1
         # The site is back on pristine code; stale incremental state must
-        # not survive. (The overlay teardown already removed the whole
-        # state dir; for the clone backend this deletes the state file.)
+        # not survive the teardown.
         delete_state(site_root)
         output.success(
             f"{backend.name.capitalize()} purged. Site reverted to original state (stopped)."
@@ -900,11 +900,6 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
     import time as _time
 
     from cmk.dev_deploy.manifest.staleness import ensure_manifest
-    from cmk.dev_deploy.site.preparation import (
-        check_backend_conflict,
-        create_backend,
-        resolve_backend_name,
-    )
 
     if output.get_verbosity() >= output.Verbosity.VERBOSE:
         output.print_blank()
@@ -931,15 +926,17 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
 
     ssh_state = SSHState()
 
-    # Backend selection: explicit flag > deploy-state record > default.
-    # Resolved once here; the cycle records it back into the deploy state.
+    # Backend selection: deploy-state record > detection > default.
     state = load_state(site.root)
-    backend = create_backend(
-        resolve_backend_name(args.backend, state.backend if state else "", site.root), ssh_state
-    )
-    args.backend = backend.name
+    try:
+        backend = create_backend(resolve_backend_name(state.backend if state else "", site.root))
+    except DeployError as e:
+        # Expected migration situation (e.g. the site was prepared by the
+        # removed overlay backend) -- no diagnostic crash bundle.
+        output.error(str(e))
+        return 1
 
-    if (conflict := check_backend_conflict(backend.name, site.root)) is not None:
+    if (conflict := check_backend_conflict(site.root)) is not None:
         output.error(conflict)
         return 1
 
@@ -952,12 +949,11 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
         output.error(str(e))
         return 1
 
-    if backend.name == "clone":
-        # The clone backend injects no SSH key. Pre-seed the SSH cache so
-        # run_as_site_user() (service restarts, frontend override writes)
-        # skips the SSH probe and goes straight to its sudo fallback, which
-        # the just-probed sudoers rule makes passwordless.
-        ssh_state.ssh_available[site.name] = False
+    # No SSH key is injected anymore. Pre-seed the SSH cache so
+    # run_as_site_user() (service restarts, frontend override writes)
+    # skips the SSH probe and goes straight to its sudo fallback, which
+    # the just-probed sudoers rule makes passwordless.
+    ssh_state.ssh_available[site.name] = False
 
     # Manifest must be ready before site preparation because capability
     # restoration during ensure() reads it.
@@ -969,7 +965,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
     if args.full:
         backend.teardown(site.root)
     backend.ensure(site.root)
-    _overlay_elapsed = _time.monotonic() - t0
+    _prepare_elapsed = _time.monotonic() - t0
 
     # Branch mismatch warning
     branch_warning = check_branch_mismatch(site.build_commit, repo_root)
@@ -979,7 +975,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
     # Combined --frontend --watch mode
     if args.frontend and args.watch:
         result = _run_deploy_cycle(
-            args, repo_root, site, ssh_state, _manifest_elapsed, _overlay_elapsed
+            args, repo_root, site, ssh_state, _manifest_elapsed, _prepare_elapsed
         )
         if result.exit_code != 0:
             output.error("Deploy failed. Not starting frontend dev server.")
@@ -996,7 +992,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
 
     # One-shot deploy
     result = _run_deploy_cycle(
-        args, repo_root, site, ssh_state, _manifest_elapsed, _overlay_elapsed
+        args, repo_root, site, ssh_state, _manifest_elapsed, _prepare_elapsed
     )
 
     # Frontend supervisor: deploy first, then start Vite

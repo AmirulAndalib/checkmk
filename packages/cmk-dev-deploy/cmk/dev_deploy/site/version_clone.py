@@ -47,7 +47,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from cmk.dev_deploy.core import output
-from cmk.dev_deploy.core.timeouts import CLONE_COPY, GETCAP_SCAN, OVERLAY_CMD
+from cmk.dev_deploy.core.timeouts import CLONE_COPY, GETCAP_SCAN, OMD_CMD
 from cmk.dev_deploy.errors import CloneError
 from cmk.dev_deploy.site import sudoers
 
@@ -133,7 +133,7 @@ def ensure_clone(site_root: Path) -> None:
                 "clone existed; refusing to deploy into or silently discard it.",
                 recovery=(
                     "Remove the stale clone, then deploy again:\n"
-                    f"  cmk-dev-deploy --purge --backend clone --site {site_name}"
+                    f"  cmk-dev-deploy --purge --site {site_name}"
                 ),
             )
 
@@ -147,10 +147,10 @@ def ensure_clone(site_root: Path) -> None:
 def teardown_clone(site_root: Path) -> None:
     """Revert the site to the pristine version and delete the clone.
 
-    Leaves the site stopped (parity with the overlay teardown); callers
-    decide whether to rebuild (``--full``) or not (``--purge``).  Safe to
-    call when no clone is active or the site was deleted -- it then only
-    removes leftover clone data.
+    Leaves the site stopped; callers decide whether to rebuild
+    (``--full``) or not (``--purge``).  Safe to call when no clone is
+    active or the site was deleted -- it then only removes leftover
+    clone data.
 
     Raises:
         CloneError: If the symlink cannot be repointed.
@@ -329,6 +329,6 @@ def _repoint(site_root: Path, target: str) -> None:
 
 
 def _run_omd(site_name: str, command: str) -> None:
-    result = sudoers.run_as_site_user(site_name, f"omd {command}", timeout=OVERLAY_CMD)
+    result = sudoers.run_as_site_user(site_name, f"omd {command}", timeout=OMD_CMD)
     if result.returncode != 0:
         output.warn(f"omd {command} for site {site_name} exited with {result.returncode}")

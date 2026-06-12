@@ -43,8 +43,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Reset the site (overlay/clone) and redeploy all changes since the "
-        "site build, clearing incremental deploy state",
+        help="Reset the site (recreate the clone) and redeploy all changes since "
+        "the site build, clearing incremental deploy state",
     )
     parser.add_argument(
         "--verbose",
@@ -95,13 +95,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--purge",
         action="store_true",
         help="Revert site to original state and remove deploy data, then exit (no deploy)",
-    )
-    parser.add_argument(
-        "--backend",
-        choices=("overlay", "clone"),
-        default=None,
-        help="Site preparation backend (default: backend recorded for the site, "
-        "else clone). 'overlay' is the legacy backend.",
     )
     parser.add_argument(
         "--json-errors",

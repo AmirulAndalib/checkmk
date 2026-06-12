@@ -36,8 +36,8 @@ BAZEL_CQUERY_QUICK: int = 30
 # make print-VERSION
 VERSION_CMD: int = 10
 
-# OMD commands (omd stop/start) and overlay mount/umount operations
-OVERLAY_CMD: int = 60
+# OMD commands (omd stop/start)
+OMD_CMD: int = 60
 
 # Copy of the whole version tree for the clone backend (GBs without reflink)
 CLONE_COPY: int = 600

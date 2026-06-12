@@ -4,52 +4,15 @@ Issues documented here are real but not yet fixed. Each has a workaround.
 
 ---
 
-### `fuser -km` kills processes during overlay teardown
-
-**File:** `site/overlay.py`
-
-When `umount` fails (a process has an open file under the site directory),
-the tool runs `fuser -km` which sends SIGKILL to every process holding a
-file open under the mount point — including editors, terminals, or `tail -f`.
-
-**Trigger:** `--full` or `--purge` while any process has a file open under the
-site directory.
-
-**Workaround:** Close editors and shells that have site files open before
-running `--full` or `--purge`.
-
-**Fix:** Replace `fuser -km` with `fuser -m` (list only), show the process
-list to the user, and ask for confirmation before killing.
-
----
-
-### `omd stop` timeout too short for overlay mount
-
-**File:** `core/timeouts.py` (`OVERLAY_CMD = 60`), `site/overlay.py`
-
-The site is stopped with a 60-second timeout before mounting the overlay.
-A site with a hung CMC process won't stop in 60 seconds. The mount proceeds
-against a partially-running site.
-
-**Trigger:** Any site with a stuck service (CMC, Apache with hung workers).
-
-**Workaround:** Manually `omd stop <site>` before running cmk-dev-deploy.
-
-**Fix:** Check that `omd stop` actually succeeded (exit code) before
-proceeding with the mount. On timeout, abort with a clear message instead of
-mounting over a live site.
-
----
-
-### Clone backend: `omd stop` failure only warns before the symlink swap
+### `omd stop` failure only warns before the symlink swap
 
 **File:** `site/version_clone.py` — `_run_omd()`
 
-Same class as the overlay entry above: a failing or timing-out `omd stop`
-produces a warning, and the `version` symlink is swapped anyway. Unlike the
-overlay there is no mount-level split view — surviving processes keep their
-open file handles into the old version tree and run undisturbed until
-restarted — but the site is then only partially on the deployed code.
+A failing or timing-out `omd stop` produces a warning, and the `version`
+symlink is swapped anyway. There is no mount-level split view — surviving
+processes keep their open file handles into the old version tree and run
+undisturbed until restarted — but the site is then only partially on the
+deployed code.
 
 **Trigger:** Any site with a stuck service (CMC, Apache with hung workers).
 
@@ -80,19 +43,20 @@ up. Never write build artifacts into the source tree.
 
 ### Shared `/var/tmp/cmk-dev-deploy` collides across users
 
-**File:** `site/overlay.py`, `state/deploy_state.py`
+**File:** `state/deploy_state.py`
 
-The overlay upper layer and deploy state are stored in
-`/var/tmp/cmk-dev-deploy/<site_name>/`. This path is keyed by site name only,
-not by user. Two developers on the same shared dev server deploying to sites
-with the same name overwrite each other's overlay and state.
+The deploy state is stored in `/var/tmp/cmk-dev-deploy/<site_name>/`. This
+path is keyed by site name only, not by user. Two developers on the same
+shared dev server deploying to sites with the same name overwrite each
+other's state.
 
 **Trigger:** Two users on the same machine with a site of the same name.
 
 **Workaround:** Use unique site names per developer.
 
 **Fix:** Include the deploying user's UID in the path, e.g.,
-`/var/tmp/cmk-dev-deploy/<uid>/<site_name>/`.
+`/var/tmp/cmk-dev-deploy/<uid>/<site_name>/`. (The clone itself does not
+collide -- it lives under `/omd/dev-versions/`, owned by one deploy user.)
 
 ---
 

@@ -195,7 +195,9 @@ def _find_artifact_bazel_bin(package: str, output_basename: str, bazel_bin: Path
 def _ensure_writable(dest_dir: Path) -> None:
     """Make all existing files and directories under dest_dir writable.
 
-    Needed on OverlayFS where materialized files have read-only permissions.
+    Still needed with the clone backend: the clone preserves the pristine
+    tree's *file* modes (only directories get owner-write at build time),
+    so read-only files would break the copy-over.
     """
     if not dest_dir.is_dir():
         return
@@ -291,8 +293,8 @@ def _copy_directory(
     else:
         dest_dir.mkdir(parents=True, exist_ok=True)
         # Ensure existing files and directories are writable before
-        # copying.  On OverlayFS, the upper layer has materialized
-        # content with read-only permissions from the version dir.
+        # copying.  The clone preserves the read-only permissions of the
+        # pristine version dir.
         _ensure_writable(dest_dir)
         shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
 

@@ -51,15 +51,15 @@ class DeployState:
 
 
 # /var/tmp survives reboots (unlike /tmp, which may be tmpfs).
-_DEFAULT_STATE_BASE = Path("/var") / "tmp" / "cmk-dev-deploy"
+STATE_BASE = Path("/var") / "tmp" / "cmk-dev-deploy"
 
 
-def state_file_path(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> Path:
+def state_file_path(site_root: Path, base_dir: Path = STATE_BASE) -> Path:
     """Return the canonical state file path for a site."""
     return base_dir / site_root.name / STATE_FILE_NAME
 
 
-def load_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> DeployState | None:
+def load_state(site_root: Path, base_dir: Path = STATE_BASE) -> DeployState | None:
     """Load and validate state from disk, or return None."""
     path = state_file_path(site_root, base_dir)
     if not path.is_file():
@@ -91,7 +91,7 @@ def load_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> DeployS
         return None
 
 
-def save_state(state: DeployState, site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> None:
+def save_state(state: DeployState, site_root: Path, base_dir: Path = STATE_BASE) -> None:
     """Atomically write state to disk (temp file + rename)."""
     path = state_file_path(site_root, base_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -127,7 +127,7 @@ def save_state(state: DeployState, site_root: Path, base_dir: Path = _DEFAULT_ST
         raise
 
 
-def delete_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> None:
+def delete_state(site_root: Path, base_dir: Path = STATE_BASE) -> None:
     """Delete the state file, silently ignoring missing files."""
     path = state_file_path(site_root, base_dir)
     with contextlib.suppress(OSError):
@@ -251,7 +251,7 @@ def build_and_save_state(
     all_succeeded: bool = True,
     backend: str = "",
     uncovered_files: dict[str, str] | None = None,
-    base_dir: Path = _DEFAULT_STATE_BASE,
+    base_dir: Path = STATE_BASE,
 ) -> None:
     """Assemble and persist deploy state with partial-failure support.
 

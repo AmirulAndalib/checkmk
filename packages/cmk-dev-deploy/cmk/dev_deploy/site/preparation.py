@@ -5,14 +5,14 @@
 """Backend seam for making an OMD site writable before deploys.
 
 Deployers write through ``site.root/...`` paths; a *site preparation
-backend* makes those paths writable for the deploy user.  The default
-backend maintains a writable per-site clone of the OMD version directory
-(:mod:`version_clone`).  The legacy OverlayFS backend (:mod:`overlay`)
-remains selectable with ``--backend overlay``.
+backend* makes those paths writable for the deploy user.  The only
+backend is the clone backend (a writable per-site copy of the OMD
+version directory, see :mod:`version_clone`); the seam remains so other
+strategies can be added without touching the orchestration.
 
-The backend used for a site is recorded in the deploy state, so
-subsequent runs and ``--purge`` dispatch to the backend that actually
-prepared the site.
+The OverlayFS backend that preceded the clone has been removed.  A
+leftover overlay mount or deploy state from an older cmk-dev-deploy is
+detected and refused with manual recovery instructions.
 """
 
 from __future__ import annotations
@@ -21,12 +21,8 @@ import dataclasses
 from pathlib import Path
 from typing import ClassVar, Protocol
 
-from cmk.dev_deploy.core import output
 from cmk.dev_deploy.errors import DeployError
 from cmk.dev_deploy.site import sudoers
-from cmk.dev_deploy.site.overlay import ensure_overlay, is_overlay_active, teardown_overlay
-from cmk.dev_deploy.site.overlay_paths import OverlayPaths
-from cmk.dev_deploy.site.privilege import ensure_sudo, SSHState
 from cmk.dev_deploy.site.version_clone import ensure_clone, is_clone_active, teardown_clone
 
 DEFAULT_BACKEND = "clone"
@@ -56,35 +52,8 @@ class SitePreparation(Protocol):
 
 
 @dataclasses.dataclass(frozen=True)
-class OverlayBackend:
-    """Legacy backend: OverlayFS mount over the site root (see overlay.py)."""
-
-    ssh_state: SSHState
-    name: ClassVar[str] = "overlay"
-
-    def is_active(self, site_root: Path) -> bool:
-        return is_overlay_active(site_root)
-
-    def prepare_privileges(self, site_root: Path, *, full: bool) -> None:
-        # Pre-authenticate sudo early -- before the manifest rebuild which
-        # can take minutes and would otherwise expire the sudo timestamp.
-        if full or not is_overlay_active(site_root):
-            output.info("Overlay setup requires sudo privileges")
-            ensure_sudo()
-
-    def ensure(self, site_root: Path) -> None:
-        ensure_overlay(site_root, self.ssh_state, OverlayPaths.for_site(site_root))
-
-    def teardown(self, site_root: Path) -> None:
-        # --purge reaches teardown without prepare_privileges; refreshing a
-        # cached sudo timestamp is free, so always pre-authenticate here.
-        ensure_sudo()
-        teardown_overlay(site_root, OverlayPaths.for_site(site_root))
-
-
-@dataclasses.dataclass(frozen=True)
 class CloneBackend:
-    """Default backend: writable per-site clone of the version directory."""
+    """Writable per-site clone of the version directory (see version_clone.py)."""
 
     name: ClassVar[str] = "clone"
 
@@ -104,45 +73,52 @@ class CloneBackend:
         teardown_clone(site_root)
 
 
-def resolve_backend_name(explicit: str | None, recorded: str, site_root: Path) -> str:
-    """Pick the backend: explicit flag > state record > detection > default.
-
-    Detection covers lost deploy state (e.g. after ``--full`` was
-    interrupted): a site whose ``version`` symlink points at a clone, or
-    whose root carries an overlay mount, must keep dispatching to the
-    backend that prepared it.
-    """
-    if explicit:
-        return explicit
+def resolve_backend_name(recorded: str, site_root: Path) -> str:
+    """Pick the backend: deploy-state record > active-backend detection > default."""
     if recorded:
         return recorded
     if is_clone_active(site_root):
         return CloneBackend.name
-    if is_overlay_active(site_root):
-        return OverlayBackend.name
     return DEFAULT_BACKEND
 
 
-def create_backend(name: str, ssh_state: SSHState) -> SitePreparation:
+def create_backend(name: str) -> SitePreparation:
     """Instantiate the named site preparation backend."""
-    if name == OverlayBackend.name:
-        return OverlayBackend(ssh_state)
     if name == CloneBackend.name:
         return CloneBackend()
+    if name == "overlay":
+        raise DeployError(
+            "This site was prepared by the OverlayFS backend, which has been removed.",
+            recovery=(
+                "Revert the site manually:\n"
+                "  sudo umount /omd/sites/<site>    (if still mounted)\n"
+                "  sudo rm -rf /var/tmp/cmk-dev-deploy/<site>\n"
+                "or purge it with an older cmk-dev-deploy version, then deploy again."
+            ),
+        )
     raise DeployError(f"Unknown site preparation backend: {name!r}")
 
 
-def check_backend_conflict(name: str, site_root: Path) -> str | None:
-    """Refuse to mix backends on one site; returns an error message or None."""
-    if name != OverlayBackend.name and is_overlay_active(site_root):
+def check_backend_conflict(site_root: Path) -> str | None:
+    """Refuse to prepare a site that still carries an old overlay mount."""
+    if _overlay_mounted(site_root):
         return (
-            f"An OverlayFS is mounted on {site_root}; refusing to use the {name} backend.\n"
-            "  Purge the overlay first: cmk-dev-deploy --purge --backend overlay"
-        )
-    if name != CloneBackend.name and is_clone_active(site_root):
-        return (
-            f"The version symlink of {site_root} points at a clone; "
-            f"refusing to use the {name} backend.\n"
-            "  Purge the clone first: cmk-dev-deploy --purge --backend clone"
+            f"An OverlayFS (from a previous cmk-dev-deploy version) is mounted on "
+            f"{site_root}; refusing to prepare the site.\n"
+            f"  Revert it first: sudo umount {site_root} "
+            f"&& sudo rm -rf /var/tmp/cmk-dev-deploy/{site_root.name}"
         )
     return None
+
+
+def _overlay_mounted(site_root: Path) -> bool:
+    """Detect a leftover OverlayFS mount on the site root via /proc/mounts."""
+    try:
+        mounts = Path("/proc/mounts").read_text()
+    except OSError:
+        return False
+    resolved = str(site_root.resolve())
+    return any(
+        len(parts := line.split()) >= 3 and parts[0] == "overlay" and parts[1] == resolved
+        for line in mounts.splitlines()
+    )

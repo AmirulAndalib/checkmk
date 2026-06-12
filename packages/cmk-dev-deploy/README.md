@@ -7,7 +7,7 @@ Deploy local changes to a running OMD site in under 5 seconds.
 ## Prerequisites
 
 - A local OMD site -- install one with `cmk-dev-install` / `cmk-dev-install-site` (from the `cmk-dev-site` pipx package)
-- `sudo` access (for the one-time installation of the per-site sudoers rule; the legacy overlay backend instead needs it for mount/unmount)
+- `sudo` access (for the one-time installation of the per-site sudoers rule)
 - Bazel (the project's build system)
 - Optional: a dedicated SSH key for passwordless site-user commands (see [SSH key setup](#ssh-key-setup))
 
@@ -111,9 +111,9 @@ After the initial setup, subsequent deploys without `-v` show a compact summary:
 
 ## Site Preparation: the Version Clone
 
-By default, every deployment lands in a **writable per-site clone of the
-OMD version directory** -- the original install under `/omd/versions/` is
-never touched. The site's own `version` symlink (owned by the site user)
+Every deployment lands in a **writable per-site clone of the OMD version
+directory** -- the original install under `/omd/versions/` is never
+touched. The site's own `version` symlink (owned by the site user)
 selects the clone:
 
 ```
@@ -147,34 +147,13 @@ prompt returns on the next run.
 | `--purge`          | revert symlink to the pristine version, delete clone (no sudo); site left stopped |
 | `omd update`       | detected via a symlink guard → refuses loudly, instructs `--purge` first          |
 
-**`--purge` semantics differ deliberately from the overlay backend:** it
-reverts **code only**. Site configuration (`etc/`) and runtime state
-(`var/`) are real directories that deploys never touch, so purging cannot
-eat WATO changes or runtime state.
+**`--purge` reverts code only.** Site configuration (`etc/`) and runtime
+state (`var/`) are real directories that deploys never touch, so purging
+cannot eat WATO changes or runtime state.
 
-## Legacy: OverlayFS Backend
-
-`--backend overlay` selects the legacy backend: an OverlayFS mounted on
-the site directory instead of the version clone. This means:
-
-- **All changes are reversible.** The original site files are untouched in the lower layer; your deployments land in the upper layer. Run `--purge` to remove the overlay and revert the site to its original state.
-- **Survives reboots.** The upper layer is stored in `/var/tmp/cmk-dev-deploy/<site>/` which persists across reboots. After a reboot the overlay mount is gone, but the next `cmk-dev-deploy` run re-mounts with the existing upper layer.
-- **Symlink materialization.** OMD sites use top-level symlinks (`bin/`, `lib/`, `share/`) pointing to the shared version directory. Since OverlayFS only intercepts writes within its mount point, the tool "materializes" these symlinks on first mount by copying their targets into the upper layer. This happens once per OMD version and takes 30-60s.
-- **Requires sudo.** The `mount` and `umount` operations need root. The tool prompts for your password once per session and caches the sudo timestamp.
-
-### Overlay lifecycle
-
-| Event              | What happens                                                                            |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| First deploy       | sudo prompt, stop site, materialize symlinks, mount overlay, inject SSH key, start site |
-| Subsequent deploys | Overlay already mounted, deploy directly                                                |
-| Reboot             | Overlay mount gone, upper layer preserved on disk; next run re-mounts                   |
-| `--full`           | Tear down overlay, recreate from scratch, then deploy                                   |
-| `--purge`          | Tear down overlay, delete upper layer, site reverts to original state (stopped)         |
-
-Backends refuse to mix: switching between `overlay` and `clone` on the same
-site requires a `--purge` of the active backend first. The backend used for
-a site is recorded in the deploy state, so plain `cdd` runs keep using it.
+A leftover OverlayFS mount from an older cmk-dev-deploy version is detected
+and refused with manual recovery instructions (`umount` plus removal of
+`/var/tmp/cmk-dev-deploy/<site>`).
 
 ## Modes of Operation
 
@@ -278,7 +257,6 @@ echo 'v260' > .site
 | `--no-restart`       |       |             | Deploy files only, skip service restarts                                                                                                                                                                          |
 | `--rebuild-manifest` |       |             | Force manifest regeneration before deploying                                                                                                                                                                      |
 | `--purge`            |       |             | Revert site to original state and remove deploy data, then exit (no deploy)                                                                                                                                       |
-| `--backend NAME`     |       | recorded    | Site preparation backend: `clone` or `overlay` (legacy). Defaults to the backend recorded for the site, else `clone`                                                                                              |
 | `--print-setup`      |       |             | Print the admin commands that set up the clone backend, then exit                                                                                                                                                 |
 | `--remove-setup`     |       |             | Remove the clone backend's sudoers rule, then exit                                                                                                                                                                |
 | `--json-errors`      |       |             | On error, output a JSON diagnostic bundle to stdout (for automation)                                                                                                                                              |
@@ -300,7 +278,7 @@ Each deploy cycle follows these stages:
 
 1. **Site resolution** -- Auto-detect the OMD site (see [Site Resolution](#site-resolution)), read its edition and build commit.
 
-2. **Site preparation** -- Ensure the site runs on its writable version clone (or, with `--backend overlay`, the legacy OverlayFS mount). On first run this clones the version directory (30-60s, nearly free with reflink).
+2. **Site preparation** -- Ensure the site runs on its writable version clone. On first run this clones the version directory (30-60s, nearly free with reflink).
 
 3. **Manifest check** -- Verify the deploy manifest is up-to-date. The manifest is a JSON file auto-generated from Bazel targets that maps source paths to site destinations. If stale, it is regenerated automatically (or forced with `--rebuild-manifest`).
 
