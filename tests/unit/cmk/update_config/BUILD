@@ -34,6 +34,7 @@ py_cmk_test(
         "//cmk/utils:werks",
         "//packages/cmk-backup:utils",
         "//packages/cmk-ccc:store",
+        "//packages/cmk-werks:site",
         "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         requirement("flask"),

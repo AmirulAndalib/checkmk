@@ -112,7 +112,6 @@ py_wheel(
         "feedparser",
         "fido2",
         "flask",
-        "GitPython",
         "google-api-python-client",
         "google-auth",
         "google-cloud-asset",

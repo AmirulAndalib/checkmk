@@ -64,10 +64,10 @@ from cmk.gui.valuespec import (
 )
 from cmk.utils import paths
 from cmk.utils.man_pages import make_man_page_path_map
-from cmk.utils.werks import load_werk_entries
-from cmk.utils.werks.acknowledgement import is_acknowledged
-from cmk.utils.werks.acknowledgement import load_acknowledgements as werks_load_acknowledgements
-from cmk.utils.werks.acknowledgement import save_acknowledgements as werks_save_acknowledgements
+from cmk.werks.site import load_werk_entries
+from cmk.werks.site.acknowledgement import is_acknowledged
+from cmk.werks.site.acknowledgement import load_acknowledgements as werks_load_acknowledgements
+from cmk.werks.site.acknowledgement import save_acknowledgements as werks_save_acknowledgements
 from cmk.werks.tool.models import Compatibility, WerkV3
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"

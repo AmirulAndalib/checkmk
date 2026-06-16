@@ -7,7 +7,7 @@ import datetime
 import json
 from pathlib import Path
 
-from cmk.utils.werks import load
+from cmk.werks.site import load
 from cmk.werks.tool.models import Class, Compatibility, EditionV3, Level, WerkV3
 
 WERK_V1 = {

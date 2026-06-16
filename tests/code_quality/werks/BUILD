@@ -41,6 +41,7 @@ py_cmk_test(
         "//:pyproject-toml",
         "//cmk/utils:werks",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-werks:site",
         "//packages/cmk-werks:tool",
         "//tests/code_quality:bazel_utils",
     ],

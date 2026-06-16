@@ -10,7 +10,8 @@ from pathlib import Path
 import pytest
 from pydantic import TypeAdapter
 
-import cmk.utils.werks
+import cmk.werks.site
+import cmk.werks.site.acknowledgement
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.plugins.actions.werks import load_unacknowledged_werks, UnacknowledgedWerks
 from cmk.werks.tool.models import Class, Compatibility, EditionV3, Level, WerkV3
@@ -93,7 +94,7 @@ def test_version_of_werk_keeps_first_incompatible_version(
         )
 
     def werks_load() -> dict[int, WerkV3]:
-        return cmk.utils.werks.load(
+        return cmk.werks.site.load(
             base_dir=compiled_werks_dir,
             unacknowledged_werks_json=unacknowledged_werks_file,
             acknowledged_werks_mk=acknowledge_werks_file,
@@ -101,7 +102,7 @@ def test_version_of_werk_keeps_first_incompatible_version(
 
     # we start with a 2.4.0:
     save_werks_to_site(WERKS_240)
-    cmk.utils.werks.acknowledgement.save_acknowledgements(
+    cmk.werks.site.acknowledgement.save_acknowledgements(
         [11, 40], acknowledged_werks_mk=acknowledge_werks_file
     )
     # we updated to this 2.4.0 so somewhen this update action was executed
@@ -124,13 +125,13 @@ def test_version_of_werk_keeps_first_incompatible_version(
     assert werks[30].version == "2.4.0p3"
 
     # acknowledge the werk in 2.5.0
-    cmk.utils.werks.acknowledgement.save_acknowledgements(
+    cmk.werks.site.acknowledgement.save_acknowledgements(
         [30], acknowledged_werks_mk=acknowledge_werks_file
     )
     # let's update to 2.6.0:
     save_werks_to_site(WERKS_260)
     update_config()
-    cmk.utils.werks.acknowledgement.save_acknowledgements(
+    cmk.werks.site.acknowledgement.save_acknowledgements(
         [50], acknowledged_werks_mk=acknowledge_werks_file
     )
     werks = werks_load()
@@ -138,7 +139,7 @@ def test_version_of_werk_keeps_first_incompatible_version(
 
     # the user acknowledges the last 2.5.0 werk, and updates again
     # we expect that the site werks file is now empty
-    cmk.utils.werks.acknowledgement.save_acknowledgements(
+    cmk.werks.site.acknowledgement.save_acknowledgements(
         [50, 60], acknowledged_werks_mk=acknowledge_werks_file
     )
     update_config()

@@ -1095,7 +1095,7 @@ allows = [
   "cmk.web.utils.escaping",
   "cmk.web.utils.speaklater",
   "cmk.web.utils.urls",
-  "cmk.utils.werks",
+  "cmk.werks.site",
 ]
 excludes = [
   "cmk.gui.nonfree.pro",
@@ -1279,6 +1279,7 @@ allows = [
   "cmk.utils",
   "cmk.validate_config",
   "cmk.ruleset_matcher",
+  "cmk.werks.site",
 ]
 
 [components."cmk.validate_config"]

@@ -359,9 +359,9 @@ py_library(
         "//cmk/gui/utils:urls",
         "//cmk/gui/valuespec",
         "//cmk/utils",
-        "//cmk/utils:werks",
         "//packages/cmk-ccc:version",
         "//packages/cmk-plugin-apis:discover_plugins",
+        "//packages/cmk-werks:site",
         "//packages/cmk-werks:tool",
     ],
 )
@@ -447,7 +447,6 @@ py_library(
         "//cmk/gui/welcome",
         "//cmk/utils",
         "//cmk/utils:paths",
-        "//cmk/utils:werks",
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:hostaddress",

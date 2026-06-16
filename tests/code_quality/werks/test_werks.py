@@ -16,7 +16,7 @@ import git
 import pytest
 
 import cmk.ccc.version as cmk_version
-import cmk.utils.werks
+import cmk.werks.site
 import cmk.werks.tool.utils
 from cmk.werks.tool.models import WerkV3
 from tests.code_quality.bazel_utils import bazel_repo_root
@@ -85,7 +85,7 @@ def fixture_werks_loader_empty(tmp_path: Path) -> WerksLoader:
     return WerksLoader(
         base_dir=base_dir,
         load=partial(
-            cmk.utils.werks.load,
+            cmk.werks.site.load,
             base_dir=base_dir,
             unacknowledged_werks_json=unacknowledged_werks_json,
             acknowledged_werks_mk=acknowledged_werks_mk,
@@ -105,7 +105,7 @@ def fixture_werks_loader(tmp_path: Path) -> dict[int, WerkV3]:
 
     unacknowledged_werks_json = tmp_path / "ut_unacknowledged_werks_json"
     acknowledged_werks_mk = tmp_path / "ut_acknowledged_werks_mk"
-    return cmk.utils.werks.load(
+    return cmk.werks.site.load(
         base_dir=base_dir,
         unacknowledged_werks_json=unacknowledged_werks_json,
         acknowledged_werks_mk=acknowledged_werks_mk,

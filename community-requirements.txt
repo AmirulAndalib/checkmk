@@ -1417,7 +1417,6 @@ gitpython==3.1.51 \
     --hash=sha256:d5b29685708f3c80a56db040b665bfd69492c8e150b5848532af8013b686c5a4
     # via
     #   -c requirements.txt
-    #   -r cmk/requirements.in
     #   -r packages/cmk-werks/requirements.in
 google-api-core[grpc]==2.31.0 \
     --hash=sha256:2be84ee0f584c48e6bde1b36766e23348b361fb7e55e56135fc76ce1c397f9c2 \

@@ -8,7 +8,6 @@ fastapi
 feedparser
 fido2
 flask
-GitPython
 icalendar
 jinja2
 jira
