@@ -1729,7 +1729,7 @@ allows = ["@ccc"]
 allows = []
 
 [components."cmk.werks"]
-allows = ["@ccc"]
+allows = ["@ccc", "cmk.utils.paths"]
 
 [components."omdlib"]
 allows = ["@ccc", "@crypto", "cmk.crash", "cmk.utils"]
