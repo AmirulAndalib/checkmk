@@ -208,7 +208,7 @@ def check_janitza_umg_freq(item: str, params: Mapping[str, Any], section: Sectio
     yield from check_levels(
         section.frequency,
         "in_freq",
-        (None, None) + params["levels_lower"],
+        params.get("levels_upper", (None, None)) + params["levels_lower"],
         human_readable_func=render.frequency,
         infoname="Frequency",
     )

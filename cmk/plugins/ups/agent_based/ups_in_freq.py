@@ -58,8 +58,18 @@ def check_ups_in_freq(
     if state is not State.OK:
         infotext += f" (warn/crit below {warn} Hz/{crit} Hz)"
 
+    levels_upper = params.get("levels_upper")
+    if levels_upper is not None:
+        warn_upper, crit_upper = levels_upper
+        if freq >= crit_upper:
+            state = State.CRIT
+            infotext += f" (warn/crit above {warn_upper} Hz/{crit_upper} Hz)"
+        elif freq >= warn_upper:
+            state = State.worst(state, State.WARN)
+            infotext += f" (warn/crit above {warn_upper} Hz/{crit_upper} Hz)"
+
     yield Result(state=state, summary=infotext)
-    yield Metric("in_freq", freq, levels=(warn, crit), boundaries=(30, 70))
+    yield Metric("in_freq", freq, levels=params.get("levels_upper"), boundaries=(30, 70))
 
 
 snmp_section_ups_in_freq = SimpleSNMPSection(
@@ -79,5 +89,5 @@ check_plugin_ups_in_freq = CheckPlugin(
     discovery_function=discover_ups_in_freq,
     check_function=check_ups_in_freq,
     check_ruleset_name="efreq",
-    check_default_parameters={"levels_lower": (45, 40)},
+    check_default_parameters={"levels_lower": (49.0, 48.5)},
 )
