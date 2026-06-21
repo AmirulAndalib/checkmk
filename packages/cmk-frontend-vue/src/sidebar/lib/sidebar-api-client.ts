@@ -5,9 +5,8 @@
  */
 import type { SidebarSnapin } from 'cmk-shared-typing/typescript/sidebar'
 
+import type { AjaxResponse } from '@/lib/ajax'
 import { Api, type ApiResponseBody } from '@/lib/api-client'
-
-import type { AjaxResponse } from '@/main-menu/lib/type-defs'
 
 import type { AddSnapinResponse, SidebarSnapinContents } from './type-defs'
 

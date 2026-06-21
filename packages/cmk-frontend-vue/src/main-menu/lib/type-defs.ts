@@ -18,11 +18,6 @@ export type OnToggleShowMoreLess = (id: string, show_more_active: boolean) => vo
 export type OnShowAllTopic = (id: string, topic: NavItemTopic | NavItemTopicEntry) => void
 export type OnUserPopupMessagesCallback = (msgs: UserPopupMessageRef[]) => void
 
-export interface AjaxResponse<T> {
-  result_code: number
-  result: T
-  severity: 'success' | 'error'
-}
 /**
  *  AjaxResults
  */

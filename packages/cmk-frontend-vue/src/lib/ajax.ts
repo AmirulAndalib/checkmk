@@ -12,6 +12,12 @@ export interface MaybeApiError {
   severity?: 'error'
 }
 
+export interface AjaxResponse<T> {
+  result_code: number
+  result: T
+  severity: 'success' | 'error'
+}
+
 export class AjaxResponseError extends CmkError {
   response: MaybeApiError
 
