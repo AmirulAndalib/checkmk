@@ -117,7 +117,7 @@ class ActivateChangesSlideout(LocatorHelper):
 
     @property
     def activation_succcess_banner(self) -> Locator:
-        return self.slideout.locator("div.cmk-div-activation-result-container")
+        return self.slideout.get_by_role("status").filter(has_text="Successfully activated")
 
     def _extract_count_from_label(self, label_locator: Locator, label_name: str) -> int:
         """Get the number in parentheses from a label text."""
@@ -189,6 +189,18 @@ class ActivateChangesSlideout(LocatorHelper):
             )
         ).to_be_visible()
 
+    def _click_activate_button(self) -> None:
+        """Verify the slideout and button are ready, then click Activate."""
+        logger.info("Clicking the 'Activate pending changes' button")
+        expect(self.slideout, "The slideout is not visible!").to_be_visible()
+        expect(
+            self.activate_changes_btn, "The 'Activate Changes' button is not visible!"
+        ).to_be_visible()
+        expect(
+            self.activate_changes_btn, "The 'Activate Changes' button is not enabled!"
+        ).to_be_enabled()
+        self.activate_changes_btn.click()
+
     def activate_changes_strict(self, expected_changes: int) -> None:
         """
         Click the 'Activate pending changes' button and wait for the activation to complete.
@@ -202,26 +214,11 @@ class ActivateChangesSlideout(LocatorHelper):
             logger.info(
                 "Activating changes, expecting %s changes to be activated", expected_changes
             )
-        else:
-            logger.info("Activating changes...")
-
-        expect(self.slideout, "The slideout is not visible!").to_be_visible()
-
-        if expected_changes:
             expect(
                 self.no_pending_changes_text,
                 f"The banner 'No pending changes' is visible while expecting {expected_changes} changes!",
             ).not_to_be_visible()
-
-        expect(
-            self.activate_changes_btn, "The 'Activate Changes' button is not visible!"
-        ).to_be_visible()
-        expect(
-            self.activate_changes_btn, "The 'Activate Changes' button is not enabled!"
-        ).to_be_enabled()
-
-        self.activate_changes_btn.click()
-
+        self._click_activate_button()
         if expected_changes:
             self.ensure_expected_changes_activated(expected_changes)
         else:
@@ -231,6 +228,15 @@ class ActivateChangesSlideout(LocatorHelper):
         logging.info("Activation completed!")
 
     def activate_pending_changes(self) -> None:
+        """Trigger activation and close the slideout without waiting for the success banner.
+
+        Use for activations that cause a site restart; follow with
+        site.wait_for_no_running_activations() to wait for the site to come back up.
+        """
+        self._click_activate_button()
+        self.close()
+
+    def activate_pending_changes_and_wait_for_completion(self) -> None:
         """Activate pending changes and close the slideout afterwards.
         Calls activate_changes_strict with disabled assertions.
         """
