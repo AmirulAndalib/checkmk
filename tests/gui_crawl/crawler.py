@@ -27,6 +27,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 from playwright.async_api import async_playwright
 
+from scripts.html_validation.lib.tag_balance import check_html_tag_balance, TagImbalanceError
 from tests.testlib.site import Site
 
 logger = logging.getLogger()
@@ -41,6 +42,7 @@ RelativeUrl = str
 
 class PageContent(NamedTuple):
     content: str
+    raw_html: str
     logs: Iterable[str]
     status_code: int
 
@@ -451,7 +453,9 @@ class Crawler:
                         url, error_type="NotFound", message=f"{content_type} resource not found"
                     )
                 else:
-                    await self.validate(url, page_content.content, page_content.logs)
+                    await self.validate(
+                        url, page_content.content, page_content.raw_html, page_content.logs
+                    )
             except playwright.async_api.Error as e:
                 self.handle_error(url, "BrowserError", repr(e))
         elif content_type in self._ignored_content_types:
@@ -482,15 +486,19 @@ class Crawler:
         page.on("console", handle_console_messages)
         try:
             response = await page.goto(url.url)
+            raw_html = ""
+            if response and "text/html" in response.headers.get("content-type", ""):
+                raw_html = await response.text()
             return PageContent(
                 content=await page.content(),
+                raw_html=raw_html,
                 logs=logs,
                 status_code=response.status if response else 0,
             )
         finally:
             await page.close()
 
-    async def validate(self, url: Url, text: str, logs: Iterable[str]) -> None:
+    async def validate(self, url: Url, text: str, raw_html: str, logs: Iterable[str]) -> None:
         def blocking() -> None:
             soup = BeautifulSoup(text, "lxml")
             self.check_content(url, soup)
@@ -499,9 +507,21 @@ class Crawler:
             self.check_iframes(url, soup)
             self.check_images(url, soup)
             self.check_logs(url, logs)
+            self.check_tag_balance(url, raw_html)
 
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, blocking)
+
+    def check_tag_balance(self, url: Url, text: str) -> None:
+        try:
+            check_html_tag_balance(text)
+        except TagImbalanceError as e:
+            payload = e.get_errors()
+            self.handle_error(
+                url,
+                error_type="HtmlTagImbalance",
+                message=f"{payload['count']} error(s): {payload['errors']}",
+            )
 
     def check_content(self, url: Url, soup: BeautifulSoup) -> None:
         if soup.find("div", id="login") is not None:
@@ -723,7 +743,7 @@ class XssCrawler(Crawler):
     Payload = """javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/"/+/onmouseover=1/+/[*/[]/+console.log("XSS vulnerability")//'>"""
 
     def handle_error(self, url: Url, error_type: str, message: str = "") -> bool:
-        if error_type == "HtmlError":
+        if error_type in ("HtmlError", "HtmlTagImbalance"):
             return False
         if error_type == "UnknownContentType" and message == "application/problem+json":
             return False

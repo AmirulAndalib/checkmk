@@ -150,6 +150,7 @@ py_library(
         requirement("lxml"),
         requirement("pytest"),
         requirement("beautifulsoup4"),
+        "//scripts/html_validation",
         "//tests/testlib",
     ],
 )
