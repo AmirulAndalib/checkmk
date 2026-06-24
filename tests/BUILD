@@ -85,6 +85,7 @@ py_library(
     imports = [".."],
     deps = [
         ":scripts",
+        "//packages/cmk-wsgi",
         "//tests/testlib",
         "//tests/testlib/common:utils",
         requirement("clickhouse_connect"),
