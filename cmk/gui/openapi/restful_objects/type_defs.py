@@ -203,7 +203,6 @@ CmkEndpointName = Literal[
     "cmk/save_quick_setup",
     "cmk/edit_quick_setup",
     "cmk/delete_quick_setup",
-    "cmk/delete_prom_scrape",
     "cmk/list_filter_groups",
 ]
 
