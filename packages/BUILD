@@ -25,6 +25,7 @@ filegroup(
         "//packages/cmk-trace:requirements.in",
         "//packages/cmk-web:requirements.in",
         "//packages/cmk-werks:requirements.in",
+        "//packages/cmk-wsgi:requirements.in",
     ],
     visibility = ["//visibility:public"],
 )

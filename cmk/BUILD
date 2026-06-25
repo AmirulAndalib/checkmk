@@ -148,7 +148,6 @@ py_wheel(
         "pyopenssl",
         "pyparsing",
         "pypdf",
-        "pyprof2calltree",
         "pysaml2",
         "pysmb",
         "pysmi",

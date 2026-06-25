@@ -155,7 +155,9 @@ def crash_report_response(exc: Exception) -> WSGIApplication:
         ),
     )
     CrashReportStore().save(crash)
-    logger.exception("Unhandled exception (Crash-ID: %s)", crash.ident_to_text())
+    logger.exception(
+        "Unhandled exception (Crash-ID: %(crash_id)s)", {"crash_id": crash.ident_to_text()}
+    )
 
     query_string = urllib.parse.urlencode(
         [

@@ -70,7 +70,6 @@ py_library(
         "//cmk/gui/watolib:config_infra",
         "//cmk/gui/watolib:groups_io",
         "//cmk/gui/watolib:registries",
-        "//cmk/gui/wsgi",
         "//cmk/utils",
         "//cmk/utils:redis",
         "//cmk/utils:werks",
@@ -96,6 +95,7 @@ py_library(
         "//packages/cmk-plugin-apis:graphing",
         "//packages/cmk-plugin-apis:rulesets",
         "//packages/cmk-werks",
+        "//packages/cmk-wsgi",
         requirement("python-dateutil"),
     ],
 )

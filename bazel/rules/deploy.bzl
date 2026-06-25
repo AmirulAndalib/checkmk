@@ -230,6 +230,7 @@ COMMUNITY_WHEELS = [
     "//packages/cmk-trace:wheel",
     "//packages/cmk-web:wheel",
     "//packages/cmk-werks:wheel",
+    "//packages/cmk-wsgi:wheel",
 ]
 
 PRO_WHEELS = COMMUNITY_WHEELS + [

@@ -35,6 +35,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -78,6 +79,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -145,6 +147,7 @@ py_library(
         "//omd/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -194,6 +197,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -534,6 +538,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/check_mk:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -554,7 +559,6 @@ py_library(
         "//cmk/gui/utils:transaction_manager",
         "//cmk/gui/utils:urls",
         "//cmk/gui/utils:user_errors",
-        "//cmk/gui/wsgi:utils",
         "//cmk/utils",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:site",
@@ -565,6 +569,7 @@ py_library(
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
+        "//packages/cmk-wsgi:utils",
         requirement("flask"),
     ],
 )
@@ -792,7 +797,6 @@ py_library(
         "//cmk/gui/watolib:groups_io",
         "//cmk/gui/watolib:registries",
         "//cmk/gui/welcome",
-        "//cmk/gui/wsgi",
         "//cmk/gui_plugins/internal",
         "//cmk/utils",
         "//cmk/utils:paths",
@@ -803,6 +807,7 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-trace",
+        "//packages/cmk-wsgi",
         requirement("flask"),
         requirement("werkzeug"),
     ],

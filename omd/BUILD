@@ -801,6 +801,7 @@ pkg_tar(
         "//packages/cmk-trace:pkg_tar",
         "//packages/cmk-web:pkg_tar",
         "//packages/cmk-werks:pkg_tar",
+        "//packages/cmk-wsgi:pkg_tar",
         "//packages/livestatus:livestatus_pkg",
         "//packages/neb:neb_pkg",
         "//packages/cmk-shared-typing:pkg_tar",

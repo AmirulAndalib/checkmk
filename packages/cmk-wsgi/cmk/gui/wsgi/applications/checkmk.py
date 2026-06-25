@@ -297,7 +297,7 @@ def _process_request(
             resp = page_dashboard_token_invalid(ctx.config)
         else:
             resp = _render_exception(ctx, e, title=_("Token invalid"))
-        logger.error("MKTokenExpiredOrRevokedException: %s", e)
+        logger.error("MKTokenExpiredOrRevokedException: %(error)s", {"error": e})
 
     except MKUnauthenticatedException as e:
         resp = _render_exception(ctx, e, title=_("Not authenticated"))
@@ -312,12 +312,14 @@ def _process_request(
 
     except MKConfigError as e:
         resp = _render_exception(ctx, e, title=_("Configuration error"))
-        logger.error("MKConfigError: %s", e)
+        logger.error("MKConfigError: %(error)s", {"error": e})
 
     # I added MKGeneralException during a refactoring, but I did not check if it is needed.
     except (MKException, MKCryptoException, MKGeneralException) as e:
         resp = _render_exception(ctx, e, title=_("General error"))
-        logger.error("%s: %s", e.__class__.__name__, e)
+        logger.error(
+            "%(exception_type)s: %(error)s", {"exception_type": e.__class__.__name__, "error": e}
+        )
 
     except RequestEntityTooLarge as e:
         resp = _render_exception(ctx, e, title=_("Request too large"))
@@ -328,7 +330,7 @@ def _process_request(
             # (e.g. client disconnected during upload).  At this point request.values
             # is broken, so we must NOT call _is_ajax_request(), plain_error(),
             # fail_silently(), or _render_exception() — they all re-access form data.
-            logger.error("OSError while reading request data (mod_wsgi): %s", e)
+            logger.error("OSError while reading request data (mod_wsgi): %(error)s", {"error": e})
             resp = Response(status=http_client.BAD_REQUEST)
         elif debug or testing:
             raise

@@ -1,0 +1,8 @@
+apispec
+flask
+opentelemetry-api
+opentelemetry-instrumentation-redis
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-wsgi
+pyprof2calltree
+werkzeug

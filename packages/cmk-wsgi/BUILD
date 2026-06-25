@@ -1,10 +1,18 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:package_wheel.bzl", "package_wheel")
+
+exports_files([
+    "pyproject.toml",
+    "requirements.in",
+])
 
 py_library(
     name = "utils",
-    srcs = ["utils.py"],
-    imports = ["../../.."],
+    srcs = ["cmk/gui/wsgi/utils.py"],
+    imports = ["."],
     visibility = [
         "//cmk:__subpackages__",
         "//tests:__subpackages__",
@@ -15,12 +23,12 @@ py_library(
 )
 
 py_library(
-    name = "wsgi",
+    name = "cmk-wsgi",
     srcs = glob(
-        include = ["**/*.py"],
-        exclude = ["utils.py"],
-    ) + ["applications/index.wsgi"],
-    imports = ["../../.."],
+        include = ["cmk/gui/wsgi/**/*.py"],
+        exclude = ["cmk/gui/wsgi/utils.py"],
+    ) + ["cmk/gui/wsgi/applications/index.wsgi"],
+    imports = ["."],
     visibility = [
         "//cmk:__subpackages__",
         "//tests:__subpackages__",
@@ -74,9 +82,35 @@ py_library(
     ],
 )
 
+py_wheel(
+    name = "wheel",
+    distribution = "cmk-wsgi",
+    strip_path_prefixes = ["packages/cmk-wsgi"],
+    # TODO: Duplicated from pyproject.toml
+    version = "1.0.0",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":cmk-wsgi",
+        ":utils",
+    ],
+)
+
+build_test(
+    name = "build_test",
+    targets = [
+        ":wheel",
+    ],
+)
+
+package_wheel(
+    name = "pkg_tar",
+    visibility = ["//visibility:public"],
+    whl = "wheel",
+)
+
 sh_library(
     name = "f12",
     srcs = [
-        ".f12",
+        "cmk/gui/wsgi/.f12",
     ],
 )

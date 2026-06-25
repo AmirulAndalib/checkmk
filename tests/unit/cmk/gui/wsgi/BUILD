@@ -13,7 +13,7 @@ py_cmk_test(
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
         "//cmk/gui:page_toolkit",
-        "//cmk/gui/wsgi",
+        "//packages/cmk-wsgi",
         "//tests/testlib/gui",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
