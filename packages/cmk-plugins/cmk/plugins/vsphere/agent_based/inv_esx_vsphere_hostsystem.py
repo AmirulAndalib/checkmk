@@ -21,6 +21,7 @@
 # hardware.cpuPkg.vendor.0 intel
 # hardware.cpuPkg.vendor.1 intel
 
+import contextlib
 import time
 from collections.abc import Callable
 from typing import Final, TypedDict
@@ -110,12 +111,10 @@ def inv_esx_vsphere_hostsystem(section: Section) -> InventoryResult:
             # We only know for HP and DELL that ServiceTag is the serial...
             if data["vendor"] in ["HP", "Dell Inc."]:
                 # ...but it is missing in some cases
-                try:
+                with contextlib.suppress(KeyError):
                     data["serial"] = section[
                         "hardware.systemInfo.otherIdentifyingInfo.ServiceTag.0"
                     ][0]
-                except KeyError:
-                    pass
 
         yield Attributes(path=sub_section["path"], inventory_attributes=data)
 

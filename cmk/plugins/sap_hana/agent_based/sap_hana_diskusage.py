@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -53,10 +54,8 @@ def _extract_size_and_used_from_line(line: Sequence[str]) -> dict[str, float]:
         ("size", 1),
         ("used", 4),
     ]:
-        try:
+        with contextlib.suppress(ValueError, IndexError):
             inst_values[key] = float(splitted_line[index]) * 1024
-        except (ValueError, IndexError):
-            pass
     return inst_values
 
 

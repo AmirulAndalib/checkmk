@@ -3,6 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
+
 from cmk.agent_based.v2 import AgentSection, StringTable
 from cmk.plugins.lib.tcp_connections import TCPConnections
 
@@ -28,10 +30,8 @@ def parse_winperf_tcp_conn(string_table: StringTable) -> TCPConnections:
     for tcp_state, count, *_ in string_table:
         if tcp_state != "4":
             continue
-        try:
+        with contextlib.suppress(ValueError):
             section["ESTABLISHED"] = int(count)
-        except ValueError:
-            pass
     return section
 
 

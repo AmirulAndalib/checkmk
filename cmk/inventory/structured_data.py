@@ -12,6 +12,7 @@ structured monitoring data of Check_MK.
 from __future__ import annotations
 
 import ast
+import contextlib
 import gzip
 import io
 import json
@@ -2019,15 +2020,13 @@ class HistoryStore:
             )
         except FileNotFoundError:
             # TODO CMK-23408
-            try:
+            with contextlib.suppress(FileNotFoundError):
                 yield OK(
                     HistoryPath(
                         tree_path=tree_path,
                         timestamp=int(tree_path.legacy.stat().st_mtime),
                     )
                 )
-            except FileNotFoundError:
-                pass
 
     def collect_history_paths(
         self, *, host_name: HostName

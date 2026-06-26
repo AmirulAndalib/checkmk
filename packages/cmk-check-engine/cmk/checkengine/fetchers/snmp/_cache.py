@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import contextlib
 import json
 import logging
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping
@@ -154,12 +155,10 @@ class ConfiguredFetchIntervallCache:
 
     def store(self, fetched_sections: Mapping[SNMPSectionName, SNMPRawDataElem]) -> None:
         for section_name in self._config:
-            try:
+            with contextlib.suppress(KeyError):
                 self._write(
                     section_name, self._serialize((self._now, fetched_sections[section_name]))
                 )
-            except KeyError:
-                pass
 
     def section_marker(
         self, section_name: SNMPSectionName, creation_time: float

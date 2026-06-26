@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -121,20 +122,16 @@ def save_state(state: DeployState, site_root: Path, base_dir: Path = _DEFAULT_ST
         os.rename(tmp_path, str(path))
     except BaseException:
         # Clean up temp file on any failure
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(tmp_path)
-        except OSError:
-            pass
         raise
 
 
 def delete_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> None:
     """Delete the state file, silently ignoring missing files."""
     path = state_file_path(site_root, base_dir)
-    try:
+    with contextlib.suppress(OSError):
         path.unlink(missing_ok=True)
-    except OSError:
-        pass
 
 
 # ---------------------------------------------------------------------------

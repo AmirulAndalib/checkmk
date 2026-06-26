@@ -5,6 +5,7 @@
 
 import abc
 import collections
+import contextlib
 import json
 from collections.abc import Callable, Iterator, Sequence
 from typing import override
@@ -253,10 +254,8 @@ class GUIViewRenderer(ABCViewRenderer):
                     view_spec, rows, [request.get_str_input_mandatory("_row_id")]
                 )
 
-            try:
+            with contextlib.suppress(Exception):  # currently no feed back on webservice
                 do_actions(view_spec, self.view.datasource.infos[0], rows, "", debug=debug)
-            except Exception:
-                pass  # currently no feed back on webservice
 
         # The refreshing content container
         if display_options.enabled(display_options.R):

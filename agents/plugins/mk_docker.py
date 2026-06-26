@@ -31,6 +31,7 @@ __version__ = "3.0.0b1"
 
 import argparse
 import configparser
+import contextlib
 import functools
 import json
 import logging
@@ -226,10 +227,8 @@ class ParallelDfCall:
 
     @staticmethod
     def _unlink(file_):
-        try:
+        with contextlib.suppress(OSError):
             file_.unlink()
-        except OSError:
-            pass
 
     def _spool_df_result(self):
         # check every 0.1 seconds
@@ -247,12 +246,10 @@ class ParallelDfCall:
     def _write_df_result(self, data):
         with self._my_tmp_file.open("wb") as file_:
             file_.write(json.dumps(data).encode("utf-8"))
-        try:
+        # CMK-12642: It can happen that two df calls succeed almost at the same time. Then, one
+        # process attempts to move while the other one already deleted all temp files.
+        with contextlib.suppress(OSError):
             self._my_tmp_file.rename(self._spool_file)
-        except OSError:
-            # CMK-12642: It can happen that two df calls succeed almost at the same time. Then, one
-            # process attempts to move while the other one already deleted all temp files.
-            pass
 
     def _read_df_result(self):
         """read from the spool file
@@ -494,10 +491,8 @@ def _robust_inspect(client, docker_object):
     # ignore errors when OBJECT was removed in between listing available OBJECT
     # and getting detailed information about them
     for response in api(**kwargs):
-        try:
+        with contextlib.suppress(docker.errors.NotFound):
             yield getter(response["Id"])
-        except docker.errors.NotFound:
-            pass
 
 
 @time_it
@@ -548,11 +543,9 @@ def section_container_status(client, container_id):
     if restart_policy:
         status["RestartPolicy"] = restart_policy
 
-    try:
+    # image has been removed while container is still running
+    with contextlib.suppress(docker.errors.ImageNotFound):
         status["ImageTags"] = container.image.tags
-    except docker.errors.ImageNotFound:
-        # image has been removed while container is still running
-        pass
     status["NodeName"] = client.node_info.get("Name")
 
     section = Section("docker_container_status", piggytarget=container_id)

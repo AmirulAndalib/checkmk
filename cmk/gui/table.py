@@ -16,7 +16,7 @@ import json
 import re
 import uuid
 from collections.abc import Callable, Iterator
-from contextlib import AbstractContextManager, contextmanager, nullcontext
+from contextlib import AbstractContextManager, contextmanager, nullcontext, suppress
 from enum import auto, Enum
 from typing import Any, Final, Literal, NamedTuple
 
@@ -776,13 +776,11 @@ def _sort_rows(rows: TableRows, sort_col: int, sort_reverse: int) -> TableRows:
     # column is persisted in a user file. So we ignore exceptions during
     # sorting. This gives the user the chance to change the sorting and
     # see the table in the first place.
-    try:
+    with suppress(IndexError):
         rows.sort(
             key=lambda x: key_num_split(escaping.strip_tags(x[0][sort_col][0])),
             reverse=sort_reverse == 1,
         )
-    except IndexError:
-        pass
 
     # Now re-add the removed "fixed" rows to the list again
     if fixed_rows:

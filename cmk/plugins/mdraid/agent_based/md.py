@@ -111,6 +111,7 @@
 # ---------------------------------------------------------
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -176,10 +177,8 @@ def parse_md(string_table: StringTable) -> Section:
 
             if len(line) >= 2 and line[-2].startswith("[") and line[-2].endswith("]"):
                 for key, value in zip(["num_disks", "expected_disks"], line[-2][1:-1].split("/")):
-                    try:
+                    with contextlib.suppress(ValueError):
                         instance[key] = int(value)
-                    except ValueError:
-                        pass
     return parsed
 
 

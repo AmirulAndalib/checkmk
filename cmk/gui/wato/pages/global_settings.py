@@ -11,6 +11,7 @@
 settings"""
 
 import abc
+import contextlib
 from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from copy import deepcopy
 from typing import Any, Final, override
@@ -408,10 +409,8 @@ class ABCEditGlobalSettingMode(WatoMode):
                     config.sites,
                 )
 
-            try:
+            with contextlib.suppress(KeyError):
                 del self._current_settings[self._varname]
-            except KeyError:
-                pass
 
             msg = HTML.with_escaping(
                 _("Resetted configuration variable %(varname)s to its default.")

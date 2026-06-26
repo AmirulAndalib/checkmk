@@ -24,6 +24,7 @@
 # - Refactor "orientation" argument to use some Enum, similar to Labels.World
 import abc
 import base64
+import contextlib
 import datetime
 import hashlib
 import ipaddress
@@ -3800,10 +3801,8 @@ class CascadingDropdown(ValueSpec[CascadingDropdownChoiceValue]):
                 def_val_2 = vs.default_value()
                 # Only try to get the current value for the currently selected choice
                 if show:
-                    try:
+                    with contextlib.suppress(MKUserError):  # Fallback to default value here
                         def_val_2 = vs.from_html_vars(vp)
-                    except MKUserError:
-                        pass  # Fallback to default value here
 
             elif nr == int(def_val):
                 # This choice is the one choosen by the given value
@@ -6625,10 +6624,8 @@ class Foldable[T](ValueSpec[T]):
         if self._title_function:
             title_value = value
             if html.form_submitted():
-                try:
+                with contextlib.suppress(Exception):
                     title_value = self._valuespec.from_html_vars(varprefix)
-                except Exception:
-                    pass
             return self._title_function(title_value)
 
         if title := self._valuespec.title():

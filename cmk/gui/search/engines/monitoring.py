@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import abc
+import contextlib
 import itertools
 import re
 from collections.abc import Iterable
@@ -571,10 +572,8 @@ class QuicksearchManager:
             s for s in search_objects if isinstance(s, LivestatusQuicksearchConductor)
         ]
 
-        try:
+        with contextlib.suppress(TooManyRowsError):
             self._conduct_search(search_objects)
-        except TooManyRowsError:
-            pass
 
         # Generate a search page for the topmost search_object with results
         url_params: HTTPVariables = []

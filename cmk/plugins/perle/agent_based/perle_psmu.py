@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -72,10 +73,8 @@ def parse_perle_psmu(string_table: StringTable) -> Section:
             },
         )
         for what, value_str in [("power", power_str), ("voltage", voltage_str)]:
-            try:
+            with contextlib.suppress(ValueError):
                 parsed[index].setdefault(what, float(value_str))
-            except ValueError:
-                pass
 
     return parsed
 

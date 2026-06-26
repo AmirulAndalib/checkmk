@@ -9,6 +9,7 @@
 # mypy: disable-error-code="type-arg"
 import abc
 import ast
+import contextlib
 import io
 import re
 import socket
@@ -3043,10 +3044,8 @@ class ModeEventConsoleEditRule(ABCEventConsoleMode):
             edition(cmk.utils.paths.omd_root) is Edition.ULTIMATEMT
             and "customer" in self._rule_pack
         ):
-            try:
+            with contextlib.suppress(KeyError):
                 del rule["customer"]
-            except KeyError:
-                pass
 
         id_to_mkp = self._get_rule_pack_to_mkp_map()
         type_ = ec.RulePackType.type_of(self._rule_pack, id_to_mkp)

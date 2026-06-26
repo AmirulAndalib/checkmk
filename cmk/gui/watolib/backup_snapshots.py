@@ -17,7 +17,7 @@ import time
 import traceback
 from collections.abc import Callable, Generator
 from concurrent.futures import Future, ThreadPoolExecutor
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from hashlib import sha256
 from pathlib import Path
 from typing import IO, Literal, NotRequired, TypedDict, TypeVar
@@ -755,10 +755,8 @@ def _wipe_directory(path: str) -> None:
         if os.path.isdir(p):
             shutil.rmtree(p, ignore_errors=True)
         else:
-            try:
+            with suppress(FileNotFoundError):
                 os.remove(p)
-            except FileNotFoundError:
-                pass
 
 
 def _list_snapshots() -> list[str]:

@@ -13,6 +13,7 @@
 
 "Lib to receive ssdp packets"
 
+import contextlib
 import logging
 import socket
 import struct
@@ -148,10 +149,8 @@ def main(argv=None):
 
     server = RfSSDPServer({}, "{}:{}{}".format(location, "8000", "/redfish/v1"), hostname)
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         server.start()
-    except KeyboardInterrupt:
-        pass
 
     # on exit will auto close sockets
     logger.info("Shutting down Ssdp server")

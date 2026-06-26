@@ -6,6 +6,7 @@
 # mypy: disable-error-code="no-untyped-call"
 # mypy: disable-error-code="no-untyped-def"
 
+import contextlib
 import io
 import json
 import os
@@ -742,10 +743,8 @@ def main(configs_iterable=None):
 
     for config in configs_iterable:
         instance = JolokiaInstance(config, USER_AGENT)
-        try:
+        with contextlib.suppress(SkipInstance):
             query_instance(instance)
-        except SkipInstance:
-            pass
 
 
 if __name__ == "__main__":

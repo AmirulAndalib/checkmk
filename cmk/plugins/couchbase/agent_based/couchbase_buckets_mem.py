@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -38,7 +39,7 @@ def check_couchbase_bucket_mem(
         return
     levels = params.get("levels")
     mode = "abs_used" if isinstance(levels, tuple) and isinstance(levels[0], int) else "perc_used"
-    try:
+    with contextlib.suppress(KeyError, TypeError):
         yield from check_element(
             "Usage",
             data["mem_total"] - data["mem_free"],
@@ -46,8 +47,6 @@ def check_couchbase_bucket_mem(
             (mode, levels),  # type: ignore[arg-type]
             metric_name="memused_couchbase_bucket",
         )
-    except (KeyError, TypeError):
-        pass
 
     low_watermark = data.get("ep_mem_low_wat")
     if low_watermark is not None:

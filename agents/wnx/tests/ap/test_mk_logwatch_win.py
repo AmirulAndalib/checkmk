@@ -11,6 +11,7 @@
 
 # fmt: off
 
+import contextlib
 import locale
 import os
 import re
@@ -21,10 +22,8 @@ import pytest
 
 import agents.plugins.mk_logwatch as lw
 
-try:
+with contextlib.suppress(ImportError):  # only needed for type comments
     from collections.abc import Sequence
-except ImportError:
-    pass  # only needed for type comments
 
 _SEP = os.sep.encode()
 _SEP_U = _SEP.decode("utf-8")

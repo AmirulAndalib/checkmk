@@ -670,10 +670,8 @@ class SingleSiteConnection(Helpers):
                         sleep_interval *= 1.5
                         continue
 
-                try:
+                with contextlib.suppress(OSError):
                     site_socket.close()
-                except OSError:
-                    pass
                 raise MKLivestatusSocketError(f"Cannot connect to '{self.socketurl}': {e}")
 
         return site_socket
@@ -713,10 +711,8 @@ class SingleSiteConnection(Helpers):
 
         if self.persist:
             self.successful_persistence = False
-            try:
+            with contextlib.suppress(KeyError):
                 del persistent_connections[self.socketurl]
-            except KeyError:
-                pass
 
     def receive_data(self, size: int, timeout: float | None = None) -> bytes:
         if self.socket is None:

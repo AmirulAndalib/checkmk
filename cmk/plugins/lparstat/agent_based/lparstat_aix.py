@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import time
 from collections.abc import Mapping
 from typing import Any, TypedDict
@@ -89,10 +90,8 @@ def inventorize_lparstat_aix(section: Section) -> InventoryResult:
         ("cpus", "psize"),
         ("logical_cpus", "lcpu"),
     ]:
-        try:
+        with contextlib.suppress(KeyError):
             attr[nkey] = data[dkey]
-        except KeyError:
-            pass
 
     yield Attributes(
         path=["hardware", "cpu"],

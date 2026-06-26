@@ -7,7 +7,7 @@
 # mypy: disable-error-code="type-arg"
 
 from collections.abc import Generator, Sequence
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from typing import Any, NoReturn, override
 
 from cmk.ccc.site import SiteId
@@ -700,10 +700,8 @@ description = CPU\\nFilter: host_name ~ morgen\\nNegate: \\nAnd: 3'
                 column_names = line.split(": ", 1)[1].lstrip().split()
                 columns: list[Column] = []
                 for col in column_names:
-                    try:
+                    with suppress(AttributeError):
                         columns.append(_get_column(table_class, col))
-                    except AttributeError:
-                        pass
                 break
         else:
             raise ValueError("No columns found")

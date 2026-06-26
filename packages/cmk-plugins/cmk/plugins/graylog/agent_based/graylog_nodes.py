@@ -40,6 +40,7 @@
 # "node": "139f455e-0bb7-4db9-9b9d-bba11767a674",
 # "id": "67b4c30a719a0d063158a7a1"}}]}}
 
+import contextlib
 import json
 from collections.abc import Mapping, Sequence
 from datetime import datetime, UTC
@@ -89,10 +90,8 @@ def parse_graylog_nodes(string_table: StringTable) -> Section:
         node_details = json.loads(line[0])
 
         for node, detail in node_details.items():
-            try:
+            with contextlib.suppress(KeyError):
                 parsed.setdefault(node, []).append(detail)
-            except KeyError:
-                pass
 
     return parsed
 

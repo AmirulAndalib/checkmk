@@ -9,6 +9,7 @@
 # .1.3.6.1.4.1.2620.1.1.6.0 1495
 # .1.3.6.1.4.1.2620.1.1.7.0 16297
 
+import contextlib
 import time
 from collections.abc import Mapping, Sequence
 
@@ -39,10 +40,8 @@ def parse_checkpoint_packets(string_table: Sequence[StringTable]) -> Section:
         ("EspEncrypted", 1, 0),
         ("EspDecrypted", 1, 1),
     ]:
-        try:
+        with contextlib.suppress(IndexError, ValueError):
             parsed[key] = int(string_table[main_index][0][sub_index])
-        except (IndexError, ValueError):
-            pass
     return parsed
 
 

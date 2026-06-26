@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import abc
+import contextlib
 import time
 from collections.abc import Iterable, Sequence
 from typing import Any, Final, override
@@ -173,15 +174,13 @@ class PainterOptions:
     # provided, it returns the default value of the valuespec.
     def get(self, name: str, dflt: Any = None) -> Any:
         if dflt is None:
-            try:
+            # Some view options (that are not declared as display options)
+            # like "refresh" don't have a valuespec. So they need to default
+            # to None.
+            # TODO: Find all occurrences and simply declare them as "invisible"
+            # painter options.
+            with contextlib.suppress(KeyError):
                 dflt = self.get_valuespec_of(name).default_value()
-            except KeyError:
-                # Some view options (that are not declared as display options)
-                # like "refresh" don't have a valuespec. So they need to default
-                # to None.
-                # TODO: Find all occurrences and simply declare them as "invisible"
-                # painter options.
-                pass
         return self._options.get(name, dflt)
 
     # Not falling back to a default value, simply returning None in case

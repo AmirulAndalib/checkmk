@@ -85,10 +85,8 @@ def main(sys_argv: list[str] | None = None) -> None:
                 config[key] = getattr(args, key)
 
     instance = mk_jolokia.JolokiaInstance(config, USER_AGENT)
-    try:
+    with suppress(mk_jolokia.SkipInstance):
         mk_jolokia.query_instance(instance)
-    except mk_jolokia.SkipInstance:
-        pass
 
 
 if __name__ == "__main__":

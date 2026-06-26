@@ -5,6 +5,7 @@
 
 # mypy: disable-error-code="possibly-undefined"
 
+import contextlib
 import datetime
 import errno
 import json
@@ -516,10 +517,8 @@ def move_for_host_rename(omd_root: Path, old_host: str, new_host: str) -> tuple[
         if not (old_path := piggyback_dir / old_name).exists():
             return
 
-        try:
+        with contextlib.suppress(FileNotFoundError):
             shutil.rmtree(str(new_path := piggyback_dir / new_name))
-        except FileNotFoundError:
-            pass
 
         os.rename(str(old_path), str(new_path))
         yield "piggyback-load"

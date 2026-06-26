@@ -9,6 +9,7 @@
 
 # mypy: disable-error-code="var-annotated"
 
+import contextlib
 import json
 import time
 from calendar import timegm
@@ -26,10 +27,8 @@ def parse_azure_ad(string_table):
         key = line[0]
         value = AZURE_AGENT_SEPARATOR.join(line[1:])
         if key == "users_count":
-            try:
+            with contextlib.suppress(ValueError):
                 parsed[None] = {"count": int(value)}
-            except ValueError:
-                pass
         elif key == "ad_connect":
             for data in json.loads(value):
                 data["onPremisesLastSyncDateTime_parsed"] = _str_to_seconds(

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 from pathlib import Path
 
 from cmk.astrein.framework import ASTVisitorChecker
@@ -68,11 +69,9 @@ class ModuleLayersChecker(ASTVisitorChecker):
         )
 
         # Try to make it relative to repo_root
-        try:
+        # If File is outside repo, use as-is
+        with contextlib.suppress(ValueError):
             p = ModulePath(p.relative_to(self.repo_root))
-        except ValueError:
-            # File is outside repo, use as-is
-            pass
 
         if p.is_below("cmk"):
             return ModuleName(".".join(p.parts))

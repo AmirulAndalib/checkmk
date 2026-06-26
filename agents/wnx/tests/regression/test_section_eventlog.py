@@ -181,21 +181,17 @@ def last_records():
 @pytest.fixture
 def no_statefile():
     if platform.system() == "Windows":
-        try:
+        # eventstate.txt may not exist if this is the first test to be run
+        with contextlib.suppress(OSError):
             os.unlink(os.path.join(Globals.statedir, "eventstate.txt"))
-        except OSError:
-            # eventstate.txt may not exist if this is the first test to be run
-            pass
     yield
 
 
 @pytest.fixture(params=[Globals.local_statefile, Globals.statefile])
 def with_statefile(request):
     if platform.system() == "Windows":
-        try:
+        with contextlib.suppress(OSError):  # Directory may already exist.
             os.mkdir(Globals.statedir)
-        except OSError:
-            pass  # Directory may already exist.
         with open(os.path.join(Globals.statedir, request.param), "w") as statefile:
             eventstate = {logtype: get_last_record(logtype) for logtype in logs}
             for logtype, state in eventstate.items():

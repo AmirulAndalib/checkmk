@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import time
 from collections.abc import Mapping, MutableMapping
 from typing import Any
@@ -128,13 +129,11 @@ check_plugin_diskstat_io_director = CheckPlugin(
 def check_hp_msa_io(item: str, params: Mapping[str, Any], section: hp_msa.Section) -> CheckResult:
     new_section = {}
     for name, values in section.items():
-        try:
+        with contextlib.suppress(KeyError, ValueError):
             new_section[name] = {
                 "read_throughput": float(values["data-read-numeric"]),
                 "write_throughput": float(values["data-written-numeric"]),
             }
-        except (KeyError, ValueError):
-            pass
     yield from check_diskstat_io(item, params, new_section)
 
 
@@ -179,13 +178,11 @@ def check_hp_msa_volume_io(
 
     new_section = {}
     for name, values in section.items():
-        try:
+        with contextlib.suppress(KeyError, ValueError):
             new_section[name] = {
                 "read_throughput": float(values["data-read-numeric"]),
                 "write_throughput": float(values["data-written-numeric"]),
             }
-        except (KeyError, ValueError):
-            pass
     yield from check_diskstat_io("SUMMARY", params, new_section)
 
 

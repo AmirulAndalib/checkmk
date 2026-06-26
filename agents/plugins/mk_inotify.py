@@ -9,6 +9,7 @@
 
 __version__ = "3.0.0b1"
 
+import contextlib
 import os
 import signal
 import sys
@@ -134,10 +135,8 @@ if not opt_foreground:
 
         # Close all fd
         for fd in range(256):
-            try:
+            with contextlib.suppress(OSError):
                 os.close(fd)
-            except OSError:
-                pass
     except Exception as e:
         sys.stderr.write("Error forking mk_inotify: %s" % e)
 

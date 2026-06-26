@@ -16,6 +16,7 @@ so bundles survive ``--purge`` and ``--full`` operations.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import platform
@@ -91,10 +92,9 @@ def capture_diagnostic_bundle(
 
     # Optionally print JSON to stdout (for --json-errors)
     if json_errors:
-        try:
+        # stdout may be closed
+        with contextlib.suppress(OSError):
             print(json.dumps(bundle, indent=2, default=str))  # noqa: T201
-        except OSError:
-            pass  # stdout closed
 
     return crash_path
 

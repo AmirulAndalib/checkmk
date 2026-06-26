@@ -8,6 +8,7 @@
 # "avg_total": 50, "avg": "0.84"}} {"Custom Service Count": {"count": 270},
 # "Custom Service Sum": {"sum": 17.0}, "Custom Service AVG": {"avg": "0.34"}}
 
+import contextlib
 import json
 import time
 from collections.abc import Mapping
@@ -42,10 +43,8 @@ def parse_jira_custom_svc(string_table: StringTable) -> dict[str, dict[str, Any]
             if svc_values is None:
                 continue
 
-            try:
+            with contextlib.suppress(KeyError):
                 parsed.setdefault(service.title(), {}).update(svc_values)
-            except KeyError:
-                pass
 
     return parsed
 

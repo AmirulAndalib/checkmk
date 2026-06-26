@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -66,16 +67,12 @@ def parse_icom_repeater(string_table: list[list[str]]) -> dict[str, Any]:
                 parsed["ps_volt_devstatus"] = 2
 
         elif line[1] == "TX PLL lock voltage":
-            try:
+            with contextlib.suppress(Exception):
                 parsed["tx_pll_lock_voltage"] = float(line[2][:-1])
-            except Exception:
-                pass
 
         elif line[1] == "RX PLL lock voltage":
-            try:
+            with contextlib.suppress(Exception):
                 parsed["rx_pll_lock_voltage"] = float(line[2][:-1])
-            except Exception:
-                pass
 
         elif line[1] == "Repeater frequency":
             parsed["repeater_frequency"] = {

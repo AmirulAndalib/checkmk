@@ -15,6 +15,7 @@ You can find an introduction to the configuration of Checkmk including activatio
 [Checkmk guide](https://docs.checkmk.com/latest/en/wato.html).
 """
 
+import contextlib
 import re
 from collections.abc import Mapping
 from dataclasses import asdict
@@ -301,12 +302,10 @@ def list_activations(params: Mapping[str, Any]) -> Response:
 
     value = []
     for activation_id in get_activation_ids():
-        try:
+        with contextlib.suppress(MKUserError):
             value.append(
                 _activation_run_domain_object(get_restapi_response_for_activation_id(activation_id))
             )
-        except MKUserError:
-            pass
 
     return serve_json(constructors.collection_object(domain_type="activation_run", value=value))
 

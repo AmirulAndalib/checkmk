@@ -13,6 +13,7 @@
 
 # mypy: disable-error-code="var-annotated"
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -40,10 +41,8 @@ def parse_oracle_sessions(string_table: StringTable) -> SectionOracleSessions:
     parsed = {}
     for line in string_table:
         for key, entry in zip(header, line[1:]):
-            try:
+            with contextlib.suppress(ValueError):
                 parsed.setdefault(line[0], {})[key] = int(entry)
-            except ValueError:
-                pass
     return parsed
 
 

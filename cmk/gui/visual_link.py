@@ -132,25 +132,19 @@ def _get_singlecontext_html_vars_from_row(
         for filter_name in visuals.info_params(info_key):
             filter_object = visuals.get_filter(filter_name)
             # Get the list of URI vars to be set for that filter
-            try:
+            # The information needed for a mandatory filter (single context) is not available.
+            # Continue without failing: The target site will show up a warning and ask for the
+            # missing information.
+            with suppress(KeyError):
                 url_vars.update(filter_object.request_vars_from_row(row))
-            except KeyError:
-                # The information needed for a mandatory filter (single context) is not available.
-                # Continue without failing: The target site will show up a warning and ask for the
-                # missing information.
-                pass
 
     # See get_link_filter_names() comment for details
     for src_key, dst_key in visuals.get_link_filter_names(single_infos, infos, link_filters):
-        try:
+        with suppress(KeyError):
             url_vars.update(visuals.get_filter(src_key).request_vars_from_row(row))
-        except KeyError:
-            pass
 
-        try:
+        with suppress(KeyError):
             url_vars.update(visuals.get_filter(dst_key).request_vars_from_row(row))
-        except KeyError:
-            pass
 
     add_site_hint = _may_add_site_hint(
         visual_name,

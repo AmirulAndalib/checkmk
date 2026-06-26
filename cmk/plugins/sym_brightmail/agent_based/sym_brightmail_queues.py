@@ -31,6 +31,7 @@
 # .1.3.6.1.4.1.393.200.130.2.2.1.1.8.3 = Gauge32: 0
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -69,10 +70,8 @@ def parse_sym_brightmail_queues(string_table: StringTable) -> Section:
             ("queueSize", queueSize),
             ("queuedMessages", queuedMessages),
         ]:
-            try:
+            with contextlib.suppress(ValueError):
                 parsed.setdefault(descr, {})[k] = int(v)
-            except ValueError:
-                pass
     return parsed
 
 

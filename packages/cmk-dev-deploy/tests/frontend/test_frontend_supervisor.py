@@ -12,6 +12,7 @@ reporting, v1.4 code removal verification, and CLI help text.
 
 from __future__ import annotations
 
+import contextlib
 import inspect
 import io
 import signal
@@ -2466,10 +2467,8 @@ class TestCLIHelpText:
         from cmk.dev_deploy.cli import parse_args
 
         # Capture the help text
-        try:
+        with contextlib.suppress(SystemExit):
             parse_args(["--help"])
-        except SystemExit:
-            pass
 
         # The simplest approach: check the source code directly
         cli_source = inspect.getsource(parse_args)

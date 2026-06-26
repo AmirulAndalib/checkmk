@@ -5,6 +5,7 @@
 # Original author: thl-cmk[at]outlook[dot]com
 
 
+import contextlib
 from collections.abc import MutableSequence, Sequence
 from enum import Enum
 from ipaddress import ip_address
@@ -395,10 +396,8 @@ def inventorize_lldp_cache(params: InventoryParams, section: Lldp) -> InventoryR
             if params.get("domain_name", ""):
                 neighbor_name = neighbor_name.replace(params.get("domain_name", ""), "")
             else:
-                try:
+                with contextlib.suppress(AttributeError):
                     neighbor_name = neighbor_name.split(".")[0]
-                except AttributeError:
-                    pass
 
         neighbor_port = neighbor.neighbor_port
         local_port = neighbor.local_port

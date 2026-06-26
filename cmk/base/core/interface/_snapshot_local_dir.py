@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import hashlib
 import shutil
 from collections.abc import Iterable, Mapping, Sequence
@@ -77,10 +78,8 @@ class _DereferenceExternalLinks:
 
     def copy_encountered_external_links(self) -> None:
         for src, dst in self._external_links:
-            try:
+            with contextlib.suppress(FileNotFoundError):  # race condition
                 shutil.copy2(src, self.target_path / dst.relative_to(self.base_path))
-            except FileNotFoundError:
-                pass  # race condition
 
 
 def _hash_local_dir(path: Path) -> str:

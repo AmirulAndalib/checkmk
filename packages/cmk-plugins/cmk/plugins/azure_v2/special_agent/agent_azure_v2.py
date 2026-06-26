@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import datetime
 import enum
 import json
@@ -832,13 +833,11 @@ def create_metric_dict(
         if metadata := measurement.get("metadatavalues"):
             metric_dict["metadata_mapping"] = _parse_metrics_metadata(metadata)
 
-        try:
+        with contextlib.suppress(IndexError, TypeError):
             metric_dict["interval"] = str(
                 datetime.datetime.strptime(dataset[-1]["timeStamp"], "%Y-%m-%dT%H:%M:%SZ")
                 - datetime.datetime.strptime(dataset[-2]["timeStamp"], "%Y-%m-%dT%H:%M:%SZ")
             )
-        except (IndexError, TypeError):
-            pass
 
         data_point_discard = metric_definition.data_point_discard
         for data in reversed(dataset):

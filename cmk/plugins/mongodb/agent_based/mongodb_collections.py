@@ -9,6 +9,7 @@
 # json
 
 
+import contextlib
 import json
 from collections.abc import Mapping
 from typing import Any
@@ -86,15 +87,13 @@ def check_mongodb_collections(
         )
 
     # check number of indexes per collection (max is 64 indexes)
-    try:
+    with contextlib.suppress(TypeError, ValueError):
         yield from check_levels(
             int(collection_stats.get("nindexes")),
             levels_upper=(62, 65),
             render_func=str,
             label="Number of indexes",
         )
-    except (TypeError, ValueError):
-        pass
 
     yield Result(state=State.OK, notice=_mongodb_collections_long_output(collection_stats))
 

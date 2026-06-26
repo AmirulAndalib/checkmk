@@ -301,10 +301,8 @@ def save_version_meta_data(site: SiteContext, version: str) -> None:
     B) A copy of the skel.permissions file
     C) A version file containing the version number of the meta data
     """
-    try:
+    with contextlib.suppress(FileNotFoundError):
         shutil.rmtree(site.version_meta_dir)
-    except FileNotFoundError:
-        pass
 
     skelroot = "/omd/versions/%s/skel" % version
     shutil.copytree(skelroot, "%s/skel" % site.version_meta_dir, symlinks=True)
@@ -745,10 +743,8 @@ def merge_update_file(
         "%s.orig" % user_path,
         "%s.rej" % user_path,
     ]:
-        try:
+        with contextlib.suppress(Exception):
             os.remove(p)
-        except Exception:
-            pass
 
 
 def _read_skel_content(
@@ -3217,10 +3213,8 @@ def _cleanup_global_files(version_info: VersionInfo) -> None:
         "/etc/init.d/omd",
         "/usr/bin/omd",
     ]:
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.unlink(path)
-        except FileNotFoundError:
-            pass
 
     if group_exists("omd"):
         groupdel("omd")

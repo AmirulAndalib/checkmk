@@ -8,6 +8,7 @@
 # mypy: disable-error-code="no-untyped-call"
 # mypy: disable-error-code="no-untyped-def"
 
+import contextlib
 import os
 import platform
 import re
@@ -159,11 +160,9 @@ def fixture_expected_output_with_statefile():
 @pytest.fixture
 def no_statefile():
     if platform.system() == "Windows":
-        try:
+        # logstate.txt may not exist if this is the first test to be run
+        with contextlib.suppress(OSError):
             os.unlink(os.path.join(user_dir, "state", "logstate.txt"))
-        except OSError:
-            # logstate.txt may not exist if this is the first test to be run
-            pass
     yield
 
 

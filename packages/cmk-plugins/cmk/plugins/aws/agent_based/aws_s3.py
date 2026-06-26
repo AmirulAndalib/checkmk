@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -29,23 +30,17 @@ def parse_aws_s3(string_table: StringTable) -> Section:
     parsed: dict[str, dict[str, Any]] = {}
     for row in parse_aws(string_table):
         bucket = parsed.setdefault(row["Label"], {})
-        try:
+        with contextlib.suppress(KeyError):
             bucket["LocationConstraint"] = row["LocationConstraint"]
-        except KeyError:
-            pass
-        try:
+        with contextlib.suppress(KeyError):
             bucket["Tagging"] = row["Tagging"]
-        except KeyError:
-            pass
         storage_key, size_key = row["Id"].split("_")[-2:]
         inst = bucket.setdefault(size_key, {})
-        try:
+        with contextlib.suppress(IndexError, ValueError):
             # if the entry exists, the first value is the numerical value of the metric and the
             # second one is the period, which is None here since these are not statistics of type
             # "Sum"
             inst.setdefault(storage_key, row["Values"][0][0])
-        except (IndexError, ValueError):
-            pass
     return parsed
 
 

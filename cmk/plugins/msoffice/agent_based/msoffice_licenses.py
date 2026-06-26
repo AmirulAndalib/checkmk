@@ -17,6 +17,7 @@
 # mggraph:PROJECTPROFESSIONAL 10 0 10
 # mggraph:ATP_ENTERPRISE 1040 0 988
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -49,13 +50,11 @@ def parse_msoffice_licenses(string_table: StringTable) -> Section:
         if len(line) != 4:
             continue
 
-        try:
+        with contextlib.suppress(ValueError):
             parsed.setdefault(
                 line[0],
                 {"active": int(line[1]), "warning_units": int(line[2]), "consumed": int(line[3])},
             )
-        except ValueError:
-            pass
 
     return parsed
 

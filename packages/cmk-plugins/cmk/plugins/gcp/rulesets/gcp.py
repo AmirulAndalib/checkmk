@@ -5,6 +5,7 @@
 
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 # fallback to basic services if the extended plugin is not installed
@@ -23,12 +24,10 @@ from cmk.rulesets.v1.form_specs import (
 from cmk.rulesets.v1.form_specs.validators import LengthInRange
 from cmk.rulesets.v1.rule_specs import SpecialAgent, Topic
 
-try:
+with contextlib.suppress(ImportError):
     from cmk.plugins.gcp_extended.rulesets.gcp_services_constant import (  # type: ignore[import-not-found, no-redef]
         GCP_SERVICES,
     )
-except ImportError:
-    pass
 
 
 def _get_edition_specific_choices(

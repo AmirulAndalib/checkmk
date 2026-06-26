@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import signal
 import socket
@@ -67,10 +68,8 @@ def _kill_process_group(pid: int) -> None:
     except (ProcessLookupError, PermissionError):
         return
 
-    try:
+    with contextlib.suppress(ProcessLookupError, PermissionError):
         os.killpg(pgid, signal.SIGKILL)
-    except (ProcessLookupError, PermissionError):
-        pass
 
 
 def _find_bazel_children(pid: int) -> list[int]:
@@ -85,10 +84,8 @@ def _find_bazel_children(pid: int) -> list[int]:
                 children_text = (tid_entry / "children").read_text().strip()
                 if children_text:
                     for child_str in children_text.split():
-                        try:
+                        with contextlib.suppress(ValueError):
                             children.add(int(child_str))
-                        except ValueError:
-                            pass
             except (OSError, FileNotFoundError, ValueError, PermissionError):
                 continue
     except (OSError, FileNotFoundError, PermissionError):
@@ -349,10 +346,8 @@ class FrontendSupervisor:
         except (ProcessLookupError, PermissionError, ValueError, OSError):
             pass  # Any error: just clean up PID file
         finally:
-            try:
+            with contextlib.suppress(OSError):
                 _pid_file().unlink(missing_ok=True)
-            except OSError:
-                pass
 
         # Verify port is free after cleanup
         if _check_port("127.0.0.1", self._config.port):
@@ -373,10 +368,8 @@ class FrontendSupervisor:
 
     def _remove_pid_file(self) -> None:
         """Remove the PID file if it exists.  Non-critical."""
-        try:
+        with contextlib.suppress(OSError):
             _pid_file().unlink(missing_ok=True)
-        except OSError:
-            pass
 
     # -- Pre-flight checks ---------------------------------------------------
 
@@ -478,10 +471,8 @@ class FrontendSupervisor:
             _kill_process_group(child_pid)
 
         # 4. Wait for iBazel to actually exit
-        try:
+        with contextlib.suppress(subprocess.TimeoutExpired):
             self._proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            pass
 
         # 5. Verify port is free; nuclear fallback if not
         time.sleep(0.2)  # Brief pause for OS to release port

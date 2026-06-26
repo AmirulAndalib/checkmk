@@ -5,7 +5,7 @@
 
 import time
 from collections.abc import Generator, Mapping, MutableMapping
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from typing import Any
 
 from cmk.agent_based.v1 import check_levels as check_levels_v1
@@ -75,10 +75,8 @@ def parse_aws_rds(string_table: StringTable) -> AWSSectionMetrics:
         parse_aws(string_table),
         extra_keys=["DBInstanceIdentifier", "AllocatedStorage", "Region"],
     ).values():
-        try:
+        with suppress(KeyError):
             metrics["AllocatedStorage"] *= 1.074e9
-        except KeyError:
-            pass
 
         section.setdefault(
             aws_rds_service_item(metrics["DBInstanceIdentifier"], metrics["Region"]),

@@ -6,6 +6,7 @@
 # <<<jira_workflow>>>
 # {'my_project': {'in progress': 29}}
 
+import contextlib
 import json
 from collections.abc import Mapping
 from typing import Any
@@ -44,12 +45,10 @@ def parse_jira_workflow(string_table: StringTable) -> Section:
                 if issue_count is None:
                     continue
 
-                try:
+                with contextlib.suppress(KeyError):
                     parsed.setdefault(f"{project.title()}/{workflow.title()}", {}).update(
                         {workflow: issue_count}
                     )
-                except KeyError:
-                    pass
 
     return parsed
 

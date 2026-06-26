@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 
 from cmk.agent_based.v2 import contains, StringTable
@@ -15,8 +16,6 @@ def parse_pulse_secure(string_table: StringTable, *keys: str) -> Mapping[str, in
         return None
     parsed = {}
     for key, value in zip(keys, string_table[0]):
-        try:
+        with contextlib.suppress(ValueError):
             parsed[key] = int(value)
-        except ValueError:
-            pass
     return parsed

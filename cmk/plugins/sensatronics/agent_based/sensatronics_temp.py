@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping, Sequence
 
 from cmk.agent_based.v2 import (
@@ -29,10 +30,8 @@ def parse_sensatronics_temp(string_table: Sequence[StringTable]) -> Section:
     parsed = {}
     for oid, block in zip(_TABLES, string_table):
         for name, reading in block:
-            try:
+            with contextlib.suppress(ValueError):
                 parsed[f"{oid}.{name}"] = float(reading)
-            except ValueError:
-                pass
     return parsed
 
 

@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import time
 from collections.abc import Sequence
 from datetime import datetime
@@ -139,10 +140,8 @@ class UserChangePasswordPage(Page):
         send_security_message(user.id, SecurityNotificationEvent.password_change)
 
         # In case the user was enforced to change it's password, remove the flag
-        try:
+        with contextlib.suppress(KeyError):
             del user_spec["enforce_pw_change"]
-        except KeyError:
-            pass
 
         # Increase serial to invalidate old authentication cookies
         if "serial" not in user_spec:

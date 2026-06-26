@@ -10,6 +10,7 @@
 # WH1_BC_O3_UPS                         0                   3                   0
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any, Final, NamedTuple
 
@@ -68,12 +69,10 @@ def parse_win_printers(string_table: StringTable) -> Section:
     for line in string_table:
         if len(line) < 4:
             continue
-        try:
+        with contextlib.suppress(ValueError):
             parsed.setdefault(
                 " ".join(line[:-3]), PrinterQueue(int(line[-3]), int(line[-2]), int(line[-1]))
             )
-        except ValueError:
-            pass
     return parsed
 
 

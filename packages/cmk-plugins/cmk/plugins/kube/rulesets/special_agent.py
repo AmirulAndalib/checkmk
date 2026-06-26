@@ -41,13 +41,11 @@ from cmk.rulesets.v1.rule_specs import SpecialAgent, Topic
 
 from .special_agent_options_community import OpenshiftElement, TransformOpenshiftEndpoint
 
-try:
+with suppress(ImportError):
     from cmk.plugins.kube_extended.rulesets.special_agent_options import (  # type: ignore[no-redef,import-not-found, unused-ignore]
         OpenshiftElement,
         TransformOpenshiftEndpoint,
     )
-except ImportError:
-    pass
 
 
 def _tcp_timeouts() -> Dictionary:

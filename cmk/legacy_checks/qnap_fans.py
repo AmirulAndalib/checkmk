@@ -6,6 +6,8 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+import contextlib
+
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
 from cmk.agent_based.v2 import OIDEnd, SNMPTree
 from cmk.legacy_includes.fan import check_fan
@@ -17,10 +19,8 @@ check_info = {}
 def parse_qnap_fans(string_table):
     parsed = {}
     for fan, value in string_table:
-        try:
+        with contextlib.suppress(ValueError):
             parsed[fan] = int(value.replace("RPM", ""))
-        except ValueError:
-            pass
     return parsed
 
 

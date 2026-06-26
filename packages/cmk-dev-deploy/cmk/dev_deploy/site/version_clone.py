@@ -36,6 +36,7 @@ as today.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shlex
 import shutil
@@ -295,10 +296,8 @@ def _rmtree(path: Path, *, ignore_errors: bool = False) -> None:
 
     def _retry_writable(func: Callable[[str], object], failed: str, _exc: BaseException) -> None:
         for p in (os.path.dirname(failed), failed):
-            try:
+            with contextlib.suppress(OSError):
                 os.chmod(p, os.stat(p).st_mode | stat.S_IWUSR)
-            except OSError:
-                pass
         func(failed)
 
     try:

@@ -698,9 +698,7 @@ class MessagingTrustedCAs:
         """Add all customer CAs to the trusted CAs file. Only relevant in a multisite setup."""
         trusted_cas = []
         for path in update_from:
-            try:
+            with suppress(FileNotFoundError):
                 trusted_cas.append(path.read_bytes())
-            except FileNotFoundError:
-                pass
 
         self.write(b"".join(trusted_cas))

@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -125,10 +126,8 @@ def parse_security_master(string_table: Sequence[StringTable]) -> dict[str, Sect
             if num + ".1.0" == oid_second:
                 sensor_id = saveint(sensor_second[0].encode("utf-8").hex())
             elif num + ".2.0" == oid_second:
-                try:
+                with contextlib.suppress(ValueError):
                     value = float(sensor_second)
-                except ValueError:
-                    pass
             elif num + ".6.0" == oid_second:
                 try:
                     alarm = int(sensor_second)

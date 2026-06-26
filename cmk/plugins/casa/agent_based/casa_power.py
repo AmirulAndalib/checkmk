@@ -4,6 +4,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
+
 from cmk.agent_based.v2 import (
     CheckPlugin,
     CheckResult,
@@ -28,7 +30,7 @@ def check_casa_power(item: str, section: StringTable) -> CheckResult:
         yield Result(state=State.UNKNOWN, summary="Power Supply %s not found in snmp output" % item)
         return
 
-    try:
+    with contextlib.suppress(KeyError):
         yield {
             "0": Result(state=State.UNKNOWN, summary="Power supply - Unknown status"),
             "1": Result(state=State.OK, summary="Power supply OK"),
@@ -38,8 +40,6 @@ def check_casa_power(item: str, section: StringTable) -> CheckResult:
             "3": Result(state=State.WARN, summary="Power supply working over threshold"),
             "4": Result(state=State.CRIT, summary="Power failure"),
         }[section[unit_nr][0]]
-    except KeyError:
-        pass
 
 
 def parse_casa_power(string_table: StringTable) -> StringTable:

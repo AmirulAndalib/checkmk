@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 import time
 from collections.abc import Mapping, Sequence
@@ -531,11 +532,9 @@ def _cleanup_abandoned_files_of_host(abandoned_files_of_host: _AbandonedFilesOfH
         for file in files:
             logger.warning("Remove abandoned host file %r", file.path)
             file.path.unlink(missing_ok=True)
-        try:
-            folder.rmdir()
-        except OSError:
+        with contextlib.suppress(OSError):
             # Folder not empty
-            pass
+            folder.rmdir()
 
     for file in abandoned_files_of_host.files:
         logger.warning("Remove abandoned host file %r", file.path)

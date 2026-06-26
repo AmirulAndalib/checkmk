@@ -16,6 +16,7 @@
 # attached graphs and such neat stuff. Sweet!
 """
 
+import contextlib
 import os
 import re
 from pathlib import Path
@@ -40,12 +41,10 @@ def load_user_scripts(what: str) -> NotificationUserScripts:
         if what == "notifications"
         else (cmk.utils.paths.share_dir / what)
     )
-    try:
+    with contextlib.suppress(Exception):
         scripts.update(
             _load_user_scripts_from(cmk.utils.paths.omd_root / "local/share/check_mk" / what)
         )
-    except Exception:
-        pass
 
     return scripts
 

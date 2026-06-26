@@ -6,6 +6,7 @@
 # mypy: disable-error-code="possibly-undefined"
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 import datetime
 import time
 from collections.abc import Iterator, Sequence
@@ -72,12 +73,11 @@ def page_show(ctx: PageContext) -> None:
     file_name = ctx.request.get_str_input_mandatory("file", "")
 
     # Fix problem when URL is missing certain illegal characters
-    try:
+    with contextlib.suppress(livestatus.MKLivestatusNotFoundError):
+        # host_name log dir does not exist
         file_name = form_file_to_ext(
             find_matching_logfile(site, host_name, form_file_to_int(file_name))
         )
-    except livestatus.MKLivestatusNotFoundError:
-        pass  # host_name log dir does not exist
 
     if not host_name:
         show_log_list(

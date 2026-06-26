@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import abc
 import argparse
+import contextlib
 import datetime
 import enum
 import json
@@ -1080,13 +1081,11 @@ def create_metric_dict(metric, aggregation, interval_id):
         if not dataset:
             continue
 
-        try:
+        with contextlib.suppress(IndexError, TypeError):
             metric_dict["interval"] = str(
                 datetime.datetime.strptime(dataset[-1]["timeStamp"], "%Y-%m-%dT%H:%M:%SZ")
                 - datetime.datetime.strptime(dataset[-2]["timeStamp"], "%Y-%m-%dT%H:%M:%SZ")
             )
-        except (IndexError, TypeError):
-            pass
 
         for data in reversed(dataset):
             LOGGER.debug("data: %(data)s", {"data": data})

@@ -11,6 +11,7 @@ This is quite stripped down to only provide what we currently need,
 rather than being a comprehensive interface to what the kernel offers.
 """
 
+import contextlib
 import enum
 import errno
 import os
@@ -171,11 +172,9 @@ class INotify:
         """Accepts exception arguments for context manager protocol; currently unused."""
         try:
             for wd, path in list(self._parser.watch_descriptors()):
-                try:
+                # The directory might already be gone, which is fine
+                with contextlib.suppress(OSError):
                     self.rm_watch(Watchee(wd, path))
-                except OSError:
-                    # The directory might already be gone, which is fine
-                    pass
         finally:
             if not self._fileio.closed:
                 self._fileio.close()

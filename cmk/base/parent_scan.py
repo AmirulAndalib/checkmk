@@ -320,10 +320,8 @@ def _fill_ip_to_hostname_cache(
     }:
         if scan_config[host].ip_stack_config is IPStackConfig.NO_IP:
             continue
-        try:
+        with suppress(MKIPAddressLookupError):
             cache[lookup_ip_address(host, socket.AddressFamily.AF_INET)] = host
-        except MKIPAddressLookupError:
-            pass
 
 
 def _ip_to_dnsname(ip: HostAddress) -> HostName | None:

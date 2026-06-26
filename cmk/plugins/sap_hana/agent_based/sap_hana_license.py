@@ -5,6 +5,7 @@
 
 # mypy: disable-error-code="no-untyped-call"
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any, NamedTuple
 
@@ -56,10 +57,8 @@ def parse_sap_hana_license(string_table: StringTable) -> sap_hana.ParsedSection:
                 (3, "size"),
                 (4, "limit"),
             ]:
-                try:
+                with contextlib.suppress(ValueError):
                     inst[key] = int(line[index])
-                except ValueError:
-                    pass
             inst["expiration_date"] = line[6]
 
         section.setdefault(sid_instance, inst)

@@ -7,6 +7,7 @@
 # mypy: disable-error-code="no-untyped-call"
 # mypy: disable-error-code="no-untyped-def"
 
+import contextlib
 import os
 import platform
 import re
@@ -55,10 +56,8 @@ def manage_spoolfile(request):
     filename = os.path.join(user_dir, "spool", testfile)
     if platform.system() == "Windows":
         spooldir = os.path.join(user_dir, "spool")
-        try:
+        with contextlib.suppress(OSError):  # Directory may already exist.
             os.mkdir(spooldir)
-        except OSError:
-            pass  # Directory may already exist.
         with open(filename, "w") as f:
             f.write("%s" % Globals.test_message)
         # Hack the modification time 2 s back in time

@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import re
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal
@@ -125,15 +126,11 @@ def _parse_brocade_mlx_module_mem(
             },
         )
 
-        try:
+        with contextlib.suppress(ValueError):
             parsed[item]["mem_total"] = int(mem_total)
-        except ValueError:
-            pass
 
-        try:
+        with contextlib.suppress(ValueError):
             parsed[item]["mem_avail"] = int(mem_avail)
-        except ValueError:
-            pass
 
     return parsed
 

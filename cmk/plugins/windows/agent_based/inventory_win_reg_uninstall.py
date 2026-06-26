@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import re
 import time
 from collections.abc import Sequence
@@ -49,10 +50,8 @@ def parse_win_reg_uninstall(string_table: StringTable) -> Section:
             try:
                 install_date = int(time.mktime(time.strptime(date, "%Y%m%d")))
             except ValueError:
-                try:
+                with contextlib.suppress(ValueError):
                     install_date = int(time.mktime(time.strptime(date, "%Y%d%m")))
-                except ValueError:
-                    pass
 
         if pacname.startswith("{"):
             pacname = display_name

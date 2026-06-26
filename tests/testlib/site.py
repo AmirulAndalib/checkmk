@@ -1442,13 +1442,11 @@ class Site:
         """Activate changes which require a site restart and wait until the site is
         fully running again.
         """
-        try:
+        # The activation may trigger a site restart that kills httpd before the
+        # response is sent back. This is expected — proceed to wait for the site
+        # to come back up.
+        with suppress(requests.exceptions.ConnectionError):
             self.openapi.changes.activate(force_foreign_changes=force_foreign_changes)
-        except requests.exceptions.ConnectionError:
-            # The activation may trigger a site restart that kills httpd before the
-            # response is sent back. This is expected — proceed to wait for the site
-            # to come back up.
-            pass
         self.wait_for_no_running_activations(timeout=timeout, interval=interval)
 
     def _get_activation_final_status(

@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any, NamedTuple
 
@@ -35,10 +36,8 @@ def parse_lvm_lvs(string_table: StringTable) -> Section:
         if item not in possible_items:
             continue
 
-        try:
+        with contextlib.suppress(IndexError, ValueError):
             parsed[item] = LvmLvsEntry(data=float(line[6]), meta=float(line[7]))
-        except (IndexError, ValueError):
-            pass
     return parsed
 
 

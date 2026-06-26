@@ -18,6 +18,8 @@
 
 # mypy: disable-error-code="var-annotated"
 
+import contextlib
+
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
 
 check_info = {}
@@ -47,14 +49,12 @@ def parse_ucs_c_rack_server_power(string_table):
             ("inputCurrent", current, float),
             ("inputVoltage", voltage, float),
         ):
-            try:
+            # The default value set by setdefault is None. These values are handled in the
+            # check function appropriatelly.
+            with contextlib.suppress(ValueError):
                 # Power values are of type int. Current and voltage values are of type float but
                 # converted to int. Hogher accuracy of float is not required.
                 parsed[motherboard][ds_key] = cast_function(ds.replace(ds_key + " ", ""))
-            except ValueError:
-                # The default value set by setdefault is None. These values are handled in the
-                # check function appropriatelly.
-                pass
     return parsed
 
 

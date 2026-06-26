@@ -6,6 +6,7 @@
 # mypy: disable-error-code="type-arg"
 
 
+import contextlib
 import time
 from collections.abc import Mapping, MutableMapping, Sequence
 from typing import Any, TypedDict
@@ -51,7 +52,7 @@ def parse_ucd_diskio(string_table: Sequence[StringTable]) -> Section:
             continue
 
         disk_index, name, read_size, write_size, read, write = line
-        try:
+        with contextlib.suppress(ValueError):
             section[name] = {
                 "disk_index": disk_index,
                 "read_throughput": float(read_size),
@@ -59,8 +60,6 @@ def parse_ucd_diskio(string_table: Sequence[StringTable]) -> Section:
                 "read_ios": float(read),
                 "write_ios": float(write),
             }
-        except ValueError:
-            pass
 
     return section
 

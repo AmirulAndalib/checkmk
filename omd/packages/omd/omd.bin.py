@@ -35,12 +35,12 @@ if (
     # into the execed omd call. The OMD call must import the python version related
     # modules and libaries. This only works when PYTHONPATH and LD_LIBRARY_PATH are
     # not already set when calling "omd update"
-    try:
+    try:  # noqa: SIM105
         del os.environ["PYTHONPATH"]
     except KeyError:
         pass
 
-    try:
+    try:  # noqa: SIM105
         del os.environ["LD_LIBRARY_PATH"]
     except KeyError:
         pass

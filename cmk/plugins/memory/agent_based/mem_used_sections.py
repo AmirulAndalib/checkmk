@@ -115,6 +115,8 @@ Hugepagesize: 2048 kB
 
 """
 
+import contextlib
+
 from cmk.agent_based.v2 import AgentSection, StringTable
 from cmk.plugins.lib.memory import SectionMemUsed
 
@@ -250,10 +252,8 @@ def parse_statgrab_mem(string_table: StringTable) -> SectionMemUsed | None:
     """
     parsed: dict[str, int] = {}
     for var, value in string_table:
-        try:
+        with contextlib.suppress(ValueError):
             parsed.setdefault(var, int(value))
-        except ValueError:
-            pass
 
     try:
         totalmem = parsed["mem.total"]
@@ -342,10 +342,8 @@ def parse_freebsd_mem(string_table: StringTable) -> SectionMemUsed | None:
     except KeyError:
         return None
 
-    try:
+    with contextlib.suppress(KeyError):
         section["Cached"] = raw["vm.stats.vm.v_cache_count"] * page_size
-    except KeyError:
-        pass
 
     return section
 

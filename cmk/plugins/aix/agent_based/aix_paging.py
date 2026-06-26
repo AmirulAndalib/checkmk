@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any, NamedTuple
 
@@ -71,12 +72,10 @@ def check_aix_paging(item: str, params: Mapping[str, Any], section: Section) -> 
     if not (data := section.get(item)):
         return
     avail_mb = data.size_mb * (1 - data.usage_perc / 100.0)
-    try:
+    with contextlib.suppress(IgnoreResultsError):
         yield from df_check_filesystem_single(
             get_value_store(), item, data.size_mb, avail_mb, 0, None, None, params
         )
-    except IgnoreResultsError:
-        pass
     yield Result(
         state=State.OK, summary=f"Active: {data.active}, Auto: {data.auto}, Type: {data.type_}"
     )

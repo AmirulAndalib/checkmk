@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import typing
 from collections import abc
 
@@ -62,10 +63,8 @@ def parse_hp_proliant_psu(string_table: StringTable) -> Section:
         if present != "3" or capacity_maximum == "0":
             continue
         item = f"{chassis}/{bay}"
-        try:
+        with contextlib.suppress(ValueError):
             section[item] = Psu(chassis, bay, cond, int(used), int(capacity_maximum))
-        except ValueError:
-            pass
     if section:
         section["Total"] = PsuTotal(
             sum(v.used for v in section.values()), sum(v.max_ for v in section.values())

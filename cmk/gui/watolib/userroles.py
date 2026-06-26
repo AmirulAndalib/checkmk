@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import re
 from collections.abc import Iterator, Mapping, Sequence
 from datetime import datetime
@@ -153,10 +154,8 @@ def update_permissions(role: UserRole, new_permissions: Iterator[tuple[str, str]
         elif value == "no":
             role.permissions[perm.name] = False
         elif value == "default":
-            try:
+            with contextlib.suppress(KeyError):  # Already at defaults
                 del role.permissions[perm.name]
-            except KeyError:
-                pass  # Already at defaults
 
 
 def update_role(role: UserRole, old_roleid: RoleID, new_roleid: RoleID, pprint_value: bool) -> None:

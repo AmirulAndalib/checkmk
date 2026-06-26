@@ -5,6 +5,7 @@
 
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 import logging
 import os
 import shutil
@@ -158,17 +159,15 @@ class BackgroundJob:
         self._delete_work_dir()
 
     def _delete_work_dir(self) -> None:
-        try:
-            # In SUP-10240 we encountered a crash in the following line with the reason
-            # "Directory not empty" while setting up the "search_index" background job.
-            # The shutil.rmtree call recursively removes all the files/folders under the folder tree
-            # so the error seems to be caused by another process adding a file/folder under that
-            # tree while the shutil.rmtree call is executing.
-            # We didn't manage to reproduce the issue with the code and it seems to be really rare.
-            # More details in SUP-10240
+        # In SUP-10240 we encountered a crash in the following line with the reason
+        # "Directory not empty" while setting up the "search_index" background job.
+        # The shutil.rmtree call recursively removes all the files/folders under the folder tree
+        # so the error seems to be caused by another process adding a file/folder under that
+        # tree while the shutil.rmtree call is executing.
+        # We didn't manage to reproduce the issue with the code and it seems to be really rare.
+        # More details in SUP-10240
+        with contextlib.suppress(FileNotFoundError):
             shutil.rmtree(self._work_dir)
-        except FileNotFoundError:
-            pass
 
     def _terminate_processes(self) -> None:
         if (result := self._executor.terminate(self._job_id)).is_error():

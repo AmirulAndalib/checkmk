@@ -2,6 +2,7 @@
 # Copyright (C) 2019 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -68,10 +69,8 @@ def parse_tcp_conn_stats(string_table: StringTable) -> TCPConnections:
                 tcp_state = MAP_COUNTER_KEYS[int(tcp_state, 16)]  # Hex
             except KeyError:
                 continue
-        try:
+        with contextlib.suppress(ValueError):
             section[tcp_state] = int(count)
-        except ValueError:
-            pass
     return section
 
 

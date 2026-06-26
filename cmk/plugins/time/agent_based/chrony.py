@@ -20,6 +20,7 @@
 
 # <<<chrony>>>
 # 506 Cannot talk to daemon
+import contextlib
 from calendar import timegm
 from time import strptime, time
 from typing import Any
@@ -52,26 +53,18 @@ def parse_chrony(string_table: StringTable) -> dict[str, Any] | None:
             key, value = (e.strip() for e in " ".join(line).split(":", 1))
             if key == "Reference ID":
                 parsed[key] = value
-                try:
+                with contextlib.suppress(IndexError):
                     # if brackets are empty, NTP servers are unreachable
                     parsed["address"] = value.split(" ")[1].replace("()", "") or None
-                except IndexError:
-                    pass
             elif key == "System time":
-                try:
+                with contextlib.suppress(ValueError):
                     parsed[key] = float(value.split(" ")[0]) * 1000
-                except ValueError:
-                    pass
             elif key == "Stratum":
-                try:
+                with contextlib.suppress(ValueError):
                     parsed[key] = int(value)
-                except ValueError:
-                    pass
             elif key == "Ref time (UTC)":
-                try:
+                with contextlib.suppress(ValueError):
                     parsed["last_sync"] = time() - timegm(strptime(value))
-                except ValueError:
-                    pass
 
     return parsed or None
 

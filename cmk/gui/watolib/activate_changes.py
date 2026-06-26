@@ -470,10 +470,8 @@ def _update_replication_status(site_id: SiteId, vars_: SiteReplicationStatus) ->
 
 
 def clear_site_replication_status(site_id: SiteId) -> None:
-    try:
+    with suppress(FileNotFoundError):  # Not existant -> OK
         _site_replication_status_path(site_id).unlink()
-    except FileNotFoundError:
-        pass  # Not existant -> OK
 
     ActivateChanges.confirm_site_changes(site_id)
 
@@ -2127,10 +2125,8 @@ class ActivateChangesManager:
 
                 # Do not create a snapshot for the local site. All files are already in place
                 site_snapshot_settings = self._site_snapshot_settings.copy()
-                try:
+                with suppress(KeyError):
                     del site_snapshot_settings[omd_site()]
-                except KeyError:
-                    pass
 
                 snapshot_manager = snapshot_manager_factory(work_dir, site_snapshot_settings)
                 snapshot_manager.generate_snapshots()
@@ -2417,10 +2413,8 @@ class ActivationCleanupJob:
             str(cmk.utils.paths.site_config_dir),
             ACTIVATION_TMP_BASE_DIR,
         ):
-            try:
+            with suppress(FileNotFoundError):
                 files.update(os.listdir(base_dir))
-            except FileNotFoundError:
-                pass
 
         ids = []
         for activation_id in files:
@@ -2539,20 +2533,18 @@ def _get_replication_dir_config_sync_file_infos_per_inode(
 
         for dir_name in dir_names:
             dir_path = os.path.join(root, dir_name)
-            try:
+            with suppress(FileNotFoundError):
+                # Ignore directories vanishing during processing
                 if os.path.islink(dir_path) and dir_name != GENERAL_DIR_EXCLUDE:
                     inode_sync_states[os.stat(dir_path).st_ino] = _get_config_sync_file_info(
                         dir_path
                     )
-            except FileNotFoundError:
-                pass  # Ignore directories vanishing during processing
 
         for file_name in file_names:
             file_path = os.path.join(root, file_name)
-            try:
+            with suppress(FileNotFoundError):
+                # Ignore files vanishing during processing
                 inode_sync_states[os.stat(file_path).st_ino] = _get_config_sync_file_info(file_path)
-            except FileNotFoundError:
-                pass  # Ignore files vanishing during processing
 
 
 def _prepare_for_activation_tasks(

@@ -6,6 +6,8 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+import contextlib
+
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
 from cmk.agent_based.v2 import contains, SNMPTree
 from cmk.legacy_includes.mem import check_memory_element
@@ -27,15 +29,11 @@ def parse_f5_bigip_mem(string_table):
         return None
 
     parsed = {}
-    try:
+    with contextlib.suppress(ValueError):
         parsed["total"] = (float(string_table[0][0]), float(string_table[0][1]))
-    except ValueError:
-        pass
 
-    try:
+    with contextlib.suppress(ValueError):
         parsed["TMM"] = (float(string_table[0][2]) * 1024, float(string_table[0][3]) * 1024)
-    except ValueError:
-        pass
 
     return parsed
 

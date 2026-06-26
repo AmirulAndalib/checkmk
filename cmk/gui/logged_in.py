@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import os
 import time
@@ -174,10 +175,8 @@ class LoggedInUser:
         self.attributes[key] = value  # type: ignore[literal-required]
 
     def _unset_attribute(self, key: str) -> None:
-        try:
+        with contextlib.suppress(KeyError):
             del self.attributes[key]  # type: ignore[misc]
-        except KeyError:
-            pass
 
     @property
     def language(self) -> str:

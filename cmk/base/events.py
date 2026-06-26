@@ -10,6 +10,7 @@
 # This file is being used by the rule based notifications and (CEE
 # only) by the alert handling
 
+import contextlib
 import logging
 import os
 import select
@@ -177,10 +178,8 @@ def config_timestamp() -> float:
         cmk.utils.paths.final_config_file,
         cmk.utils.paths.local_config_file,
     ]:
-        try:
+        with contextlib.suppress(Exception):
             mtime = max(mtime, os.stat(path).st_mtime)
-        except Exception:
-            pass
     return mtime
 
 

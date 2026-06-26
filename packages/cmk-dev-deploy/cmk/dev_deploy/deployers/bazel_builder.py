@@ -10,6 +10,7 @@ site with correct permissions, and applies post-install fixups.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import subprocess
@@ -198,15 +199,11 @@ def _ensure_writable(dest_dir: Path) -> None:
     """
     if not dest_dir.is_dir():
         return
-    try:
+    with contextlib.suppress(OSError):
         dest_dir.chmod(dest_dir.stat().st_mode | 0o200)
-    except OSError:
-        pass
     for entry in dest_dir.rglob("*"):
-        try:
+        with contextlib.suppress(OSError):
             entry.chmod(entry.stat().st_mode | 0o200)
-        except OSError:
-            pass
 
 
 def _files_identical(a: Path, b: Path) -> bool:
@@ -301,10 +298,8 @@ def _copy_directory(
 
     # Apply u+w so files and directories are editable by deploy user
     for entry in dest_dir.rglob("*"):
-        try:
+        with contextlib.suppress(OSError):
             entry.chmod(entry.stat().st_mode | 0o200)
-        except OSError:
-            pass
 
 
 # ---------------------------------------------------------------------------

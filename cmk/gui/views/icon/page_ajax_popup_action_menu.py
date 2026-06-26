@@ -5,6 +5,8 @@
 
 """Realizes the popup action menu for hosts/services in views"""
 
+import contextlib
+
 from livestatus import livestatus_lql
 
 from cmk.ccc.hostaddress import HostName
@@ -85,10 +87,8 @@ def _query_action_data(
 ) -> Row:
     # Now fetch the needed data from livestatus
     columns = list(iconpainter_columns(what, toplevel=False))
-    try:
+    with contextlib.suppress(KeyError):
         columns.remove("site")
-    except KeyError:
-        pass
 
     query = livestatus_lql([host], columns, svcdesc)
 

@@ -2,6 +2,7 @@
 # Copyright (C) 2019 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import contextlib
 from typing import Any
 
 from cmk.agent_based.v2 import (
@@ -53,12 +54,10 @@ def inventorize_docker_node_network(section: Section) -> InventoryResult:
             "scope": network["Scope"],
             "labels": docker.format_labels(network.get("Labels", {})),
         }
-        try:
+        with contextlib.suppress(KeyError):
             network_inventory_columns.update(
                 host_ifname=network["Options"]["com.docker.network.bridge.name"]
             )
-        except KeyError:
-            pass
 
         yield TableRow(
             path=network_path,

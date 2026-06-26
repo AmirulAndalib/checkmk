@@ -4,6 +4,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
+
 from cmk.agent_based.v2 import (
     AgentSection,
     CheckPlugin,
@@ -30,10 +32,8 @@ def parse_sap_hana_ess(string_table: StringTable) -> sap_hana.ParsedSection:
 
             key = line[0]
             if key == "started":
-                try:
+                with contextlib.suppress(ValueError):
                     inst_data[key] = int(line[1])
-                except ValueError:
-                    pass
             else:
                 inst_data[key] = line[1]
         section.setdefault(sid_instance, inst_data)

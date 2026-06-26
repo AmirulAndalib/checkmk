@@ -7,6 +7,7 @@
 # mypy: disable-error-code="type-arg"
 
 
+import contextlib
 import dataclasses
 import time
 from collections.abc import Iterable, Mapping
@@ -43,12 +44,10 @@ Section = Mapping[str, Interface]
 def parse_f5_bigip_interfaces(string_table: StringTable) -> Section:
     section = {}
     for port, ifstate, inbytes, outbytes in string_table:
-        try:
+        with contextlib.suppress(ValueError):
             section[port] = Interface(
                 state=int(ifstate), inbytes=int(inbytes), outbytes=int(outbytes)
             )
-        except ValueError:
-            pass
     return section
 
 

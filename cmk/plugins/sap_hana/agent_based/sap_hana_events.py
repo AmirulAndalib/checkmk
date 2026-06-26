@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from typing import Final
 
 from cmk.agent_based.v2 import (
@@ -35,10 +36,8 @@ def parse_sap_hana_events(string_table: StringTable) -> sap_hana.ParsedSection:
             if len(line) < 2:
                 continue
 
-            try:
+            with contextlib.suppress(ValueError):
                 inst_data[line[0]] = int(line[1])
-            except ValueError:
-                pass
         section.setdefault(sid_instance, inst_data)
     return section
 

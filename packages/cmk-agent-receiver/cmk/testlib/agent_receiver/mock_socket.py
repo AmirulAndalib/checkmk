@@ -127,10 +127,8 @@ def create_socket(
             yield ms
         finally:
             ms.stop()
-            try:
+            with contextlib.suppress(FileNotFoundError):
                 os.unlink(socket_path)
-            except FileNotFoundError:
-                pass
 
 
 @contextlib.contextmanager
@@ -143,10 +141,8 @@ def create_non_listening_socket(socket_path: str) -> Iterator[str]:
         try:
             yield socket_path
         finally:
-            try:
+            with contextlib.suppress(FileNotFoundError):
                 os.unlink(socket_path)
-            except FileNotFoundError:
-                pass
 
 
 @contextlib.contextmanager
@@ -190,10 +186,8 @@ def create_unresponsive_socket(socket_path: str) -> Iterator[str]:
     finally:
         stop_event.set()
         thread.join()
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.unlink(socket_path)
-        except FileNotFoundError:
-            pass
 
 
 @contextlib.contextmanager
@@ -241,7 +235,5 @@ def create_crashy_socket(socket_path: str) -> Iterator[str]:
     finally:
         stop_event.set()
         thread.join()
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.unlink(socket_path)
-        except FileNotFoundError:
-            pass

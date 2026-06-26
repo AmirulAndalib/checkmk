@@ -6,6 +6,7 @@
 
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 import json
 import traceback
 from collections.abc import Sequence
@@ -176,10 +177,8 @@ def _read_agent_output(hostname: HostName) -> AgentRawData | None:
     agent_outputs = []
 
     cache_path = cmk.utils.paths.tcp_cache_dir / hostname
-    try:
+    with contextlib.suppress(OSError):
         agent_outputs.append(cache_path.read_bytes())
-    except OSError:
-        pass
 
     # Note: this is not quite what the fetcher does :(
     agent_outputs.extend(r.raw_data for r in get_messages_for(hostname, cmk.utils.paths.omd_root))

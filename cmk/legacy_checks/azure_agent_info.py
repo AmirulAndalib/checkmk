@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import time
 from collections.abc import Generator, Iterable, Mapping
@@ -49,10 +50,8 @@ def parse_azure_agent_info(string_table: StringTable) -> dict[str, Any]:
             _update_remaining_reads(parsed, value)
             continue
 
-        try:
+        with contextlib.suppress(ValueError):
             value = json.loads(value)
-        except ValueError:
-            pass
 
         if key == "issue":
             issues = parsed.setdefault("issues", {})

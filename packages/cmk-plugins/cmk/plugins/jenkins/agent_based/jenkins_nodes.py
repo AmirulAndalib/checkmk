@@ -52,10 +52,8 @@ def parse_jenkins_nodes(string_table: StringTable) -> Section:
         node_detail = json.loads(line[0])
 
         for node in node_detail:
-            try:
+            with suppress(KeyError):
                 parsed.setdefault(node["displayName"], []).append(node)
-            except KeyError:
-                pass
 
     return parsed
 

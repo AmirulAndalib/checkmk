@@ -36,6 +36,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import shutil
 import time
@@ -287,13 +288,11 @@ def _get_ad_locator() -> Any:
 
 
 def _show_exception(connection_id: str, title: str, e: Exception, debug: bool = True) -> None:
-    try:
+    with contextlib.suppress(AttributeError):
         html.show_error(
             "<b>" + connection_id + " - " + title + "</b>"
             "<pre>%s</pre>" % (debug and traceback.format_exc() or e)
         )
-    except AttributeError:
-        pass
 
 
 @dataclass
@@ -850,18 +849,14 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         #
         # We have to guard this with a try/except as the option doesn't even seem to exist with the
         # GnuTLS backend.
-        try:
+        with contextlib.suppress(ValueError):
             conn.set_option(OPT_X_TLS_CRLCHECK, OPT_X_TLS_CRL_NONE)
-        except ValueError:
-            pass
 
         # "Materialize" the settings in libldap.
         # The guard below was apparently needed at least on Ubuntu 17.10 with
         # libldap  2.4.45+dfsg-1ubuntu1 and libgnutls30  3.5.8-6ubuntu3.
-        try:
+        with contextlib.suppress(ValueError):
             conn.set_option(OPT_X_TLS_NEWCTX, 0)
-        except ValueError:
-            pass
 
     def connect(self, enforce_new: bool = False, enforce_server: str | None = None) -> None:
         if not enforce_new and self._ldap_obj and self._config == self._ldap_obj_config:
@@ -949,10 +944,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         if not self._uses_discover_nearest_server():
             return
 
-        try:
+        with contextlib.suppress(OSError):
             self._nearest_dc_cache_filepath().unlink()
-        except OSError:
-            pass
 
     def _nearest_dc_cache_filepath(self) -> Path:
         return self._ldap_caches_filepath() / ("nearest_server.%s" % self.id)
@@ -968,10 +961,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
     @classmethod
     def _clear_all_ldap_caches(cls) -> None:
-        try:
+        with contextlib.suppress(FileNotFoundError):
             shutil.rmtree(str(cls._ldap_caches_filepath()))
-        except FileNotFoundError:
-            pass
 
     # Bind with the default credentials
     def _default_bind(self, conn: ldap.ldapobject.ReconnectLDAPObject | None) -> None:
@@ -2031,7 +2022,9 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         user_attributes: Sequence[tuple[str, UserAttribute]],
     ) -> None:
         """Call hook, log changes, save changes, release locks"""
-        try:
+        # The hooks can fail if a user is created on login via the REST-API and is then
+        # modified by the ldap sync process but the user has been updated correctly.
+        with contextlib.suppress(AttributeError):
             hooks.call(
                 "ldap-sync-finished",
                 self._logger,
@@ -2042,10 +2035,6 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
                 active_config.wato_use_git,
                 active_config.debug,
             )
-        except AttributeError:
-            # The hooks can fail if a user is created on login via the REST-API and is then
-            # modified by the ldap sync process but the user has been updated correctly.
-            pass
 
         duration = time.time() - sync_users_result.sync_start_time
         self._logger.info(

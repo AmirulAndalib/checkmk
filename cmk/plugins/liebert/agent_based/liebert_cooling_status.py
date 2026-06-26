@@ -4,6 +4,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
+
 from cmk.agent_based.v2 import (
     CheckPlugin,
     CheckResult,
@@ -30,10 +32,8 @@ def discover_liebert_cooling_status(section: SectionWithoutUnit[str]) -> Discove
 
 
 def check_libert_cooling_status(item: str, section: SectionWithoutUnit[str]) -> CheckResult:
-    try:
+    with contextlib.suppress(KeyError):
         yield Result(state=State.OK, summary=section[item])
-    except KeyError:
-        pass
 
 
 snmp_section_liebert_cooling_status = SimpleSNMPSection(

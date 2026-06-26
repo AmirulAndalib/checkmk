@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
 import logging
 import os
 from pathlib import Path
@@ -163,10 +164,8 @@ def test_build_using_local_deb(
         os.unlink(pkg_path)
         prepare_package(pkg_info)
     finally:
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.unlink(pkg_path)
-        except FileNotFoundError:
-            pass
         os.rename(pkg_path_sav, pkg_path)
 
 

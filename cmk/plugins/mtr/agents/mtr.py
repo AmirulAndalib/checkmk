@@ -24,6 +24,7 @@ try:
 except ImportError:  # Python 2
     import ConfigParser as configparser  # type: ignore[import-not-found,no-redef]
 
+import contextlib
 import glob
 import os
 import re
@@ -338,10 +339,8 @@ def start_mtr(host, mtr_binary, config, status):
 
     # Close all fd except stdin,out,err
     for fd in range(3, 256):
-        try:
+        with contextlib.suppress(OSError):
             os.close(fd)
-        except OSError:
-            pass
 
     if pingtype == "tcp":
         options.append("--tcp")

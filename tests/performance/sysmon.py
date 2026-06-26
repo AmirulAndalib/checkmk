@@ -13,7 +13,7 @@ import os
 import threading
 import time
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from sys import argv
 from typing import IO
@@ -134,14 +134,12 @@ def get_net_io_counters() -> perf_dict:
 def get_process_info() -> perf_dict:
     processes: nested_perf_dict = {}
     for process in psutil.process_iter(["pid", "name", "memory_percent", "cpu_percent"]):
-        try:
+        with suppress(psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             processes[process.info["pid"]] = {
                 "name": process.info["name"],
                 "cpu_percent": process.info["cpu_percent"],
                 "memory_percent": process.info["memory_percent"],
             }
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
     data = {}
     for pid, proc in processes.items():
         if type(proc) is perf_dict:

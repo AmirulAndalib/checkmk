@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import textwrap
@@ -940,10 +941,8 @@ def move_snapin(ctx: PageContext) -> None:
     before_id = request.var("before")
     before_snapin: UserSidebarSnapin | None = None
     if before_id:
-        try:
+        with contextlib.suppress(KeyError):
             before_snapin = user_config.get_snapin(before_id)
-        except KeyError:
-            pass
 
     user_config.move_snapin_before(snapin, before_snapin)
     user_config.save()

@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import time
 from collections.abc import Mapping
 from typing import TypedDict
@@ -24,10 +25,8 @@ from cmk.plugins.lib.cpu_util import check_cpu_util
 def parse_aruba_cpu_util(string_table: StringTable) -> dict[str, float]:
     parsed: dict[str, float] = {}
     for description, raw_cpu_util in string_table:
-        try:
+        with contextlib.suppress(ValueError):
             parsed.setdefault(description, float(raw_cpu_util))
-        except ValueError:
-            pass
     return parsed
 
 

@@ -315,10 +315,8 @@ class LoginPage(Page):
         )
         html.close_a()
 
-        try:
+        with contextlib.suppress(LicenseStateError):
             _show_remaining_trial_time(get_remaining_trial_time_rounded(cmk.utils.paths.omd_root))
-        except LicenseStateError:
-            pass
 
         with html.form_context(
             "login",

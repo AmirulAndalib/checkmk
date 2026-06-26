@@ -15,7 +15,7 @@ import json
 import time
 import urllib.parse
 from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from enum import auto, StrEnum
 from typing import Any, cast, Literal, overload, Protocol
 
@@ -580,10 +580,8 @@ class Request(
         self.environ["QUERY_STRING"] = self.query_string
         # We remove the form entry. As this entity is never copied it will be modified within
         # its cache.
-        try:
+        with suppress(KeyError):
             dict.pop(self.form, varname)
-        except KeyError:
-            pass
         # We remove the __dict__ entries to allow @cached_property to reload them from
         # the environment. The rest of the request object stays the same.
         self.__dict__.pop("args", None)

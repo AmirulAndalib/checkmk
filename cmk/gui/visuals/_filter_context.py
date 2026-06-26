@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
 from collections.abc import Container, Iterable, Iterator
 from itertools import chain
 
@@ -67,10 +68,8 @@ def filters_of_visual(
 
         for key, val in visual["context"].items():
             if isinstance(val, dict):  # this is a real filter
-                try:
+                with contextlib.suppress(KeyError):  # Silently ignore not existing filters
                     filters[key] = get_filter(key)
-                except KeyError:
-                    pass  # Silently ignore not existing filters
 
     # See get_link_filter_names() comment for details
     for key, dst_key in get_link_filter_names(visual["single_infos"], info_keys, link_filters):

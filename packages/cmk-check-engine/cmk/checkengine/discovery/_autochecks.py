@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
@@ -73,10 +74,8 @@ class AutochecksStore:
         )
 
     def clear(self) -> None:
-        try:
+        with contextlib.suppress(OSError):
             self._store.path.unlink()
-        except OSError:
-            pass
 
 
 def merge_cluster_autochecks(

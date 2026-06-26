@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 import logging
 import os
 import shutil
@@ -537,17 +538,15 @@ def _read_site_config(config_path: Path) -> Mapping[str, str]:
 def _build_site_configs(omd_path: Path = Path("/omd")) -> dict[str, Mapping[str, str]]:
     site_configs: dict[str, Mapping[str, str]] = {}
     for sitename in _all_sites(omd_path):
-        try:
+        # Some sites will not have a configuration file: For example, sites created with
+        # `omd create --no-init`. These sites will choose a new ports, once they are
+        # initialized, so treating them as if they don't exist is the correct thing to do.
+        # There is a secondary error, if the configuration is not word-readable. That error is
+        # logged by `omd config change`, so we don't log it here again.
+        with contextlib.suppress(Exception):
             site_configs[sitename] = _read_site_config(
                 omd_path / f"sites/{sitename}/etc/omd/site.conf"
             )
-        except Exception:
-            # Some sites will not have a configuration file: For example, sites created with
-            # `omd create --no-init`. These sites will choose a new ports, once they are
-            # initialized, so treating them as if they don't exist is the correct thing to do.
-            # There is a secondary error, if the configuration is not word-readable. That error is
-            # logged by `omd config change`, so we don't log it here again.
-            pass
     return site_configs
 
 

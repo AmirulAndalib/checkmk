@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping, Sequence
 from typing import NamedTuple
 
@@ -59,15 +60,13 @@ def parse_cmctc_psm_m(string_table: Sequence[StringTable]) -> Section:
     section = {}
     for tree_idx, block in zip(_SUBTREES, string_table):
         for sensor_idx, type_, status, reading, descr in block:
-            try:
+            with contextlib.suppress(KeyError, ValueError, TypeError):
                 section[f"{descr} {tree_idx}.{sensor_idx}"] = Sensor(
                     status=int(status),
                     unit=cmctc_pcm_m_sensor_types[int(type_)],
                     reading=float(reading) / 10.0,
                     description=descr,
                 )
-            except (KeyError, ValueError, TypeError):
-                pass
     return section
 
 

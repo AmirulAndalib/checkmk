@@ -5,6 +5,7 @@
 
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 import glob
 import hashlib
 from dataclasses import asdict, dataclass, field
@@ -76,10 +77,8 @@ class TopologyDatasourceConfiguration:
     def __post_init__(self) -> None:
         if not self.available_datasources:
             sorted_list = sorted(glob.glob("*", root_dir=topology_data_dir))
-            try:
+            with contextlib.suppress(ValueError):
                 sorted_list.remove("default")
-            except ValueError:
-                pass
             self.available_datasources = ["default"] + sorted_list
 
 

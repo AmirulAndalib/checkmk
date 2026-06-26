@@ -8,6 +8,7 @@
 # mypy: disable-error-code="possibly-undefined"
 # mypy: disable-error-code="type-arg"
 
+import contextlib
 import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -121,10 +122,8 @@ def aws_host_labels(section: Mapping[str, str]) -> HostLabelGenerator:
 def parse_aws(string_table: StringTable) -> GenericAWSSection:
     loaded = []
     for row in string_table:
-        try:
+        with contextlib.suppress(TypeError, IndexError):
             loaded.extend(json.loads(" ".join(row)))
-        except (TypeError, IndexError):
-            pass
     return loaded
 
 

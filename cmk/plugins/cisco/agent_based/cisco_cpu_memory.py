@@ -2,6 +2,7 @@
 # Copyright (C) 2019 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import contextlib
 from collections.abc import Mapping, Sequence
 from typing import Any, TypedDict
 
@@ -43,14 +44,12 @@ def parse_cisco_cpu_memory_multiitem(string_table: Sequence[StringTable]) -> Sec
             continue
 
         name = ph_idx_to_desc.get(idx, idx)
-        try:
+        with contextlib.suppress(ValueError):
             parsed[name] = {
                 "mem_used": _to_bytes(used),
                 "mem_free": _to_bytes(free),
                 "mem_reserved": _to_bytes(reserved),
             }
-        except ValueError:
-            pass
     return parsed
 
 

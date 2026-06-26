@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 
 from cmk.agent_based.v2 import (
@@ -26,10 +27,8 @@ def parse_juniper_screenos_temp(string_table: StringTable) -> Section:
     for name, temp_str in string_table:
         if name.endswith("Temperature"):
             name = name.rsplit(None, 1)[0]
-        try:
+        with contextlib.suppress(ValueError):
             section[name] = int(temp_str)
-        except ValueError:
-            pass
     return section
 
 

@@ -101,16 +101,12 @@ def parse_ucd_mem(string_table: StringTable) -> Section | None:
         MemUsed=mem_total - mem_avail,  # might change below
     )
     for key, val in zip(_OPTIONAL_KEYS, row[2:-3]):
-        try:
+        with suppress(ValueError):
             parsed[key] = _info_str_to_bytes(val)
-        except ValueError:
-            pass
 
     # optional other values
-    try:
+    with suppress(ValueError):
         parsed["error_swap"] = int(row[-3])
-    except ValueError:
-        pass
 
     parsed["error"] = row[-2]
     parsed["error_swap_msg"] = row[-1]

@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import ast
+import contextlib
 import re
 from collections.abc import Generator, Mapping
 from typing import Any
@@ -81,10 +82,8 @@ def parse_filestats(string_table: StringTable) -> dict[str, tuple[str, list[dict
 def _parse_filestats_load_lines(info: list[str]) -> list[dict[str, Any]]:
     list_of_dicts: list[dict[str, Any]] = []
     for line in info:
-        try:
+        with contextlib.suppress(SyntaxError):
             list_of_dicts.append(ast.literal_eval(line))
-        except SyntaxError:
-            pass
     return list_of_dicts
 
 

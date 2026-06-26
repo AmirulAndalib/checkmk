@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -29,10 +30,8 @@ def parse_sap_hana_memrate(string_table: StringTable) -> sap_hana.ParsedSection:
                 continue
 
             for index, key in [(1, "used"), (2, "total")]:
-                try:
+                with contextlib.suppress(ValueError):
                     inst_data[key] = int(line[index])
-                except ValueError:
-                    pass
         section.setdefault(sid_instance, inst_data)
     return section
 

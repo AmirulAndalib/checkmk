@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 """Suite-neutral helpers for setting up a fake Checkmk site in unit-test contexts."""
 
+import contextlib
 import json
 import logging
 import logging.handlers
@@ -91,13 +92,11 @@ def fake_paths() -> None:
             continue
 
         assert Path(value).is_relative_to(original_omd_root)
-        try:
+        with contextlib.suppress(ValueError):  # path is outside of omd_root
             monkeypatch.setattr(
                 f"cmk.utils.paths.{name}",
                 type(value)(tmp_dir / Path(value).relative_to(original_omd_root)),
             )
-        except ValueError:
-            pass  # path is outside of omd_root
 
     # these use repo_path
     monkeypatch.setattr("cmk.utils.paths.agents_dir", repo_path() / "agents")
@@ -268,10 +267,8 @@ def cleanup_cmk_tmp_dir() -> Iterator[None]:
     if "pytest_cmk_" not in str(cmk.utils.paths.tmp_dir):
         return
 
-    try:
+    with contextlib.suppress(FileNotFoundError):
         shutil.rmtree(str(cmk.utils.paths.tmp_dir))
-    except FileNotFoundError:
-        pass
 
 
 def cleanup_omd_root_after_test() -> Iterator[None]:

@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import gettext as gettext_module
 from collections.abc import Callable
 from pathlib import Path
@@ -126,7 +127,9 @@ def get_languages() -> list[tuple[str, str]]:
     languages = {("en", _("English"))}
 
     for lang_dir in _get_language_dirs():
-        try:
+        # Catch "OSError: [Errno 2] No such file or
+        # directory:" when directory not exists
+        with contextlib.suppress(OSError):
             languages.update(
                 [
                     (val.name, _("%(alias)s") % {"alias": get_language_alias(val.name)})
@@ -134,10 +137,6 @@ def get_languages() -> list[tuple[str, str]]:
                     if val.name != "packages" and val.is_dir()
                 ]
             )
-        except OSError:
-            # Catch "OSError: [Errno 2] No such file or
-            # directory:" when directory not exists
-            pass
 
     return sorted(languages, key=lambda x: (x[0] not in ["en", "de"], x[1]))
 

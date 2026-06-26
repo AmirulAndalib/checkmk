@@ -3302,10 +3302,8 @@ class FolderLookupCache:
     def delete_hosts(self, hostnames: Iterable[HostName]) -> None:
         cache = self._cache
         for hostname in hostnames:
-            try:
+            with suppress(KeyError):
                 del cache[hostname]
-            except KeyError:
-                pass
         self._save(cache)
 
 

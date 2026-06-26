@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import abc
+import contextlib
 import json
 import re
 from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
@@ -953,10 +954,8 @@ class ModeEditRuleset(WatoMode):
                     descr_pattern, request.get_str_input_mandatory("service_description")
                 )
                 if matcher:
-                    try:
+                    with contextlib.suppress(Exception):
                         self._item = matcher.group(1)
-                    except Exception:
-                        pass
             elif check_command.startswith("check_mk_active-"):
                 check_command = check_command[16:].split(" ")[0][:-1]
                 self._name = RuleGroup.ActiveChecks(check_command)
@@ -978,10 +977,8 @@ class ModeEditRuleset(WatoMode):
         if not self._item:
             self._item = None
             if request.has_var("item"):
-                try:
+                with contextlib.suppress(Exception):
                     self._item = mk_eval(request.get_ascii_input_mandatory("item"))
-                except Exception:
-                    pass
 
         hostname = request.get_ascii_input("host")
         self._host: Host | None = None
@@ -1002,10 +999,8 @@ class ModeEditRuleset(WatoMode):
         if not self._service:
             self._service = None
             if request.has_var("service"):
-                try:
+                with contextlib.suppress(Exception):
                     self._service = mk_eval(request.get_ascii_input_mandatory("service"))
-                except Exception:
-                    pass
 
         if self._hostname and self._rulespec.item_type == "item" and not self._service:
             raise MKUserError(
@@ -1033,10 +1028,8 @@ class ModeEditRuleset(WatoMode):
         if rule_id is None:
             return
 
-        try:
+        with contextlib.suppress(KeyError):
             self._just_edited_rule = ruleset.get_rule_by_id(rule_id)
-        except KeyError:
-            pass
 
     def _breadcrumb_url(self) -> str:
         return self.mode_url(varname=self._name)

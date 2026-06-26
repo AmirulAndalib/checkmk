@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import NamedTuple
@@ -135,10 +136,8 @@ def _get_needed_join_columns(
         join_columns.update(entry.sorter.columns)
 
     # Remove (implicit) site column
-    try:
+    with contextlib.suppress(KeyError):
         join_columns.remove("site")
-    except KeyError:
-        pass
 
     return list(join_columns)
 

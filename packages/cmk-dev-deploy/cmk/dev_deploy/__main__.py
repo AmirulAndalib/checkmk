@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     from cmk.dev_deploy.frontend.frontend_supervisor import FrontendSupervisor
     from cmk.dev_deploy.types import FrontendConfig
 
+import contextlib
+
 from cmk.dev_deploy.cli import parse_args
 from cmk.dev_deploy.core import output
 from cmk.dev_deploy.deployers.bazel_builder import build_and_install
@@ -763,10 +765,8 @@ def _guard_terminal_settings() -> None:
         return
 
     def _restore() -> None:
-        try:
+        with contextlib.suppress(termios.error, OSError, ValueError):
             termios.tcsetattr(fd, termios.TCSANOW, saved)
-        except (termios.error, OSError, ValueError):
-            pass
 
     atexit.register(_restore)
 

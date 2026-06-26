@@ -5,6 +5,7 @@
 """Helper functions for dealing with host tags"""
 
 import abc
+import contextlib
 from collections.abc import Mapping, Sequence
 from enum import Enum
 from typing import Any
@@ -329,11 +330,9 @@ def _change_host_tags_in_folders(
         affected_folders += aff_folders
 
         if aff_folders and mode != TagCleanupMode.CHECK:
-            try:
+            # Ignore MKAuthExceptions of locked host.mk files
+            with contextlib.suppress(MKAuthException):
                 folder.save()
-            except MKAuthException:
-                # Ignore MKAuthExceptions of locked host.mk files
-                pass
 
         for subfolder in folder.subfolders():
             aff_folders, aff_hosts = _change_host_tags_in_folders(
@@ -362,11 +361,9 @@ def _change_host_tags_in_hosts(
         affected_hosts += aff_hosts
 
     if affected_hosts and mode != TagCleanupMode.CHECK:
-        try:
+        # Ignore MKAuthExceptions of locked host.mk files
+        with contextlib.suppress(MKAuthException):
             folder.save_hosts(pprint_value=pprint_value, acting_user=user)
-        except MKAuthException:
-            # Ignore MKAuthExceptions of locked host.mk files
-            pass
     return affected_hosts
 
 

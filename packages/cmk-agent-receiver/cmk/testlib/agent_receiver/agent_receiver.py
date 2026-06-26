@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from typing import Any, final
 
 import httpx
@@ -84,10 +84,8 @@ class AgentReceiverClient:
         if serial:
             self.client.headers[HEADERS.SERIAL] = str(serial)
         else:
-            try:
+            with suppress(KeyError):
                 del self.client.headers[HEADERS.SERIAL]
-            except KeyError:
-                pass
 
     def register_relay(self, relay_id: str, name: str) -> tuple[PrivateKey, httpx.Response]:
         priv_key, csr = generate_csr_pair(cn=relay_id)

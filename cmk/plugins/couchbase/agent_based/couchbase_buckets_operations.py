@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import collections
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -27,10 +28,8 @@ type Section = dict[str | None, Mapping[str, Any]]
 def parse_couchbase_buckets_operations(string_table: StringTable) -> Section:
     parsed: Section = dict(parse_couchbase_lines(string_table).items())
     counters = (collections.Counter(data) for data in parsed.values())
-    try:
+    with contextlib.suppress(TypeError):
         parsed[None] = sum(counters, collections.Counter())
-    except TypeError:
-        pass
     return parsed
 
 

@@ -8,6 +8,7 @@ Checkmk special agent for Ruckus Spot
 """
 
 import argparse
+import contextlib
 import socket
 import sys
 from collections.abc import Sequence
@@ -28,10 +29,8 @@ def get_agent_info_tcp(host: str) -> bytes:
     s.settimeout(10)
     s.connect((ipaddress, 6556))
 
-    try:
+    with contextlib.suppress(Exception):
         s.setblocking(True)
-    except Exception:
-        pass
 
     resp = b""
     while True:

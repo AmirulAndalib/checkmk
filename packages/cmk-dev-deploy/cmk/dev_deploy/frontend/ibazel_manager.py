@@ -25,6 +25,7 @@ Key design decisions (from CONTEXT.md):
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import http.client
 import os
@@ -339,10 +340,8 @@ def _download_and_verify() -> Path:
         return final_path
     except BaseException:
         # Clean up temp file on ANY failure (including KeyboardInterrupt)
-        try:
+        with contextlib.suppress(OSError):
             tmp_path.unlink(missing_ok=True)
-        except OSError:
-            pass
         raise
 
 

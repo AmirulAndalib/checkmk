@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import contextlib
 from collections.abc import Iterator, Mapping
 from typing import Any
 
@@ -22,12 +23,10 @@ def check_raritan_pdu_outletcount(
     item: None, params: Mapping[str, Any], info: StringTable
 ) -> Iterator[tuple[int, str, list[Any]]]:
     levels = params.get("levels_upper", (None, None)) + params.get("levels_lower", (None, None))
-    try:
+    with contextlib.suppress(IndexError):
         yield check_levels(
             int(info[0][0]), "outletcount", levels, human_readable_func=lambda f: "%.f" % f
         )
-    except IndexError:
-        pass
 
 
 def parse_raritan_pdu_outletcount(string_table: StringTable) -> StringTable:

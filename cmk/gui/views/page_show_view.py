@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import functools
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from itertools import chain
@@ -502,10 +503,8 @@ def _get_needed_regular_columns(
     )
 
     # Remove (implicit) site column
-    try:
+    with contextlib.suppress(KeyError):
         columns.remove("site")
-    except KeyError:
-        pass
 
     # In the moment the context buttons are shown, the link_from mechanism is used
     # to decide to which other views/dashboards the context buttons should link to.

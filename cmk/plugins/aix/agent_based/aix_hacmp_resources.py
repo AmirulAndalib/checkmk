@@ -14,6 +14,7 @@
 #  u'pmon01rg': [(u'pasv0449', u'online'), (u'pasv0450', u'offline')]}
 
 
+import contextlib
 from collections.abc import Mapping
 from typing import Any
 
@@ -40,10 +41,8 @@ def parse_aix_hacmp_resources(
             or "Status of the RSCT subsystems" in joined_line
         ):
             continue
-        try:
+        with contextlib.suppress(IndexError):
             parsed.setdefault(line[0], []).append((line[2], line[1].lower()))
-        except IndexError:
-            pass
     return parsed
 
 
