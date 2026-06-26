@@ -29,7 +29,7 @@ def migrate_to_dynamic_icon(
     if not icon:
         return None
 
-    if isinstance(icon, UserIcon) or isinstance(icon, DefaultIcon) or isinstance(icon, EmblemIcon):
+    if isinstance(icon, (UserIcon, DefaultIcon, EmblemIcon)):
         return icon
 
     if isinstance(icon, str):
