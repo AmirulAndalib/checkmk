@@ -72,13 +72,9 @@ class APIConfig:
     @classmethod
     def is_version_available(cls, version: APIVersion, development_mode: bool = False) -> bool:
         """Check if a version is available in the current environment"""
-        if version in cls.RELEASED_VERSIONS_IN_ORDER:
-            return True
-
-        if development_mode and version in cls.DEVELOPMENT_VERSIONS:
-            return True
-
-        return False
+        return version in cls.RELEASED_VERSIONS_IN_ORDER or (
+            development_mode and version in cls.DEVELOPMENT_VERSIONS
+        )
 
     @classmethod
     def is_version_deprecated(cls, version: APIVersion) -> bool:

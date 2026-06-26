@@ -69,11 +69,7 @@ def is_executable_wrapper(content: str) -> bool:
         return False
 
     # Must call main() function in the main block
-    has_main_call = any("main(" in line for line in lines)
-    if not has_main_call:
-        return False
-
-    return True
+    return any("main(" in line for line in lines)
 
 
 def is_python_source(content: str) -> bool:
@@ -95,11 +91,8 @@ def is_python_source(content: str) -> bool:
 
         # "valid in python" still might lead to a lot of false positives
         # (like a text file with "hello" in it)
-        if re.search("import |def |class |print", content):
-            # if it contains import, def, or class, it's likely Python code
-            return True
-
-        return False
+        # if it contains import, def, or class, it's likely Python code
+        return bool(re.search("import |def |class |print", content))
     except SyntaxError:
         pass
 
@@ -189,10 +182,8 @@ def has_python_extension_violation(file_path: Path) -> bool:
     # as this is more resource intensive, this should be at the end
     if is_python_source(content):
         # Check if it's an executable wrapper and should be ignored
-        if IGNORE_EXECUTABLE_WRAPPERS and is_executable_wrapper(content):
-            return False
         # Violation found: it's a python source file without a .py extension
-        return True
+        return not (IGNORE_EXECUTABLE_WRAPPERS and is_executable_wrapper(content))
 
     return False
 

@@ -30,16 +30,11 @@ def is_locked_by_quick_setup(
             this case. We still want to show the user that the object is part of a bundle while
             unlocking it. Defaults to True since the reference should normally exist.
     """
-    if ident is None:
-        return False
-
-    if ident["program_id"] != PROGRAM_ID_QUICK_SETUP:
-        return False
-
-    if check_reference_exists and ident["instance_id"] not in load_configuration_bundles():
-        return False
-
-    return True
+    return (
+        ident is not None
+        and ident["program_id"] == PROGRAM_ID_QUICK_SETUP
+        and (not check_reference_exists or ident["instance_id"] in load_configuration_bundles())
+    )
 
 
 class ConfigBundle(TypedDict):

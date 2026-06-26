@@ -95,11 +95,8 @@ def is_notification_file(path: str) -> bool:
 
 
 def needs_enterprise_license(path: str) -> bool:
-    parts = path.split("/")
-    if any(p for p in enterprise_names if p in parts):
-        return True
-
-    return False
+    parts = set(path.split("/"))
+    return any(name in parts for name in enterprise_names)
 
 
 def get_file_header(path: str, length: int = 30) -> str:

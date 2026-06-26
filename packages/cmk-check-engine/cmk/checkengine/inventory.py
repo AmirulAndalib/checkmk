@@ -238,27 +238,16 @@ def _inventorize_cluster(*, nodes: Sequence[HostName]) -> MutableTree:
 def _no_data_or_files(
     host_name: HostName, host_sections: Iterable[HostSections], omd_root: Path
 ) -> bool:
-    if any(hs.sections or hs.piggybacked_raw_data for hs in host_sections):
-        return False
-
     inv_paths = InventoryPaths(omd_root)
-    if (
-        inv_paths.inventory_tree(host_name).path.exists()
-        or inv_paths.inventory_tree(host_name).legacy.exists()
-    ):
-        return False
-
-    if (
-        inv_paths.status_data_tree(host_name).path.exists()
-        or inv_paths.status_data_tree(host_name).legacy.exists()
-    ):
-        return False
-
     archive_host = inv_paths.archive_host(host_name)
-    if archive_host.exists() and any(archive_host.iterdir()):
-        return False
-
-    return True
+    return (
+        not any(hs.sections or hs.piggybacked_raw_data for hs in host_sections)
+        and not inv_paths.inventory_tree(host_name).path.exists()
+        and not inv_paths.inventory_tree(host_name).legacy.exists()
+        and not inv_paths.status_data_tree(host_name).path.exists()
+        and not inv_paths.status_data_tree(host_name).legacy.exists()
+        and (not archive_host.exists() or not any(archive_host.iterdir()))
+    )
 
 
 def _inventorize_real_host(

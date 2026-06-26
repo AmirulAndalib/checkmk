@@ -414,10 +414,7 @@ class Table:
         return
 
     def _show_action_row(self) -> bool:
-        if self.options["sortable"] and self._get_sort_column(user.tableoptions[self.id]):
-            return True
-
-        return False
+        return bool(self.options["sortable"] and self._get_sort_column(user.tableoptions[self.id]))
 
     def _evaluate_user_opts(self) -> tuple[TableRows, bool, str | None]:
         assert self.id is not None

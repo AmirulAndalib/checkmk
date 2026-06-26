@@ -796,13 +796,7 @@ class ABCLivestatusMatchPlugin(ABCMatchPlugin):
         self, livestatus_table: LivestatusTable, used_filters: UsedFilters
     ) -> bool:
         # Check if this filters handles the table at all
-        if livestatus_table not in self._supported_livestatus_tables:
-            return False
-
-        if self.name not in used_filters:
-            return False
-
-        return True
+        return livestatus_table in self._supported_livestatus_tables and self.name in used_filters
 
     @abc.abstractmethod
     def get_livestatus_columns(self, livestatus_table: LivestatusTable) -> list[LivestatusColumn]:

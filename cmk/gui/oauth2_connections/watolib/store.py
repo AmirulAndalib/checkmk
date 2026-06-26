@@ -149,16 +149,11 @@ def delete_oauth2_connection(
 def is_locked_by_oauth2_connection(
     ident: GlobalIdent | None, *, check_reference_exists: bool = True
 ) -> TypeGuard[GlobalIdent]:
-    if ident is None:
-        return False
-
-    if ident["program_id"] != PROGRAM_ID_OAUTH:
-        return False
-
-    if check_reference_exists and ident["instance_id"] not in load_oauth2_connections():
-        return False
-
-    return True
+    return (
+        ident is not None
+        and ident["program_id"] == PROGRAM_ID_OAUTH
+        and (not check_reference_exists or ident["instance_id"] in load_oauth2_connections())
+    )
 
 
 def save_tokens_to_passwordstore(

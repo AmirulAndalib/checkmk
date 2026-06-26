@@ -41,6 +41,7 @@ select = [
   "RSE",    # flake8: raise
   "RUF100", # ruff: unused noqa
   "SIM101", # flake8-simplify: duplicate-isinstance-call
+  "SIM103", # flake8-simplify: needless-bool
   "SIM110", # flake8-simplify: reimplemented-builtin
   "SIM113", # flake8-simplify: enumerate-for-loop
   "SIM114", # flake8-simplify: if-with-same-arms

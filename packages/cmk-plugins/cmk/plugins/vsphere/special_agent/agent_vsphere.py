@@ -1754,9 +1754,7 @@ def get_systemtime(connection: ESXConnection, debug: bool) -> float | None:
 
 def is_placeholder_vm(devices: str) -> bool:
     elements = get_pattern('<VirtualDevice xsi:type="([^"]+)', devices)
-    if "VirtualDisk" not in elements:
-        return True
-    return False
+    return "VirtualDisk" not in elements
 
 
 def eval_virtual_device(info: str, _datastores: Mapping[str, Mapping[str, str]]) -> str:

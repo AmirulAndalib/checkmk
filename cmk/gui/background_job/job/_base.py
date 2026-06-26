@@ -110,43 +110,27 @@ class BackgroundJob:
         return user.id == self.get_status().user
 
     def may_stop(self) -> bool:
-        if not self.is_stoppable():
-            return False
-
-        if not user.may("background_jobs.stop_jobs"):
-            return False
-
-        if self._is_foreign() and not user.may("background_jobs.stop_foreign_jobs"):
-            return False
-
-        if not self.is_active():
-            return False
-
-        return True
+        return (
+            self.is_stoppable()
+            and user.may("background_jobs.stop_jobs")
+            and (not self._is_foreign() or user.may("background_jobs.stop_foreign_jobs"))
+            and self.is_active()
+        )
 
     def may_delete(self) -> bool:
-        if not self.is_deletable():
-            return False
-
-        if not self.is_stoppable() and self.is_active():
-            return False
-
-        if not user.may("background_jobs.delete_jobs"):
-            return False
-
-        if self._is_foreign() and not user.may("background_jobs.delete_foreign_jobs"):
-            return False
-
-        return True
+        return (
+            self.is_deletable()
+            and (self.is_stoppable() or not self.is_active())
+            and user.may("background_jobs.delete_jobs")
+            and (not self._is_foreign() or user.may("background_jobs.delete_foreign_jobs"))
+        )
 
     def _is_foreign(self) -> bool:
         return self.get_status().user != user.id
 
     def is_active(self) -> bool:
         result = self._executor.is_alive(self._job_id)
-        if result.is_error():
-            return False
-        return result.ok
+        return result.is_ok() and result.ok
 
     def stop(self) -> None:
         if not self.is_active():

@@ -84,13 +84,9 @@ class SiteContext:
         return self.version_meta_dir + "/skel"
 
     def _has_version_meta_data(self) -> bool:
-        if not os.path.exists(self.version_meta_dir):
-            return False
-
-        if self._version_meta_data_version() != version_from_site_dir(Path(self._paths.home)):
-            return False
-
-        return True
+        return os.path.exists(self.version_meta_dir) and (
+            self._version_meta_data_version() == version_from_site_dir(Path(self._paths.home))
+        )
 
     def _version_meta_data_version(self) -> str:
         with open(self.version_meta_dir + "/version") as f:

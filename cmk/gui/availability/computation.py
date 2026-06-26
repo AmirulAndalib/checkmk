@@ -636,11 +636,7 @@ def cell_active(sid: str, avoptions: AVOptions) -> bool:
         return False
     if sid == "host_down" and not avoptions["consider"]["host_down"]:
         return False
-    if sid in sg and sid not in sg.values():
-        return False
-    if sid in hsg and sid not in hsg.values():
-        return False
-    return True
+    return (sid not in sg or sid in sg.values()) and (sid not in hsg or sid in hsg.values())
 
 
 # Check if the availability of some object is below the levels

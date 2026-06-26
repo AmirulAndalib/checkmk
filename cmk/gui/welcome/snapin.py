@@ -48,9 +48,7 @@ class SidebarWelcomeSnapin(SidebarSnapin):
     @override
     @classmethod
     def may_see(cls, user_permissions: UserPermissions) -> bool:
-        if not all(user.may(perm) for perm in WELCOME_PERMISSIONS):
-            return False
-        return True
+        return all(user.may(perm) for perm in WELCOME_PERMISSIONS)
 
     @override
     @classmethod

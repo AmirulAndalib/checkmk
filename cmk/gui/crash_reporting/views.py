@@ -757,10 +757,7 @@ def check_crash_source(selection: str, row: dict[str, Any]) -> bool:
     if selection == "built_in" and is_extension:
         return False
 
-    if selection == "extension" and not is_extension:
-        return False
-
-    return True
+    return selection != "extension" or bool(is_extension)
 
 
 FilterCrashSource = FilterOption(

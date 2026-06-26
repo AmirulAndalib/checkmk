@@ -82,9 +82,7 @@ def _is_summary_format(string_table: StringTable) -> bool:
     if not string_table:
         return False
     data = json.loads(string_table[0][0])
-    if isinstance(data, list) and data and "Type" in data[0]:
-        return True
-    return False
+    return bool(isinstance(data, list) and data and "Type" in data[0])
 
 
 def _aggregate_disk_usage(existing: DiskUsage | None, new: DiskUsage) -> DiskUsage:

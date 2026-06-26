@@ -637,13 +637,10 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
     # TODO: Wie is die Semantik hier genau? Umsetzung vervollständigen!
     def may_see(self) -> bool:
         perm_name = f"{self.type_name()}.{self.name()}"
-        if perm_name in permission_registry and not user.may(perm_name):
-            return False
+        return perm_name not in permission_registry or user.may(perm_name)
 
         # if self.owner() == "" and not user.may(perm_name):
         #    return False
-
-        return True
         #    continue # not allowed to see this view
 
         # TODO: Permissions

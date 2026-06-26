@@ -50,3 +50,8 @@ def may_override(read_only_config: ReadOnlySpec) -> bool:
     return user.id in read_only_config["rw_users"] or (
         request.var("mode") == "read_only" and user.may("wato.set_read_only")
     )
+
+
+def blocks_changes(read_only_config: ReadOnlySpec) -> bool:
+    """Read only mode is active and the current user may not override it."""
+    return is_enabled(read_only_config) and not may_override(read_only_config)

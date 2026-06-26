@@ -342,12 +342,9 @@ class NumberRangeQuery(Query):
 def value_in_range(value: int | float, bounds: MaybeBounds) -> bool:
     from_value, to_value = bounds
 
-    if from_value and value < from_value:
-        return False
-
-    if to_value and value > to_value:
-        return False
-    return True
+    # FIXME: `0`/`0.0` bounds are falsy and get skipped like `None`; prefer `is None` checks if
+    # zero should be a valid bound.
+    return (not from_value or from_value <= value) and (not to_value or value <= to_value)
 
 
 def column_value_in_range(row: Row, column: str, bounds: MaybeBounds) -> bool:

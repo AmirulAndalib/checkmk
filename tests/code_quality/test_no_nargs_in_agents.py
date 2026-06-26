@@ -69,9 +69,7 @@ def _is_safe_nargs(node: ast.Call) -> bool:
             if isinstance(kw.value, ast.Constant):
                 action_value = kw.value.value
 
-    if nargs_value == 1 and action_value == "append":
-        return True
-    return False
+    return nargs_value == 1 and action_value == "append"
 
 
 def _find_nargs_violations(file_path: Path) -> list[tuple[int, str]]:

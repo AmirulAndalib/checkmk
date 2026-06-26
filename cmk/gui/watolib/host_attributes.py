@@ -473,19 +473,12 @@ class ABCHostAttribute(abc.ABC):
         if for_what == "always":
             return True
 
-        if new and not self.show_on_create():
-            return False
-
-        if for_what in ["host", "cluster", "bulk"] and not self.show_in_form():
-            return False
-
-        if for_what == "folder" and not self.show_in_folder():
-            return False
-
-        if for_what == "host_search" and not self.show_in_host_search():
-            return False
-
-        return True
+        return (
+            (not new or self.show_on_create())
+            and (for_what not in ["host", "cluster", "bulk"] or self.show_in_form())
+            and (for_what != "folder" or self.show_in_folder())
+            and (for_what != "host_search" or self.show_in_host_search())
+        )
 
     def validate_input(self, value: Any, varprefix: str) -> None:
         """Check if the value entered by the user is valid.

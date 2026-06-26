@@ -99,9 +99,7 @@ def _regex_match(what: Collection[str], name: str) -> bool:
 
 
 def _state_match(rule_state: str | None, state: str) -> bool:
-    if rule_state is not None and rule_state != state:
-        return False
-    return True
+    return rule_state is None or rule_state == state
 
 
 def _get_svc_name(svc_attrs: SolarisService) -> str:

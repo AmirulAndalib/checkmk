@@ -290,10 +290,7 @@ def _may_add_site_hint(
 
     # Hack for servicedesc view which is meant to show all services with the given
     # description: Don't add the site filter for this view.
-    if visual_name == "servicedesc":
-        return False
-
-    return True
+    return visual_name != "servicedesc"
 
 
 def _is_single_site_info(info_key: InfoName) -> bool:

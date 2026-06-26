@@ -98,14 +98,9 @@ def sync_entry_point(job_interface: BackgroundProcessInterface, args: UserSyncAr
 
 def _userdb_sync_job_enabled(site_configs: SiteConfigurations) -> bool:
     cfg = user_sync_config()
-
-    if cfg is None:
-        return False  # not enabled at all
-
-    if cfg == "master" and is_distributed_setup_remote_site(site_configs):
-        return False
-
-    return True
+    return cfg is not None and (
+        cfg != "master" or not is_distributed_setup_remote_site(site_configs)
+    )
 
 
 def ajax_sync(ctx: PageContext) -> None:

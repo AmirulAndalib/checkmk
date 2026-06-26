@@ -910,11 +910,9 @@ FILE_PATTERNS_SIGNABLE = [
 
 
 def _should_be_signed(path: str) -> bool:
-    if not any(pattern.match(path) for pattern in FILE_PATTERNS_SIGNABLE):
-        return False
-    if any(pattern.match(path) for pattern in FILES_UNSIGNED):
-        return False
-    return True
+    return any(pattern.match(path) for pattern in FILE_PATTERNS_SIGNABLE) and not any(
+        pattern.match(path) for pattern in FILES_UNSIGNED
+    )
 
 
 _TRUSTED_ROOTS_DIR = Path(__file__).parent / "certs"

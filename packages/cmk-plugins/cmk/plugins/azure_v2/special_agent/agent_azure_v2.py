@@ -621,11 +621,9 @@ class Selector:
         self._tag_based_config = TagBasedConfig(args.require_tag, args.require_tag_value)
 
     def do_monitor(self, resource: AzureResource) -> bool:
-        if not self._explicit_config.is_configured(resource):
-            return False
-        if not self._tag_based_config.is_configured(resource):
-            return False
-        return True
+        return self._explicit_config.is_configured(
+            resource
+        ) and self._tag_based_config.is_configured(resource)
 
     def __str__(self) -> str:
         lines = [

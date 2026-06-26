@@ -381,16 +381,11 @@ class GUIViewRenderer(ABCViewRenderer):
         if show_form is not None:
             return show_form == 1
 
-        if self.view.spec.get("mustsearch"):
-            return True
-
-        if request.get_ascii_input("filled_in") == "filter":
-            return True
-
-        if self.view.missing_single_infos:
-            return True
-
-        return False
+        return (
+            bool(self.view.spec.get("mustsearch"))
+            or request.get_ascii_input("filled_in") == "filter"
+            or bool(self.view.missing_single_infos)
+        )
 
     def _page_menu(
         self, rows: Rows, show_filters: list[Filter], user_permissions: UserPermissions

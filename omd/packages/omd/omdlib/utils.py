@@ -137,11 +137,4 @@ def site_exists(site_dir: Path) -> bool:
     # created as parent of the tmp directory to mount the tmpfs during
     # container initialization. Detect this situation and don't treat the
     # site as existing in that case.
-    if is_containerized():
-        if not os.path.exists(site_dir):
-            return False
-        if os.listdir(site_dir) == ["tmp"]:
-            return False
-        return True
-
-    return os.path.exists(site_dir)
+    return os.path.exists(site_dir) and not (is_containerized() and os.listdir(site_dir) == ["tmp"])

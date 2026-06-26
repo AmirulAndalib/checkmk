@@ -94,9 +94,7 @@ def _wato_page_handler(config: Config, current_mode: str, mode: WatoMode[object]
     # Do actions (might switch mode)
     if transactions.is_transaction():
         try:
-            if read_only.is_enabled(config.wato_read_only) and not read_only.may_override(
-                config.wato_read_only
-            ):
+            if read_only.blocks_changes(config.wato_read_only):
                 raise MKUserError(None, read_only.message(config.wato_read_only))
 
             result = mode.action(config)

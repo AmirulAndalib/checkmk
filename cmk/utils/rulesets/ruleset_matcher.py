@@ -922,13 +922,9 @@ def _matches_service_conditions(
     match_text: ServiceName | Item,
     service_labels: Labels,
 ) -> bool:
-    if not _matches_service_description_condition(service_description_condition, match_text):
-        return False
-
-    if service_labels_condition and not matches_labels(service_labels, service_labels_condition):
-        return False
-
-    return True
+    return _matches_service_description_condition(service_description_condition, match_text) and (
+        not service_labels_condition or matches_labels(service_labels, service_labels_condition)
+    )
 
 
 def _matches_service_description_condition(

@@ -168,10 +168,7 @@ class ABCGlobalSettingsMode(WatoMode):
                 )
             return False
 
-        if not config_variable.in_global_settings():
-            return False
-
-        return True
+        return config_variable.in_global_settings()
 
     def _extend_display_dropdown(self, menu: PageMenu) -> None:
         display_dropdown = menu.get_dropdown_by_name("display", make_display_options_dropdown())

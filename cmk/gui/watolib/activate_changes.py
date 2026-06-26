@@ -550,10 +550,7 @@ def _is_currently_activating(site_rep_status: SiteReplicationStatus) -> bool:
     except MKUserError:
         return False  # Not existent anymore!
 
-    if manager.is_running():
-        return True
-
-    return False
+    return manager.is_running()
 
 
 def _lock_activation(site_activation_state: SiteActivationState) -> bool:
@@ -1601,13 +1598,11 @@ def _needs_sync(change: ChangeSpec) -> bool:
 
 def _has_been_activated_for_site(change: ChangeSpec, site_config: SiteConfiguration) -> bool:
     """Compute the activation state of ``change`` against the current site config."""
-    if not site_is_local(site_config):
-        return False
-    if _needs_restart(change):
-        return False
-    if change.get("force_apache_reload", False):
-        return False
-    return True
+    return (
+        site_is_local(site_config)
+        and not _needs_restart(change)
+        and not change.get("force_apache_reload", False)
+    )
 
 
 def prevent_discard_changes(change: ChangeSpec) -> bool:
@@ -2001,10 +1996,7 @@ class ActivateChangesManager:
             # started and could not lock the site stat file yet.
             return True
 
-        if site_state["_phase"] == PHASE_DONE:
-            return False
-
-        return True
+        return site_state["_phase"] != PHASE_DONE
 
     # Check whether or not at least one site thread is still working
     # (flock on the <activation_id>/site_<site_id>.mk file)

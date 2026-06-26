@@ -92,10 +92,7 @@ def is_so_or_exec_elf_file(file: Path) -> bool:
     if vers != ELF_VERSION:
         return False
 
-    if elf_type not in (ELF_TYPE_EXECUTABLE, ELF_TYPE_SHARED_OBJECT):
-        return False
-
-    return True
+    return elf_type in (ELF_TYPE_EXECUTABLE, ELF_TYPE_SHARED_OBJECT)
 
 
 def is_static_library(file: Path) -> bool:

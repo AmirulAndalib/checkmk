@@ -421,9 +421,7 @@ class FrontendSupervisor:
         while time.monotonic() < deadline:
             if _check_port("127.0.0.1", self._config.port):
                 # Defense: verify process is still alive
-                if self._proc is not None and self._proc.poll() is None:
-                    return True
-                return False
+                return self._proc is not None and self._proc.poll() is None
             time.sleep(self._config.health_check_interval)
         return False
 

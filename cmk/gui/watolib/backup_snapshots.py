@@ -600,9 +600,7 @@ def extract_snapshot(
             return []
 
         def path_valid(_prefix: str | Path, path: str) -> bool:
-            if path.startswith(("/", "..")):
-                return False
-            return True
+            return not path.startswith(("/", ".."))
 
         # Remove old stuff
         for what, path in domain.get("paths", {}):

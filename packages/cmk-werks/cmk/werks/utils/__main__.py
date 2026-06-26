@@ -44,12 +44,10 @@ def main_precompile(args: argparse.Namespace) -> None:
     def _filter(werk: WerkV3) -> bool:
         edition = werk.edition
 
-        if filter_by_edition is not None and edition != filter_by_edition:
-            return False
-        # only include werks of this major version:
-        if Version.from_str(werk.version).base != current_version.base:
-            return False
-        return True
+        # include only werks matching the edition filter (if any) and this major version
+        return (filter_by_edition is None or edition == filter_by_edition) and (
+            Version.from_str(werk.version).base == current_version.base
+        )
 
     werks = {werk.id: werk for werk in werks_list if _filter(werk)}
 

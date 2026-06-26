@@ -2092,10 +2092,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
     @override
     def is_enabled(self) -> bool:
         sync_config = user_sync_config()
-        if isinstance(sync_config, tuple) and self.id not in sync_config[1]:
-            # self._ldap_logger('Skipping disabled connection %s' % (self.id))
-            return False
-        return True
+        # self._ldap_logger('Skipping disabled connection %s' % (self.id))
+        return not isinstance(sync_config, tuple) or self.id in sync_config[1]
 
     def is_authentication_connection(self) -> bool:
         """True if this LDAP connector is listed for login authentication on the

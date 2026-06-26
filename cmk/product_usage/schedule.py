@@ -15,10 +15,7 @@ def should_run_collection_on_schedule(var_dir: Path, dt: datetime) -> bool:
     next_run_fp = next_run_file_path(var_dir)
     next_ts = get_next_run_ts(next_run_fp)
 
-    if not next_ts or next_ts > dt:
-        return False
-
-    return True
+    return next_ts is not None and next_ts <= dt
 
 
 def next_run_file_path(var_dir: Path) -> Path:

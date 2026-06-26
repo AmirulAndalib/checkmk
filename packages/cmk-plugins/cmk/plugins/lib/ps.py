@@ -213,13 +213,9 @@ def match_attribute(attribute, pattern):
 
 def process_attributes_match(process_info, userspec, cgroupspec):
     cgroup_pattern, invert = cgroupspec
-    if process_info.cgroup and (match_attribute(process_info.cgroup, cgroup_pattern) is invert):
-        return False
-
-    if not match_attribute(process_info.user, userspec):
-        return False
-
-    return True
+    return not (
+        process_info.cgroup and match_attribute(process_info.cgroup, cgroup_pattern) is invert
+    ) and match_attribute(process_info.user, userspec)
 
 
 def process_matches(

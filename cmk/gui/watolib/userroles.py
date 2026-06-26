@@ -83,9 +83,7 @@ def get_role(role_id: RoleID) -> UserRole:
 
 
 def role_exists(role_id: RoleID) -> bool:
-    if get_all_roles().get(role_id) is not None:
-        return True
-    return False
+    return get_all_roles().get(role_id) is not None
 
 
 def delete_role(

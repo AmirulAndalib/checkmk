@@ -656,10 +656,10 @@ class _RedisHelper:
             x for x in self._get_latest_timestamps_from_disk() if x not in allowed_timestamps
         ]
 
-        if remaining_timestamps and remaining_timestamps[-1] > self._get_last_update_from_redis():
-            return False
-
-        return True
+        return (
+            not remaining_timestamps
+            or remaining_timestamps[-1] <= self._get_last_update_from_redis()
+        )
 
     def _get_allowed_folder_timestamps(self, folder: Folder) -> list[str]:
         wato_info_path = folder.wato_info_path()

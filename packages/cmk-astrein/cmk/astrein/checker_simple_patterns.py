@@ -30,16 +30,12 @@ class ABCMetaMetaclassChecker(ASTVisitorChecker):
 
     @staticmethod
     def _is_abcmeta(node: ast.expr) -> bool:
-        if isinstance(node, ast.Name) and node.id == "ABCMeta":
-            return True
-        if (
+        return (isinstance(node, ast.Name) and node.id == "ABCMeta") or (
             isinstance(node, ast.Attribute)
             and node.attr == "ABCMeta"
             and isinstance(node.value, ast.Name)
             and node.value.id == "abc"
-        ):
-            return True
-        return False
+        )
 
 
 class HTMLDebugChecker(ASTVisitorChecker):
@@ -227,15 +223,11 @@ class PydanticTypeAdapterChecker(ASTVisitorChecker):
     @staticmethod
     def _is_type_adapter_call(node: ast.Call) -> bool:
         func = node.func
-        if isinstance(func, ast.Name) and func.id == "TypeAdapter":
-            return True
-        if (
+        return (isinstance(func, ast.Name) and func.id == "TypeAdapter") or (
             isinstance(func, ast.Subscript)
             and isinstance(func.value, ast.Name)
             and func.value.id == "TypeAdapter"
-        ):
-            return True
-        return False
+        )
 
 
 class TarfileOpenReadChecker(ASTVisitorChecker):
@@ -283,6 +275,4 @@ class TarfileOpenReadChecker(ASTVisitorChecker):
             if isinstance(mode_arg, ast.Constant) and isinstance(mode_arg.value, str):
                 return mode_arg.value.startswith("r")
         # No mode specified at all — defaults to "r"
-        if not any(kw.arg == "mode" for kw in node.keywords) and len(node.args) < 2:
-            return True
-        return False
+        return not any(kw.arg == "mode" for kw in node.keywords) and len(node.args) < 2

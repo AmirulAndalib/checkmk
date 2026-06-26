@@ -1036,28 +1036,22 @@ class Ruleset:
         )
 
     def matches_ruleset_search_options(self, search_options: SearchOptions) -> bool:
-        if (
-            "ruleset_deprecated" in search_options
-            and search_options["ruleset_deprecated"] != self.is_deprecated()
-        ):
-            return False
-
-        if "ruleset_used" in search_options and search_options["ruleset_used"] is self.is_empty():
-            return False
-
-        if "ruleset_group" in search_options and not self._matches_group_search(search_options):
-            return False
-
-        if not _match_search_expression(search_options, "ruleset_name", self.name):
-            return False
-
-        if not _match_search_expression(search_options, "ruleset_title", str(self.title())):
-            return False
-
-        if not _match_search_expression(search_options, "ruleset_help", str(self.help())):
-            return False
-
-        return True
+        return (
+            (
+                "ruleset_deprecated" not in search_options
+                or search_options["ruleset_deprecated"] == self.is_deprecated()
+            )
+            and (
+                "ruleset_used" not in search_options
+                or search_options["ruleset_used"] is not self.is_empty()
+            )
+            and (
+                "ruleset_group" not in search_options or self._matches_group_search(search_options)
+            )
+            and _match_search_expression(search_options, "ruleset_name", self.name)
+            and _match_search_expression(search_options, "ruleset_title", str(self.title()))
+            and _match_search_expression(search_options, "ruleset_help", str(self.help()))
+        )
 
     def _matches_group_search(self, search_options: SearchOptions) -> bool:
         # All rulesets are in a single group. Only the two rulesets "agent_ports" and

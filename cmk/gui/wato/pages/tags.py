@@ -1249,13 +1249,9 @@ def _show_affected_rulesets(affected_rulesets: list[Ruleset]) -> None:
 
 
 def _is_removing_tags(operation: ABCOperation) -> bool:
-    if isinstance(operation, OperationRemoveAuxTag | OperationRemoveTagGroup):
-        return True
-
-    if isinstance(operation, OperationReplaceGroupedTags) and operation.remove_tag_ids:
-        return True
-
-    return False
+    return isinstance(operation, OperationRemoveAuxTag | OperationRemoveTagGroup) or (
+        isinstance(operation, OperationReplaceGroupedTags) and bool(operation.remove_tag_ids)
+    )
 
 
 def _pending_changes(

@@ -89,10 +89,7 @@ def is_latest(image_tag: str) -> bool:
     assert image_tag, f"Expected to receive image tag, got {image_tag!r}"
 
     # Has to match branch-specific latest (e.g. "2.3.0-latest") and literal "latest"
-    if image_tag.endswith("latest"):
-        return True
-
-    return False
+    return image_tag.endswith("latest")
 
 
 def get_docker_image_and_registry(

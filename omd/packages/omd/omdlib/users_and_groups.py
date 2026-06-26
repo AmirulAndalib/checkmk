@@ -232,9 +232,7 @@ def _user_has_group(user: str, group: str) -> bool:
         if g.gr_name == group:
             return True
         g = _group_by_id(group_id(group))
-        if user in g.gr_mem:
-            return True
-        return False
+        return user in g.gr_mem
     except Exception:
         return False
 

@@ -450,10 +450,7 @@ def _service_discovery_possible(
     remote_status = ReplicationStatusFetcher().fetch(
         [(site_id, remote_automation_config_from_site_config(site_config))], debug=debug
     )
-    if not remote_status[site_id].success:
-        return False
-
-    return True
+    return remote_status[site_id].success
 
 
 def _get_service_discovery_result(

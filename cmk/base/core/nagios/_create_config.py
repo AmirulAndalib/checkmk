@@ -1125,11 +1125,11 @@ def _skip_service(
     service_name: ServiceName,
     service_labels: Labels,
 ) -> bool:
-    if config_cache.service_ignored(host_name, service_name, service_labels):
-        return True
-    if host_name != config_cache.clustering.effective_host(host_name, service_name, service_labels):
-        return True
-    return False
+    return config_cache.service_ignored(
+        host_name, service_name, service_labels
+    ) or host_name != config_cache.clustering.effective_host(
+        host_name, service_name, service_labels
+    )
 
 
 def _get_dependencies(

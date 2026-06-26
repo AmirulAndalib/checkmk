@@ -197,19 +197,12 @@ class ModeRevertChanges(WatoMode):
     def _may_discard_changes(
         self, read_only_config: ReadOnlySpec, *, file_to_restore: str | None
     ) -> bool:
-        if not user.may("wato.activate"):
-            return False
-
-        if not user.may("wato.discard"):
-            return False
-
-        if read_only.is_enabled(read_only_config) and not read_only.may_override(read_only_config):
-            return False
-
-        if not file_to_restore:
-            return False
-
-        return True
+        return (
+            user.may("wato.activate")
+            and user.may("wato.discard")
+            and not read_only.blocks_changes(read_only_config)
+            and bool(file_to_restore)
+        )
 
     def action(self, config: Config) -> ActionResult:
         if request.var("_action") != "discard":
@@ -538,21 +531,15 @@ class ModeActivateChanges(WatoMode):
     def _may_discard_changes(
         self, read_only_config: ReadOnlySpec, activation_site_ids: Sequence[SiteId], *, debug: bool
     ) -> bool:
-        if not user.may("wato.discard"):
-            return False
-
-        if not user.may("wato.discardforeign") and self._changes.has_foreign_changes_on_any_site(
-            activation_site_ids
-        ):
-            return False
-
-        if not self._may_activate_changes(read_only_config, activation_site_ids):
-            return False
-
-        if not get_last_wato_snapshot_file(debug=debug):
-            return False
-
-        return True
+        return (
+            user.may("wato.discard")
+            and (
+                user.may("wato.discardforeign")
+                or not self._changes.has_foreign_changes_on_any_site(activation_site_ids)
+            )
+            and self._may_activate_changes(read_only_config, activation_site_ids)
+            and bool(get_last_wato_snapshot_file(debug=debug))
+        )
 
     def _license_allows_activation(self) -> bool:
         if self._edition in (Edition.ULTIMATEMT, Edition.ULTIMATE):
@@ -573,18 +560,15 @@ class ModeActivateChanges(WatoMode):
     def _may_activate_changes(
         self, read_only_config: ReadOnlySpec, activation_site_ids: Sequence[SiteId]
     ) -> bool:
-        if not user.may("wato.activate"):
-            return False
-
-        if not user.may("wato.activateforeign") and self._changes.has_foreign_changes_on_any_site(
-            activation_site_ids
-        ):
-            return False
-
-        if read_only.is_enabled(read_only_config) and not read_only.may_override(read_only_config):
-            return False
-
-        return self._license_allows_activation()
+        return (
+            user.may("wato.activate")
+            and (
+                user.may("wato.activateforeign")
+                or not self._changes.has_foreign_changes_on_any_site(activation_site_ids)
+            )
+            and not read_only.blocks_changes(read_only_config)
+            and self._license_allows_activation()
+        )
 
     def page(self, config: Config) -> None:
         self._quick_setup_activation_msg()
