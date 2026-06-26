@@ -29,6 +29,7 @@ import datetime
 import json
 import logging
 import os
+import pathlib
 import re
 import signal
 import ssl
@@ -586,13 +587,11 @@ class RfMockupServer(BaseHTTPRequestHandler):
 
         # if XML...
         elif os.path.isfile(fpath_xml):
-            f = open(fpath_xml)
             self.send_response(200)
             self.send_header("Content-Type", "application/xml;charset=utf-8")
             self.send_header("OData-Version", "4.0")
             self.end_headers()
-            self.wfile.write(f.read().encode())
-            f.close()
+            self.wfile.write(pathlib.Path(fpath_xml).read_bytes())
 
         elif os.path.isfile(fpath_direct):
             self.send_response(200)

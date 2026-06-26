@@ -123,70 +123,71 @@ def test_rename_host(
     expected_clusters: dict[str, set[str]],
 ) -> None:
     # GIVEN
-    job_interface = BackgroundProcessInterface(
-        "",
-        "",
-        logging.getLogger(),
-        threading.Event(),
-        lambda x: gui_context(),
-        open("/dev/null", "w"),
-    )
-    if use_subfolder:
-        folder = (
-            folder_tree()
-            .root_folder()
-            .create_subfolder(
-                "some_subfolder",
-                "Some Subfolder",
-                {},
-                pprint_value=False,
-                pending_changes=_noop_pending_changes(),
-                acting_user=user,
-            )
+    with open("/dev/null", "w") as progress_update:
+        job_interface = BackgroundProcessInterface(
+            "",
+            "",
+            logging.getLogger(),
+            threading.Event(),
+            lambda x: gui_context(),
+            progress_update,
         )
-    else:
-        folder = folder_tree().root_folder()
-    folder.create_hosts(
-        hosts_to_create,
-        pprint_value=False,
-        pending_changes=_noop_pending_changes(),
-        acting_user=user,
-    )
-
-    # WHEN
-    perform_rename_hosts(
-        renamings=[(folder, old, new) for old, new in renamings],
-        job_interface=job_interface,
-        custom_user_attributes=[],
-        user_connections=[],
-        site_configs={
-            SiteId("NO_SITE"): SiteConfiguration(
-                id=SiteId("NO_SITE"),
-                alias="Local site NO_SITE",
-                socket=("local", None),
-                disable_wato=True,
-                disabled=False,
-                insecure=False,
-                url_prefix="/NO_SITE/",
-                multisiteurl="",
-                persist=False,
-                replicate_ec=False,
-                replicate_mkps=False,
-                replication=None,
-                timeout=5,
-                user_login=True,
-                proxy=None,
-                user_attribute_sync_connections="all",
-                status_host=None,
-                message_broker_port=5672,
-                is_trusted=False,
+        if use_subfolder:
+            folder = (
+                folder_tree()
+                .root_folder()
+                .create_subfolder(
+                    "some_subfolder",
+                    "Some Subfolder",
+                    {},
+                    pprint_value=False,
+                    pending_changes=_noop_pending_changes(),
+                    acting_user=user,
+                )
             )
-        },
-        pending_changes=_noop_pending_changes(),
-        pprint_value=False,
-        use_git=False,
-        debug=False,
-    )
+        else:
+            folder = folder_tree().root_folder()
+        folder.create_hosts(
+            hosts_to_create,
+            pprint_value=False,
+            pending_changes=_noop_pending_changes(),
+            acting_user=user,
+        )
+
+        # WHEN
+        perform_rename_hosts(
+            renamings=[(folder, old, new) for old, new in renamings],
+            job_interface=job_interface,
+            custom_user_attributes=[],
+            user_connections=[],
+            site_configs={
+                SiteId("NO_SITE"): SiteConfiguration(
+                    id=SiteId("NO_SITE"),
+                    alias="Local site NO_SITE",
+                    socket=("local", None),
+                    disable_wato=True,
+                    disabled=False,
+                    insecure=False,
+                    url_prefix="/NO_SITE/",
+                    multisiteurl="",
+                    persist=False,
+                    replicate_ec=False,
+                    replicate_mkps=False,
+                    replication=None,
+                    timeout=5,
+                    user_login=True,
+                    proxy=None,
+                    user_attribute_sync_connections="all",
+                    status_host=None,
+                    message_broker_port=5672,
+                    is_trusted=False,
+                )
+            },
+            pending_changes=_noop_pending_changes(),
+            pprint_value=False,
+            use_git=False,
+            debug=False,
+        )
 
     # THEN
     # The folder._hosts is not cleared by the cache invalidation but even if, it

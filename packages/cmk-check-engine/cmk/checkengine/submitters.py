@@ -185,7 +185,7 @@ class PipeSubmitter(Submitter):
 
         try:
             with Timeout(3, message="Timeout after 3 seconds"):
-                cls._nagios_command_pipe = open(cmk.utils.paths.nagios_command_pipe_path, "wb")
+                cls._nagios_command_pipe = open(cmk.utils.paths.nagios_command_pipe_path, "wb")  # noqa: SIM115
         except Exception as exc:
             cls._nagios_command_pipe = False
             raise MKGeneralException(f"Error opening command pipe: {exc!r}") from exc

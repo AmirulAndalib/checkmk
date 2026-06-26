@@ -878,22 +878,20 @@ def main(argv: list[str] | None = None) -> int:
         output.error(str(e))
         return 1
 
-    output.open_log_file(site.name)
-    try:
-        return _main_with_site(args, repo_root, site)
-    except DeployError as e:
-        from cmk.dev_deploy.core.diagnostics import capture_diagnostic_bundle
+    with output.log_file(site.name):
+        try:
+            return _main_with_site(args, repo_root, site)
+        except DeployError as e:
+            from cmk.dev_deploy.core.diagnostics import capture_diagnostic_bundle
 
-        capture_diagnostic_bundle(
-            e,
-            site=site,
-            repo_root=repo_root,
-            phase=_infer_phase(e),
-            json_errors=getattr(args, "json_errors", False),
-        )
-        return 1
-    finally:
-        output.close_log_file()
+            capture_diagnostic_bundle(
+                e,
+                site=site,
+                repo_root=repo_root,
+                phase=_infer_phase(e),
+                json_errors=getattr(args, "json_errors", False),
+            )
+            return 1
 
 
 def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -> int:

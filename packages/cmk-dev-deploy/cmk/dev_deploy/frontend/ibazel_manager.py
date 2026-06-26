@@ -319,10 +319,10 @@ def _download_and_verify() -> Path:
     output.info(f"Downloading iBazel {_IBAZEL_VERSION}...")
 
     # Temp file in same dir as final path (avoids cross-device rename)
-    fd = tempfile.NamedTemporaryFile(dir=cache_dir, prefix=".ibazel-download-", delete=False)
-    tmp_path = Path(fd.name)
+    fd, tmp_name = tempfile.mkstemp(dir=cache_dir, prefix=".ibazel-download-")
+    os.close(fd)  # Close fd so _download_with_progress can open the file
+    tmp_path = Path(tmp_name)
     try:
-        fd.close()  # Close fd so _download_with_progress can open the file
         actual_hash = _download_with_progress(url, tmp_path)
 
         if actual_hash != expected_hash:

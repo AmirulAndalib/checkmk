@@ -121,19 +121,20 @@ class TestCheckmkAutomationBackgroundJob:
         api_request = self._api_request()
         job = CheckmkAutomationBackgroundJob("job_id")
         os.makedirs(job.get_work_dir())
-        job._execute_automation(
-            BackgroundProcessInterface(
-                job.get_work_dir(),
-                "job_id",
-                logging.getLogger(),
-                threading.Event(),
-                lambda x: nullcontext(),
-                open(os.devnull, "w"),
-            ),
-            api_request,
-            cmk_version.Version.from_str(version),
-            dict,
-        )
+        with open(os.devnull, "w") as progress_update:
+            job._execute_automation(
+                BackgroundProcessInterface(
+                    job.get_work_dir(),
+                    "job_id",
+                    logging.getLogger(),
+                    threading.Event(),
+                    lambda x: nullcontext(),
+                    progress_update,
+                ),
+                api_request,
+                cmk_version.Version.from_str(version),
+                dict,
+            )
         assert expected_result == RESULT
 
     @pytest.mark.parametrize(

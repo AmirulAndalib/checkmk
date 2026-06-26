@@ -22,7 +22,8 @@ import os
 import re
 import sys
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from datetime import datetime, UTC
 from enum import IntEnum
 from pathlib import Path
@@ -103,8 +104,9 @@ _refresh_ansi()
 # --- Log file (verbose-level, plain text, alongside deploy state) ---
 
 
-def open_log_file(site_name: str) -> None:
-    """Open a deploy log file under ``$XDG_CACHE_HOME/cmk-dev-deploy/logs/<site>/``."""
+@contextmanager
+def log_file(site_name: str) -> Iterator[None]:
+    """Open a deploy log file under ``$XDG_CACHE_HOME/cmk-dev-deploy/logs/<site>/`` while active."""
     cache = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
     log_dir = cache / "cmk-dev-deploy" / "logs" / site_name
     try:
@@ -115,20 +117,18 @@ def open_log_file(site_name: str) -> None:
         log_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
     _config.log_file_path = log_dir / f"deploy_{ts}.log"
-    _config.log_file = open(_config.log_file_path, "w")
+    with open(_config.log_file_path, "w") as f:
+        _config.log_file = f
+        try:
+            yield
+        finally:
+            # Keep log_file_path set so diagnostics can still read the log after close
+            _config.log_file = None
 
 
 def get_log_file_path() -> Path | None:
     """Return the path of the current log file, or None if not open."""
     return _config.log_file_path
-
-
-def close_log_file() -> None:
-    """Flush and close the deploy log file."""
-    if _config.log_file is not None:
-        _config.log_file.close()
-        _config.log_file = None
-    # Keep log_file_path set so diagnostics can still read the log after close
 
 
 def _log_to_file(msg: str) -> None:

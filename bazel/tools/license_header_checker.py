@@ -216,15 +216,13 @@ def main() -> int:
     exit_code = 1 if violations else 0
 
     if human_exit_code_path:
-        with open(human_exit_code_path, "w") as f:
-            f.write(str(exit_code))
+        pathlib.Path(human_exit_code_path).write_text(str(exit_code))
     if machine_exit_code_path:
-        with open(machine_exit_code_path, "w") as f:
-            f.write(str(exit_code))
+        pathlib.Path(machine_exit_code_path).write_text(str(exit_code))
 
     fail_on_violation = not (human_exit_code_path or machine_exit_code_path)
     if fail_on_violation and violations:
-        print(open(human_out_path).read(), file=sys.stderr)
+        print(pathlib.Path(human_out_path).read_text(), file=sys.stderr)
 
     return 0 if not fail_on_violation else exit_code
 

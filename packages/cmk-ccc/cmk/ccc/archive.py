@@ -246,8 +246,7 @@ class CheckmkTarArchive:
         try:
             self._check_compressed_size(buffer)
             buffer.seek(0)
-            tar = tarfile.open(fileobj=buffer, mode=self._mode(streaming=streaming))
-            with tar:
+            with tarfile.open(fileobj=buffer, mode=self._mode(streaming=streaming)) as tar:
                 if streaming:
                     yield SafeStreamedTarFile(tar, self)
                 else:
@@ -264,8 +263,7 @@ class CheckmkTarArchive:
     ) -> Iterator[SafeIndexedTarFile | SafeStreamedTarFile]:
         try:
             self._check_compressed_size(path)
-            tar = tarfile.open(name=path, mode=self._mode(streaming=streaming))
-            with tar:
+            with tarfile.open(name=path, mode=self._mode(streaming=streaming)) as tar:
                 if streaming:
                     yield SafeStreamedTarFile(tar, self)
                 else:
