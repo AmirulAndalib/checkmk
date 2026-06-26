@@ -1187,12 +1187,10 @@ class MultiSiteConnection(Helpers):
 
     # Needed for temporary connection for status_hosts in disabled sites
     def _disconnect_site(self, sitename: SiteId) -> None:
-        i = 0
-        for connected_site in self.connections:
+        for i, connected_site in enumerate(self.connections):
             if connected_site.id == sitename:
                 del self.connections[i]
                 return
-            i += 1
 
     def set_prepend_site(self, p: bool) -> None:
         self.prepend_site = p

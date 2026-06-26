@@ -36,6 +36,7 @@ select = [
   "RUF100", # ruff: unused noqa
   "SIM101", # flake8-simplify: duplicate-isinstance-call
   "SIM110", # flake8-simplify: reimplemented-builtin
+  "SIM113", # flake8-simplify: enumerate-for-loop
   "SIM114", # flake8-simplify: if-with-same-arms
   "SIM118", # flake8-simplify: in-dict-keys
   "SIM201", # flake8-simplify: negate-equal-op

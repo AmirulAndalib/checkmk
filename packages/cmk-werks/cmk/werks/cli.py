@@ -887,9 +887,7 @@ def main_grep(args: argparse.Namespace) -> None:
 
         # *all* of the keywords must match in order for the
         # werk to be displayed
-        i = 0
-        for kw in args.keywords:
-            i += 1
+        for i, kw in enumerate(args.keywords, start=1):
             this_kw_matched = False
 
             # look for keyword in title

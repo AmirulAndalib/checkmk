@@ -33,14 +33,12 @@ def _is_hex_string(value: str) -> bool:
     if value[-1] != " ":
         return False
     hexdigits = "0123456789abcdefABCDEF"
-    n = 0
-    for x in value:
+    for n, x in enumerate(value):
         if n % 3 == 2:
             if x != " ":
                 return False
         elif x not in hexdigits:
             return False
-        n += 1
     return True
 
 

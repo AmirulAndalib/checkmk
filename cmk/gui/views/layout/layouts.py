@@ -213,11 +213,8 @@ class GroupedBoxesLayout(Layout):
         )
 
         link_renderer = make_link_renderer(request, user_permissions)
-        visible_row_number = 0
         group_hidden, num_grouped_rows = None, 0
         for index, row in rows_with_ids:
-            visible_row_number += 1
-
             odd = "even" if odd == "odd" else "odd"
 
             # state = row.get("service_state", row.get("aggr_state"))
