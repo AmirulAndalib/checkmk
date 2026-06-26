@@ -75,6 +75,8 @@
 # total_drive_raw_capacity:0
 
 
+from dataclasses import dataclass
+
 from cmk.agent_based.v2 import (
     AgentSection,
     CheckPlugin,
@@ -87,23 +89,40 @@ from cmk.agent_based.v2 import (
 )
 
 
-def discover_ibm_svc_system(section: StringTable) -> DiscoveryResult:
+@dataclass(frozen=True)
+class System:
+    name: str | None
+    location: str | None
+    code_level: str | None
+    email_contact_location: str | None
+
+
+def discover_ibm_svc_system(section: System) -> DiscoveryResult:
     yield Service()
 
 
-def check_ibm_svc_system(section: StringTable) -> CheckResult:
-    message = ""
-    for line in section:
-        if line[0] in ("name", "location", "code_level", "email_contact_location"):
-            if message != "":
-                message += ", "
-            message += f"{line[0]}: {line[1]}"
-    yield Result(state=State.OK, summary=message)
-    return
+def check_ibm_svc_system(section: System) -> CheckResult:
+    parts = [
+        f"{label}: {value}"
+        for label, value in (
+            ("name", section.name),
+            ("location", section.location),
+            ("code_level", section.code_level),
+            ("email_contact_location", section.email_contact_location),
+        )
+        if value is not None
+    ]
+    yield Result(state=State.OK, summary=", ".join(parts))
 
 
-def parse_ibm_svc_system(string_table: StringTable) -> StringTable:
-    return string_table
+def parse_ibm_svc_system(string_table: StringTable) -> System:
+    values = {line[0]: line[1] for line in string_table if len(line) >= 2}
+    return System(
+        name=values.get("name"),
+        location=values.get("location"),
+        code_level=values.get("code_level"),
+        email_contact_location=values.get("email_contact_location"),
+    )
 
 
 agent_section_ibm_svc_system = AgentSection(
