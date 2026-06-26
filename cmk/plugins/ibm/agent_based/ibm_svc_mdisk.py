@@ -5,7 +5,8 @@
 
 
 from collections.abc import Mapping
-from typing import Any
+from dataclasses import dataclass
+from typing import TypedDict
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -33,7 +34,24 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 # 9:stp5_300G_01-04:online:managed:16:stp5_300G_01:1.1TB:0000000000000004:BLUBB5:600a0b80006e1dbc0000f7d051341cc000000000000000000000000000000000:generic_hdd
 
 
-Section = Mapping[str, Mapping[str, str]]
+@dataclass(frozen=True)
+class Mdisk:
+    status: str
+    mode: str
+
+
+Section = Mapping[str, Mdisk]
+
+
+class IbmSvcMdiskParams(TypedDict):
+    online_state: State
+    degraded_state: State
+    offline_state: State
+    excluded_state: State
+    managed_mode: State
+    array_mode: State
+    image_mode: State
+    unmanaged_mode: State
 
 
 def parse_ibm_svc_mdisk(string_table: StringTable) -> Section:
@@ -55,11 +73,11 @@ def parse_ibm_svc_mdisk(string_table: StringTable) -> Section:
         "distributed",
         "dedupe",
     ]
-    parsed: dict[str, Mapping[str, str]] = {}
+    parsed: dict[str, Mdisk] = {}
     for rows in parse_ibm_svc_with_header(string_table, dflt_header).values():
         try:
             data = rows[0]
-            parsed.setdefault(data["name"], data)
+            parsed.setdefault(data["name"], Mdisk(status=data["status"], mode=data["mode"]))
         except (KeyError, IndexError):
             continue
     return parsed
@@ -69,20 +87,26 @@ def discover_ibm_svc_mdisk(section: Section) -> DiscoveryResult:
     yield from (Service(item=mdisk_name) for mdisk_name in section)
 
 
-def check_ibm_svc_mdisk(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
-    if not (data := section.get(item)):
+def check_ibm_svc_mdisk(item: str, params: IbmSvcMdiskParams, section: Section) -> CheckResult:
+    if (mdisk := section.get(item)) is None:
         return
-    mdisk_status = data["status"]
-    yield Result(
-        state=State(params.get(f"{mdisk_status}_state", 1)),
-        summary=f"Status: {mdisk_status}",
-    )
 
-    mdisk_mode = data["mode"]
-    yield Result(
-        state=State(params.get(f"{mdisk_mode}_mode", 1)),
-        summary=f"Mode: {mdisk_mode}",
-    )
+    # Unknown status/mode values default to WARN, matching the previous behavior.
+    status_state = {
+        "online": params["online_state"],
+        "degraded": params["degraded_state"],
+        "offline": params["offline_state"],
+        "excluded": params["excluded_state"],
+    }.get(mdisk.status, State.WARN)
+    yield Result(state=State(status_state), summary=f"Status: {mdisk.status}")
+
+    mode_state = {
+        "managed": params["managed_mode"],
+        "array": params["array_mode"],
+        "image": params["image_mode"],
+        "unmanaged": params["unmanaged_mode"],
+    }.get(mdisk.mode, State.WARN)
+    yield Result(state=State(mode_state), summary=f"Mode: {mdisk.mode}")
 
 
 agent_section_ibm_svc_mdisk = AgentSection(
@@ -98,13 +122,13 @@ check_plugin_ibm_svc_mdisk = CheckPlugin(
     check_function=check_ibm_svc_mdisk,
     check_ruleset_name="ibm_svc_mdisk",
     check_default_parameters={
-        "online_state": 0,  # online state is OK
-        "degraded_state": 1,  # degraded state is WARN
-        "offline_state": 2,  # offline state is CRIT
-        "excluded_state": 2,  # excluded state is CRIT
-        "managed_mode": 0,  # managed mode is OK
-        "array_mode": 0,  # array mode is OK
-        "image_mode": 0,  # image mode is OK
-        "unmanaged_mode": 1,  # unmanaged mode is WARN
+        "online_state": State.OK.value,
+        "degraded_state": State.WARN.value,
+        "offline_state": State.CRIT.value,
+        "excluded_state": State.CRIT.value,
+        "managed_mode": State.OK.value,
+        "array_mode": State.OK.value,
+        "image_mode": State.OK.value,
+        "unmanaged_mode": State.WARN.value,
     },
 )

@@ -5,8 +5,7 @@
 
 # mypy: disable-error-code="misc"
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+from collections.abc import Sequence
 
 import pytest
 
@@ -14,6 +13,7 @@ from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.plugins.ibm.agent_based.ibm_svc_mdisk import (
     check_ibm_svc_mdisk,
     discover_ibm_svc_mdisk,
+    IbmSvcMdiskParams,
     parse_ibm_svc_mdisk,
 )
 
@@ -186,14 +186,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "Quorum_BLUBB3",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -335,14 +335,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "Quorum_blubb5",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -484,14 +484,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "Quorum_blubb6",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -633,14 +633,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp5_300G_01-01",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -782,14 +782,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp5_300G_01-02",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -931,14 +931,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp5_300G_01-03",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -1080,14 +1080,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp5_300G_01-04",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -1229,14 +1229,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp6_300G_01-01",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -1378,14 +1378,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp6_300G_01-02",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -1527,14 +1527,14 @@ def test_discover_ibm_svc_mdisk(
         (
             "stp6_300G_01-03",
             {
-                "array_mode": 0,
-                "degraded_state": 1,
-                "excluded_state": 2,
-                "image_mode": 0,
-                "managed_mode": 0,
-                "offline_state": 2,
-                "online_state": 0,
-                "unmanaged_mode": 1,
+                "array_mode": State.OK,
+                "degraded_state": State.WARN,
+                "excluded_state": State.CRIT,
+                "image_mode": State.OK,
+                "managed_mode": State.OK,
+                "offline_state": State.CRIT,
+                "online_state": State.OK,
+                "unmanaged_mode": State.WARN,
             },
             [
                 [
@@ -1677,7 +1677,7 @@ def test_discover_ibm_svc_mdisk(
 )
 def test_check_ibm_svc_mdisk(
     item: str,
-    params: Mapping[str, Any],
+    params: IbmSvcMdiskParams,
     string_table: StringTable,
     expected_results: Sequence[Result],
 ) -> None:

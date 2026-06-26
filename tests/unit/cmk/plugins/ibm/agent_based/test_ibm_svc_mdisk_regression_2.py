@@ -8,17 +8,28 @@
 # If you encounter something weird in here, do not hesitate to replace this
 # test by something more appropriate.
 
-from collections.abc import Mapping
-from typing import Any
-
 import pytest
 
 from cmk.agent_based.v2 import Result, Service, State
 from cmk.plugins.ibm.agent_based.ibm_svc_mdisk import (
     check_ibm_svc_mdisk,
     discover_ibm_svc_mdisk,
+    IbmSvcMdiskParams,
+    Mdisk,
     parse_ibm_svc_mdisk,
+    Section,
 )
+
+_PARAMS: IbmSvcMdiskParams = {
+    "online_state": State.OK,
+    "degraded_state": State.WARN,
+    "offline_state": State.CRIT,
+    "excluded_state": State.CRIT,
+    "managed_mode": State.OK,
+    "array_mode": State.OK,
+    "image_mode": State.OK,
+    "unmanaged_mode": State.WARN,
+}
 
 
 @pytest.fixture(name="string_table")
@@ -44,7 +55,7 @@ def _string_table() -> list[list[str]]:
 
 
 @pytest.fixture(name="parsed")
-def _parsed(string_table: list[list[str]]) -> Mapping[str, Any]:
+def _parsed(string_table: list[list[str]]) -> Section:
     return parse_ibm_svc_mdisk(string_table)
 
 
@@ -58,7 +69,7 @@ def test_parse_ibm_svc_mdisk_regression_2(string_table: list[list[str]]) -> None
     assert len(result) == 0  # Empty because 'name' field is missing from header
 
 
-def test_discover_ibm_svc_mdisk_regression_2_empty_section(parsed: Mapping[str, Any]) -> None:
+def test_discover_ibm_svc_mdisk_regression_2_empty_section(parsed: Section) -> None:
     """Test discovery with empty parsed section."""
     result = list(discover_ibm_svc_mdisk(parsed))
     assert result == []  # No items discovered
@@ -67,47 +78,23 @@ def test_discover_ibm_svc_mdisk_regression_2_empty_section(parsed: Mapping[str, 
 def test_discover_ibm_svc_mdisk_regression_2() -> None:
     """Test discovery behavior with properly named mdisk (simulated scenario)."""
     # Simulate what would happen if the data was properly parsed with name field
-    mock_parsed = {
-        "mdisk_0": {
-            "id": "0",
-            "name": "mdisk_0",
-            "status": "online",
-            "mode": "array",
-            "capacity": "20.8TB",
-            "encrypt": "no",
-        }
-    }
+    mock_parsed = {"mdisk_0": Mdisk(status="online", mode="array")}
 
     result = list(discover_ibm_svc_mdisk(mock_parsed))
     assert result == [Service(item="mdisk_0")]
 
 
-def test_check_ibm_svc_mdisk_regression_2_missing_item(parsed: Mapping[str, Any]) -> None:
+def test_check_ibm_svc_mdisk_regression_2_missing_item(parsed: Section) -> None:
     """Test check function with missing item returns empty generator."""
-    result = list(check_ibm_svc_mdisk("nonexistent", {}, parsed))
+    result = list(check_ibm_svc_mdisk("nonexistent", _PARAMS, parsed))
     assert result == []
 
 
 def test_check_ibm_svc_mdisk_regression_2_with_proper_data() -> None:
     """Test check function with properly structured data."""
-    mock_parsed = {
-        "mdisk_0": {
-            "id": "0",
-            "name": "mdisk_0",
-            "status": "online",
-            "mode": "array",
-            "capacity": "20.8TB",
-            "encrypt": "no",
-        }
-    }
+    mock_parsed = {"mdisk_0": Mdisk(status="online", mode="array")}
 
-    # Use default parameters as defined in the check
-    params = {
-        "online_state": 0,
-        "array_mode": 0,
-    }
-
-    result = list(check_ibm_svc_mdisk("mdisk_0", params, mock_parsed))
+    result = list(check_ibm_svc_mdisk("mdisk_0", _PARAMS, mock_parsed))
 
     assert result == [
         Result(state=State.OK, summary="Status: online"),
@@ -190,5 +177,5 @@ def test_ibm_svc_mdisk_regression_2() -> None:
     assert discovery_result == []
 
     # Verify check function handles missing items
-    check_result = list(check_ibm_svc_mdisk("any_item", {}, parsed))
+    check_result = list(check_ibm_svc_mdisk("any_item", _PARAMS, parsed))
     assert check_result == []
