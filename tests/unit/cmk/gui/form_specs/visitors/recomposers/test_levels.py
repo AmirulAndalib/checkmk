@@ -259,7 +259,7 @@ def test_levels_recompose(
     assert frontend_data == expected_frontend_data
     assert disk_data == expected_disk_data
 
-    if not value == DEFAULT_VALUE and original_value == DEFAULT_VALUE:
+    if value != DEFAULT_VALUE and original_value == DEFAULT_VALUE:
         # make sure we don't change the original value in the validate process
         assert value == original_value
 

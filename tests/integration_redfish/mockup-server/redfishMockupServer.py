@@ -839,7 +839,7 @@ class RfMockupServer(BaseHTTPRequestHandler):
             if success and parentData.get("Members") is not None:
                 self.patchedLinks[fpath] = "404"
                 parentData["Members"] = [
-                    x for x in parentData["Members"] if not x["@odata.id"] == self.path
+                    x for x in parentData["Members"] if x["@odata.id"] != self.path
                 ]
                 parentData["Members@odata.count"] = len(parentData["Members"])
                 self.patchedLinks[parent_path] = parentData

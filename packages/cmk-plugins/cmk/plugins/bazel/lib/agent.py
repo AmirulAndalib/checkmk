@@ -203,7 +203,7 @@ def handle_requests(args: argparse.Namespace, endpoints: list[Endpoint]) -> int:
             return 1
 
         # Status code should be 200.
-        if not res.status_code == requests.codes.OK:
+        if res.status_code != requests.codes.OK:
             sys.stderr.write(
                 f"Wrong status code: {res.status_code}. Expected: {requests.codes.OK} \n"
             )

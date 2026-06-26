@@ -2471,7 +2471,7 @@ def _get_replication_dir_config_sync_file_infos_per_inode(
         for dir_name in dir_names:
             dir_path = os.path.join(root, dir_name)
             try:
-                if os.path.islink(dir_path) and not dir_name == GENERAL_DIR_EXCLUDE:
+                if os.path.islink(dir_path) and dir_name != GENERAL_DIR_EXCLUDE:
                     inode_sync_states[os.stat(dir_path).st_ino] = _get_config_sync_file_info(
                         dir_path
                     )
@@ -3574,7 +3574,7 @@ def _get_config_sync_paths(
         dir_path = os.path.join(root_path, dir_name)
         if (
             os.path.islink(dir_path)
-            and not dir_name == general_dir_exclude
+            and dir_name != general_dir_exclude
             and not replication_path_excluder(dir_name)
         ):
             valid_entries.append(dir_path)

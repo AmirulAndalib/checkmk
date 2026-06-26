@@ -53,7 +53,7 @@ class PasswordVisitor(FormSpecVisitor[Password, ParsedPassword, VuePassword]):
 
         match raw_value:
             case RawDiskData():
-                if not raw_value.value[0] == "cmk_postprocessed":
+                if raw_value.value[0] != "cmk_postprocessed":
                     return InvalidValue(
                         reason=_("No password provided"), fallback_value=fallback_value
                     )

@@ -110,7 +110,7 @@ def check_aix_lvm(item: str, section: Section) -> CheckResult:
         # Yes? Test for an even distribution of PP's over volumes.
         # This is cannot detect crossover misaligns and other bad practices.
         if int(num_pp / num_lp) > 1:
-            if not int(num_pp / num_pv) == num_lp:
+            if int(num_pp / num_pv) != num_lp:
                 msgtxt.append("LV Mirrors are misaligned between physical volumes(!)")
                 state = max(state, 1)
 

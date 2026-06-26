@@ -346,7 +346,7 @@ class MKDockerClient(docker.DockerClient):
             pass
 
         container = self.all_containers[container_key]
-        if not container.status == "running":
+        if container.status != "running":
             return self._container_stats.setdefault(container_key, None)
 
         # We use the streaming mode here because it faciliates error handling. If a container is

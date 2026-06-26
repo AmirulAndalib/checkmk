@@ -109,7 +109,7 @@ def main() -> int:
         return 1
 
     # Status code should be 201.
-    if not req.status_code == requests.codes.CREATED:
+    if req.status_code != requests.codes.CREATED:
         sys.stderr.write(
             f"Wrong status code: {req.status_code}. Expected: {requests.codes.CREATED} \n"
         )
@@ -142,7 +142,7 @@ def main() -> int:
         verify=not args.no_cert_check,
     )
 
-    if not req.status_code == requests.codes.OK:
+    if req.status_code != requests.codes.OK:
         sys.stderr.write(f"Wrong status code: {req.status_code}. Expected: {requests.codes.OK} \n")
         return 1
     return 0

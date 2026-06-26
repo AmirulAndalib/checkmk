@@ -120,7 +120,7 @@ def _make_callback_ping(
         )
         channel.acknowledge(delivery_tag)
 
-        if not received.uuid == sent.uuid:
+        if received.uuid != sent.uuid:
             write(
                 "Ignoring message that was not sent in response to my message (the UUIDs don't match).\n"
             )

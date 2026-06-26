@@ -1750,7 +1750,7 @@ def main_setversion(
         versions = [
             (v, "Version %s" % v)
             for v in omd_versions(versions_path)
-            if not v == default_version(versions_path)
+            if v != default_version(versions_path)
         ]
 
         if use_update_alternatives():

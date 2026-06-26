@@ -63,7 +63,7 @@ def discover_azure_subscription_info(section: SubscriptionInfo) -> DiscoveryResu
 
 
 def _check_resource_pinning(present_resources: list[str], params: Params) -> CheckResult:
-    if not params.get("resource_pinning", "false") == "true":
+    if params.get("resource_pinning", "false") != "true":
         return
 
     discovered = params.get("discovered_resources", [])

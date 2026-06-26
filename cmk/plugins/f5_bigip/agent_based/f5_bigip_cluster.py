@@ -57,7 +57,7 @@ CONFIG_SYNC_STATE_NAMES = {
 def discover_f5_bigip_config_sync(section: NodeState) -> DiscoveryResult:
     # run inventory unless we found a device in unconfigured state
     # don't need to loop over the input as there's only one status
-    if not section.state == "-1":
+    if section.state != "-1":
         yield Service()
 
 

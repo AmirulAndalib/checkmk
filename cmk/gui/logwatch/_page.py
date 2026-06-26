@@ -119,7 +119,7 @@ def show_log_list(request: Request, *, debug: bool, table_row_limit: int) -> Non
         user_role_ids=user.role_ids,
     )
 
-    if request.has_var("_ack") and not request.var("_do_actions") == _("No"):
+    if request.has_var("_ack") and request.var("_do_actions") != _("No"):
         do_log_ack(request, site=None, host_name=None, file_name=None)
         return
 
@@ -241,7 +241,7 @@ def show_host_log_list(
         user_role_ids=user.role_ids,
     )
 
-    if request.has_var("_ack") and not request.var("_do_actions") == _("No"):
+    if request.has_var("_ack") and request.var("_do_actions") != _("No"):
         do_log_ack(request, site, host_name, file_name=None)
         return
 
@@ -403,7 +403,7 @@ def show_file(
         user_role_ids=user.role_ids,
     )
 
-    if request.has_var("_ack") and not request.var("_do_actions") == _("No"):
+    if request.has_var("_ack") and request.var("_do_actions") != _("No"):
         do_log_ack(request, site, host_name, file_name)
         return
 

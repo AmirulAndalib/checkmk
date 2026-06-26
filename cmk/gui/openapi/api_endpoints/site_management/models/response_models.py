@@ -140,6 +140,6 @@ class SiteConnectionModel(DomainObjectModel):
             links=generate_links(
                 domain_type="site_connection",
                 identifier=site_configuration["id"],
-                deletable=not (site_configuration["socket"] == ("local", None)),
+                deletable=site_configuration["socket"] != ("local", None),
             ),
         )

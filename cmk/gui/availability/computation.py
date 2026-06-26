@@ -321,7 +321,7 @@ def classify_span_state(span: AVSpan, avoptions: AVOptions, what: AVObjectType) 
     if (
         (span["in_downtime"] or span["in_host_downtime"])
         and not (avoptions["downtimes"]["exclude_ok"] and state == 0)
-        and not avoptions["downtimes"]["include"] == "ignore"
+        and avoptions["downtimes"]["include"] != "ignore"
     ):
         if avoptions["downtimes"]["include"] == "exclude":
             return "unmonitored", False

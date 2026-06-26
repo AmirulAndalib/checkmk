@@ -227,7 +227,7 @@ def assert_hash_matches_package_content(
         with open(hash_path) as f:
             expected_hash = f.read().strip().split()[0]
 
-        if not sha256.hexdigest() == expected_hash:
+        if sha256.hexdigest() != expected_hash:
             sys.stdout.write(" MISMATCH!\n")
             return AssertResult(
                 assertion_ok=False, message=f"File's sha256 sum does not match the hash file {url}"

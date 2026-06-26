@@ -37,7 +37,7 @@ def check_blade_bx_powermod(item: str, section: StringTable) -> CheckResult:
     }
     for line in section:
         index, status, product_name = line
-        if not index == item:
+        if index != item:
             continue
         state_readable, state = power_status[status]
         yield Result(state=state, summary=f"[{product_name}] Status: {state_readable}")
