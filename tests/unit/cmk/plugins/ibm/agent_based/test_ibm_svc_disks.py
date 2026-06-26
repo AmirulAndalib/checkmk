@@ -360,13 +360,17 @@ def test_discover_ibm_svc_disks() -> None:
     "params, expected_results",
     [
         (
-            {"failed_spare_ratio": (1.0, 50.0), "offline_spare_ratio": (1.0, 50.0)},
+            {
+                "failed_spare_ratio": (1.0, 50.0),
+                "offline_spare_ratio": (1.0, 50.0),
+                "number_of_spare_disks": (2, 1),
+            },
             [
                 Result(state=State.OK, summary="Total raw capacity: 13.2 TB"),
                 Metric("total_disk_capacity", 13190703559475.195),
                 Result(state=State.OK, summary="Total disks: 22"),
                 Metric("total_disks", 22),
-                Result(state=State.OK, summary="Spare disks: 0"),
+                Result(state=State.CRIT, summary="Spare disks: 0 (warn/crit below 2/1)"),
                 Metric("spare_disks", 0),
                 Result(state=State.OK, summary="Failed disks: 0"),
                 Metric("failed_disks", 0),

@@ -4,7 +4,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import TypedDict
 
 from cmk.agent_based.v2 import (
@@ -20,6 +21,17 @@ from cmk.agent_based.v2 import (
     State,
 )
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
+
+
+@dataclass(frozen=True)
+class Disk:
+    status: str
+    use: str
+    capacity: str
+    enclosure_id: str
+    slot_id: str
+    tech_type: str
+
 
 # Agent output:
 # <<<ibm_svc_disk:sep(58)>>>
@@ -48,15 +60,12 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 # 0:online::member:sas_hdd:558.4GB:7:V7RZ_mdisk8:4:1:24:::inactive
 # 1:online::member:sas_hdd:558.4GB:7:V7RZ_mdisk8:3:1:23:::inactive
 
-Section = Sequence[Mapping[str, str]]
+Section = Sequence[Disk]
 
 
-class _RequiredDiskParams(TypedDict):
+class _DiskParams(TypedDict):
     failed_spare_ratio: tuple[float, float]
     offline_spare_ratio: tuple[float, float]
-
-
-class _DiskParams(_RequiredDiskParams, total=False):
     number_of_spare_disks: tuple[int, int]
 
 
@@ -76,9 +85,19 @@ def parse_ibm_svc_disks(string_table: Sequence[Sequence[str]]) -> Section:
         "auto_manage",
         "drive_class_id",
     ]
-    parsed: list[Mapping[str, str]] = []
+    parsed: list[Disk] = []
     for rows in parse_ibm_svc_with_header(string_table, dflt_header).values():
-        parsed.extend(rows)
+        parsed.extend(
+            Disk(
+                status=row["status"],
+                use=row["use"],
+                capacity=row["capacity"],
+                enclosure_id=row["enclosure_id"],
+                slot_id=row["slot_id"],
+                tech_type=row["tech_type"],
+            )
+            for row in rows
+        )
     return parsed
 
 
@@ -90,13 +109,13 @@ def discover_ibm_svc_disks(section: Section) -> DiscoveryResult:
 def check_ibm_svc_disks(params: _DiskParams, section: Section) -> CheckResult:
     disks: list[dict[str, str | float]] = []
     for data in section:
-        status = data["status"]
-        use = data["use"]
-        capacity = data["capacity"]
+        status = data.status
+        use = data.use
+        capacity = data.capacity
 
         disk: dict[str, str | float] = {}
         disk["identifier"] = (
-            f"Enclosure: {data['enclosure_id']}, Slot: {data['slot_id']}, Type: {data['tech_type']}"
+            f"Enclosure: {data.enclosure_id}, Slot: {data.slot_id}, Type: {data.tech_type}"
         )
 
         if capacity.endswith("GB"):
@@ -144,11 +163,10 @@ def _check_filer_disks(disks: list[dict[str, str | float]], params: _DiskParams)
     yield Metric("total_disks", len(disks))
 
     spare_disks = len(disks_in_state["spare"])
-    spare_disk_levels = params.get("number_of_spare_disks")
     yield from check_levels(
         spare_disks,
         label="Spare disks",
-        levels_lower=("fixed", spare_disk_levels) if spare_disk_levels else ("no_levels", None),
+        levels_lower=("fixed", params["number_of_spare_disks"]),
         metric_name="spare_disks",
         render_func=str,
     )
@@ -218,5 +236,6 @@ check_plugin_ibm_svc_disks = CheckPlugin(
     check_default_parameters={
         "failed_spare_ratio": (1.0, 50.0),
         "offline_spare_ratio": (1.0, 50.0),
+        "number_of_spare_disks": (2, 1),
     },
 )
