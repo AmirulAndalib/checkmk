@@ -5,7 +5,8 @@
 
 
 from collections.abc import Mapping
-from typing import Any
+from dataclasses import dataclass
+from typing import TypedDict
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -41,7 +42,19 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 # the corresponding header line
 # id:port_id:port_speed:node_id:node_name:WWPN:status:switch_WWPN:attachment:type:adapter_location:adapter_port_id
 
-Section = dict[str, Mapping[str, str]]
+
+@dataclass(frozen=True)
+class SasPort:
+    status: str
+    port_speed: str
+    port_type: str
+
+
+Section = Mapping[str, SasPort]
+
+
+class IbmSvcPortsasParams(TypedDict):
+    current_state: str
 
 
 def parse_ibm_svc_portsas(string_table: StringTable) -> Section:
@@ -59,7 +72,7 @@ def parse_ibm_svc_portsas(string_table: StringTable) -> Section:
         "adapter_location",
         "adapter_port_id",
     ]
-    parsed: Section = {}
+    parsed: dict[str, SasPort] = {}
     for id_, rows in parse_ibm_svc_with_header(string_table, dflt_header).items():
         try:
             data = rows[0]
@@ -69,29 +82,29 @@ def parse_ibm_svc_portsas(string_table: StringTable) -> Section:
             item_name = f"Node {data['node_id']} Slot {data['adapter_location']} Port {data['adapter_port_id']}"
         else:
             item_name = f"Port {id_}"
-        parsed.setdefault(item_name, data)
+        parsed.setdefault(
+            item_name,
+            SasPort(status=data["status"], port_speed=data["port_speed"], port_type=data["type"]),
+        )
     return parsed
 
 
 def discover_ibm_svc_portsas(section: Section) -> DiscoveryResult:
-    for item_name, data in section.items():
-        status = data["status"]
-        if status == "offline_unconfigured":
+    for item_name, port in section.items():
+        if port.status == "offline_unconfigured":
             continue
-        yield Service(item=item_name, parameters={"current_state": status})
+        yield Service(item=item_name, parameters={"current_state": port.status})
 
 
-def check_ibm_svc_portsas(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
-    if not (data := section.get(item)):
+def check_ibm_svc_portsas(item: str, params: IbmSvcPortsasParams, section: Section) -> CheckResult:
+    if (port := section.get(item)) is None:
         return
-    sasport_status = data["status"]
 
-    infotext = f"Status: {sasport_status}"
-    state = State.OK if sasport_status == params["current_state"] else State.CRIT
-
-    infotext += f", Speed: {data['port_speed']}, Type: {data['type']}"
-
-    yield Result(state=state, summary=infotext)
+    state = State.OK if port.status == params["current_state"] else State.CRIT
+    yield Result(
+        state=state,
+        summary=f"Status: {port.status}, Speed: {port.port_speed}, Type: {port.port_type}",
+    )
 
 
 agent_section_ibm_svc_portsas = AgentSection(

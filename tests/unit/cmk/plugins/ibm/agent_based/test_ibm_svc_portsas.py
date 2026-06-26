@@ -5,8 +5,7 @@
 
 # mypy: disable-error-code="misc"
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+from collections.abc import Sequence
 
 import pytest
 
@@ -14,6 +13,7 @@ from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.plugins.ibm.agent_based.ibm_svc_portsas import (
     check_ibm_svc_portsas,
     discover_ibm_svc_portsas,
+    IbmSvcPortsasParams,
     parse_ibm_svc_portsas,
 )
 
@@ -329,7 +329,7 @@ def test_discover_ibm_svc_portsas(
 )
 def test_check_ibm_svc_portsas(
     item: str,
-    params: Mapping[str, Any],
+    params: IbmSvcPortsasParams,
     string_table: StringTable,
     expected_results: Sequence[Result],
 ) -> None:
