@@ -218,7 +218,9 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/utils:selection_id",
         "//cmk/gui/utils:speaklater",
+        "//cmk/gui/utils:timeout_manager",
         "//cmk/gui/utils:urls",
+        "//cmk/gui/utils:user_errors",
         "//cmk/utils",
         "//cmk/utils:paths",
         "//packages/cmk-ccc:plugin-registry",
@@ -228,6 +230,7 @@ py_library(
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
+        requirement("flask"),
     ],
 )
 

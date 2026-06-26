@@ -172,31 +172,6 @@ def _render_exception(ctx: pages.PageContext, e: Exception, title: str) -> Respo
     return response
 
 
-_OUTPUT_FORMAT_MIME_TYPES = {
-    "json": "application/json",
-    "json_export": "application/json",
-    "jsonp": "application/javascript",
-    "csv": "text/csv",
-    "csv_export": "text/csv",
-    "python": "text/plain",
-    "text": "text/plain",
-    "html": "text/html",
-    "xml": "text/xml",
-    "pdf": "application/pdf",
-    "x-tgz": "application/x-tgz",
-}
-
-
-def get_output_format(output_format: str) -> str:
-    if output_format not in _OUTPUT_FORMAT_MIME_TYPES:
-        return "html"
-    return output_format
-
-
-def get_mime_type_from_output_format(output_format: str) -> str:
-    return _OUTPUT_FORMAT_MIME_TYPES[output_format]
-
-
 class CheckmkApp(AbstractWSGIApp):
     """The Checkmk GUI WSGI entry point"""
 

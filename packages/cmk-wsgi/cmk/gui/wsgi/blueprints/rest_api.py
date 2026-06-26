@@ -12,8 +12,8 @@ from flask import Blueprint, current_app, make_response, Response, send_from_dir
 from cmk.ccc import store
 from cmk.ccc.site import get_omd_config
 from cmk.gui import hooks, sites
+from cmk.gui.pages import set_global_vars
 from cmk.gui.wsgi.applications import CheckmkRESTAPI
-from cmk.gui.wsgi.blueprints.global_vars import set_global_vars
 from cmk.gui.wsgi.middleware import OverrideRequestMethod
 from cmk.utils import paths
 from cmk.utils.paths import omd_root
