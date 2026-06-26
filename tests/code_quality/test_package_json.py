@@ -49,7 +49,7 @@ def test_pnpm_overrides_have_documentation(package_json_path: str) -> None:
         "Add documentation for all overrides."
     )
 
-    for package_name in overrides.keys():
+    for package_name in overrides:
         assert package_name in override_docs, (
             f"{package_json_path}: Override '{package_name}' is missing from documentation section '// pnpm overrides'"
         )
@@ -89,7 +89,7 @@ def test_no_undocumented_overrides_in_documentation(package_json_path: str) -> N
         )
         return
 
-    for package_name in override_docs.keys():
+    for package_name in override_docs:
         assert package_name in overrides, (
             f"{package_json_path}: Package '{package_name}' is documented in '// pnpm overrides' "
             f"but not present in pnpm.overrides"

@@ -71,7 +71,7 @@ def _validate_non_quick_setup_password(
     general_errors: GeneralStageErrors = []
     possible_expected_password_keys = [
         key
-        for key in parameter_form.elements.keys()
+        for key in parameter_form.elements
         if isinstance(parameter_form.elements[key].parameter_form, Password)
     ]
 

@@ -57,7 +57,7 @@ agent_section_azure_status = AgentSection(
 
 
 def discover_azure_status(section: AzureStatusesPerRegion) -> DiscoveryResult:
-    for item in section.regions.keys():
+    for item in section.regions:
         yield Service(item=item)
 
 

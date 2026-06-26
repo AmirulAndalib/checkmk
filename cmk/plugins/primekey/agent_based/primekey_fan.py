@@ -68,7 +68,7 @@ snmp_section_primekey_fan = SimpleSNMPSection(
 
 
 def discover(section: _Section) -> DiscoveryResult:
-    for item in section.keys():
+    for item in section:
         yield Service(item=item)
 
 

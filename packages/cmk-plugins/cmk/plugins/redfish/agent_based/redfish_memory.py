@@ -50,7 +50,7 @@ HPE_DIMM_STATE = {
 
 def discovery_redfish_memory(section: RedfishAPIData) -> DiscoveryResult:
     """Discover all non absent single modules"""
-    for key in section.keys():
+    for key in section:
         if "Collection" in section[key].get("@odata.type"):
             continue
         if section[key].get("Status", {}).get("State") == "Absent":

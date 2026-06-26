@@ -72,7 +72,7 @@ snmp_section_primekey_hsm_battery_voltage = SimpleSNMPSection(
 
 
 def discover(section: _Section) -> DiscoveryResult:
-    for item in section.keys():
+    for item in section:
         yield Service(item=item)
 
 

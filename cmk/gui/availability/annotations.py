@@ -106,7 +106,7 @@ def get_relevant_annotations(
     annos_rendered: set[int] = set()
 
     for site_host, avail_entries in by_host.items():
-        for service in avail_entries.keys():
+        for service in avail_entries:
             for search_what in ["host", "service"]:
                 if what == "host" and search_what == "service":
                     continue  # Service annotations are not relevant for host

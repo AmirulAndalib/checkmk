@@ -26,7 +26,7 @@ agent_section_redfish_networkadapters = AgentSection(
 
 
 def discovery_redfish_networkadapters(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         if section[key].get("Status", {}).get("State") in [
             "Absent",
             "Disabled",

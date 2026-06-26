@@ -28,10 +28,10 @@ def _migrate_remove_columns(value: object) -> Sequence[str]:
 
 def _migrate_cdp_cache(value: object) -> Mapping[str, object]:
     if isinstance(value, dict):
-        if "removecolumns" in value.keys():
+        if "removecolumns" in value:
             value["remove_columns"] = value.pop("removecolumns")
 
-        if "remove_columns" not in value.keys() or not isinstance(value["remove_columns"], list):
+        if "remove_columns" not in value or not isinstance(value["remove_columns"], list):
             value["remove_columns"] = []
 
         return value

@@ -18,7 +18,7 @@ from cmk.plugins.redfish.lib import (
 
 
 def discovery_redfish_arraycontrollers_hpe(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         if "SmartStorageArrayController" in section[key]["@odata.type"]:
             yield Service(item=section[key]["Id"])
 

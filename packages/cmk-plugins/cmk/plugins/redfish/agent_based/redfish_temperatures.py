@@ -23,7 +23,7 @@ from cmk.plugins.redfish.lib import (
 
 def discovery_redfish_temperatures(section: RedfishAPIData) -> DiscoveryResult:
     """Discover temperature sensors"""
-    for key in section.keys():
+    for key in section:
         temps = section[key].get("Temperatures")
         if not temps:
             continue
@@ -41,7 +41,7 @@ def check_redfish_temperatures(
 ) -> CheckResult:
     """Check single temperature sensor state"""
     temp = None
-    for key in section.keys():
+    for key in section:
         temps = section[key].get("Temperatures", None)
         if temps is None:
             return

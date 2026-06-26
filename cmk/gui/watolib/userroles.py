@@ -40,7 +40,7 @@ def clone_role(
     if new_role_id is None:
         new_role_id = str(role_id)
 
-    while new_role_id in all_roles.keys():
+    while new_role_id in all_roles:
         new_role_id += "x"
 
     if new_alias is None:

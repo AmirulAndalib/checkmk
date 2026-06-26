@@ -100,7 +100,7 @@ snmp_section_aruba_fan_status = SimpleSNMPSection(
 
 
 def discover_aruba_fan_status(section: Section) -> DiscoveryResult:
-    for item in section.keys():
+    for item in section:
         yield Service(item=item)
 
 

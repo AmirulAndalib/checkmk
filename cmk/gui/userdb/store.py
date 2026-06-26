@@ -457,7 +457,7 @@ def _add_custom_macro_attributes(
 
     # Add custom macros
     core_custom_macros = {name for name, attr in user_attributes if attr.add_custom_macro()}
-    for user in updated_profiles.keys():
+    for user in updated_profiles:
         for macro in core_custom_macros:
             if macro in updated_profiles[user]:
                 # UserSpec is now a TypedDict, unfortunately not complete yet,
@@ -782,7 +782,7 @@ def _save_cached_profile(
     # Only save contact AND multisite attributes to the profile. Not the
     # infos that are stored in the custom attribute files.
     cache = UserSpec()
-    for key in user.keys():
+    for key in user:
         if key in ("automation_secret",):
             # Stripping away sensitive information
             continue

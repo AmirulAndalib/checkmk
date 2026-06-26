@@ -52,7 +52,7 @@ def parse_f5_bigip_fans(string_table):
 
 
 def discover_f5_bigip_fans(parsed):
-    for item in parsed.keys():
+    for item in parsed:
         yield item, {}
 
 

@@ -33,7 +33,7 @@ def _fan_item_name(data):
 
 def discovery_redfish_fans(section: RedfishAPIData) -> DiscoveryResult:
     """Discover single fans"""
-    for key in section.keys():
+    for key in section:
         fans = section[key].get("Fans", None)
         if not fans:
             continue
@@ -48,7 +48,7 @@ def discovery_redfish_fans(section: RedfishAPIData) -> DiscoveryResult:
 def check_redfish_fans(item: str, section: RedfishAPIData) -> CheckResult:
     """Check single fan state"""
     fan = None
-    for key in section.keys():
+    for key in section:
         fans = section[key].get("Fans", None)
         if fans is None:
             return

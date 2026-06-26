@@ -27,7 +27,7 @@ agent_section_redfish_processors = AgentSection(
 
 def discovery_redfish_processors(section: RedfishAPIData) -> DiscoveryResult:
     """Discover single present CPUs"""
-    for key in section.keys():
+    for key in section:
         if section[key].get("Status", {}).get("State") == "Absent":
             continue
         yield Service(item=section[key]["Id"])
@@ -45,7 +45,7 @@ def check_redfish_processors(item: str, section: RedfishAPIData) -> CheckResult:
         cpu_model = data.get("Model")
     cpu_msg = f"Type: {data.get('ProcessorType')}, Model: {cpu_model}"
 
-    if "TotalCores" in data.keys():
+    if "TotalCores" in data:
         if data.get("OperatingSpeedMHz"):
             cpu_speed = data.get("OperatingSpeedMHz")
         else:

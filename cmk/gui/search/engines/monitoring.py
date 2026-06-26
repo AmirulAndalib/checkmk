@@ -351,7 +351,7 @@ class LivestatusQuicksearchConductor(ABCQuicksearchConductor):
         """
 
         preferred_tables = []
-        for shortname in self._used_filters.keys():
+        for shortname in self._used_filters:
             plugin = self._get_plugin_with_shortname(shortname)
             assert isinstance(plugin, ABCLivestatusMatchPlugin)
             preferred_tables.append(plugin.get_preferred_livestatus_table())

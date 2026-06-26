@@ -57,7 +57,7 @@ def test_check_http(site: Site, check_http: tuple[str, dict[str, ServiceInfo]]) 
     rule_id, host_services = check_http
     service_name = "HTTP check_http"
     assert site.openapi.rules.get(rule_id)
-    assert service_name in host_services.keys()
+    assert service_name in host_services
     assert host_services[service_name].state == 0
     logger.info(host_services[service_name].summary)
 
@@ -110,6 +110,6 @@ def test_check_https(site: Site, check_https: tuple[str, dict[str, ServiceInfo]]
     rule_id, host_services = check_https
     service_name = "HTTPS check_https"
     assert site.openapi.rules.get(rule_id)
-    assert service_name in host_services.keys()
+    assert service_name in host_services
     assert host_services[service_name].state == 0
     logger.info(host_services[service_name].summary)

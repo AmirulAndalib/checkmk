@@ -329,7 +329,7 @@ def main():
     # Evaluate config
     for folder, attributes in folder_configs.items():
         required_modes = set()
-        for mode in attributes["add_modes"].keys():
+        for mode in attributes["add_modes"]:
             if mode not in attributes["all_del_modes"]:
                 required_modes.add(mode)
 

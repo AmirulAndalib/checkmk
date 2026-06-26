@@ -299,12 +299,10 @@ class LabelManager:
         identifier instead of the value Order and merging logic is equal to
         _get_host_labels()"""
         labels: LabelSources = {}
-        labels.update(dict.fromkeys(self._discovered_labels_of_host(hostname).keys(), "discovered"))
+        labels.update(dict.fromkeys(self._discovered_labels_of_host(hostname), "discovered"))
         labels.update(dict.fromkeys(self._label_config.host_labels(hostname), "ruleset"))
-        labels.update(dict.fromkeys(self.explicit_host_labels.get(hostname, {}).keys(), "explicit"))
-        labels.update(
-            dict.fromkeys(self._builtin_host_labels.get(hostname, {}).keys(), "discovered")
-        )
+        labels.update(dict.fromkeys(self.explicit_host_labels.get(hostname, {}), "explicit"))
+        labels.update(dict.fromkeys(self._builtin_host_labels.get(hostname, {}), "discovered"))
         return labels
 
     def _discovered_labels_of_host(self, hostname: HostName) -> Labels:

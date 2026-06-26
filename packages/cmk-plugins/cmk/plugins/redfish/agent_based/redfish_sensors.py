@@ -43,7 +43,7 @@ agent_section_redfish_sensors = AgentSection(
 
 def discovery_redfish_sensors(section: RedfishAPIData) -> DiscoveryResult:
     """Discover single sensors"""
-    for key in section.keys():
+    for key in section:
         if section[key].get("Status", {}).get("State") == "Absent":
             continue
         yield Service(item=section[key]["Id"])

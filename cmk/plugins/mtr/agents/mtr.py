@@ -136,7 +136,7 @@ def save_status(current_status):
             hopnum = len(hostdict["hops"].keys())
             lastreport = hostdict["lasttime"]
             hoststring = "%s|%s|%s" % (host, lastreport, hopnum)
-            for hop in hostdict["hops"].keys():
+            for hop in hostdict["hops"]:
                 hi = hostdict["hops"][hop]
                 hoststring += "|%s|%s|%s|%s|%s|%s|%s|%s" % (
                     hi["hopname"],
@@ -182,7 +182,7 @@ def check_mtr_pid(pid):
 def parse_report(host, status):
     reportfile = report_filepre + host_to_filename(host)
     if not os.path.exists(reportfile):
-        if host not in status.keys():
+        if host not in status:
             # New host
             status[host] = {"hops": {}, "lasttime": 0}
         return
@@ -206,7 +206,7 @@ def parse_report(host, status):
                 pid = int(opened_file.readline().rstrip())
             if check_mtr_pid(pid):
                 # Still running, we're done.
-                if host not in status.keys():
+                if host not in status:
                     # New host
                     status[host] = {"hops": {}, "lasttime": 0}
                 status[host]["running"] = True
@@ -226,7 +226,7 @@ def parse_report(host, status):
             "expecting at least 1 hop! Throwing away invalid report\n" % reportfile
         )
         os.unlink(reportfile)
-        if host not in status.keys():
+        if host not in status:
             # New host
             status[host] = {"hops": {}, "lasttime": 0}
         return
@@ -280,7 +280,7 @@ def output_report(host, status):
     hopnum = len(hostdict["hops"].keys())
     lastreport = hostdict["lasttime"]
     hoststring = "%s|%s|%s" % (host, lastreport, hopnum)
-    for hop in hostdict["hops"].keys():
+    for hop in hostdict["hops"]:
         hi = hostdict["hops"][hop]
         hoststring += "|%s|%s|%s|%s|%s|%s|%s|%s" % (
             hi["hopname"],
@@ -310,7 +310,7 @@ def start_mtr(host, mtr_binary, config, status):
     timeout = config.get(host, "timeout")
     max_hops = config.get(host, "max_hops")
 
-    if "running" in status[host].keys():
+    if "running" in status[host]:
         if debug:
             sys.stdout.write("MTR for host still running, not restarting MTR!\n")
         return

@@ -102,7 +102,7 @@ def check_postgres_connections(
     database_connections = database[0]
     # New agent output differentiates between active and idle connections.
     # Previously, only number of active connections were sent
-    has_active_and_idle = all(key in database_connections.keys() for key in ("active", "idle"))
+    has_active_and_idle = all(key in database_connections for key in ("active", "idle"))
     maximum = float(database_connections["mc"])
 
     connections = {

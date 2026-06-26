@@ -281,7 +281,7 @@ def _get_permitted_groups_of_all_folders(
         # Some subfolder, prefix root dir
         return tuple([""] + folder_path.split("/"))
 
-    tokenized_folders = sorted(_compute_tokens(x) for x in all_folders.keys())
+    tokenized_folders = sorted(_compute_tokens(x) for x in all_folders)
     effective_groups_per_folder: dict[tuple[str, ...], _ContactGroupsInfo] = {}
 
     for tokens in tokenized_folders:
@@ -1428,7 +1428,7 @@ class Folder:
         self._locked_hosts = wato_hosts["locked"]
 
         # Build list of individual hosts
-        for host_name in wato_hosts["host_attributes"].keys():
+        for host_name in wato_hosts["host_attributes"]:
             # typing: Conversion to HostName shouldn't be necessary.
             host_name = HostName(host_name)
             host = self._create_host_from_variables(host_name, wato_hosts)

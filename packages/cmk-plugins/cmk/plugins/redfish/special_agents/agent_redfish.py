@@ -296,15 +296,15 @@ def fetch_collection(
 def fetch_entry(redfishobj: RedfishData, entry: Mapping[str, Any], section: str) -> RedfishData:
     """fetch a list entry and add the result"""
     result = fetch_data(redfishobj.redfish_connection, entry["@odata.id"], section)
-    if "error" in result.keys():
+    if "error" in result:
         return redfishobj
     if "Collection" in result.get("@odata.type", "No Data"):
         result = fetch_collection(redfishobj.redfish_connection, result, section)
-        if section in redfishobj.section_data.keys():
+        if section in redfishobj.section_data:
             redfishobj.section_data[section].extend(result)
         else:
             redfishobj.section_data.setdefault(section, list(result))
-    elif section in redfishobj.section_data.keys():
+    elif section in redfishobj.section_data:
         redfishobj.section_data[section].append(result)
     else:
         redfishobj.section_data.setdefault(
@@ -327,7 +327,7 @@ def fetch_list_of_elements(
     for section in fetching_sections:
         if section not in sections:
             continue
-        if section not in data.keys():
+        if section not in data:
             continue
 
         fetch_result = data.get(section)
@@ -356,7 +356,7 @@ def fetch_sections(
     for section in fetching_sections:
         if section not in sections:
             continue
-        if section not in data.keys():
+        if section not in data:
             continue
         if not data.get(section, {}):
             continue
@@ -370,11 +370,11 @@ def fetch_sections(
             if "Collection" in section_data.get("@odata.type", {}):
                 if section_data.get("Members@odata.count", 0) != 0:
                     result = fetch_collection(redfishobj.redfish_connection, section_data, section)
-                    if section in redfishobj.section_data.keys():
+                    if section in redfishobj.section_data:
                         redfishobj.section_data[section].extend(result)
                     else:
                         redfishobj.section_data.setdefault(section, list(result))
-            elif section in redfishobj.section_data.keys():
+            elif section in redfishobj.section_data:
                 redfishobj.section_data[section].append(section_data)
             else:
                 redfishobj.section_data.setdefault(
@@ -686,7 +686,7 @@ def get_information(storage: Storage, redfishobj: RedfishData) -> Literal[0]:
                 elif "Storage" in resulting_sections:
                     resulting_sections.remove("Storage")
             fetch_sections(redfishobj, resulting_sections, redfishobj.sections, system)
-            if "Storage" in redfishobj.section_data.keys():
+            if "Storage" in redfishobj.section_data:
                 storage_data = redfishobj.section_data["Storage"]
                 if isinstance(storage_data, list):
                     for entry in storage_data:
@@ -757,7 +757,7 @@ def get_information(storage: Storage, redfishobj: RedfishData) -> Literal[0]:
 
 def store_section_data(storage: Storage, redfishobj: RedfishData) -> None:
     """save section data to file"""
-    for section in redfishobj.section_data.keys():
+    for section in redfishobj.section_data:
         if not redfishobj.cache_per_section.get(section):
             continue
         if redfishobj.cache_timestamp_per_section.get(section):

@@ -22,7 +22,7 @@ from cmk.plugins.redfish.lib import (
 
 
 def discovery_redfish_voltage(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         data = section[key].get("Voltages", None)
         if not data:
             continue
@@ -37,7 +37,7 @@ def discovery_redfish_voltage(section: RedfishAPIData) -> DiscoveryResult:
 def check_redfish_voltage(item: str, section: RedfishAPIData) -> CheckResult:
     """Check single Voltage"""
     voltage = None
-    for key in section.keys():
+    for key in section:
         voltages = section[key].get("Voltages", None)
         if voltages is None:
             return

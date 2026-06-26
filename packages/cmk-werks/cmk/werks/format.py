@@ -30,7 +30,7 @@ def format_as_markdown_werk(werk: WerkV2ParseResult | WerkV3ParseResult) -> str:
     metadata.pop("id")
     title = metadata.pop("title")
 
-    len_key = max(len(key) for key in metadata.keys())
+    len_key = max(len(key) for key in metadata)
 
     def _content() -> Iterator[str]:
         if isinstance(werk, WerkV2ParseResult):

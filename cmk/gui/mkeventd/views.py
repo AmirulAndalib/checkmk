@@ -284,7 +284,7 @@ def _ec_filter_host_information_of_not_permitted_hosts(rows: Rows) -> None:
         return bool(user_groups.intersection(row["host_contact_groups"]))
 
     if rows:
-        remove_keys = [c for c in rows[0].keys() if c.startswith("host_")]
+        remove_keys = [c for c in rows[0] if c.startswith("host_")]
     else:
         remove_keys = []
 

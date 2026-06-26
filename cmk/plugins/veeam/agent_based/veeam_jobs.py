@@ -30,7 +30,7 @@ class Job:
 
 
 def discovery_veeam_jobs(section: Mapping[str, Job | None]) -> DiscoveryResult:
-    yield from (Service(item=item) for item in section.keys())
+    yield from (Service(item=item) for item in section)
 
 
 def monitoring_state(last_state: str, last_result: str, type_: str) -> State:

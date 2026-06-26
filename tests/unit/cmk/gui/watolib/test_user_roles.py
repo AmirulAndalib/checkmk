@@ -30,7 +30,7 @@ def should_raise_a_mkusererror():
 @pytest.mark.usefixtures("patch_omd_site")
 def test_cant_delete_default_user_roles() -> None:
     default_roles: Mapping[RoleID, UserRole] = userroles.get_all_roles()
-    for roleid in default_roles.keys():
+    for roleid in default_roles:
         with should_raise_a_mkusererror():
             userroles.delete_role(roleid, get_user_attributes([]), pprint_value=False)
 
@@ -50,12 +50,12 @@ def test_deleting_cloned_user_roles() -> None:
 def test_cloning_user_roles() -> None:
     default_roles: Mapping[RoleID, UserRole] = userroles.get_all_roles()
 
-    for roleid in default_roles.keys():
+    for roleid in default_roles:
         userroles.clone_role(roleid, pprint_value=False)
 
     all_roles: Mapping[RoleID, UserRole] = userroles.get_all_roles()
     assert len(all_roles) == 10
-    assert {roleid for roleid in all_roles.keys() if roleid.endswith("x")} == {
+    assert {roleid for roleid in all_roles if roleid.endswith("x")} == {
         "adminx",
         "guestx",
         "userx",

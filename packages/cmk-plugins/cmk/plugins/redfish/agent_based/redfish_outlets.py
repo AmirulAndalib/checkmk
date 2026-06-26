@@ -37,7 +37,7 @@ def discovery_redfish_outlets(
     params: Mapping[str, Any], section: RedfishAPIData
 ) -> DiscoveryResult:
     """Discover single sensors"""
-    for key in section.keys():
+    for key in section:
         if section[key].get("Status", {}).get("State") == "Absent":
             continue
         outlet_name = params.get("naming")

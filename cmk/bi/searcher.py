@@ -160,7 +160,7 @@ class BISearcher(ABCBISearcher):
         matched_services = []
         regex_pattern = regex(pattern)
         for host_match in host_matches:
-            for service_description in host_match.host.services.keys():
+            for service_description in host_match.host.services:
                 if match := regex_pattern.match(service_description):
                     matched_services.append(
                         BIServiceSearchMatch(

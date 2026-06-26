@@ -27,7 +27,7 @@ def _psu_service_item(count: int, entry: Mapping[str, object]) -> str | None:
 
 
 def discovery_redfish_psu(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         data = section[key].get("PowerSupplies", None)
         if data:
             for count, entry in enumerate(data):
@@ -40,7 +40,7 @@ def discovery_redfish_psu(section: RedfishAPIData) -> DiscoveryResult:
 # TODO: for manpage: which agents support this?
 def check_redfish_psu(item: str, section: RedfishAPIData) -> CheckResult:
     psu = None
-    for key in section.keys():
+    for key in section:
         psus = section[key].get("PowerSupplies", None)
         if psus is None:
             return

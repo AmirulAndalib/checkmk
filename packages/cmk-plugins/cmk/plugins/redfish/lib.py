@@ -291,7 +291,7 @@ capturing information for debugging.",
 
     dev_state = 0
     dev_msg = []
-    for key in state.keys():
+    for key in state:
         state_msg = None
         temp_state = 0
         if key in ["Health"]:
@@ -338,11 +338,11 @@ def _threshold_value(
 def process_redfish_perfdata(entry: Mapping[str, Any]) -> None | Perfdata:
     """Redfish performance data to monitoring performance data"""
     value = None
-    if "Reading" in entry.keys():
+    if "Reading" in entry:
         value = entry.get("Reading", 0)
-    elif "ReadingVolts" in entry.keys():
+    elif "ReadingVolts" in entry:
         value = entry.get("ReadingVolts", 0)
-    elif "ReadingCelsius" in entry.keys():
+    elif "ReadingCelsius" in entry:
         value = entry.get("ReadingCelsius", 0)
     value = _try_convert_to_float(value)
     if value is None:

@@ -92,7 +92,7 @@ snmp_section_aruba_chassis_temp = SimpleSNMPSection(
 
 
 def discover_aruba_chassis_temp(section: Section) -> DiscoveryResult:
-    for item in section.keys():
+    for item in section:
         yield Service(item=item)
 
 

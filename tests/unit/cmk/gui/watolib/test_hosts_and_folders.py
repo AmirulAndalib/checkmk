@@ -1142,13 +1142,13 @@ def get_fake_setup_redis_client(
         tree = folder_tree()
         redis_helper = tree.redis_client
         monkeypatch.setattr(redis_helper, "_client", mock_redis_client)
-        monkeypatch.setattr(redis_helper, "_folder_paths", [f"{x}/" for x in all_folders.keys()])
+        monkeypatch.setattr(redis_helper, "_folder_paths", [f"{x}/" for x in all_folders])
         monkeypatch.setattr(
             redis_helper,
             "_folder_metadata",
             {
                 f"{x}/": hosts_and_folders.FolderMetaData(tree, f"{x}/", "nix", "nix", [])
-                for x in all_folders.keys()
+                for x in all_folders
             },
         )
         yield mock_redis_client

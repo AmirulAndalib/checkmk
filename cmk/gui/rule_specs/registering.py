@@ -20,7 +20,7 @@ def register_plugin(rulespec_registry: RulespecRegistry, loaded_rule_spec: Loade
         legacy_rulespec = convert_to_legacy_rulespec(
             loaded_rule_spec.rule_spec, loaded_rule_spec.edition_only, _
         )
-        if legacy_rulespec.name in rulespec_registry.keys():
+        if legacy_rulespec.name in rulespec_registry:
             logger.debug(
                 "Duplicate rule_spec '%s', overriding legacy rulespec", legacy_rulespec.name
             )

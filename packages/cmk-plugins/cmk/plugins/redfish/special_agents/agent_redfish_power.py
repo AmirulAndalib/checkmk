@@ -166,7 +166,7 @@ def fetch_list_of_elements(redfishobj, fetch_elements, sections, data):
         element_list = []
         if element not in sections:
             continue
-        if element not in data.keys():
+        if element not in data:
             continue
 
         fetch_result = data.get(element)
@@ -178,7 +178,7 @@ def fetch_list_of_elements(redfishobj, fetch_elements, sections, data):
             result = fetch_data(redfishobj, entry.get("@odata.id"), element)
             # debug output of fetching element
             # sys.stdout.write(f'Fetching {entry.get("@odata.id")}')
-            if "error" in result.keys():
+            if "error" in result:
                 continue
             if "Collection" in result.get("@odata.type", "No Data"):
                 result_list.extend(fetch_collection(redfishobj, result, element))
@@ -194,7 +194,7 @@ def fetch_sections(
     """fetch a single section of Redfish data"""
     result_set = {}
     for section in fetching_sections:
-        if section not in data.keys():
+        if section not in data:
             continue
         section_data = fetch_data(redfishobj, data[section].get("@odata.id"), section)
         if section_data.get("Members@odata.count") == 0:

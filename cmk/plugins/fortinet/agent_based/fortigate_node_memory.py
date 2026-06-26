@@ -58,7 +58,7 @@ snmp_section_fortigate_node_memory = SNMPSection(
 
 
 def discovery_fortigate_node_memory(section: Section) -> DiscoveryResult:
-    for k in section.keys():
+    for k in section:
         yield Service(item=k)
 
 

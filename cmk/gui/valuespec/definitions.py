@@ -6425,7 +6425,7 @@ class Dictionary(ValueSpec[DictionaryModel]):
         allowed_keys = [p for p, _v in self._get_elements()]
         if self._ignored_keys:
             allowed_keys += self._ignored_keys
-        for param in value.keys():
+        for param in value:
             if param not in allowed_keys:
                 raise MKUserError(
                     varprefix,

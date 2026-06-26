@@ -103,7 +103,7 @@ def discovery_kube_pvc(
 ) -> DiscoveryResult:
     if section_kube_pvc is None:
         return
-    yield from (Service(item=pvc) for pvc in section_kube_pvc.claims.keys())
+    yield from (Service(item=pvc) for pvc in section_kube_pvc.claims)
 
 
 def check_kube_pvc(

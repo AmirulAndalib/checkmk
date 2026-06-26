@@ -78,7 +78,7 @@ def discover_kaspersky_av_tasks(section: Section) -> DiscoveryResult:
     """
     yield from (
         Service(item=item)
-        for item in section.keys()
+        for item in section
         if item in {"Real-time protection", "System:EventManager"}
     )
 

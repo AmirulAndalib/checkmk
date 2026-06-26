@@ -227,7 +227,7 @@ def _collect_linked_visuals(
     mobile: bool,
     visual_types: SingleInfos,
 ) -> Iterator[tuple[VisualType, Visual]]:
-    for type_name in visual_type_registry.keys():
+    for type_name in visual_type_registry:
         if type_name in visual_types:
             yield from _collect_linked_visuals_of_type(
                 type_name, view, rows, singlecontext_request_vars, user_permissions, mobile

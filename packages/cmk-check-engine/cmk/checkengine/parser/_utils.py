@@ -29,7 +29,7 @@ def group_by_host(
 
     for host_key, host_section in host_sections:
         host_keys.append(host_key)
-        section_names = sorted(str(s) for s in host_section.sections.keys())
+        section_names = sorted(str(s) for s in host_section.sections)
         log(f"  {host_key!s}  -> Add sections: {section_names}")
         for section_name, section_content in host_section.sections.items():
             out_sections[host_key].setdefault(section_name, []).extend(section_content)

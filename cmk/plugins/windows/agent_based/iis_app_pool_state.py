@@ -68,7 +68,7 @@ def discover_iis_app_pool_state(section: Section) -> DiscoveryResult:
     ... }))
     [Service(item='app0'), Service(item='app1')]
     """
-    for app in section.keys():
+    for app in section:
         yield Service(item=app)
 
 

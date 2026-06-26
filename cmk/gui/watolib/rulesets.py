@@ -466,7 +466,7 @@ class RulesetCollection:
         default: Callable[[], Sequence[object] | Mapping[str, object]] = dict
         return dict(
             ((name.split(":")[0], default()) if ":" in name else (name, []))
-            for name in rulespec_registry.keys()
+            for name in rulespec_registry
         )
 
     def get_ruleset_configs_from_file(
@@ -1025,7 +1025,7 @@ class Ruleset:
         return self.matches_fulltext_search(search_options)
 
     def has_rule_search_options(self, search_options: SearchOptions) -> bool:
-        return bool([k for k in search_options.keys() if k == "fulltext" or k.startswith("rule_")])
+        return bool([k for k in search_options if k == "fulltext" or k.startswith("rule_")])
 
     def matches_fulltext_search(self, search_options: SearchOptions) -> bool:
         return _match_one_of_search_expression(

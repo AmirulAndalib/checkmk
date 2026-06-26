@@ -53,7 +53,7 @@ class CatalogVisitor(FormSpecVisitor[Catalog, _ParsedValueModel, _FallbackModel]
         # Because of this, the default value are resolved one level deeper
         tmp_value: dict[str, Any]
         if isinstance(raw_value, DefaultValue):
-            tmp_value = dict.fromkeys(self.form_spec.elements.keys(), DEFAULT_VALUE)
+            tmp_value = dict.fromkeys(self.form_spec.elements, DEFAULT_VALUE)
         else:
             tmp_value = raw_value
 
@@ -87,7 +87,7 @@ class CatalogVisitor(FormSpecVisitor[Catalog, _ParsedValueModel, _FallbackModel]
         else:
             value = self._resolve_default_values(raw_value.value, DataWrapper=DataWrapper)
 
-        if not all(topic_name in value for topic_name in self.form_spec.elements.keys()):
+        if not all(topic_name in value for topic_name in self.form_spec.elements):
             return InvalidValue(reason=_("Invalid catalog data"), fallback_value={})
 
         return value

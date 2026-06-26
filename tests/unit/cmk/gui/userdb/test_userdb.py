@@ -642,7 +642,7 @@ def test_user_attribute_sync_plugins() -> None:
     assert ldap_plugin.needed_attributes(connection, {"attr": "vip_attr"}) == ["vip_attr"]
     assert isinstance(ldap_plugin.parameters(connection), Dictionary)
 
-    assert "vip" in dict(ldap.ldap_attribute_plugins_elements(connection, user_attributes)).keys()
+    assert "vip" in dict(ldap.ldap_attribute_plugins_elements(connection, user_attributes))
 
 
 def test_check_credentials_local_user(with_user: tuple[UserId, str]) -> None:

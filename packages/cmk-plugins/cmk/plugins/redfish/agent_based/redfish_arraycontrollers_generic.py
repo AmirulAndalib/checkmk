@@ -20,7 +20,7 @@ from cmk.plugins.redfish.lib import (
 def discovery_redfish_arraycontrollers_generic(
     section: RedfishAPIData,
 ) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         if section[key].get("Oem"):
             if section[key]["Oem"].get("Dell"):
                 yield Service(item=section[key]["Id"])

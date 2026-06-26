@@ -38,7 +38,7 @@ class Topic:
         if isinstance(self.elements, list):
             seen_keys = set()
             for topic in self.elements:
-                for key in topic.elements.keys():
+                for key in topic.elements:
                     if key in seen_keys:
                         raise ValueError(f"Duplicate key '{key}' in topic")
                     seen_keys.add(key)

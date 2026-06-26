@@ -30,7 +30,7 @@ def loaded_requirements_fixture() -> dict[str, str]:
 def test_all_packages_pinned(loaded_requirements: dict[str, str]) -> None:
     # Test implements process as described in:
     # https://wiki.lan.checkmk.net/spaces/DEV/pages/106333650/Creating+a+new+version+branch
-    unpinned_packages = [req for req in loaded_requirements.keys() if not loaded_requirements[req]]
+    unpinned_packages = [req for req in loaded_requirements if not loaded_requirements[req]]
     assert not unpinned_packages, (
         "The following packages are not pinned: %s. "
         "For the sake of reproducibility, all packages must be pinned to a version!"
@@ -64,7 +64,7 @@ def test_no_development_packages_in_runtime_requirements() -> None:
     runtime_requirements = parse_requirements_file(bazel_repo_root() / "runtime-requirements.txt")
     forbidden_prefixes = ["pytest-", "types-"]
     offending_packages = []
-    for package_name in runtime_requirements.keys():
+    for package_name in runtime_requirements:
         for prefix in forbidden_prefixes:
             if package_name.startswith(prefix):
                 offending_packages.append(package_name)

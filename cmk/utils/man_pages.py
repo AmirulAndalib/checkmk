@@ -426,7 +426,7 @@ def _manpage_catalog_subtree_names(
 ) -> list[str]:
     subtrees = {
         this_category[len(category)]
-        for this_category in catalog.keys()
+        for this_category in catalog
         if this_category[: len(category)] == category and len(this_category) > len(category)
     }
     return list(subtrees)

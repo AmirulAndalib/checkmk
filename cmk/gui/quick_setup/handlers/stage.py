@@ -103,7 +103,7 @@ def _stage_validate_all_form_spec_keys_existing(
 ) -> GeneralStageErrors:
     return [
         f"Formspec id '{form_spec_id}' not found"
-        for form_spec_id in current_stage_form_data.keys()
+        for form_spec_id in current_stage_form_data
         if form_spec_id not in expected_formspecs_map
     ]
 

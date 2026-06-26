@@ -154,7 +154,7 @@ agent_section_haproxy = AgentSection(
 
 
 def discover_haproxy_backend(section: Section) -> DiscoveryResult:
-    for key in section.backends.keys():
+    for key in section.backends:
         yield Service(item=key)
 
 
@@ -183,7 +183,7 @@ check_plugin_haproxy_backend = CheckPlugin(
 
 
 def discover_haproxy_frontend(section: Section) -> DiscoveryResult:
-    for key in section.frontends.keys():
+    for key in section.frontends:
         yield Service(item=key)
 
 
@@ -219,7 +219,7 @@ check_plugin_haproxy_frontend = CheckPlugin(
 
 
 def discover_haproxy_server(section: Section) -> DiscoveryResult:
-    for key in section.servers.keys():
+    for key in section.servers:
         yield Service(item=key)
 
 

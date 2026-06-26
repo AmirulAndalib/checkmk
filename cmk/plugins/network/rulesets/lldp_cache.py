@@ -21,10 +21,10 @@ from cmk.rulesets.v1.rule_specs import InventoryParameters, Topic
 
 def _migrate_lldp_cache(value: object) -> Mapping[str, object]:
     if isinstance(value, dict):
-        if "removecolumns" in value.keys():
+        if "removecolumns" in value:
             value["remove_columns"] = value.pop("removecolumns")
 
-        if "remove_columns" not in value.keys() or not isinstance(value["remove_columns"], list):
+        if "remove_columns" not in value or not isinstance(value["remove_columns"], list):
             value["remove_columns"] = []
 
         return value

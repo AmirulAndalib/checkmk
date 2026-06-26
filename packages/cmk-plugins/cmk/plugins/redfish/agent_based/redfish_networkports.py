@@ -26,7 +26,7 @@ agent_section_redfish_networkports = AgentSection(
 
 
 def discovery_redfish_networkports(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
+    for key in section:
         yield Service(item=section[key]["Id"])
 
 

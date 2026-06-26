@@ -1194,7 +1194,7 @@ class ModeDistributedMonitoring(WatoMode):
         # Make sure that site is not being used by hosts and folders
         folder_site_stats = FolderSiteStats.build(folder_tree().root_folder())
 
-        if delete_id in folder_site_stats.hosts.keys():
+        if delete_id in folder_site_stats.hosts:
             search_url = makeactionuri_contextless(
                 request,
                 transactions,

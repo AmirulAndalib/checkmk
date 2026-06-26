@@ -102,7 +102,7 @@ def compare_soup(html1: str, html2: str) -> None:
                 if isinstance(v, list) and len(v) > 0
             }
 
-            for key in attrs1.keys():
+            for key in attrs1:
                 assert key in attrs2, f"{key}\n{d1}\n\n{d2}"
                 if key.startswith("on") or key == "style":
                     value1 = attrs1.pop(key, "")

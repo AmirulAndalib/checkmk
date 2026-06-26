@@ -80,7 +80,7 @@ class BICompiler:
             self._load_compiled_aggregations()
 
     def _get_currently_loaded_aggregation_identifiers(self) -> set[storage.Identifier]:
-        return {storage.generate_identifier(id_) for id_ in self._compiled_aggregations.keys()}
+        return {storage.generate_identifier(id_) for id_ in self._compiled_aggregations}
 
     def _get_vanished_aggregation_identifiers(self) -> set[storage.Identifier]:
         stored_identifiers = set(self._aggregation_store.yield_stored_identifiers())

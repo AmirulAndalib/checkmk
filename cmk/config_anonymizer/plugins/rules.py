@@ -150,7 +150,7 @@ def _anonymize_service_condition(
                             ) in all_service_descriptions.items():
                                 if (
                                     re.match(regex_value, discovered_service_description)
-                                    and host in rule_folder_hosts.keys()
+                                    and host in rule_folder_hosts
                                 ):
                                     anonymized_service_descriptions.add(
                                         f"^{anonymized_service_description}$"
@@ -180,7 +180,7 @@ def _anonymize_service_condition(
                                         check_plugin.check_ruleset_name
                                     )
                                     == ruleset.name
-                                    and host in rule_folder_hosts.keys()
+                                    and host in rule_folder_hosts
                                 ):
                                     if entry.item is not None and re.match(regex_value, entry.item):
                                         matched_items.add(
@@ -248,7 +248,7 @@ def _anonymize_host_condition(
                     return condition
                 case _:
                     anonymized_matched_host_names = set()
-                    for host_name in rule_folder.all_hosts_recursively().keys():
+                    for host_name in rule_folder.all_hosts_recursively():
                         if re.match(regex_value, host_name):
                             anonymized_matched_host_names.add(
                                 f"^{anon_interface.get_host(host_name)}$"

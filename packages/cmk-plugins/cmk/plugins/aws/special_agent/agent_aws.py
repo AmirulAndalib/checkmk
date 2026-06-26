@@ -5322,7 +5322,7 @@ class LambdaCloudwatchInsights(AWSSection):
 
         function_name_to_arn: dict[str, str] = {
             _function_arn_to_function_name_dim(fn_arn): fn_arn
-            for fn_arn in colleague_contents.content.keys()
+            for fn_arn in colleague_contents.content
         }
         existing_functions_log_groups = self._get_existing_log_groups_for_functions(
             function_name_to_arn.keys()

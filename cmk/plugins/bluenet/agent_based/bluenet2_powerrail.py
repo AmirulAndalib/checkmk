@@ -227,15 +227,15 @@ def parse_bluenet2_powerrail(
         if ty in map_phase_types:
             phase_ty, phase_txt, what = map_phase_types[ty]
             for inlet_id, inlet_info in pre_parsed.items():
-                if identifier in inlet_info[phase_ty].keys():
+                if identifier in inlet_info[phase_ty]:
                     phase_name = get_item_name(f"{inlet_id} {phase_txt}", oid_info[3])
                     parsed[phase_ty].setdefault(phase_name, inlet_info[phase_ty][identifier])
                     parsed[phase_ty][phase_name].setdefault(what, (reading, status_info))
-                if identifier in inlet_info["sockets"].keys():
+                if identifier in inlet_info["sockets"]:
                     socket_name = "{} {}".format(inlet_id, inlet_info["sockets"][identifier]["id"])
                     parsed["sockets"].setdefault(socket_name, inlet_info["sockets"][identifier])
                     parsed["sockets"][socket_name].setdefault(what, (reading, status_info))
-                if identifier in inlet_info["fuses"].keys():
+                if identifier in inlet_info["fuses"]:
                     phase_id = identifier.split(".")[3]
                     fuse_name = "{}.{} {}".format(
                         inlet_id,

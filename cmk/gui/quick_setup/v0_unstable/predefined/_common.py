@@ -52,7 +52,7 @@ def collect_passwords_from_form_data(
 ) -> Mapping[str, Secret[str]]:
     possible_expected_password_keys = [
         key
-        for key in parameter_form.elements.keys()
+        for key in parameter_form.elements
         if isinstance(parameter_form.elements[key].parameter_form, Password)
     ]
 

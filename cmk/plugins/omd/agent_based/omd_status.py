@@ -104,7 +104,7 @@ def discovery_omd_status(
     ...     print(service)
     Service(item='heute')
     """
-    for site in (section_omd_status or {}).keys():
+    for site in section_omd_status or {}:
         # if we have omd_info we want to ensure that checks are only executed for sites
         # that do have autostart enabled
         if (section_omd_info or {}).get("sites", {}).get(site, {}).get("autostart") != "0":

@@ -687,7 +687,7 @@ Keys 'optional1', 'required1' occur more than once.
                     )
                     # We check what could actually pass through the load() call, because some
                     # schemas validate keys without having them defined in their _declared_fields.
-                    for key in loaded.keys():
+                    for key in loaded:
                         if key in value:
                             del value[key]
             except ValidationError as exc:

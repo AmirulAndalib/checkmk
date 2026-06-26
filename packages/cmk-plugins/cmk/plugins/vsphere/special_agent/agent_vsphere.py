@@ -1377,7 +1377,7 @@ def get_section_counters(
     counters_available_all = {
         counter  #
         for by_host in counters_available_by_host.values()  #
-        for counter in by_host.keys()
+        for counter in by_host
     }
 
     net_extra_info = fetch_extra_interface_counters(connection, opt)

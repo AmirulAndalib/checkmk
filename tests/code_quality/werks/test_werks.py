@@ -125,7 +125,7 @@ def test_write_precompiled_werks(werks_loader_empty: WerksLoader) -> None:
     )
 
     assert len(cre_werks) > 9847
-    assert [w for w in cre_werks.keys() if 9000 <= w < 10000] == []
+    assert [w for w in cre_werks if 9000 <= w < 10000] == []
     cmk.werks.utils.write_precompiled_werks(werks_loader_empty.base_dir / "werks", cre_werks)
 
     assert len(cee_werks) > 1358

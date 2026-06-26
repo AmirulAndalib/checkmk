@@ -125,7 +125,7 @@ def _merge_if_counters_sections(
     if section_netapp_ontap_if_counters:
         # map nodename:interfacename -> counter_id
         interface_to_counter = {
-            key[: key.rfind(":")]: key for key in section_netapp_ontap_if_counters.keys()
+            key[: key.rfind(":")]: key for key in section_netapp_ontap_if_counters
         }
 
     interfaces_data_section = {key: val.serialize() for key, val in section_netapp_ontap_if.items()}

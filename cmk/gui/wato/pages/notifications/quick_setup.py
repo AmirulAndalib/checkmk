@@ -675,7 +675,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                 name=group_name,
                                                 title=Title("%s") % group_name,
                                             )
-                                            for group_name in load_host_group_information().keys()
+                                            for group_name in load_host_group_information()
                                         ],
                                         show_toggle_all=True,
                                         layout=MultipleChoiceExtendedLayout.dual_list,
@@ -762,7 +762,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                         name=group_name,
                                                         title=Title("%s") % group_name,
                                                     )
-                                                    for group_name in load_service_group_information().keys()
+                                                    for group_name in load_service_group_information()
                                                 ],
                                                 show_toggle_all=True,
                                                 layout=MultipleChoiceExtendedLayout.dual_list,
@@ -827,7 +827,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                         name=group_name,
                                                         title=Title("%s") % group_name,
                                                     )
-                                                    for group_name in load_service_group_information().keys()
+                                                    for group_name in load_service_group_information()
                                                 ],
                                                 show_toggle_all=True,
                                                 layout=MultipleChoiceExtendedLayout.dual_list,

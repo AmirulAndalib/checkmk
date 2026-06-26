@@ -894,7 +894,7 @@ class HTMLGenerator(HTMLWriter):
         self.form_vars.append(varname)
 
         if data_attrs is not None:
-            assert all(data_attr_key.startswith("data-") for data_attr_key in data_attrs.keys())
+            assert all(data_attr_key.startswith("data-") for data_attr_key in data_attrs)
 
         # View
         # TODO: Move styling away from py code

@@ -1222,7 +1222,7 @@ class ModeEditUser(WatoMode):
         # Roles
         if self._edition != Edition.CLOUD:
             user_attrs["roles"] = [
-                role for role in self._roles.keys() if html.get_checkbox("role_" + role)
+                role for role in self._roles if html.get_checkbox("role_" + role)
             ]
 
     def page(self, config: Config) -> None:

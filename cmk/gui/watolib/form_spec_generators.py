@@ -88,7 +88,7 @@ def _get_timeperiod_choices() -> Sequence[SingleChoiceElementExtended[Timeperiod
         )
         for (name, tp) in timeperiods.items()
     ]
-    if TimeperiodName("24X7") not in timeperiods.keys():
+    if TimeperiodName("24X7") not in timeperiods:
         always = SingleChoiceElementExtended(name=TimeperiodName("24X7"), title=Title("Always"))
         elements.insert(0, always)
 
