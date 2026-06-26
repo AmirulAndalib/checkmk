@@ -418,7 +418,7 @@ def test_enabled_on_remote__disable_on_central__error(
                 remote_site_wato_disabled.id
             ]["globals"]
             if "gui_e2e_remote" in site_specific_settings
-            else {} == original_settings
+            else original_settings == {}
         ), (
             f"Piggyback-hub was disabled for central site '{test_site.id}' although it should remain enabled"
         )

@@ -443,7 +443,7 @@ def test_gce_host_name_mangling(gce_sections: Sequence[agent_gcp.PiggyBackSectio
 
 
 def test_gce_metric_filtering(gce_sections: Sequence[agent_gcp.PiggyBackSection]) -> None:
-    assert 1 == len(list(list(gce_sections[0].sections)[0].results))
+    assert len(list(list(gce_sections[0].sections)[0].results)) == 1
 
 
 @pytest.fixture(name="interval")

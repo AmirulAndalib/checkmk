@@ -85,12 +85,12 @@ class TestLinux:
     def test_get_default_path(
         self,
     ):
-        assert "/etc/check_mk" == mk_postgres.helper_factory().get_default_path()
+        assert mk_postgres.helper_factory().get_default_path() == "/etc/check_mk"
 
     def test_get_default_postgres_user(
         self,
     ):
-        assert "postgres" == mk_postgres.helper_factory().get_default_postgres_user()
+        assert mk_postgres.helper_factory().get_default_postgres_user() == "postgres"
 
     @patch("subprocess.Popen")
     def test_postgres_binary_path_fallback(self, mock_Popen):
@@ -394,12 +394,12 @@ class TestWindows:
 
     def test_get_default_path(self) -> None:
         assert (
-            "c:\\ProgramData\\checkmk\\agent\\config"
-            == mk_postgres.helper_factory().get_default_path()
+            mk_postgres.helper_factory().get_default_path()
+            == "c:\\ProgramData\\checkmk\\agent\\config"
         )
 
     def test_get_default_postgres_user(self) -> None:
-        assert "postgres" == mk_postgres.helper_factory().get_default_postgres_user()
+        assert mk_postgres.helper_factory().get_default_postgres_user() == "postgres"
 
     def test_config_with_instance(
         self,

@@ -598,7 +598,7 @@ def formatted_if_statement_for_responses(
 
     """
     formatted_str = ""
-    target_requests = "requests" == code_example
+    target_requests = code_example == "requests"
     status_code_field = "status_code" if target_requests else "status"
     retrieve_data_code = (
         "    pprint.pprint(resp.json())\n"

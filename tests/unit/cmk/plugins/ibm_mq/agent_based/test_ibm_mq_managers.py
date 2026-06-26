@@ -45,10 +45,10 @@ QMNAME(THE.CRASHED.ONE)                                   STATUS(ENDED UNEXPECTE
 
     manager = parsed["THE.LOCAL.ONE"]
     assert manager.attributes["STATUS"] == "RUNNING"
-    assert [("sb112233", "ACTIVE")] == manager.instances
+    assert manager.instances == [("sb112233", "ACTIVE")]
 
     manager = parsed["THE.MULTI.INSTANCE.ONE"]
-    assert [("sb112233", "ACTIVE"), ("sb112255", "STANDBY")] == manager.instances
+    assert manager.instances == [("sb112233", "ACTIVE"), ("sb112255", "STANDBY")]
 
     manager = parsed["THE.CRASHED.ONE"]
     assert manager.attributes["QMNAME"] == "THE.CRASHED.ONE"

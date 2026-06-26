@@ -41,6 +41,7 @@ select = [
   "SIM211", # flake8-simplify: if-expr-with-false-true
   "SIM212", # flake8-simplify: if-expr-with-twisted-arms
   "SIM222", # flake8-simplify: expr-or-true
+  "SIM300", # flake8-simplify: yoda-conditions
   "SIM401", # flake8-simplify: if-else-block-instead-of-dict-get
   "SIM905", # flake8-simplify: split-static-string
   "SIM910", # flake8-simplify: dict-get-with-none-default

@@ -441,7 +441,7 @@ def test_check_alert_resets() -> None:
         assert summary_result.state == expected_state
         assert summary_result.summary.endswith(expected_summary)
         if expected_notice is None:
-            assert [] == notice
+            assert notice == []
         else:
             assert isinstance(notice[0], Result)
             assert expected_notice == notice[0].details
@@ -498,7 +498,7 @@ def test_check_group_timer() -> None:
         assert summary_result.state == expected_state
         assert summary_result.summary.endswith(expected_summary)
         if expected_notice is None:
-            assert [] == notice
+            assert notice == []
         else:
             assert isinstance(notice[0], Result)
             assert expected_notice == notice[0].details

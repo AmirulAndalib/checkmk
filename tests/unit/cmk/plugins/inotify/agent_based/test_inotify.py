@@ -49,7 +49,7 @@ _SECTION = Section(
 
 
 def test_inotify_parse() -> None:
-    assert _SECTION == parse_inotify(INFO)
+    assert parse_inotify(INFO) == _SECTION
 
 
 def test_discovery() -> None:

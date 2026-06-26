@@ -239,7 +239,7 @@ def collect_changes_with_werks(args: type[TCliArgs], client: GerritClient) -> li
             f"{JIRA_URL_PREFIX}/{jira_id}" for jira_id in get_jira_ticket_in_change(client, change)
         ]
 
-        if werk.VERSION == args.cmk_version:
+        if args.cmk_version == werk.VERSION:
             details.append(
                 CSVEntry(
                     change_url=change.change_url,

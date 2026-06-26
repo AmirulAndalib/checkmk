@@ -73,7 +73,7 @@ class RemoteTarget[TRemoteParams: Mapping[str, object], TRemoteStorage: RemoteSt
             raise MKGeneralException(
                 f"Listing objects in remote storage failed. Original error: {e}"
             )
-        for key in (el for el in remote_objects if BACKUP_INFO_FILENAME == el.name):
+        for key in (el for el in remote_objects if el.name == BACKUP_INFO_FILENAME):
             try:
                 yield str(key.parent), load_backup_info(self._get_file(key))
             except UnrecognizedBackupTypeError:

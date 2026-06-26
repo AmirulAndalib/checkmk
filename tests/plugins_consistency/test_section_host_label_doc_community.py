@@ -132,7 +132,7 @@ def test_all_sections_have_host_labels_documented(
             assert doc.header is not None, f"header in {section.name} not set"
             encountered_labels[doc.header][section.name] = doc.lines
 
-    assert DOCUMENTED_BUILTIN_HOST_LABELS == set(encountered_labels.keys())
+    assert set(encountered_labels.keys()) == DOCUMENTED_BUILTIN_HOST_LABELS
 
     for label_name, section_to_lines in encountered_labels.items():
         if len({" ".join(lines) for lines in section_to_lines.values()}) != 1:

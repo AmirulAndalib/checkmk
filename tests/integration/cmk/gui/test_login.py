@@ -217,7 +217,7 @@ def _set_failed_logins(site: Site, user: str, value: int) -> None:
 
 @contextlib.contextmanager
 def _reset_failed_logins(site: Site, username: str) -> Iterator[None]:
-    assert 0 == _get_failed_logins(site, username), "initially no failed logins"
+    assert _get_failed_logins(site, username) == 0, "initially no failed logins"
     try:
         yield
     finally:
@@ -235,7 +235,7 @@ def test_failed_login_counter_human(site: Site) -> None:
             headers={"Authorization": f"Bearer {username} wrong_password"},
             expected_code=401,
         )
-        assert 1 == _get_failed_logins(site, username), (
+        assert _get_failed_logins(site, username) == 1, (
             "failed attempts increased by login with bearer token"
         )
 
@@ -244,7 +244,7 @@ def test_failed_login_counter_human(site: Site) -> None:
             auth=(username, "wrong_password"),
             expected_code=401,
         )
-        assert 2 == _get_failed_logins(site, username), (
+        assert _get_failed_logins(site, username) == 2, (
             "failed attempts increased by login with basic token"
         )
 
@@ -258,7 +258,7 @@ def test_failed_login_counter_human(site: Site) -> None:
             allow_redirect_to_login=True,
         )
 
-        assert 3 == _get_failed_logins(site, username), (
+        assert _get_failed_logins(site, username) == 3, (
             "failed attempts increased by login via login form"
         )
 
@@ -274,14 +274,14 @@ def test_failed_login_counter_automation(with_automation_user: tuple[str, str], 
             headers={"Authorization": f"Bearer {username} wrong_password"},
             expected_code=401,
         )
-        assert 0 == _get_failed_logins(site, username)
+        assert _get_failed_logins(site, username) == 0
 
         session.get(
             f"/{site.id}/check_mk/api/1.0/version",
             auth=(username, "wrong_password"),
             expected_code=401,
         )
-        assert 0 == _get_failed_logins(site, username)
+        assert _get_failed_logins(site, username) == 0
 
 
 @pytest.mark.medium_test_chain

@@ -134,7 +134,7 @@ class TestCheckmkAutomationBackgroundJob:
             cmk_version.Version.from_str(version),
             dict,
         )
-        assert RESULT == expected_result
+        assert expected_result == RESULT
 
     @pytest.mark.parametrize(
         ["version", "result"],

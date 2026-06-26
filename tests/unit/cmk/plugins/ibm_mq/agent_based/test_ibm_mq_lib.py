@@ -81,7 +81,7 @@ All valid MQSC commands were processed.
 """
         section = parse_info(lines, chr(10))
         parsed = parse_ibm_mq(section, "QUEUE")
-        assert 2 + 2 == len(parsed)
+        assert len(parsed) == 2 + 2
 
         assert parsed["FOO.BAR"]["STATUS"] == "ENDED UNEXPECTEDLY"
         assert parsed["MY.TEST"]["STATUS"] == "RUNNING"

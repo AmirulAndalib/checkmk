@@ -521,7 +521,7 @@ def test_load_delta_tree_no_such_timestamp(tmp_path: Path, request_context: None
 
     with pytest.raises(MKGeneralException) as e:
         load_delta_tree(history_store, hostname, -1)
-    assert "Found no history entry at the time of '-1' for the host 'inv-host'" == str(e.value)
+    assert str(e.value) == "Found no history entry at the time of '-1' for the host 'inv-host'"
 
 
 def test_load_latest_delta_tree(tmp_path: Path, request_context: None) -> None:

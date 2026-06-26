@@ -53,7 +53,7 @@ def test_generate_self_signed(self_signed_cert: CertificateWithPrivateKey) -> No
     assert self_signed_cert.certificate.is_self_signed()
     self_signed_cert.certificate.verify_is_signed_by(self_signed_cert.certificate)
 
-    assert "TestGenerateSelfSigned" == self_signed_cert.certificate.common_name
+    assert self_signed_cert.certificate.common_name == "TestGenerateSelfSigned"
     assert self_signed_cert.certificate.organization_name is not None
     assert "Checkmk Testing" in self_signed_cert.certificate.organization_name
 

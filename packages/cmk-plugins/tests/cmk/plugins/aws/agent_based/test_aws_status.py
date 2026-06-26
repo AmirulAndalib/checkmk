@@ -168,7 +168,7 @@ def test_region(entry: aws_status.Entry, expected_region: str) -> None:
 def test__check_aws_status_no_issues() -> None:
     rss_feed = aws_status.AWSRSSFeed(entries=[])
     check_result = list(aws_status._check_aws_status(CURRENT_TIME, "Global", rss_feed))  # noqa: SLF001
-    assert [aws_status._NO_ISSUES] == check_result  # noqa: SLF001
+    assert check_result == [aws_status._NO_ISSUES]  # noqa: SLF001
 
 
 def test__check_aws_status_remove_outdated() -> None:
@@ -185,7 +185,7 @@ def test__check_aws_status_remove_outdated() -> None:
         ]
     )
     check_result = list(aws_status._check_aws_status(CURRENT_TIME, "Global", rss_feed))  # noqa: SLF001
-    assert [aws_status._NO_ISSUES] == check_result  # noqa: SLF001
+    assert check_result == [aws_status._NO_ISSUES]  # noqa: SLF001
 
 
 def test__check_aws_status_global_issues() -> None:

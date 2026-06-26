@@ -43,39 +43,42 @@ SECTION: Final = {
 
 
 def test_parsing() -> None:
-    assert SECTION == parse_mrpe(
-        [
-            ["Foo_Application", "0", "Foo", "server", "up", "and", "running"],
+    assert (
+        parse_mrpe(
             [
-                "Bar_Extender",
-                "1",
-                "Bar",
-                "extender",
-                "overload",
-                "6.012|bar_load=6.012",
-            ],
-            [
-                "Mutliliner",
-                "§$%",
-                "Output1|the_foo=1;2;3;4;5\x01more",
-                "output|the_bar=42\x01the_gee=23",
-                "output|the_bad=U;0;;0;1",
-            ],
-            [
-                "Invalid_Metric",
-                "0",
-                "I",
-                "would",
-                "be",
-                "ok,",
-                "if",
-                "it",
-                "wasn't",
-                "for",
-                "the",
-                "metric|broken=",
-            ],
-        ]
+                ["Foo_Application", "0", "Foo", "server", "up", "and", "running"],
+                [
+                    "Bar_Extender",
+                    "1",
+                    "Bar",
+                    "extender",
+                    "overload",
+                    "6.012|bar_load=6.012",
+                ],
+                [
+                    "Mutliliner",
+                    "§$%",
+                    "Output1|the_foo=1;2;3;4;5\x01more",
+                    "output|the_bar=42\x01the_gee=23",
+                    "output|the_bad=U;0;;0;1",
+                ],
+                [
+                    "Invalid_Metric",
+                    "0",
+                    "I",
+                    "would",
+                    "be",
+                    "ok,",
+                    "if",
+                    "it",
+                    "wasn't",
+                    "for",
+                    "the",
+                    "metric|broken=",
+                ],
+            ]
+        )
+        == SECTION
     )
 
 

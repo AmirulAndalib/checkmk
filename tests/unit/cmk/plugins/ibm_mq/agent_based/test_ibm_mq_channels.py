@@ -66,7 +66,7 @@ All valid MQSC commands were processed.
 """
     section = parse_info(lines, chr(10))
     parsed = parse_ibm_mq_channels(section)
-    assert 2 + 1 == len(parsed)
+    assert len(parsed) == 2 + 1
 
     attrs = parsed["MY.TEST"]
     assert attrs["STATUS"] == "RUNNING"

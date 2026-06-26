@@ -31,13 +31,13 @@ def test_get_logger() -> None:
 
 def test_setup_console_logging(capsys: CaptureFixture[str]) -> None:
     logging.getLogger("cmk.test").info("test123")
-    assert ("", "") == capsys.readouterr()
+    assert capsys.readouterr() == ("", "")
 
     old_handlers = list(log.logger.handlers)
     try:
         log.setup_console_logging()
         logging.getLogger("cmk.test").warning("test123")
-        assert ("test123\n", "") == capsys.readouterr()
+        assert capsys.readouterr() == ("test123\n", "")
     finally:
         log.logger.handlers = old_handlers
 

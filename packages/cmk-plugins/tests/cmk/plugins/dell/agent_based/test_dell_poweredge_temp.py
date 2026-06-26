@@ -92,7 +92,7 @@ def test_check_dell_poweredge_temp_normal(
     result = list(check_dell_poweredge_temp(item, {}, parsed))
     temp_results = [r for r in result if isinstance(r, Result)]
     metrics = [r for r in result if isinstance(r, Metric)]
-    assert any(State.OK == r.state for r in temp_results)
+    assert any(r.state == State.OK for r in temp_results)
     assert any(m.name == "temp" and m.value == expected_temp for m in metrics)
 
 

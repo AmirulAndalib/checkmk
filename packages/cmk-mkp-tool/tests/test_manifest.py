@@ -71,10 +71,10 @@ class TestManifest:
         )
 
     def test_roundtrip_json(self) -> None:
-        assert TEST_MANIFEST == Manifest.model_validate_json(TEST_MANIFEST.model_dump_json())
+        assert Manifest.model_validate_json(TEST_MANIFEST.model_dump_json()) == TEST_MANIFEST
 
     def test_roundtrip_python(self) -> None:
-        assert TEST_MANIFEST == Manifest.parse_python_string(TEST_MANIFEST.file_content())
+        assert Manifest.parse_python_string(TEST_MANIFEST.file_content()) == TEST_MANIFEST
 
 
 def test_read_manifest_optionally_ok(tmp_path: Path) -> None:

@@ -935,7 +935,7 @@ class PyMongoConfigTransformer:
         ]
 
         for version, transform_function in version_transforms:
-            if PYMONGO_VERSION < version:
+            if version > PYMONGO_VERSION:
                 pymongo_config = transform_function(pymongo_config)
         return pymongo_config
 

@@ -64,8 +64,8 @@ def test_eq() -> None:
     A = HTML.without_escaping(a)
     B = HTML.without_escaping(b)
 
-    assert "1" + B + "2" + A == "1" + b + "2" + a
-    assert (A + B) == (a + b)
+    assert "1" + b + "2" + a == "1" + B + "2" + A
+    assert (a + b) == (A + B)
 
     assert B + A != A + B
 

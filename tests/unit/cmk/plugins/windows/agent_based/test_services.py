@@ -44,7 +44,7 @@ PARSED_AUTO = [
 
 
 def test_parse() -> None:
-    assert PARSED == services.parse_windows_services(STRING_TABLE)
+    assert services.parse_windows_services(STRING_TABLE) == PARSED
 
 
 @pytest.mark.parametrize(

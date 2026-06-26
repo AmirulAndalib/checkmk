@@ -310,8 +310,11 @@ MERGED_SECTION_ENTERPRISE = {
 
 
 def test_merge_sections() -> None:
-    assert MERGED_SECTION_ENTERPRISE == inventory_checkmk_server.merge_sections(
-        SECTION_LIVESTATUS_STATUS, SECTION_OMD_STATUS, SECTION_OMD_INFO
+    assert (
+        inventory_checkmk_server.merge_sections(
+            SECTION_LIVESTATUS_STATUS, SECTION_OMD_STATUS, SECTION_OMD_INFO
+        )
+        == MERGED_SECTION_ENTERPRISE
     )
 
 

@@ -95,12 +95,15 @@ def test_aggregate_result(
 
 def test_config_cache_get_clustered_service_node_keys_no_cluster() -> None:
     # empty, we have no cluster:
-    assert [] == checkers._get_clustered_service_node_keys(
-        HostName("cluster.test"),
-        SourceType.HOST,
-        make_service("Test Service"),
-        cluster_nodes=(),
-        get_effective_host=lambda hn, *args, **kw: hn,
+    assert (
+        checkers._get_clustered_service_node_keys(
+            HostName("cluster.test"),
+            SourceType.HOST,
+            make_service("Test Service"),
+            cluster_nodes=(),
+            get_effective_host=lambda hn, *args, **kw: hn,
+        )
+        == []
     )
 
 
@@ -108,12 +111,15 @@ def test_config_cache_get_clustered_service_node_keys_cluster_no_service() -> No
     cluster_test = HostName("cluster.test")
 
     # empty for a node:
-    assert [] == checkers._get_clustered_service_node_keys(
-        HostName("node1.test"),
-        SourceType.HOST,
-        make_service("Test Service"),
-        cluster_nodes=(),
-        get_effective_host=lambda hn, *args, **kw: hn,
+    assert (
+        checkers._get_clustered_service_node_keys(
+            HostName("node1.test"),
+            SourceType.HOST,
+            make_service("Test Service"),
+            cluster_nodes=(),
+            get_effective_host=lambda hn, *args, **kw: hn,
+        )
+        == []
     )
 
     # empty for cluster (we have not clustered the service)

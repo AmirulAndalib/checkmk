@@ -233,9 +233,9 @@ def test_finishing_config_task(
         result_payload="It's done",
     )
     assert response.status_code < 400, response.text
-    assert 0 == len(get_relay_tasks(agent_receiver, relay_id, status="PENDING").tasks)
+    assert len(get_relay_tasks(agent_receiver, relay_id, status="PENDING").tasks) == 0
     finished_tasks = get_relay_tasks(agent_receiver, relay_id, status="FINISHED").tasks
-    assert 1 == len(finished_tasks)
+    assert len(finished_tasks) == 1
     assert relay_tasks[0].id == finished_tasks[0].id
 
 

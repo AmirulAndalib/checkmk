@@ -218,7 +218,7 @@ def test_only_affected_sites_require_activation_when_changing_user(sites: list[S
     )
 
     # THEN both site1 and site2 should require activation
-    assert [SITE1, SITE2] == _changed_sites(sites)
+    assert _changed_sites(sites) == [SITE1, SITE2]
 
 
 @pytest.mark.parametrize(

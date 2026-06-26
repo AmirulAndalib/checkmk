@@ -96,7 +96,7 @@ def test_low_level_api(conf_dir: Path, state_file: Path) -> None:
     assert msi_patch.generate_uuid() != msi_patch.generate_uuid()
     assert len(msi_patch.generate_uuid()) == 38
     msi_patch.write_state_file(state_file, 12, "12")
-    assert (12, "12") == msi_patch.load_state_file(state_file)
+    assert msi_patch.load_state_file(state_file) == (12, "12")
 
 
 def test_validate_content(work_content: bytes) -> None:
