@@ -6,15 +6,17 @@
 import time
 from collections import defaultdict
 from collections.abc import Mapping
-from typing import Any, NamedTuple
+from dataclasses import dataclass, field
+from typing import TypedDict
 
-from cmk.agent_based.v1 import check_levels as check_levels_v1
 from cmk.agent_based.v2 import (
     AgentSection,
+    check_levels,
     CheckPlugin,
     CheckResult,
     DiscoveryResult,
     get_value_store,
+    LevelsT,
     Metric,
     render,
     Result,
@@ -32,11 +34,21 @@ MDISK_STATS = ["mdisk_r_mb", "mdisk_w_mb", "mdisk_r_io", "mdisk_w_io", "mdisk_r_
 DRIVE_STATS = ["drive_r_mb", "drive_w_mb", "drive_r_io", "drive_w_io", "drive_r_ms", "drive_w_ms"]
 
 
-class IBMSystemStats(NamedTuple):
+@dataclass(frozen=True)
+class IBMSystemStats:
     cpu_pc: int | None = None
     total_cache_pc: int | None = None
     write_cache_pc: int | None = None
-    disks: Mapping[Item, Mapping[StatName, float]] = {}
+    disks: Mapping[Item, Mapping[StatName, float]] = field(default_factory=dict)
+
+
+class IbmSvcTotalLatencyParams(TypedDict):
+    read: LevelsT[float]
+    write: LevelsT[float]
+
+
+class IbmSvcCpuUtilizationParams(TypedDict, total=False):
+    util: tuple[float, float]
 
 
 def ibm_svc_systemstats_parse(string_table: StringTable) -> IBMSystemStats:
@@ -160,22 +172,25 @@ check_plugin_ibm_svc_systemstats_iops = CheckPlugin(
 
 
 def check_ibm_svc_systemstats_disk_latency(
-    item: str, params: Mapping[str, Any], section: IBMSystemStats
+    item: str, params: IbmSvcTotalLatencyParams, section: IBMSystemStats
 ) -> CheckResult:
     if item not in section.disks:
         return
 
-    for name, value in [
-        ("read", section.disks[item]["r_ms"]),
-        ("write", section.disks[item]["w_ms"]),
-    ]:
-        yield from check_levels_v1(
-            value=value,
-            metric_name=f"{name}_latency",
-            levels_upper=params.get(name),
-            label=f"{name} latency",
-            render_func=lambda x: f"{x} ms",
-        )
+    yield from check_levels(
+        section.disks[item]["r_ms"],
+        levels_upper=params["read"],
+        metric_name="read_latency",
+        label="read latency",
+        render_func=lambda x: f"{x} ms",
+    )
+    yield from check_levels(
+        section.disks[item]["w_ms"],
+        levels_upper=params["write"],
+        metric_name="write_latency",
+        label="write latency",
+        render_func=lambda x: f"{x} ms",
+    )
 
 
 check_plugin_ibm_svc_systemstats_disk_latency = CheckPlugin(
@@ -185,7 +200,10 @@ check_plugin_ibm_svc_systemstats_disk_latency = CheckPlugin(
     discovery_function=discovery_ibm_svc_systemstats_disks,
     check_function=check_ibm_svc_systemstats_disk_latency,
     check_ruleset_name="ibm_svc_total_latency",
-    check_default_parameters={},
+    check_default_parameters={
+        "read": ("no_levels", None),
+        "write": ("no_levels", None),
+    },
 )
 
 # .
@@ -206,7 +224,7 @@ def discovery_ibm_svc_systemstats_cpu(section: IBMSystemStats) -> DiscoveryResul
 
 
 def check_ibm_svc_systemstats_cpu(
-    params: Mapping[str, tuple[float, float]], section: IBMSystemStats
+    params: IbmSvcCpuUtilizationParams, section: IBMSystemStats
 ) -> CheckResult:
     if section.cpu_pc is not None:
         yield from check_cpu_util(

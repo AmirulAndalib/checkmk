@@ -5,8 +5,7 @@
 
 # mypy: disable-error-code="misc"
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+from collections.abc import Sequence
 
 import pytest
 
@@ -237,7 +236,7 @@ def test_check_ibm_svc_systemstats_iops(
         pytest.param(
             TEST_SECTION,
             "VDisks",
-            {},
+            {"read": ("no_levels", None), "write": ("no_levels", None)},
             [
                 Result(state=State.OK, summary="read latency: 5 ms"),
                 Metric("read_latency", 5.0),
@@ -249,7 +248,7 @@ def test_check_ibm_svc_systemstats_iops(
         pytest.param(
             TEST_SECTION,
             "VDisks",
-            {"read": (4.0, 10.0), "write": (25.0, 50.0)},
+            {"read": ("fixed", (4.0, 10.0)), "write": ("fixed", (25.0, 50.0))},
             [
                 Result(
                     state=State.WARN,
@@ -264,7 +263,7 @@ def test_check_ibm_svc_systemstats_iops(
         pytest.param(
             TEST_SECTION,
             "unknown_item",
-            {},
+            {"read": ("no_levels", None), "write": ("no_levels", None)},
             [],
             id="disk_latency_no_item",
         ),
@@ -273,7 +272,7 @@ def test_check_ibm_svc_systemstats_iops(
 def test_check_ibm_svc_systemstats_disk_latency(
     section: IBMSystemStats,
     item: str,
-    params: Mapping[str, Any],
+    params: ibm_svc_systemstats.IbmSvcTotalLatencyParams,
     expected_result: Sequence[CheckResult],
 ) -> None:
     assert list(
@@ -340,7 +339,7 @@ def test_discovery_ibm_svc_systemstats_cpu(
 )
 def test_check_ibm_svc_systemstats_cpu(
     section: IBMSystemStats,
-    params: Mapping[str, Any],
+    params: ibm_svc_systemstats.IbmSvcCpuUtilizationParams,
     expected_result: Sequence[CheckResult],
     empty_value_store: None,
 ) -> None:
