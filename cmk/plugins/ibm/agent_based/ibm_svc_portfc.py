@@ -5,6 +5,7 @@
 
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -44,7 +45,15 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 # 10:3:3:fc:N/A:2:node2:50050768030C2127:000000:inactive_unconfigured:none:local_partner
 # 11:4:4:fc:N/A:2:node2:5005076803102127:000000:inactive_unconfigured:none:local_partner
 
-Section = dict[str, Mapping[str, str]]
+
+@dataclass(frozen=True)
+class FcPort:
+    status: str
+    port_speed: str
+    wwpn: str
+
+
+Section = Mapping[str, FcPort]
 
 
 def parse_ibm_svc_portfc(string_table: StringTable) -> Section:
@@ -64,7 +73,7 @@ def parse_ibm_svc_portfc(string_table: StringTable) -> Section:
         "adapter_location",
         "adapter_port_id",
     ]
-    parsed: Section = {}
+    parsed: dict[str, FcPort] = {}
     for id_, rows in parse_ibm_svc_with_header(string_table, dflt_header).items():
         try:
             data = rows[0]
@@ -74,26 +83,27 @@ def parse_ibm_svc_portfc(string_table: StringTable) -> Section:
             item_name = f"Node {data['node_id']} Slot {data['adapter_location']} Port {data['adapter_port_id']}"
         else:
             item_name = f"Port {id_}"
-        parsed.setdefault(item_name, data)
+        parsed.setdefault(
+            item_name,
+            FcPort(status=data["status"], port_speed=data["port_speed"], wwpn=data["WWPN"]),
+        )
     return parsed
 
 
 def discover_ibm_svc_portfc(section: Section) -> DiscoveryResult:
     for item_name, data in section.items():
-        if data["status"] != "active":
+        if data.status != "active":
             continue
         yield Service(item=item_name)
 
 
 def check_ibm_svc_portfc(item: str, section: Section) -> CheckResult:
-    if not (data := section.get(item)):
+    if (port := section.get(item)) is None:
         return
-    port_status = data["status"]
-    infotext = f"Status: {port_status}, Speed: {data['port_speed']}, WWPN: {data['WWPN']}"
 
     yield Result(
-        state=State.OK if port_status == "active" else State.CRIT,
-        summary=infotext,
+        state=State.OK if port.status == "active" else State.CRIT,
+        summary=f"Status: {port.status}, Speed: {port.port_speed}, WWPN: {port.wwpn}",
     )
 
 
