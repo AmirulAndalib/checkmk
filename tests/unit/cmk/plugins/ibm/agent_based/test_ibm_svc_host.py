@@ -54,7 +54,13 @@ def test_discover_ibm_svc_host(
     [
         # No levels configured — all OK
         (
-            {},
+            {
+                "active_hosts": ("no_levels", None),
+                "inactive_hosts": ("no_levels", None),
+                "degraded_hosts": ("no_levels", None),
+                "offline_hosts": ("no_levels", None),
+                "other_hosts": ("no_levels", None),
+            },
             _STRING_TABLE,
             [
                 Result(state=State.OK, summary="Active: 3"),
@@ -69,43 +75,15 @@ def test_discover_ibm_svc_host(
                 Metric("other", 0.0),
             ],
         ),
-        # always_ok=False: degraded host triggers WARN
-        (
-            {"always_ok": False},
-            [
-                ["0", "h_esx01", "2", "4", "degraded"],
-                ["1", "host206", "2", "2", "online"],
-            ],
-            [
-                Result(state=State.OK, summary="1 active, 0 inactive"),
-                Metric("active", 1.0),
-                Metric("inactive", 0.0),
-                Metric("degraded", 1.0),
-                Metric("offline", 0.0),
-                Metric("other", 0.0),
-                Result(state=State.WARN, summary="1 degraded"),
-            ],
-        ),
-        # always_ok=True: degraded host, but state forced to OK
-        (
-            {"always_ok": True},
-            [
-                ["0", "h_esx01", "2", "4", "degraded"],
-                ["1", "host206", "2", "2", "online"],
-            ],
-            [
-                Result(state=State.OK, summary="1 active, 0 inactive"),
-                Metric("active", 1.0),
-                Metric("inactive", 0.0),
-                Metric("degraded", 1.0),
-                Metric("offline", 0.0),
-                Metric("other", 0.0),
-                Result(state=State.OK, summary="1 degraded"),
-            ],
-        ),
         # inactive_hosts warn level: inactive count at warn threshold
         (
-            {"inactive_hosts": (1, 5)},
+            {
+                "active_hosts": ("no_levels", None),
+                "inactive_hosts": ("fixed", (1, 5)),
+                "degraded_hosts": ("no_levels", None),
+                "offline_hosts": ("no_levels", None),
+                "other_hosts": ("no_levels", None),
+            },
             [
                 ["0", "h_esx01", "2", "4", "inactive"],
                 ["1", "host206", "2", "2", "online"],
@@ -125,7 +103,13 @@ def test_discover_ibm_svc_host(
         ),
         # active_hosts warn level: active count below warn threshold
         (
-            {"active_hosts": (5, 2)},
+            {
+                "active_hosts": ("fixed", (5, 2)),
+                "inactive_hosts": ("no_levels", None),
+                "degraded_hosts": ("no_levels", None),
+                "offline_hosts": ("no_levels", None),
+                "other_hosts": ("no_levels", None),
+            },
             [
                 ["0", "host206", "2", "2", "online"],
                 ["1", "host207", "2", "2", "online"],
@@ -146,7 +130,13 @@ def test_discover_ibm_svc_host(
         ),
         # offline_hosts warn level: offline count exceeds warn but not crit
         (
-            {"offline_hosts": (2, 5)},
+            {
+                "active_hosts": ("no_levels", None),
+                "inactive_hosts": ("no_levels", None),
+                "degraded_hosts": ("no_levels", None),
+                "offline_hosts": ("fixed", (2, 5)),
+                "other_hosts": ("no_levels", None),
+            },
             _STRING_TABLE_WITH_OFFLINE,
             [
                 Result(state=State.OK, summary="Active: 7"),
@@ -163,7 +153,13 @@ def test_discover_ibm_svc_host(
         ),
         # offline_crit_takes_priority_over_warn: crit=3 matches offline count — must yield CRIT, not WARN
         (
-            {"offline_hosts": (2, 3)},
+            {
+                "active_hosts": ("no_levels", None),
+                "inactive_hosts": ("no_levels", None),
+                "degraded_hosts": ("no_levels", None),
+                "offline_hosts": ("fixed", (2, 3)),
+                "other_hosts": ("no_levels", None),
+            },
             _STRING_TABLE_WITH_OFFLINE,
             [
                 Result(state=State.OK, summary="Active: 7"),

@@ -10,7 +10,8 @@
 # 2:host105:2:2:online
 # 3:host106:2:2:online
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import TypedDict
 
 from cmk.agent_based.v2 import (
@@ -19,23 +20,27 @@ from cmk.agent_based.v2 import (
     CheckPlugin,
     CheckResult,
     DiscoveryResult,
-    Metric,
-    Result,
+    LevelsT,
     Service,
-    State,
     StringTable,
 )
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 
-Section = Mapping[str, Sequence[Mapping[str, str]]]
+
+@dataclass(frozen=True)
+class Host:
+    status: str
 
 
-class _HostParams(TypedDict, total=False):
-    active_hosts: tuple[int, int]
-    inactive_hosts: tuple[int, int]
-    degraded_hosts: tuple[int, int]
-    offline_hosts: tuple[int, int]
-    other_hosts: tuple[int, int]
+Section = Sequence[Host]
+
+
+class _HostParams(TypedDict):
+    active_hosts: LevelsT[int]
+    inactive_hosts: LevelsT[int]
+    degraded_hosts: LevelsT[int]
+    offline_hosts: LevelsT[int]
+    other_hosts: LevelsT[int]
 
 
 def parse_ibm_svc_host(string_table: StringTable) -> Section:
@@ -50,7 +55,11 @@ def parse_ibm_svc_host(string_table: StringTable) -> Section:
         "host_cluster_id",
         "host_cluster_name",
     ]
-    return parse_ibm_svc_with_header(string_table, dflt_header)
+    return [
+        Host(status=row["status"])
+        for rows in parse_ibm_svc_with_header(string_table, dflt_header).values()
+        for row in rows
+    ]
 
 
 def discover_ibm_svc_host(section: Section) -> DiscoveryResult:
@@ -64,65 +73,36 @@ def check_ibm_svc_host(params: _HostParams, section: Section) -> CheckResult:
     active = 0
     inactive = 0
     other = 0
-    for rows in section.values():
-        for data in rows:
-            status = data["status"]
-            if status == "degraded":
-                degraded += 1
-            elif status == "offline":
-                offline += 1
-            elif status in ["active", "online"]:
-                active += 1
-            elif status == "inactive":
-                inactive += 1
-            else:
-                other += 1
+    for host in section:
+        if host.status == "degraded":
+            degraded += 1
+        elif host.status == "offline":
+            offline += 1
+        elif host.status in ["active", "online"]:
+            active += 1
+        elif host.status == "inactive":
+            inactive += 1
+        else:
+            other += 1
 
-    if "always_ok" in params:
-        # Old configuration rule from before version 1.2.7
-        always_ok = bool(params.get("always_ok"))
-        yield Result(state=State.OK, summary=f"{active} active, {inactive} inactive")
-        yield Metric("active", active)
-        yield Metric("inactive", inactive)
-        yield Metric("degraded", degraded)
-        yield Metric("offline", offline)
-        yield Metric("other", other)
-        if degraded > 0:
-            yield Result(
-                state=State.OK if always_ok else State.WARN,
-                summary=f"{degraded} degraded",
-            )
-        if offline > 0:
-            yield Result(
-                state=State.OK if always_ok else State.CRIT,
-                summary=f"{offline} offline",
-            )
-        if other > 0:
-            yield Result(
-                state=State.OK if always_ok else State.WARN,
-                summary=f"{other} in an unidentified state",
-            )
-        return
-
-    active_levels = params.get("active_hosts")
     yield from check_levels(
         active,
         label="Active",
-        levels_lower=("fixed", active_levels) if active_levels else ("no_levels", None),
+        levels_lower=params["active_hosts"],
         metric_name="active",
         render_func=str,
     )
 
-    for ident, value, raw_levels in [
-        ("inactive", inactive, params.get("inactive_hosts")),
-        ("degraded", degraded, params.get("degraded_hosts")),
-        ("offline", offline, params.get("offline_hosts")),
-        ("other", other, params.get("other_hosts")),
+    for ident, value, levels in [
+        ("inactive", inactive, params["inactive_hosts"]),
+        ("degraded", degraded, params["degraded_hosts"]),
+        ("offline", offline, params["offline_hosts"]),
+        ("other", other, params["other_hosts"]),
     ]:
         yield from check_levels(
             value,
             label=ident.capitalize(),
-            levels_upper=("fixed", raw_levels) if raw_levels else ("no_levels", None),
+            levels_upper=levels,
             metric_name=ident,
             render_func=str,
         )
@@ -140,5 +120,11 @@ check_plugin_ibm_svc_host = CheckPlugin(
     discovery_function=discover_ibm_svc_host,
     check_function=check_ibm_svc_host,
     check_ruleset_name="ibm_svc_host",
-    check_default_parameters={},
+    check_default_parameters={
+        "active_hosts": ("no_levels", None),
+        "inactive_hosts": ("no_levels", None),
+        "degraded_hosts": ("no_levels", None),
+        "offline_hosts": ("no_levels", None),
+        "other_hosts": ("no_levels", None),
+    },
 )
