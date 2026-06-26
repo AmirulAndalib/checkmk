@@ -66,19 +66,21 @@ class TestGraphWidgetErrorHandling:
             "graph_id": "",
         }
 
-        with patch(
-            "cmk.gui.dashboard.page_graph_widget.host_service_graph_dashlet_cmk",
-            side_effect=exception_class(exception_message),
+        with (
+            patch(
+                "cmk.gui.dashboard.page_graph_widget.host_service_graph_dashlet_cmk",
+                side_effect=exception_class(exception_message),
+            ),
+            patch("cmk.gui.dashboard.page_graph_widget.dashlet_registry"),
         ):
-            with patch("cmk.gui.dashboard.page_graph_widget.dashlet_registry"):
-                with pytest.raises(expected_exception) as exc_info:
-                    render_graph_widget_content(
-                        ctx=mock_ctx,
-                        dashlet_config=mock_dashlet_config,
-                        widget_id="test_widget",
-                    )
-                error_message = str(exc_info.value)
-                assert expected_substring in error_message
+            with pytest.raises(expected_exception) as exc_info:
+                render_graph_widget_content(
+                    ctx=mock_ctx,
+                    dashlet_config=mock_dashlet_config,
+                    widget_id="test_widget",
+                )
+            error_message = str(exc_info.value)
+            assert expected_substring in error_message
 
     @pytest.mark.parametrize(
         "exception_class,exception_message,expected_error_substring",

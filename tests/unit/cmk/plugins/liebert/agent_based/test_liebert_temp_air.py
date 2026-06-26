@@ -151,13 +151,17 @@ def test_check_liebert_temp_air_trend() -> None:
             )
         )
 
-    with time_machine.travel(datetime.datetime.fromisoformat("1970-01-01 01:00:00Z")):
-        with pytest.raises(IgnoreResultsError):
-            _get_check_result("20.0")  # -6.66 °C
+    with (
+        time_machine.travel(datetime.datetime.fromisoformat("1970-01-01 01:00:00Z")),
+        pytest.raises(IgnoreResultsError),
+    ):
+        _get_check_result("20.0")  # -6.66 °C
 
-    with time_machine.travel(datetime.datetime.fromisoformat("1970-01-01 02:00:00Z")):
-        with pytest.raises(IgnoreResultsError):
-            _get_check_result("30.0")  # -1.11 °C
+    with (
+        time_machine.travel(datetime.datetime.fromisoformat("1970-01-01 02:00:00Z")),
+        pytest.raises(IgnoreResultsError),
+    ):
+        _get_check_result("30.0")  # -1.11 °C
 
     with time_machine.travel(datetime.datetime.fromisoformat("1970-01-01 03:00:00Z")):
         result = _get_check_result("40.0")  # 4.44  °C

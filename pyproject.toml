@@ -47,6 +47,7 @@ select = [
   "SIM113", # flake8-simplify: enumerate-for-loop
   "SIM114", # flake8-simplify: if-with-same-arms
   "SIM115", # flake8-simplify: open-file-with-context-handler
+  "SIM117", # flake8-simplify: multiple-with-statements
   "SIM118", # flake8-simplify: in-dict-keys
   "SIM201", # flake8-simplify: negate-equal-op
   "SIM202", # flake8-simplify: negate-not-equal-op

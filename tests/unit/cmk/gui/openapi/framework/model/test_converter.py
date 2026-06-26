@@ -328,15 +328,17 @@ class TestHostConverter:
 
     def test_exists_setup_write_edit_hosts(self, sample_host: str) -> None:
         # write also requires read permissions, could be changed in the future
-        with create_and_destroy_user(config=active_config) as (user_id, _password):
-            with UserContext(
+        with (
+            create_and_destroy_user(config=active_config) as (user_id, _password),
+            UserContext(
                 user_id,
                 UserPermissions({}, {}, {}, []),
                 explicit_permissions={"wato.see_all_folders", "wato.edit_hosts"},
-            ):
-                assert sample_host == HostConverter(permission_type="setup_write").host_name(
-                    sample_host
-                )
+            ),
+        ):
+            assert sample_host == HostConverter(permission_type="setup_write").host_name(
+                sample_host
+            )
 
     def test_host_fails_empty_host(self) -> None:
         with pytest.raises(ValueError, match="Host name cannot be empty"):

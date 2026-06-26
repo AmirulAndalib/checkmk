@@ -61,10 +61,9 @@ def test_super_user_context() -> None:
 def test_user_context_with_exception(with_user: tuple[UserId, str]) -> None:
     user_id = with_user[0]
     assert global_user.id is None
-    with pytest.raises(MKAuthException):
-        with UserContext(user_id, UserPermissions({}, {}, {}, [])):
-            assert global_user.id == user_id
-            raise MKAuthException
+    with pytest.raises(MKAuthException), UserContext(user_id, UserPermissions({}, {}, {}, [])):
+        assert global_user.id == user_id
+        raise MKAuthException
 
     assert global_user.id is None
 

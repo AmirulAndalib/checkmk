@@ -220,10 +220,12 @@ def test_authenticate_success(flask_app: flask.Flask, user_id: UserId) -> None:
 def test_authenticate_fails(flask_app: flask.Flask, with_user: UserId) -> None:
     assert user.id is None
 
-    with flask_app.test_request_context():
-        with login.authenticate(UserPermissions({}, {}, {}, [])) as authenticated:
-            assert authenticated is False
-            assert user.id is None
+    with (
+        flask_app.test_request_context(),
+        login.authenticate(UserPermissions({}, {}, {}, [])) as authenticated,
+    ):
+        assert authenticated is False
+        assert user.id is None
 
     assert user.id is None
 

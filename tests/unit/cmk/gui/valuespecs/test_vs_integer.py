@@ -42,9 +42,8 @@ class TestValueSpecInteger:
         with request_var(integer="123"):
             assert vs.Integer().from_html_vars("integer") == 123
 
-        with request_var(integer="asd"):
-            with pytest.raises(MKUserError):
-                vs.Integer().from_html_vars("integer")
+        with request_var(integer="asd"), pytest.raises(MKUserError):
+            vs.Integer().from_html_vars("integer")
 
     def test_value_to_html(self) -> None:
         assert vs.Integer().value_to_html(123) == "123"

@@ -42,9 +42,8 @@ class TestValueSpecFloat:
         with request_var(integer="123"):
             assert vs.Float().from_html_vars("integer") == 123
 
-        with request_var(integer="asd"):
-            with pytest.raises(MKUserError):
-                vs.Float().from_html_vars("integer")
+        with request_var(integer="asd"), pytest.raises(MKUserError):
+            vs.Float().from_html_vars("integer")
 
     def test_value_to_html(self) -> None:
         assert vs.Float().value_to_html(123) == "123.0"

@@ -73,9 +73,8 @@ def _call_script(
             env=env,
         ) as proc:
             os.close(fd_child)
-            with open(fd_parent) as parent:
-                with contextlib.suppress(OSError):
-                    forward_to_stdout(parent)
+            with open(fd_parent) as parent, contextlib.suppress(OSError):
+                forward_to_stdout(parent)
     else:
         with subprocess.Popen(
             command,

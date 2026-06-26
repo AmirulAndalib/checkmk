@@ -103,17 +103,19 @@ def test_help_menu(
         "None intercepted within the validation period!"
     )
 
-    with browser_context.expect_page() as new_tab_info:
-        with browser_context.expect_event(
+    with (
+        browser_context.expect_page() as new_tab_info,
+        browser_context.expect_event(
             "response",
             lambda response: bool(re.findall(help_menu_button.url_pattern, response.url)),
-        ) as matched_response:
-            getattr(dashboard_page.main_menu, help_menu_button.name).click()
-            with handle_playwright_timeouterror(pw_timeout_msg):
-                assert matched_response.value.status in (200, 301), (
-                    f"Unexpected response status code: {matched_response.value.status}, "
-                    f"response url: {matched_response.value.url}"
-                )
-            new_page = new_tab_info.value
-            new_page.wait_for_url(url=re.compile(help_menu_button.url_pattern), wait_until="load")
-            new_page.close()
+        ) as matched_response,
+    ):
+        getattr(dashboard_page.main_menu, help_menu_button.name).click()
+        with handle_playwright_timeouterror(pw_timeout_msg):
+            assert matched_response.value.status in (200, 301), (
+                f"Unexpected response status code: {matched_response.value.status}, "
+                f"response url: {matched_response.value.url}"
+            )
+        new_page = new_tab_info.value
+        new_page.wait_for_url(url=re.compile(help_menu_button.url_pattern), wait_until="load")
+        new_page.close()

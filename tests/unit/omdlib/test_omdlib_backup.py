@@ -150,13 +150,15 @@ def test_backup_site_to_tarfile_socket_fail(tmp_path: Path) -> None:
     server.bind(str(test_file))
 
     tar_path = tmp_path / "backup.tar"
-    with pytest.raises(tarfile.TarError, match="Failed to get tarinfo for file '.*test_file.*'"):
-        with tarfile.open(tar_path, mode="w:") as tar:
-            omdlib.backup._backup_site_to_tarfile(
-                site_name,
-                str(site_home),
-                True,
-                tar,
-                BackupExclusions.from_options({}),
-                verbose=False,
-            )
+    with (
+        pytest.raises(tarfile.TarError, match="Failed to get tarinfo for file '.*test_file.*'"),
+        tarfile.open(tar_path, mode="w:") as tar,
+    ):
+        omdlib.backup._backup_site_to_tarfile(
+            site_name,
+            str(site_home),
+            True,
+            tar,
+            BackupExclusions.from_options({}),
+            verbose=False,
+        )

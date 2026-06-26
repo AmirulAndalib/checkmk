@@ -160,19 +160,21 @@ def test_generate_snapshot(
     remote_site: SiteId,
     test_edition: Edition,
 ) -> None:
-    with get_activation_manager(monkeypatch, remote_site) as activation_manager:
-        with create_sync_snapshot(
+    with (
+        get_activation_manager(monkeypatch, remote_site) as activation_manager,
+        create_sync_snapshot(
             activation_manager,
             monkeypatch,
             tmp_path,
             remote_site=remote_site,
             edition=test_edition,
-        ) as snapshot_settings:
-            expected_paths = _get_expected_paths(user_id=with_user_login)
+        ) as snapshot_settings,
+    ):
+        expected_paths = _get_expected_paths(user_id=with_user_login)
 
-            work_dir = Path(snapshot_settings.work_dir)
-            snapshot_paths = [str(p.relative_to(work_dir)) for p in work_dir.glob("**/*")]
-            assert sorted(snapshot_paths) == sorted(expected_paths)
+        work_dir = Path(snapshot_settings.work_dir)
+        snapshot_paths = [str(p.relative_to(work_dir)) for p in work_dir.glob("**/*")]
+        assert sorted(snapshot_paths) == sorted(expected_paths)
 
 
 # This test does not perform the full synchronization. It executes the central site parts and mocks

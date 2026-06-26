@@ -151,13 +151,15 @@ def test_relay_pending_deletion_submit_data_ok(
     monitoring_data = _make_monitoring_data(serial_folder.serial.value)
 
     socket_path = f"{tmpdir}/{secrets.token_urlsafe(8)}.sock"
-    with patch.object(Config, "raw_data_socket", socket_path):
-        with create_socket(socket_path=socket_path, socket_timeout=TEST_SOCKET_TIMEOUT) as ms:
-            resp = agent_receiver.forward_monitoring_data(
-                relay_id=relay_id,
-                monitoring_data=monitoring_data,
-            )
-            connection_data = ms.data_queue.get(timeout=TEST_SOCKET_TIMEOUT)
+    with (
+        patch.object(Config, "raw_data_socket", socket_path),
+        create_socket(socket_path=socket_path, socket_timeout=TEST_SOCKET_TIMEOUT) as ms,
+    ):
+        resp = agent_receiver.forward_monitoring_data(
+            relay_id=relay_id,
+            monitoring_data=monitoring_data,
+        )
+        connection_data = ms.data_queue.get(timeout=TEST_SOCKET_TIMEOUT)
     assert resp.status_code == HTTPStatus.NO_CONTENT, resp.text
     _, received_payload = connection_data.data.split(b"\n", 1)
     assert received_payload == MONITORING_PAYLOAD

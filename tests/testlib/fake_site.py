@@ -318,16 +318,18 @@ def prevent_livestatus_connect() -> Iterator[None]:
         if self.deadsites:
             pytest.fail("Dead sites: %r" % self.deadsites)
 
-    with patch.object(
-        livestatus.SingleSiteConnection,
-        "_create_socket",
-        lambda *_: pytest.fail(
-            "The test tried to use a livestatus connection. This will result in connect timeouts. "
-            "Use mock_livestatus for mocking away the livestatus API"
-        ),
-    ) as _:
-        with patch.object(livestatus.MultiSiteConnection, "__init__", init_mock) as _:
-            yield
+    with (
+        patch.object(
+            livestatus.SingleSiteConnection,
+            "_create_socket",
+            lambda *_: pytest.fail(
+                "The test tried to use a livestatus connection. This will result in connect timeouts. "
+                "Use mock_livestatus for mocking away the livestatus API"
+            ),
+        ) as _,
+        patch.object(livestatus.MultiSiteConnection, "__init__", init_mock) as _,
+    ):
+        yield
 
 
 def use_fakeredis() -> Iterator[None]:

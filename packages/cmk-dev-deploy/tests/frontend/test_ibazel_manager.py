@@ -526,9 +526,9 @@ class TestDownloadAndVerify:
                 side_effect=urllib.error.URLError("DNS resolution failed"),
             ),
             patch("cmk.dev_deploy.frontend.ibazel_manager.output"),
+            pytest.raises(IBazelError, match="Failed to download"),
         ):
-            with pytest.raises(IBazelError, match="Failed to download"):
-                _download_and_verify()
+            _download_and_verify()
 
     def test_download_timeout_raises(self, tmp_path: Path) -> None:
         import urllib.error
@@ -557,9 +557,9 @@ class TestDownloadAndVerify:
                 side_effect=urllib.error.URLError(TimeoutError("timed out")),
             ),
             patch("cmk.dev_deploy.frontend.ibazel_manager.output"),
+            pytest.raises(IBazelError, match="Failed to download"),
         ):
-            with pytest.raises(IBazelError, match="Failed to download"):
-                _download_and_verify()
+            _download_and_verify()
 
     def test_keyboard_interrupt_cleans_temp(self, tmp_path: Path) -> None:
         from cmk.dev_deploy.frontend.ibazel_manager import _download_and_verify

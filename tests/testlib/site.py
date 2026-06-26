@@ -2827,19 +2827,21 @@ class SiteFactory:
         Yields:
             Site object for the connected remote site.
         """
-        with self.get_test_site_ctx(
-            site_name,
-            description=site_description,
-            auto_restart_httpd=True,
-            tracing_config=tracing_config_from_env(os.environ),
-        ) as remote_site:
-            with connection(
+        with (
+            self.get_test_site_ctx(
+                site_name,
+                description=site_description,
+                auto_restart_httpd=True,
+                tracing_config=tracing_config_from_env(os.environ),
+            ) as remote_site,
+            connection(
                 central_site=central_site,
                 remote_site=remote_site,
                 enable_replication=enable_replication,
                 disable_remote_configuration=disable_remote_configuration,
-            ):
-                yield remote_site
+            ),
+        ):
+            yield remote_site
 
     def remove_site(self, name: str) -> None:
         if f"{self._base_ident}{name}" in self._sites:

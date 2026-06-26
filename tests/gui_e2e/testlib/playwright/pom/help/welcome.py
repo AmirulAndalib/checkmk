@@ -76,9 +76,11 @@ class WelcomePage(CmkPage):
         # The Vue component POSTs to ajax_set_dashboard_start_url.py and then calls
         # window.top.reload() on success. Wait for both to avoid a race where the
         # home button is clicked before the server has persisted the new setting.
-        with self.page.expect_navigation(wait_until="load"):
-            with self.page.expect_response(re.compile(r"ajax_set_dashboard_start_url\.py")):
-                self.show_on_start_checkbox.uncheck()
+        with (
+            self.page.expect_navigation(wait_until="load"),
+            self.page.expect_response(re.compile(r"ajax_set_dashboard_start_url\.py")),
+        ):
+            self.show_on_start_checkbox.uncheck()
         logger.info("'Show welcome page on start' disabled")
 
     def enable_show_on_start(self) -> None:
@@ -88,7 +90,9 @@ class WelcomePage(CmkPage):
             self.show_on_start_checkbox,
             message="'Show welcome page on start' checkbox is not visible",
         ).to_be_visible()
-        with self.page.expect_navigation(wait_until="load"):
-            with self.page.expect_response(re.compile(r"ajax_set_dashboard_start_url\.py")):
-                self.show_on_start_checkbox.check()
+        with (
+            self.page.expect_navigation(wait_until="load"),
+            self.page.expect_response(re.compile(r"ajax_set_dashboard_start_url\.py")),
+        ):
+            self.show_on_start_checkbox.check()
         logger.info("'Show welcome page on start' enabled")

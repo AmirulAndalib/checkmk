@@ -77,9 +77,8 @@ def test_MKGeneralException_returns_3() -> None:
 
 @pytest.mark.usefixtures("disable_debug")
 def test_broken_pipe_propagates() -> None:
-    with pytest.raises(BrokenPipeError):
-        with _handler():
-            raise BrokenPipeError(32, "Broken pipe")
+    with pytest.raises(BrokenPipeError), _handler():
+        raise BrokenPipeError(32, "Broken pipe")
 
 
 @pytest.mark.usefixtures("disable_debug", "patch_omd_site")

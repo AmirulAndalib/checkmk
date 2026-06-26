@@ -462,9 +462,8 @@ def test_get_aggregation_state_empty(
         "GET hosts\nColumns: host_name host_tags host_labels host_childs host_parents host_alias host_filename"
     )
 
-    with live():
-        with set_config(wato_enabled=wato_enabled):
-            clients.BiAggregation.get_aggregation_state_post(body={})
+    with live(), set_config(wato_enabled=wato_enabled):
+        clients.BiAggregation.get_aggregation_state_post(body={})
 
 
 @pytest.mark.parametrize("wato_enabled", [True, False])
@@ -482,9 +481,8 @@ def test_get_aggregation_state_filter_names(
         "GET hosts\nColumns: host_name host_tags host_labels host_childs host_parents host_alias host_filename"
     )
 
-    with live():
-        with set_config(wato_enabled=wato_enabled):
-            clients.BiAggregation.get_aggregation_state_post(body={"filter_names": ["Host heute"]})
+    with live(), set_config(wato_enabled=wato_enabled):
+        clients.BiAggregation.get_aggregation_state_post(body={"filter_names": ["Host heute"]})
 
 
 @pytest.mark.parametrize("wato_enabled", [True, False])
@@ -532,9 +530,8 @@ def test_get_aggregation_state_should_not_update_config_generation(
 
     generation_before_calling_endpoint = activate_changes._get_current_config_generation()
 
-    with live():
-        with set_config(wato_enabled=wato_enabled):
-            clients.BiAggregation.get_aggregation_state_post(body={"filter_names": ["Host heute"]})
+    with live(), set_config(wato_enabled=wato_enabled):
+        clients.BiAggregation.get_aggregation_state_post(body={"filter_names": ["Host heute"]})
 
     generation_after_calling_endpoint = activate_changes._get_current_config_generation()
 
@@ -605,9 +602,8 @@ def test_aggregation_state_empty_with_get_method(
         "GET hosts\nColumns: host_name host_tags host_labels host_childs host_parents host_alias host_filename"
     )
 
-    with live():
-        with set_config(wato_enabled=wato_enabled):
-            clients.BiAggregation.get_aggregation_state()
+    with live(), set_config(wato_enabled=wato_enabled):
+        clients.BiAggregation.get_aggregation_state()
 
 
 @pytest.mark.parametrize("wato_enabled", [True, False])
@@ -625,11 +621,8 @@ def test_aggregation_state_filter_names_with_get_method(
         "GET hosts\nColumns: host_name host_tags host_labels host_childs host_parents host_alias host_filename"
     )
 
-    with live():
-        with set_config(wato_enabled=wato_enabled):
-            clients.BiAggregation.get_aggregation_state(
-                query_params={"filter_names": ["Host heute"]}
-            )
+    with live(), set_config(wato_enabled=wato_enabled):
+        clients.BiAggregation.get_aggregation_state(query_params={"filter_names": ["Host heute"]})
 
 
 def create_bipack_get_rule_test_data(clients: ClientRegistry) -> dict:

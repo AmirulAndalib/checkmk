@@ -21,9 +21,11 @@ class TestFilesize:
         # following behaviour:
         with request_var(f_size="5.2", f_unit="2"):
             assert vs.Filesize().from_html_vars("f") == int(5.2 * 1024 * 1024)
-        with request_var(f_size="not_a_number", f_unit="2"):
-            with pytest.raises(MKUserError, match='The parameter "f_size" is not a float.'):
-                vs.Filesize().from_html_vars("f")
+        with (
+            request_var(f_size="not_a_number", f_unit="2"),
+            pytest.raises(MKUserError, match='The parameter "f_size" is not a float.'),
+        ):
+            vs.Filesize().from_html_vars("f")
 
     def test_to_html(self):
         assert vs.Filesize().value_to_html(2 * 1024 * 1024) == "2 MiB"

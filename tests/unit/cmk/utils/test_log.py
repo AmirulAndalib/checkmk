@@ -87,12 +87,11 @@ def test_security_event(tmp_path: Path) -> None:
     event = SecurityEvent("test security event", details, SecurityEvent.Domain.auth)
 
     logger = logging.getLogger("cmk_security")
-    with set_log_level(logger, logging.INFO):
-        with queue_log_sink(logger) as log_queue:
-            log_security_event(event)
-            entry = log_queue.get_nowait()
-            assert entry.name == "cmk_security.auth"
-            assert (
-                entry.getMessage() == '{"summary": "test security event", '
-                '"details": {"a": ["serialize", "me"], "b": {"b.1": 42.23}}}'
-            )
+    with set_log_level(logger, logging.INFO), queue_log_sink(logger) as log_queue:
+        log_security_event(event)
+        entry = log_queue.get_nowait()
+        assert entry.name == "cmk_security.auth"
+        assert (
+            entry.getMessage() == '{"summary": "test security event", '
+            '"details": {"a": ["serialize", "me"], "b": {"b.1": 42.23}}}'
+        )

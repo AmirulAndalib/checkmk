@@ -33,6 +33,9 @@ def test_send_command_int_params(mock_livestatus: MockLiveStatusConnection) -> N
 
 @pytest.mark.usefixtures("request_context")
 def test_send_command_invalid_param_type(mock_livestatus: MockLiveStatusConnection) -> None:
-    with mock_livestatus(expect_status_query=True), SuperUserContext():
-        with pytest.raises(ValueError, match="Unknown type of parameter 0"):
-            send_command(sites.live(), "ADD_HOST_COMMENT", [object()])
+    with (
+        mock_livestatus(expect_status_query=True),
+        SuperUserContext(),
+        pytest.raises(ValueError, match="Unknown type of parameter 0"),
+    ):
+        send_command(sites.live(), "ADD_HOST_COMMENT", [object()])

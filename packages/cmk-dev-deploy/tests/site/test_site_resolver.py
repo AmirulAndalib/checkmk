@@ -210,12 +210,14 @@ def test_resolve_site_full_pipeline(monkeypatch: pytest.MonkeyPatch, tmp_path: P
 
 def test_resolve_site_nonexistent_directory(tmp_path: Path) -> None:
     """resolve_site raises SiteNotFoundError when site directory does not exist."""
-    with patch(
-        "cmk.dev_deploy.site.site_resolver._list_sites",
-        return_value="(none found)",
+    with (
+        patch(
+            "cmk.dev_deploy.site.site_resolver._list_sites",
+            return_value="(none found)",
+        ),
+        pytest.raises(SiteNotFoundError, match="Site directory does not exist"),
     ):
-        with pytest.raises(SiteNotFoundError, match="Site directory does not exist"):
-            resolve_site("nonexistent", tmp_path, tmp_path)
+        resolve_site("nonexistent", tmp_path, tmp_path)
 
 
 def test_resolve_site_orphan_no_system_user(

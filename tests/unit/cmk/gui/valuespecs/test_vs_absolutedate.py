@@ -51,12 +51,16 @@ class TestAbsoluteDate:
                 a_year="2021", a_month="9", a_day="12", a_hour="15", a_min="37", a_sec="18"
             ):
                 assert vs.AbsoluteDate(include_time=True).from_html_vars("a") == 1631453838.0
-        with pytest.raises(MKUserError, match="Please enter a valid number"):
-            with request_var(a_year="smth"):
-                vs.AbsoluteDate().from_html_vars("a")
-        with pytest.raises(MKUserError, match="The value for year must be between 1970 and 2038"):
-            with request_var(a_year="2222"):
-                vs.AbsoluteDate().from_html_vars("a")
+        with (
+            pytest.raises(MKUserError, match="Please enter a valid number"),
+            request_var(a_year="smth"),
+        ):
+            vs.AbsoluteDate().from_html_vars("a")
+        with (
+            pytest.raises(MKUserError, match="The value for year must be between 1970 and 2038"),
+            request_var(a_year="2222"),
+        ):
+            vs.AbsoluteDate().from_html_vars("a")
 
         # TODO: it's allow_empty, not ignore_invalid_value, so we should expect an exception here
         with request_var(a_year="smth", a_month="smth", a_day="smth"):

@@ -118,13 +118,12 @@ def create_argument_parser() -> argparse.ArgumentParser:
 
 
 def load_expected_mails(status_path: Path) -> MailDict:
-    with suppress(IOError):
-        with status_path.open() as file:
-            return {
-                ts + "-" + key: (int(ts), int(key))  #
-                for line in file  #
-                for ts, key in (line.rstrip().split(" ", 1),)
-            }
+    with suppress(IOError), status_path.open() as file:
+        return {
+            ts + "-" + key: (int(ts), int(key))  #
+            for line in file  #
+            for ts, key in (line.rstrip().split(" ", 1),)
+        }
     return {}
 
 

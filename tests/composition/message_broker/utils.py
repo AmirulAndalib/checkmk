@@ -143,12 +143,10 @@ def assert_message_exchange_working(site1: Site, site2: Site) -> None:
 
 
 def assert_message_exchange_not_working(site1: Site, site2: Site) -> None:
-    with broker_pong(site1):
-        with pytest.raises(Timeout):
-            check_broker_ping(site2, site1.id)
-    with broker_pong(site2):
-        with pytest.raises(Timeout):
-            check_broker_ping(site1, site2.id)
+    with broker_pong(site1), pytest.raises(Timeout):
+        check_broker_ping(site2, site1.id)
+    with broker_pong(site2), pytest.raises(Timeout):
+        check_broker_ping(site1, site2.id)
 
 
 @contextmanager

@@ -151,11 +151,13 @@ def git_essential_directories(checkout_dir: Path) -> list[str]:
     # In case of reference clones we also need to access them.
     # Not sure if 'objects/info/alternates' can contain more than one line and if we really need
     # the parent, but at least this one is working for us
-    with suppress(FileNotFoundError):
-        with (common_dir / "objects/info/alternates").open() as alternates:
-            for alternate in (Path(line).parent for line in alternates):
-                if not alternate.is_relative_to(checkout_dir):
-                    essential_dirs.append(alternate.as_posix())
+    with (
+        suppress(FileNotFoundError),
+        (common_dir / "objects/info/alternates").open() as alternates,
+    ):
+        for alternate in (Path(line).parent for line in alternates):
+            if not alternate.is_relative_to(checkout_dir):
+                essential_dirs.append(alternate.as_posix())
 
     return essential_dirs
 

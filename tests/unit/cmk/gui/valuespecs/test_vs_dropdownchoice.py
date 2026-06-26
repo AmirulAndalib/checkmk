@@ -65,31 +65,37 @@ class TestValueSpecDropdownChoice:
         with request_var(value="a"):
             assert get_dropdown_choice(encode_value=False).from_html_vars("value") == "a"
 
-        with request_var(value="smth"):
-            with pytest.raises(
+        with (
+            request_var(value="smth"),
+            pytest.raises(
                 MKUserError,
                 match="The selected element 'smth' is not longer available. Please select something else.",
-            ):
-                get_dropdown_choice(encode_value=False).from_html_vars("value")
+            ),
+        ):
+            get_dropdown_choice(encode_value=False).from_html_vars("value")
 
         with request_var(value="d749929fe94b9a37dbe5d74cb297ad24b46e467898545f4e109eb21835046ac4"):
             assert get_dropdown_choice().from_html_vars("value") == "a"
 
-        with request_var(value="0000000000000000000000000000000000000000000000000000000000000000"):
-            with pytest.raises(
+        with (
+            request_var(value="0000000000000000000000000000000000000000000000000000000000000000"),
+            pytest.raises(
                 MKUserError,
                 match=(
                     "The selected element '0000000000000000000000000000000000000000000000000000000000000000' "
                     "is not longer available. Please select something else."
                 ),
-            ):
-                assert get_dropdown_choice().from_html_vars("value") == "a"
+            ),
+        ):
+            assert get_dropdown_choice().from_html_vars("value") == "a"
 
-        with request_var(value="smth"):
-            with pytest.raises(
+        with (
+            request_var(value="smth"),
+            pytest.raises(
                 MKUserError, match="There are no elements defined for this selection yet."
-            ):
-                get_dropdown_choice(choices=[]).from_html_vars("value")
+            ),
+        ):
+            get_dropdown_choice(choices=[]).from_html_vars("value")
 
         with request_var(value="smth"):
             _ = get_dropdown_choice(invalid_choice="replace").from_html_vars("value") == "a"

@@ -25,18 +25,20 @@ def test_load_host_value_store_loads_file(tmp_path: Path) -> None:
 
     stores_file.write_text(raw_content)
 
-    with set_value_store_manager(
-        value_store.ValueStoreManager(
-            HostName("test_load_host_value_store_loads_file"),
-            value_store.AllValueStoresStore(
-                stores_file,
-                log_debug=lambda x: None,  # noqa: ARG005
+    with (
+        set_value_store_manager(
+            value_store.ValueStoreManager(
+                HostName("test_load_host_value_store_loads_file"),
+                value_store.AllValueStoresStore(
+                    stores_file,
+                    log_debug=lambda x: None,  # noqa: ARG005
+                ),
             ),
-        ),
-        store_changes=False,
-    ) as mgr:
-        with mgr.namespace(service_id):
-            assert get_value_store()["loaded_file"] is True  # trueish is not enough
+            store_changes=False,
+        ) as mgr,
+        mgr.namespace(service_id),
+    ):
+        assert get_value_store()["loaded_file"] is True  # trueish is not enough
 
 
 class TestAllValueStoresStore:

@@ -124,15 +124,15 @@ def main_site_backup(args: Backup) -> int:
     # 1. Concurrent backups interleave SUSPEND/RESUME commands to rrdcached.
     # 2. Parallel site backups cause I/O contention.
     lock_path = Path(SitePaths.from_site_name(args.site).home) / "tmp" / "run" / "backup.lock"
-    with exclusive_owner(
-        lock_path,
-        f"Another backup for site '{args.site}' is already running.",
+    with (
+        exclusive_owner(
+            lock_path,
+            f"Another backup for site '{args.site}' is already running.",
+        ),
+        open(args.descriptor, mode="wb", closefd=False) as fileobj,
+        tarfile.open(fileobj=fileobj, mode="w|gz" if args.compression else "w|") as tar,
     ):
-        with (
-            open(args.descriptor, mode="wb", closefd=False) as fileobj,
-            tarfile.open(fileobj=fileobj, mode="w|gz" if args.compression else "w|") as tar,
-        ):
-            _try_backup_site_to_tarfile(tar, BackupExclusions.from_args(args), site, args.verbose)
+        _try_backup_site_to_tarfile(tar, BackupExclusions.from_args(args), site, args.verbose)
     return 0
 
 

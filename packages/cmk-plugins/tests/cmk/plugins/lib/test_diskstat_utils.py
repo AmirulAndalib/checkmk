@@ -150,13 +150,15 @@ def test_compute_rates_multiple_disks() -> None:
     value_store: dict[str, Any] = {}
 
     # first call should result in IgnoreResultsError, second call should yield rates
-    with time_machine.travel(datetime.datetime.fromtimestamp(0, tz=ZoneInfo("UTC"))):
-        with pytest.raises(IgnoreResultsError):
-            diskstat.compute_rates_multiple_disks(
-                disks,
-                value_store,
-                _compute_rates_single_disk,
-            )
+    with (
+        time_machine.travel(datetime.datetime.fromtimestamp(0, tz=ZoneInfo("UTC"))),
+        pytest.raises(IgnoreResultsError),
+    ):
+        diskstat.compute_rates_multiple_disks(
+            disks,
+            value_store,
+            _compute_rates_single_disk,
+        )
     with time_machine.travel(datetime.datetime.fromtimestamp(60, tz=ZoneInfo("UTC"))):
         disks_w_rates = diskstat.compute_rates_multiple_disks(
             disks,

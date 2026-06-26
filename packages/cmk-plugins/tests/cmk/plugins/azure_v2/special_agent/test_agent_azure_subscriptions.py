@@ -480,12 +480,14 @@ async def test_get_subscriptions_wrong_subscription(mock_api_client: AsyncMock) 
     mock_context_manager = MagicMock()
     mock_context_manager.__aenter__.return_value = mock_api_client
 
-    with patch(
-        "cmk.plugins.azure_v2.special_agent.agent_azure_v2.BaseAsyncApiClient",
-        return_value=mock_context_manager,
+    with (
+        patch(
+            "cmk.plugins.azure_v2.special_agent.agent_azure_v2.BaseAsyncApiClient",
+            return_value=mock_context_manager,
+        ),
+        pytest.raises(ApiError, match="Subscription non_existent_subscription_id not found."),
     ):
-        with pytest.raises(ApiError, match="Subscription non_existent_subscription_id not found."):
-            await _get_subscriptions(args)
+        await _get_subscriptions(args)
 
 
 def _make_test_connection_args(**kwargs: object) -> Args:

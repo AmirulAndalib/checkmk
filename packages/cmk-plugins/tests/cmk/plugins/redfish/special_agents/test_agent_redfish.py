@@ -86,9 +86,11 @@ def test_phase_reraises_when_debug(capsys: pytest.CaptureFixture[str]) -> None:
     redfishobj = _make_redfishobj(debug=True)
     redfishobj.section_data["Memory"] = [{"Id": "DIMM.A1"}]
 
-    with pytest.raises(RuntimeError, match="simulated"):
-        with agent_redfish._phase(redfishobj, "systems"):
-            raise RuntimeError("simulated mid-flow failure")
+    with (
+        pytest.raises(RuntimeError, match="simulated"),
+        agent_redfish._phase(redfishobj, "systems"),
+    ):
+        raise RuntimeError("simulated mid-flow failure")
 
     # `finally` flushes even when the exception propagates.
     out = capsys.readouterr().out

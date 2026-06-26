@@ -116,15 +116,17 @@ def _make_connected_remote_site(
     site_description: str,
 ) -> Iterator[Site]:
     _ensure_cloud_initial_config()
-    with site_factory.get_test_site_ctx(
-        site_name,
-        description=site_description,
-        auto_restart_httpd=True,
-        tracing_config=tracing_config_from_env(os.environ),
-        lifecycle_wrapper=_cloud_lifecycle_wrapper_or_none(),
-    ) as remote_site:
-        with connection(central_site=central_site, remote_site=remote_site):
-            yield remote_site
+    with (
+        site_factory.get_test_site_ctx(
+            site_name,
+            description=site_description,
+            auto_restart_httpd=True,
+            tracing_config=tracing_config_from_env(os.environ),
+            lifecycle_wrapper=_cloud_lifecycle_wrapper_or_none(),
+        ) as remote_site,
+        connection(central_site=central_site, remote_site=remote_site),
+    ):
+        yield remote_site
 
 
 @pytest.fixture(name="installed_agent_ctl_in_unknown_state", scope="function")

@@ -87,9 +87,11 @@ def test_verify_expiry(
     #
     # We assume self_signed_cert is valid for 2 hours. Otherwise the test will not work.
     #
-    with time_machine.travel(self_signed_cert.certificate.not_valid_before + time_offset):
-        with expectation:
-            self_signed_cert.certificate.verify_expiry(allowed_drift)
+    with (
+        time_machine.travel(self_signed_cert.certificate.not_valid_before + time_offset),
+        expectation,
+    ):
+        self_signed_cert.certificate.verify_expiry(allowed_drift)
 
 
 @pytest.mark.parametrize(

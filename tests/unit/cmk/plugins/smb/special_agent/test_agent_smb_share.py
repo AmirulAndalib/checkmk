@@ -835,9 +835,11 @@ def test_smb_share_agent_operation_failure(
 )
 @mock.patch("cmk.plugins.smb.special_agent.agent_smb_share.SMBConnection.close")
 def test_connect_error(mock_close: mock.Mock, mock_connect: mock.Mock) -> None:
-    with pytest.raises(Exception, match="Exception during usage of smb connection"):
-        with connect("username", Secret("password"), "hostname", "127.0.0.1"):
-            raise Exception("Exception during usage of smb connection")
+    with (
+        pytest.raises(Exception, match="Exception during usage of smb connection"),
+        connect("username", Secret("password"), "hostname", "127.0.0.1"),
+    ):
+        raise Exception("Exception during usage of smb connection")
 
     mock_close.assert_called_once()
 

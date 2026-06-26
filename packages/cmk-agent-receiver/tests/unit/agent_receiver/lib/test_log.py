@@ -36,11 +36,13 @@ def test_logging_with_single_context_variable_injects_context_attributes(
     logger_with_context: logging.Logger, caplog: LogCaptureFixture
 ) -> None:
     """Test various data types in context are preserved correctly."""
-    with caplog.at_level(logging.INFO, logger="test_context"):
-        with logger.bound_contextvars(
+    with (
+        caplog.at_level(logging.INFO, logger="test_context"),
+        logger.bound_contextvars(
             string_val="test", int_val=42, bool_val=True, none_val=None, list_val=[1, 2, 3]
-        ):
-            logger_with_context.info("Multiple types")
+        ),
+    ):
+        logger_with_context.info("Multiple types")
 
     record = caplog.records[0]
     assert record.ctx_string_val == "test"  # type: ignore[attr-defined]
@@ -54,14 +56,16 @@ def test_nested_context_overrides_and_restores_values_correctly(
     logger_with_context: logging.Logger, caplog: LogCaptureFixture
 ) -> None:
     """Test nested context behavior with overriding and restoration."""
-    with caplog.at_level(logging.INFO, logger="test_context"):
-        with logger.bound_contextvars(user_id=123, action="outer"):
-            logger_with_context.info("Outer")
+    with (
+        caplog.at_level(logging.INFO, logger="test_context"),
+        logger.bound_contextvars(user_id=123, action="outer"),
+    ):
+        logger_with_context.info("Outer")
 
-            with logger.bound_contextvars(user_id=456, request_id="nested"):
-                logger_with_context.info("Inner")
+        with logger.bound_contextvars(user_id=456, request_id="nested"):
+            logger_with_context.info("Inner")
 
-            logger_with_context.info("Back to outer")
+        logger_with_context.info("Back to outer")
 
     assert len(caplog.records) == 3
 
@@ -84,9 +88,8 @@ def test_context_cleanup_after_exception_in_bound_contextvars(
     logger_with_context: logging.Logger, caplog: LogCaptureFixture
 ) -> None:
     with caplog.at_level(logging.INFO, logger="test_context"):
-        with pytest.raises(ValueError):
-            with logger.bound_contextvars(user_id=123):
-                raise ValueError("Test exception")
+        with pytest.raises(ValueError), logger.bound_contextvars(user_id=123):
+            raise ValueError("Test exception")
 
         logger_with_context.info("After exception")
 
@@ -100,9 +103,11 @@ def test_context_prefix_filtering_excludes_non_prefixed_variables(
     non_log_var: contextvars.ContextVar[str] = contextvars.ContextVar("non_log_key")
     non_log_var.set("should_not_appear")
 
-    with caplog.at_level(logging.INFO, logger="test_context"):
-        with logger.bound_contextvars(proper_context="should_appear"):
-            logger_with_context.info("Test message")
+    with (
+        caplog.at_level(logging.INFO, logger="test_context"),
+        logger.bound_contextvars(proper_context="should_appear"),
+    ):
+        logger_with_context.info("Test message")
 
     record = caplog.records[0]
     assert not hasattr(record, "ctx_non_log_key")
@@ -135,9 +140,11 @@ def test_non_serializable_context_values_are_stringified(
 ) -> None:
     non_serializable = _NonSerializable()
 
-    with caplog.at_level(logging.INFO, logger="test_context"):
-        with logger.bound_contextvars(non_serializable=non_serializable):
-            logger_with_context.info("Non serializable context")
+    with (
+        caplog.at_level(logging.INFO, logger="test_context"),
+        logger.bound_contextvars(non_serializable=non_serializable),
+    ):
+        logger_with_context.info("Non serializable context")
 
     record = caplog.records[0]
 

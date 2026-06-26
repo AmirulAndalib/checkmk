@@ -572,12 +572,15 @@ class Discovery:
             if (entry.check_plugin_name, entry.item) in self._selected_services:
                 return self._update_target
 
-        if self._action in [
-            DiscoveryAction.SINGLE_UPDATE,
-            DiscoveryAction.SINGLE_UPDATE_SERVICE_PROPERTIES,
-        ]:
-            if (entry.check_plugin_name, entry.item) in self._selected_services:
-                return self._update_target
+        if (
+            self._action
+            in [
+                DiscoveryAction.SINGLE_UPDATE,
+                DiscoveryAction.SINGLE_UPDATE_SERVICE_PROPERTIES,
+            ]
+            and (entry.check_plugin_name, entry.item) in self._selected_services
+        ):
+            return self._update_target
 
         return entry.check_source
 
@@ -646,41 +649,42 @@ def perform_fix_all(
     """
     Handle fix all ('Accept All' on UI) discovery action
     """
-    with _service_discovery_context(host, pprint_value=pprint_value):
-        with tracer.span("perform_fix_all", attributes={"cmk.host_name": str(host.name())}):
-            _perform_update_host_labels(
-                discovery_result.labels_by_host,
-                automation_config=automation_config,
-                debug=debug,
-                pending_changes=pending_changes,
-            )
-            Discovery(
-                host,
-                DiscoveryAction.FIX_ALL,
-                update_target=None,
-                update_source=None,
-                selected_services=(),  # does not matter in case of "FIX_ALL"
-                user_need_permission=user.need_permission,
-            ).do_discovery(
-                discovery_result,
-                host.name(),
-                automation_config=automation_config,
-                pprint_value=pprint_value,
-                debug=debug,
-                use_git=use_git,
-                pending_changes=pending_changes,
-            )
-            discovery_result = get_check_table(
-                host,
-                DiscoveryAction.FIX_ALL,
-                automation_config=automation_config,
-                user_permission_config=user_permission_config,
-                raise_errors=raise_errors,
-                debug=debug,
-                use_git=use_git,
-                pending_changes=pending_changes,
-            )
-    return discovery_result
+    with (
+        _service_discovery_context(host, pprint_value=pprint_value),
+        tracer.span("perform_fix_all", attributes={"cmk.host_name": str(host.name())}),
+    ):
+        _perform_update_host_labels(
+            discovery_result.labels_by_host,
+            automation_config=automation_config,
+            debug=debug,
+            pending_changes=pending_changes,
+        )
+        Discovery(
+            host,
+            DiscoveryAction.FIX_ALL,
+            update_target=None,
+            update_source=None,
+            selected_services=(),  # does not matter in case of "FIX_ALL"
+            user_need_permission=user.need_permission,
+        ).do_discovery(
+            discovery_result,
+            host.name(),
+            automation_config=automation_config,
+            pprint_value=pprint_value,
+            debug=debug,
+            use_git=use_git,
+            pending_changes=pending_changes,
+        )
+        return get_check_table(
+            host,
+            DiscoveryAction.FIX_ALL,
+            automation_config=automation_config,
+            user_permission_config=user_permission_config,
+            raise_errors=raise_errors,
+            debug=debug,
+            use_git=use_git,
+            pending_changes=pending_changes,
+        )
 
 
 def perform_host_label_discovery(
@@ -1261,11 +1265,14 @@ def execute_discovery_job(
     based on the currently cached data"""
     job = ServiceDiscoveryBackgroundJob(host_name)
 
-    if not job.is_active() and action in [
-        DiscoveryAction.REFRESH,
-        DiscoveryAction.TABULA_RASA,
-    ]:
-        if (
+    if (
+        not job.is_active()
+        and action
+        in [
+            DiscoveryAction.REFRESH,
+            DiscoveryAction.TABULA_RASA,
+        ]
+        and (
             result := job.start(
                 JobTarget(
                     callable=discovery_job_entry_point,
@@ -1285,8 +1292,9 @@ def execute_discovery_job(
                     user=str(user.id) if user.id else None,
                 ),
             )
-        ).is_error():
-            raise result.error
+        ).is_error()
+    ):
+        raise result.error
 
     if job.is_active() and action == DiscoveryAction.STOP:
         job.stop()
@@ -1404,9 +1412,8 @@ class ServiceDiscoveryBackgroundJob(BackgroundJob):
         """Executed from the outer world to report about the job state"""
         job_status = self.get_status()
         job_status.is_active = self.is_active()
-        if not job_status.is_active:
-            if job_status.state == JobStatusStates.EXCEPTION:
-                job_status = self._cleaned_up_status(job_status)
+        if not job_status.is_active and job_status.state == JobStatusStates.EXCEPTION:
+            job_status = self._cleaned_up_status(job_status)
 
         if job_status.is_active:
             check_table_created, result = self._pre_discovery_preview

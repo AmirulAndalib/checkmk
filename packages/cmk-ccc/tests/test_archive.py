@@ -88,9 +88,8 @@ def test_path_traversal_bytes(tmp_path: Path) -> None:
     raw = make_tarfile_bytes(files)
     dest = tmp_path / "dest"
 
-    with pytest.raises(SecurityViolation):
-        with CheckmkTarArchive.from_bytes(raw) as safe_tar:
-            safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
+    with pytest.raises(SecurityViolation), CheckmkTarArchive.from_bytes(raw) as safe_tar:
+        safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
 
 
 def test_per_file_size_limit_bytes(tmp_path: Path) -> None:
@@ -99,9 +98,11 @@ def test_per_file_size_limit_bytes(tmp_path: Path) -> None:
     raw = make_tarfile_bytes(files)
     dest = tmp_path / "dest"
 
-    with pytest.raises(UnpackedArchiveTooLargeError):
-        with CheckmkTarArchive.from_bytes(raw, per_file_limit=max_size) as safe_tar:
-            safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
+    with (
+        pytest.raises(UnpackedArchiveTooLargeError),
+        CheckmkTarArchive.from_bytes(raw, per_file_limit=max_size) as safe_tar,
+    ):
+        safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
 
 
 def test_total_file_limit_bytes(tmp_path: Path) -> None:
@@ -109,9 +110,11 @@ def test_total_file_limit_bytes(tmp_path: Path) -> None:
     raw = make_tarfile_bytes(files)
     dest = tmp_path / "dest"
 
-    with pytest.raises(UnpackedArchiveTooLargeError):
-        with CheckmkTarArchive.from_bytes(raw, file_limit=2) as safe_tar:
-            safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
+    with (
+        pytest.raises(UnpackedArchiveTooLargeError),
+        CheckmkTarArchive.from_bytes(raw, file_limit=2) as safe_tar,
+    ):
+        safe_tar.extractall(dest)  # nosec B202 # BNS:481b41
 
 
 def test_iteration_bytes() -> None:
@@ -157,11 +160,13 @@ def test_symlink_blocked(tmp_path: Path) -> None:
     buf.seek(0)
 
     dest = tmp_path / "dest"
-    with pytest.raises(SecurityViolation):
-        with CheckmkTarArchive.from_buffer(buf, allow_symlinks=False) as safe_tar:
-            safe_tar.extractall(
-                dest,
-            )  # nosec B202 # BNS:481b41
+    with (
+        pytest.raises(SecurityViolation),
+        CheckmkTarArchive.from_buffer(buf, allow_symlinks=False) as safe_tar,
+    ):
+        safe_tar.extractall(
+            dest,
+        )  # nosec B202 # BNS:481b41
 
 
 def test_symlink_allowed(tmp_path: Path) -> None:

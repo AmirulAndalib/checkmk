@@ -288,17 +288,19 @@ def test_check_temperature_trend(test_case: Entry) -> None:
 
     state = {"temp.foo.delta": (unix_ts(time), test_case.reading), "temp.foo.trend": (0, 0)}
 
-    with mock_item_state(state):
-        with time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)):
-            result = check_temperature_trend(
-                test_case.reading + test_case.growth,
-                test_case.wato_dict,
-                "c",
-                100,  # crit, don't boil
-                0,  # crit_lower, don't freeze over
-                "foo",
-            )
-            assert result == test_case.expected
+    with (
+        mock_item_state(state),
+        time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)),
+    ):
+        result = check_temperature_trend(
+            test_case.reading + test_case.growth,
+            test_case.wato_dict,
+            "c",
+            100,  # crit, don't boil
+            0,  # crit_lower, don't freeze over
+            "foo",
+        )
+        assert result == test_case.expected
 
 
 def test_check_temperature_trend_exception() -> None:
@@ -315,17 +317,19 @@ def test_check_temperature_trend_exception() -> None:
     def raises_exception(*args, **kwargs) -> None:
         raise IgnoreResultsError("Value Store does not have any valid values")
 
-    with mock_item_state(raises_exception):
-        with time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)):
-            result = check_temperature_trend(
-                test_case.reading + test_case.growth,
-                test_case.wato_dict,
-                "c",
-                100,  # crit, don't boil
-                0,  # crit_lower, don't freeze over
-                "foo",
-            )
-            assert result == test_case.expected
+    with (
+        mock_item_state(raises_exception),
+        time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)),
+    ):
+        result = check_temperature_trend(
+            test_case.reading + test_case.growth,
+            test_case.wato_dict,
+            "c",
+            100,  # crit, don't boil
+            0,  # crit_lower, don't freeze over
+            "foo",
+        )
+        assert result == test_case.expected
 
 
 @pytest.mark.parametrize(
@@ -345,18 +349,20 @@ def test_check_temperature_called(test_case: Entry) -> None:
 
     state = {"temp.foo.delta": (unix_ts(time), test_case.reading), "temp.foo.trend": (0, 0)}
 
-    with mock_item_state(state):
-        with time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)):
-            # Assuming atmospheric pressure...
-            result = check_temperature(
-                test_case.reading + test_case.growth,
-                TempParamDict(
-                    device_levels_handling="dev",
-                    trend_compute=test_case.wato_dict,
-                ),
-                "foo",
-                dev_unit="c",
-                dev_levels=(100, 100),  # don't boil
-                dev_levels_lower=(0, 0),  # don't freeze over
-            )
-            assert result == test_case.expected
+    with (
+        mock_item_state(state),
+        time_machine.travel(time + dt.timedelta(seconds=test_case.seconds_elapsed)),
+    ):
+        # Assuming atmospheric pressure...
+        result = check_temperature(
+            test_case.reading + test_case.growth,
+            TempParamDict(
+                device_levels_handling="dev",
+                trend_compute=test_case.wato_dict,
+            ),
+            "foo",
+            dev_unit="c",
+            dev_levels=(100, 100),  # don't boil
+            dev_levels_lower=(0, 0),  # don't freeze over
+        )
+        assert result == test_case.expected

@@ -59,9 +59,11 @@ class TestGetContentHash:
         (tmp_path / "b.py").write_text("world")
 
         mock_run = _make_subprocess_mock(unstaged="a.py\nb.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                result = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            result = _get_content_hash("HEAD", tmp_path)
 
         assert isinstance(result, str)
         assert len(result) == 32
@@ -74,10 +76,12 @@ class TestGetContentHash:
         (tmp_path / "a.py").write_text("hello")
 
         mock_run = _make_subprocess_mock(unstaged="a.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                hash1 = _get_content_hash("HEAD", tmp_path)
-                hash2 = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            hash1 = _get_content_hash("HEAD", tmp_path)
+            hash2 = _get_content_hash("HEAD", tmp_path)
 
         assert hash1 == hash2
 
@@ -94,13 +98,15 @@ class TestGetContentHash:
         (tmp_path / "a.py").write_text("version 1")
 
         mock_run = _make_subprocess_mock(unstaged="a.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                hash1 = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            hash1 = _get_content_hash("HEAD", tmp_path)
 
-                # Change content without changing filename list
-                (tmp_path / "a.py").write_text("version 2")
-                hash2 = _get_content_hash("HEAD", tmp_path)
+            # Change content without changing filename list
+            (tmp_path / "a.py").write_text("version 2")
+            hash2 = _get_content_hash("HEAD", tmp_path)
 
         assert hash1 != hash2
 
@@ -110,9 +116,11 @@ class TestGetContentHash:
 
         # "missing.py" does NOT exist on disk
         mock_run = _make_subprocess_mock(unstaged="missing.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                result = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            result = _get_content_hash("HEAD", tmp_path)
 
         assert isinstance(result, str)
         assert len(result) == 32
@@ -124,13 +132,15 @@ class TestGetContentHash:
         (tmp_path / "a.py").write_text("content")
 
         mock_run = _make_subprocess_mock(unstaged="a.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                hash_with_file = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            hash_with_file = _get_content_hash("HEAD", tmp_path)
 
-                # Delete the file
-                (tmp_path / "a.py").unlink()
-                hash_without_file = _get_content_hash("HEAD", tmp_path)
+            # Delete the file
+            (tmp_path / "a.py").unlink()
+            hash_without_file = _get_content_hash("HEAD", tmp_path)
 
         assert hash_with_file != hash_without_file
 
@@ -141,15 +151,17 @@ class TestGetContentHash:
         (tmp_path / "new_file.py").write_text("initial")
 
         mock_run = _make_subprocess_mock(unstaged="")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch(
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch(
                 "cmk.dev_deploy.watcher._get_untracked_files",
                 return_value="new_file.py\n",
-            ):
-                hash1 = _get_content_hash("HEAD", tmp_path)
+            ),
+        ):
+            hash1 = _get_content_hash("HEAD", tmp_path)
 
-                (tmp_path / "new_file.py").write_text("changed")
-                hash2 = _get_content_hash("HEAD", tmp_path)
+            (tmp_path / "new_file.py").write_text("changed")
+            hash2 = _get_content_hash("HEAD", tmp_path)
 
         assert hash1 != hash2
 
@@ -158,10 +170,12 @@ class TestGetContentHash:
         from cmk.dev_deploy.watcher import _get_content_hash
 
         mock_run = _make_subprocess_mock(unstaged="", staged="", untracked="")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                hash1 = _get_content_hash("HEAD", tmp_path)
-                hash2 = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            hash1 = _get_content_hash("HEAD", tmp_path)
+            hash2 = _get_content_hash("HEAD", tmp_path)
 
         assert hash1 == hash2
         assert len(hash1) == 32
@@ -198,10 +212,12 @@ class TestGetContentHash:
 
         # "a.py" appears in both unstaged and staged
         mock_run = _make_subprocess_mock(unstaged="a.py\n", staged="a.py\n")
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                hash1 = _get_content_hash("HEAD", tmp_path)
-                hash2 = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+        ):
+            hash1 = _get_content_hash("HEAD", tmp_path)
+            hash2 = _get_content_hash("HEAD", tmp_path)
 
         assert hash1 == hash2
         assert len(hash1) == 32
@@ -220,10 +236,12 @@ class TestGetContentHash:
                 raise PermissionError("Permission denied")
             return original_read_bytes(self)
 
-        with patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run):
-            with patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""):
-                with patch.object(Path, "read_bytes", _mock_read_bytes):
-                    result = _get_content_hash("HEAD", tmp_path)
+        with (
+            patch("cmk.dev_deploy.watcher.subprocess.run", side_effect=mock_run),
+            patch("cmk.dev_deploy.watcher._get_untracked_files", return_value=""),
+            patch.object(Path, "read_bytes", _mock_read_bytes),
+        ):
+            result = _get_content_hash("HEAD", tmp_path)
 
         assert isinstance(result, str)
         assert len(result) == 32

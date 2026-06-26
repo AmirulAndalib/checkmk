@@ -144,13 +144,14 @@ def piggyback_host_from_dump_file(
     piggybacked_hosts = list(read_piggyback_hosts_from_dump(read_disk_dump(dump_name, source_dir)))
     try:
         copy_dumps(site, source_dir, target_dir, source_filename=dump_name)
-        with dcd_connector(
-            site,
-            interval=dcd_interval,
-            change_activation_timeout=change_activation_timeout,
-            cleanup=cleanup,
-        ):
-            with _discover_services_of_piggybacked_hosts(
+        with (
+            dcd_connector(
+                site,
+                interval=dcd_interval,
+                change_activation_timeout=change_activation_timeout,
+                cleanup=cleanup,
+            ),
+            _discover_services_of_piggybacked_hosts(
                 site=site,
                 host_name=dump_name,
                 expected_pb_hosts=piggybacked_hosts,
@@ -158,8 +159,9 @@ def piggyback_host_from_dump_file(
                 dcd_max_count=dcd_max_count,
                 dcd_interval=dcd_interval,
                 cleanup=cleanup,
-            ):
-                yield
+            ),
+        ):
+            yield
     finally:
         if cleanup:
             site.run(["rm", "-f", f"{target_dir}/{dump_name}"])
@@ -194,16 +196,17 @@ def piggyback_host_from_dummy_generator(
         PiggybackInfo NamedTuple containing the datasource rule ID, DCD ID, and a list of piggybacked hosts.
     """
     piggybacked_hosts = [f"{host_name}-pb-{_}" for _ in range(1, pb_host_count + 1)]
-    with dcd_connector(
-        site,
-        interval=dcd_interval,
-        no_deletion_time_after_init=60,
-        max_cache_age=60,
-        validity_period=60,
-        change_activation_timeout=change_activation_timeout,
-        cleanup=cleanup,
-    ) as dcd_id:
-        with dummy_agent_dump_generator(
+    with (
+        dcd_connector(
+            site,
+            interval=dcd_interval,
+            no_deletion_time_after_init=60,
+            max_cache_age=60,
+            validity_period=60,
+            change_activation_timeout=change_activation_timeout,
+            cleanup=cleanup,
+        ) as dcd_id,
+        dummy_agent_dump_generator(
             site,
             service_count=0,
             payload_lines=0,
@@ -211,14 +214,15 @@ def piggyback_host_from_dummy_generator(
             pb_service_count=pb_service_count,
             rule_folder=folder_name,
             cleanup=cleanup,
-        ) as datasource_id:
-            with _discover_services_of_piggybacked_hosts(
-                site=site,
-                host_name=host_name,
-                expected_pb_hosts=piggybacked_hosts,
-                folder_name=folder_name,
-                dcd_max_count=dcd_max_count,
-                dcd_interval=dcd_interval,
-                cleanup=cleanup,
-            ):
-                yield PiggybackInfo(datasource_id, dcd_id, piggybacked_hosts)
+        ) as datasource_id,
+        _discover_services_of_piggybacked_hosts(
+            site=site,
+            host_name=host_name,
+            expected_pb_hosts=piggybacked_hosts,
+            folder_name=folder_name,
+            dcd_max_count=dcd_max_count,
+            dcd_interval=dcd_interval,
+            cleanup=cleanup,
+        ),
+    ):
+        yield PiggybackInfo(datasource_id, dcd_id, piggybacked_hosts)

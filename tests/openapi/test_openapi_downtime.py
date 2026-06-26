@@ -1044,10 +1044,9 @@ def test_openapi_downtime_get_single(
         sites=["NO_SITE"],
     )
 
-    with mock_livestatus:
-        with set_config(wato_enabled=wato_enabled):
-            resp = clients.Downtime.get(downtime_id=123, site_id="NO_SITE")
-            assert resp.json["title"] == "Downtime for service: CPU load"
+    with mock_livestatus, set_config(wato_enabled=wato_enabled):
+        resp = clients.Downtime.get(downtime_id=123, site_id="NO_SITE")
+        assert resp.json["title"] == "Downtime for service: CPU load"
 
 
 @pytest.mark.usefixtures("suppress_remote_automation_calls")

@@ -1532,9 +1532,11 @@ class TestPreFlightChecks:
 
         config = FrontendConfig()
         supervisor = FrontendSupervisor(config, repo_root=tmp_path)
-        with patch("cmk.dev_deploy.frontend.frontend_supervisor._check_port", return_value=True):
-            with pytest.raises(FrontendError, match="Port 5173 is already in use"):
-                supervisor._check_port_available()  # noqa: SLF001
+        with (
+            patch("cmk.dev_deploy.frontend.frontend_supervisor._check_port", return_value=True),
+            pytest.raises(FrontendError, match="Port 5173 is already in use"),
+        ):
+            supervisor._check_port_available()  # noqa: SLF001
 
     def test_port_error_mentions_ibazel(self, tmp_path: Path) -> None:
         from cmk.dev_deploy.frontend.frontend_supervisor import FrontendSupervisor
