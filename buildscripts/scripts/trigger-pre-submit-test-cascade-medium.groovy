@@ -2,15 +2,6 @@
 
 /// file: trigger-pre-submit-test-cascade-medium.groovy
 
-void withGerritSshKey(Closure body) {
-    withCredentials([sshUserPrivateKey(
-        credentialsId: "jenkins-gerrit-fips-compliant-ssh-key",
-        keyFileVariable: "GERRIT_SSH_KEY",
-    )]) {
-        body()
-    }
-}
-
 void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");

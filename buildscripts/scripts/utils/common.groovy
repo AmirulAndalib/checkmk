@@ -153,3 +153,13 @@ withCredentialEnv = { Map args, Closure body ->
         body();
     }
 }
+
+withGerritSshKey = { Closure body ->
+    withCredentials([sshUserPrivateKey(
+        credentialsId: "jenkins-gerrit-fips-compliant-ssh-key",
+        keyFileVariable: "GERRIT_SSH_KEY",
+        usernameVariable: "GERRIT_USER",
+    )]) {
+        body();
+    }
+}

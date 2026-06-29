@@ -98,18 +98,12 @@ void main() {
 
     stage("Send mails") {
         inside_container(args: docker_args) {
-            withCredentials([
-                sshUserPrivateKey(
-                    credentialsId: "jenkins-gerrit-fips-compliant-ssh-key",
-                    keyFileVariable: 'keyfile',
-                    usernameVariable: 'user'
-                )
-            ]) {
-                withEnv(["GIT_SSH_COMMAND=ssh -o \"StrictHostKeyChecking no\" -i ${keyfile} -l ${user}"]) {
+            withGerritSshKey {
+                withEnv(["GIT_SSH_COMMAND=ssh -o \"StrictHostKeyChecking no\" -i ${GERRIT_SSH_KEY} -l ${GERRIT_USER}"]) {
                     dir("${checkout_dir}") {
                         send_werk_mails_of_branches.each { branch ->
                             sh("""
-                                git config --add user.name ${user};
+                                git config --add user.name ${GERRIT_USER};
                                 git config --add user.email ${JENKINS_MAIL};
                                 bazel run //cmk/utils:werks_bin -- mail \
                                 ${WORKSPACE}/check_mk origin/${branch} werk_mail ${cmd_line};

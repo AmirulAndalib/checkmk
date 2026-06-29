@@ -66,13 +66,8 @@ void main() {
         condition: params.CIPARAM_GIT_FETCH_NOTES,
     ) {
         dir("${checkout_dir}") {
-            withCredentials([
-                sshUserPrivateKey(
-                    credentialsId: "jenkins-gerrit-fips-compliant-ssh-key",
-                    keyFileVariable: 'KEYFILE'
-                )
-            ]) {
-                withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${KEYFILE} -l jenkins"]) {
+            withGerritSshKey {
+                withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${GERRIT_SSH_KEY} -l jenkins"]) {
                     // Since checkmk_ci:df2be57e we don't have the notes available anymore in the checkout
                     // however the werk commands tests heavily rely on them, so fetch them here.
                     // The order of the operations is important, because we rely on FETCH_HEAD
@@ -99,14 +94,8 @@ void main() {
         condition: params.CIPARAM_GIT_FETCH_TAGS,
     ) {
         dir("${checkout_dir}") {
-            withCredentials([
-                // groovylint-disable DuplicateMapLiteral
-                sshUserPrivateKey(
-                    credentialsId: "jenkins-gerrit-fips-compliant-ssh-key",
-                    keyFileVariable: 'KEYFILE'
-                )
-            ]) {
-                withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${KEYFILE} -l jenkins"]) {
+            withGerritSshKey {
+                withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${GERRIT_SSH_KEY} -l jenkins"]) {
                     // Since checkmk_ci:df2be57e we don't have the tags available anymore in the checkout
                     // however the werk tests heavily rely on them, so fetch them here
                     sh("git fetch --depth=1 origin 'refs/tags/*:refs/tags/*'");
