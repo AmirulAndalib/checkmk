@@ -13,11 +13,15 @@ export type {
   Metric,
   MetricMetadata,
   MetricRender,
+  RequestedTimeRange,
   Size,
   SizeMode,
   TimeRange,
   TimeSeriesGraphProps,
   UnitFormat,
+  ValueRange,
   XAxis,
-  YAxis
+  YAxis,
+  ZoomMode,
+  ZoomPayload
 } from './types'

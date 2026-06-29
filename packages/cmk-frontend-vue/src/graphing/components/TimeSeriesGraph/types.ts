@@ -6,6 +6,8 @@
 import type { CmkTimeSeriesGraph, Size } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 
+import type { ZoomMode } from './interaction/selection'
+
 export type {
   GraphOptions,
   Size,
@@ -26,10 +28,34 @@ export type ConsolidationFn = 'min' | 'max' | 'avg'
 export type LineInterpolator = 'linear' | 'monotoneX' | 'basis'
 export type SizeMode = Size['mode']
 
+export type { ZoomMode }
+
+export interface ValueRange {
+  min: number
+  max: number
+}
+
+export interface RequestedTimeRange {
+  start: number
+  end: number
+}
+
+export interface ZoomPayload {
+  timeRange: TimeRange
+  valueRange?: ValueRange
+}
+
 export interface TimeSeriesGraphProps extends Pick<CmkTimeSeriesGraph, 'size' | 'options'> {
   time_range: TimeRange
   metrics: Metric[]
   horizontal_lines: HorizontalLine[]
   consolidationFunction?: ConsolidationFn
   curveInterpolator?: LineInterpolator
+  // --- interaction (emit-and-wait) ---
+  valueRange: ValueRange | null
+  zoomMode: ZoomMode
+  minTimeRange: number | null
+  minValueRange: number | null
+  inspecting: boolean
+  panEnabled: boolean
 }
