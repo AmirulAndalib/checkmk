@@ -67,12 +67,18 @@ class CoreBakelet:
     Unlike :class:`cmk.bakery.v2_unstable.BakeryPlugin`, the functions receive
     keyword arguments dispatched by name (``agconf``, ``conf``, ``aghash``) and
     yield the bakery artifact types directly.
+
+    ``default_parameters`` are merged underneath the user-provided configuration
+    for this bakelet (the user's values win). They are applied during config
+    assembly, before the configuration is handed to the bakelet, so a bakelet
+    with defaults always receives a configuration even when no rule matched.
     """
 
     name: str
     files_function: CoreFilesFunction = _noop
     scriptlets_function: CoreScriptletsFunction = _noop
     windows_config_function: CoreYamlConfigFunction = _noop
+    default_parameters: Mapping[str, object] | None = None
 
 
 def entry_point_prefixes() -> Mapping[type[CoreBakelet], str]:
