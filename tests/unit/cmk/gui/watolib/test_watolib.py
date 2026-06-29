@@ -119,6 +119,7 @@ def test_registered_configvars() -> None:
         "inventory_cleanup",
         "log_logon_failures",
         "lock_on_logon_failures",
+        "ldap_quarantine_period",
         "log_level",
         "log_levels",
         "log_messages",

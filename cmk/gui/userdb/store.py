@@ -204,6 +204,7 @@ def _load_users(lock: bool = False) -> Users:
                 "two_factor_credentials",
                 "ui_sidebar_position",
                 "last_login",
+                "ldap_quarantine",
             ],
             Callable,
         ]
@@ -219,6 +220,7 @@ def _load_users(lock: bool = False) -> Users:
         ("ui_sidebar_position", lambda x: None if x == "None" else x),
         ("navbar_changes_action", lambda x: None if x == "None" else x),
         ("last_login", ast.literal_eval),
+        ("ldap_quarantine", ast.literal_eval),
     ]
 
     # Now read the user specific files
@@ -529,6 +531,11 @@ def _save_user_profiles(
         else:
             remove_custom_attr(user_id, "navbar_changes_action")
 
+        if user.get("ldap_quarantine") is not None:
+            save_custom_attr(user_id, "ldap_quarantine", repr(user["ldap_quarantine"]))
+        else:
+            remove_custom_attr(user_id, "ldap_quarantine")
+
         _save_cached_profile(user_id, user, multisite_keys, non_contact_keys)
 
 
@@ -689,6 +696,7 @@ def _non_contact_keys(user_attributes: Sequence[tuple[str, UserAttribute]]) -> l
         "serial",
         "session_info",
         "two_factor_credentials",
+        "ldap_quarantine",
     ] + _get_multisite_custom_variable_names(user_attributes)
 
 

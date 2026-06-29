@@ -713,6 +713,21 @@ class ModeUsers(WatoMode):
                         StaticIcon(IconNames.user_locked), title=_("The login is currently locked")
                     )
 
+                if quarantine := user_spec.get("ldap_quarantine"):
+                    retention = active_config.ldap_quarantine_period
+                    quarantined_on = render.date(quarantine["quarantined_on"])
+                    if retention is not None:
+                        deletion = _("scheduled for deletion on %s") % render.date(
+                            quarantine["quarantined_on"] + retention
+                        )
+                    else:
+                        deletion = _("deletion pending on the next synchronization")
+                    html.static_icon(
+                        StaticIcon(IconNames.pending_task),
+                        title=_("Quarantined since %s (source: %s); %s")
+                        % (quarantined_on, quarantine["connection_id"], deletion),
+                    )
+
                 if "disable_notifications" in user_spec and isinstance(
                     user_spec["disable_notifications"], bool
                 ):

@@ -124,7 +124,14 @@ class UserManagementEvent(SecurityEvent):
     def __init__(
         self,
         *,
-        event: Literal["user created", "user deleted", "user modified", "password changed"],
+        event: Literal[
+            "user created",
+            "user deleted",
+            "user modified",
+            "password changed",
+            "user quarantined",
+            "user reactivated",
+        ],
         affected_user: UserId,
         acting_user: UserId | None,
         connector: str | None = None,

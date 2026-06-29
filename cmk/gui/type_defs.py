@@ -241,6 +241,11 @@ class LastLoginInfo(TypedDict, total=False):
     remote_address: str
 
 
+class QuarantineInfo(TypedDict):
+    quarantined_on: int
+    connection_id: str
+
+
 # TODO: verify if the 'idea' is the same as notify_types.DisabledNotificationsOptions
 #  but where the 'disable' field is called 'disabled'
 class DisableNotificationsAttribute(TypedDict):
@@ -332,6 +337,7 @@ class UserSpec(TypedDict, total=False):
     temperature_unit: NotRequired[Literal["celsius", "fahrenheit"] | None]
     contextual_help_icon: NotRequired[Literal["hide_icon"] | None]
     ldap_pw_last_changed: NotRequired[str]  # On attribute sync, this is added, then removed.
+    ldap_quarantine: NotRequired[QuarantineInfo | None]
     navbar_changes_action: NotRequired[Literal["full_page", "slideout"] | None]
     created_on_version: NotRequired[str]  # The Checkmk version string when the user was created
 

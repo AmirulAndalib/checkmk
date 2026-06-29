@@ -89,7 +89,7 @@ from cmk.gui.htmllib.html import html
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user as logged_in_user
 from cmk.gui.site_config import has_distributed_setup_remote_sites
-from cmk.gui.type_defs import Users, UserSpec
+from cmk.gui.type_defs import QuarantineInfo, Users, UserSpec
 from cmk.gui.user_connection_config_types import (
     ActivePlugins,
     Discover,
@@ -506,15 +506,29 @@ def _sync_plugins_existing_user(
         user_attributes,
     )
 
+    reactivated = _reactivate_quarantined_user(
+        checkmk_user_id, checkmk_user_copy, ldap_user_connector, sync_user_result
+    )
+
     if checkmk_user_copy == users[checkmk_user_id]:
         return
 
-    if modifications := _identify_user_modifications(
+    # Always run this for its side effects (password-change tracking, remote-site
+    # profile replication), even when the only change is a reactivation.
+    modifications = _identify_user_modifications(
         checkmk_user_id=checkmk_user_id,
         existing_user=users[checkmk_user_id],
         modified_user=checkmk_user_copy,
         sync_user_result=sync_user_result,
-    ):
+    )
+
+    if reactivated:
+        # The reactivation change/event was already recorded; avoid a redundant
+        # "Modified user" entry for the lock/quarantine clearing it implies.
+        users[checkmk_user_id] = checkmk_user_copy
+        return
+
+    if modifications:
         sync_user_result.changes.append(
             _("LDAP [%s]: Modified user %s (%s)")
             % (ldap_user_connector.id, checkmk_user_id, ", ".join(modifications))
@@ -530,6 +544,37 @@ def _sync_plugins_existing_user(
         )
 
         users[checkmk_user_id] = checkmk_user_copy
+
+
+def _reactivate_quarantined_user(
+    checkmk_user_id: UserId,
+    checkmk_user_copy: UserSpec,
+    ldap_user_connector: LDAPUserConnector,
+    sync_user_result: SyncUsersResult,
+) -> bool:
+    """A previously quarantined user reappeared in LDAP: unlock and clear quarantine.
+
+    Only clears ``locked`` when our own ``ldap_quarantine`` marker is present, so a
+    lock set manually by an administrator for other reasons is never lifted here.
+    """
+    if checkmk_user_copy.get("ldap_quarantine") is None:
+        return False
+
+    del checkmk_user_copy["ldap_quarantine"]
+    checkmk_user_copy["locked"] = False
+    sync_user_result.changes.append(
+        _("LDAP [%s]: Reactivated quarantined user %s") % (ldap_user_connector.id, checkmk_user_id)
+    )
+    sync_user_result.security_events.append(
+        UserManagementEvent(
+            event="user reactivated",
+            affected_user=checkmk_user_id,
+            acting_user=logged_in_user_id(),
+            connector=ConnectorType.LDAP,
+            connection_id=ldap_user_connector.id,
+        )
+    )
+    return True
 
 
 def _sync_plugins_new_user(
@@ -1812,28 +1857,59 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             return UserId(username)
         return UserId(f"{username}@{suffix}")
 
-    def _remove_checkmk_users_that_are_no_longer_in_the_ldap_instance(
+    def _quarantine_or_remove_users_no_longer_in_ldap(
         self,
         users: Users,
         ldap_users: dict[LdapUsername, FetchedLDAPUser],
         sync_users_result: SyncUsersResult,
     ) -> None:
+        retention = active_config.ldap_quarantine_period
+        now = int(time.time())
         for user_id, user in list(users.items()):
-            user_connection_id = user.get("connector")
-            if user_connection_id == self.id and self._strip_suffix(user_id) not in ldap_users:
-                del users[user_id]  # remove the user
-                sync_users_result.changes.append(
-                    _("LDAP [%s]: Removed user %s") % (self.id, user_id)
+            if user.get("connector") != self.id or self._strip_suffix(user_id) in ldap_users:
+                continue
+
+            if retention is None:
+                # Quarantine disabled: keep the historic immediate-deletion behavior.
+                self._delete_vanished_ldap_user(users, user_id, sync_users_result)
+                continue
+
+            if user.get("ldap_quarantine") is not None:
+                # Already quarantined; the cleanup cron job handles expiry.
+                continue
+
+            user["ldap_quarantine"] = QuarantineInfo(quarantined_on=now, connection_id=self.id)
+            user["locked"] = True
+            sync_users_result.changes.append(
+                _("LDAP [%s]: Quarantined user %s") % (self.id, user_id)
+            )
+            log_security_event(
+                UserManagementEvent(
+                    event="user quarantined",
+                    affected_user=user_id,
+                    acting_user=logged_in_user_id(),
+                    connector=self.type(),
+                    connection_id=self.id,
                 )
-                log_security_event(
-                    UserManagementEvent(
-                        event="user deleted",
-                        affected_user=user_id,
-                        acting_user=logged_in_user_id(),
-                        connector=self.type(),
-                        connection_id=self.id,
-                    )
-                )
+            )
+
+    def _delete_vanished_ldap_user(
+        self,
+        users: Users,
+        user_id: UserId,
+        sync_users_result: SyncUsersResult,
+    ) -> None:
+        del users[user_id]  # remove the user
+        sync_users_result.changes.append(_("LDAP [%s]: Removed user %s") % (self.id, user_id))
+        log_security_event(
+            UserManagementEvent(
+                event="user deleted",
+                affected_user=user_id,
+                acting_user=logged_in_user_id(),
+                connector=self.type(),
+                connection_id=self.id,
+            )
+        )
 
     @override
     def do_sync(
@@ -1884,7 +1960,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             fetched_users=fetched_ldap_users,
         )
 
-        self._remove_checkmk_users_that_are_no_longer_in_the_ldap_instance(
+        self._quarantine_or_remove_users_no_longer_in_ldap(
             users=users,
             ldap_users=fetched_ldap_users,
             sync_users_result=sync_users_result,

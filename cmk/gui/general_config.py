@@ -452,6 +452,9 @@ class GeneralConfig:
     default_user_profile: UserSpec = field(default_factory=make_default_user_profile)
     log_logon_failures: bool = True
     lock_on_logon_failures: int | None = 10
+    # Retention period (in seconds) before a quarantined LDAP user is deleted.
+    # None disables quarantine: vanished LDAP users are deleted immediately.
+    ldap_quarantine_period: int | None = 2592000
     default_dynamic_visual_permission: Literal["yes", "no"] = "yes"
     require_two_factor_all_users: bool = False
     session_mgmt: dict[str, Any] = field(

@@ -209,6 +209,7 @@ def register(
     config_variable_registry.register(ConfigVariablePasswordPolicy)
     config_variable_registry.register(ConfigVariableSessionManagement)
     config_variable_registry.register(ConfigVariableSingleUserSession)
+    config_variable_registry.register(ConfigVariableLDAPQuarantinePeriod)
     config_variable_registry.register(ConfigVariableDefaultUserProfile)
     config_variable_registry.register(ConfigVariableUserSecurityNotifications)
     config_variable_registry.register(ConfigVariableRequireTwoFactorAllUsers)
@@ -2327,6 +2328,31 @@ ConfigVariableSingleUserSession = ConfigVariable(
             "When the user logs out or is inactive for the configured amount of time, the "
             "session is invalidated automatically and the user has to log in again from the "
             "current or another device."
+        ),
+    ),
+)
+
+ConfigVariableLDAPQuarantinePeriod = ConfigVariable(
+    group=ConfigVariableGroupUserManagement,
+    primary_domain=ConfigDomainGUI,
+    ident="ldap_quarantine_period",
+    valuespec=lambda context: Optional(
+        valuespec=Age(
+            display=["days", "hours"],
+            label=_("Retention period:"),
+            minvalue=3600,
+            default_value=2592000,
+        ),
+        title=_("Quarantine LDAP users before deletion"),
+        label=_("Quarantine users that vanished from the directory instead of deleting them"),
+        help=_(
+            "When a user that was synchronized from an LDAP connection is no longer found "
+            "during synchronization, Checkmk normally deletes the account immediately. With "
+            "this option enabled, the account is instead locked and placed into quarantine: it "
+            "stays visible to administrators but can no longer log in. If the user reappears in "
+            "the directory before the retention period elapses, the account is automatically "
+            "reactivated. Otherwise it is deleted once the retention period has passed. Disable "
+            "this option to restore the immediate-deletion behavior."
         ),
     ),
 )

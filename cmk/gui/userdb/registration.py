@@ -15,6 +15,7 @@ from cmk.gui.watolib.timeperiods import TimeperiodUsageFinderRegistry
 from . import user_attributes
 from ._connector import UserConnectorRegistry
 from ._find_usage import find_timeperiod_usage_in_users, find_usages_of_contact_group_in_users
+from ._ldap_quarantine_cleanup import execute_ldap_quarantine_cleanup_job
 from ._user_attribute import UserAttributeRegistry
 from ._user_profile_cleanup import execute_user_profile_cleanup_job
 from .htpasswd import HtpasswdUserConnector
@@ -46,6 +47,15 @@ def register(
         CronJob[Config](
             name="execute_user_profile_cleanup_job",
             callable=execute_user_profile_cleanup_job,
+            interval=timedelta(hours=1),
+            run_in_thread=True,
+        )
+    )
+
+    cron_job_registry.register(
+        CronJob(
+            name="execute_ldap_quarantine_cleanup_job",
+            callable=execute_ldap_quarantine_cleanup_job,
             interval=timedelta(hours=1),
             run_in_thread=True,
         )

@@ -44,6 +44,7 @@ from cmk.gui.user_connection_config_types import (
 from cmk.gui.userdb import get_user_attributes, UserAttribute
 from cmk.gui.userdb.user_attributes import StartURLUserAttribute, TemperatureUnitUserAttribute
 from cmk.gui.utils.security_log_events import UserManagementEvent
+from tests.testlib.gui.web_test_app import SetConfig
 
 
 @pytest.fixture(name="mock_ldap")
@@ -1167,11 +1168,11 @@ def test_sync_takeover_still_works_for_attr_only_connector(
 
 
 def test_sync_attr_only_connector_deletes_owned_user_gone_from_ldap(
-    mocker: MockerFixture, request_context: None
+    mocker: MockerFixture, request_context: None, set_config: SetConfig
 ) -> None:
     """Deletion follows ownership, not auth membership: an attribute-sync-only
     connector still removes a user it owns once that user leaves the LDAP
-    directory. The removal pass is unchanged.
+    directory. With quarantine disabled, removal is immediate.
     """
     mocker.patch("cmk.gui.ldap_integration.ldap_connector.logged_in_user_id", lambda: "admin_gav")
     log_security_event = mocker.patch("cmk.gui.ldap_integration.ldap_connector.log_security_event")
@@ -1183,11 +1184,12 @@ def test_sync_attr_only_connector_deletes_owned_user_gone_from_ldap(
     }
     sync_user_result = SyncUsersResult(sync_start_time=time(), fetched_users={})
 
-    connector._remove_checkmk_users_that_are_no_longer_in_the_ldap_instance(
-        users=users,
-        ldap_users={},
-        sync_users_result=sync_user_result,
-    )
+    with set_config(ldap_quarantine_period=None):
+        connector._quarantine_or_remove_users_no_longer_in_ldap(
+            users=users,
+            ldap_users={},
+            sync_users_result=sync_user_result,
+        )
 
     assert UserId("bob") not in users, "owned user absent from LDAP is removed"
     assert any("emoved" in change for change in sync_user_result.changes), (
