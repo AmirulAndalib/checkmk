@@ -44,9 +44,9 @@ def make_timespecific_params_list(
     return TimespecificParameters([TimespecificParameterSet.from_parameters(e) for e in entries])
 
 
-def make_service(desription: ServiceName) -> ConfiguredService:
+def make_service(description: ServiceName) -> ConfiguredService:
     return ConfiguredService(
-        CheckPluginName("dummy"), None, desription, TimespecificParameters(), {}, {}, {}, False
+        CheckPluginName("dummy"), None, description, TimespecificParameters(), {}, {}, {}, False
     )
 
 
