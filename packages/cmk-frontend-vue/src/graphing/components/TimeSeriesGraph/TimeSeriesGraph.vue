@@ -8,7 +8,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 import { scaleLinear, scaleTime } from 'd3-scale'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import usei18n from '@/lib/i18n'
 import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
+
+import CmkButton from '@/components/CmkButton'
+import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
 import { computeTimeAxis } from './axes/timeAxis'
 import { computeYDomain } from './axes/valueAxis'
@@ -18,10 +22,17 @@ import { drawData } from './render'
 import { invertBucket } from './render/bucket'
 import { drawHorizontalLines } from './render/horizontalLines'
 import { computeStackedSeries } from './render/stacked'
-import type { ConsolidationFn, TimeSeriesGraphProps } from './types'
+import type { ConsolidationFn, TimeRange, TimeSeriesGraphProps, ZoomPayload } from './types'
 import { useAxes } from './useAxes'
+import { useZoomGesture } from './useZoomGesture'
 
 const props = defineProps<TimeSeriesGraphProps>()
+
+const emit = defineEmits<{
+  pan: [{ timeRange: TimeRange }]
+  zoom: [ZoomPayload]
+  reset: []
+}>()
 
 const consolidationFn = computed<ConsolidationFn>(() => props.consolidationFunction ?? 'avg')
 
@@ -66,11 +77,26 @@ const { prepareValueDomain, drawValueGrid, drawValueAxis, drawTimeAxis } = useAx
   yTickFormatter
 )
 
+const { selectionBand, plotCursor, onPlotMouseDown } = useZoomGesture({
+  zoomMode: () => props.zoomMode,
+  timeRange: () => props.time_range,
+  minTimeRange: () => props.minTimeRange,
+  minValueRange: () => props.minValueRange,
+  plotWidth,
+  plotHeight,
+  xScale,
+  yScale,
+  plotCoords,
+  onZoom: (payload) => emit('zoom', payload)
+})
+
 let m4Cache: M4Cache[] = []
+let dataTimeRange = props.time_range
 function rebuildM4(): void {
-  m4Cache = props.metrics.map((metric) => m4(metric.data_points, props.time_range, M4_BUCKETS))
+  dataTimeRange = props.time_range
+  m4Cache = props.metrics.map((metric) => m4(metric.data_points, dataTimeRange, M4_BUCKETS))
 }
-watch(() => [props.metrics, props.time_range], rebuildM4, { immediate: true, deep: true })
+watch(() => props.metrics, rebuildM4, { immediate: true, deep: true })
 
 // HiDPI: bitmap sized in physical pixels (cssSize * dpr), CSS size in logical pixels, the
 // ctx transform keeps draw code in CSS-pixel coordinates regardless of DPR.
@@ -123,7 +149,10 @@ function draw(): void {
       : inverted[i]!
   )
   const anyInverse = props.metrics.some((metric) => metric.render.inverse)
-  const [rawYMin, rawYMax] = computeYDomain(domainBuckets, { symmetric: anyInverse })
+  const [autoYMin, autoYMax] = computeYDomain(domainBuckets, { symmetric: anyInverse })
+  const [rawYMin, rawYMax] = props.valueRange
+    ? [props.valueRange.min, props.valueRange.max]
+    : [autoYMin, autoYMax]
   prepareValueDomain(rawYMin, rawYMax)
   yScale.range([plotHeight.value - CANVAS_Y_PADDING, CANVAS_Y_PADDING])
 
@@ -146,6 +175,28 @@ function draw(): void {
   if (axesContainer.value) {
     drawHorizontalLines(axesContainer.value, props.horizontal_lines, yScale, plotWidth.value)
   }
+}
+
+function plotCoords(ev: MouseEvent): { x: number; y: number } | null {
+  const canvasEl = canvas.value
+  if (!canvasEl) {
+    return null
+  }
+  const rect = canvasEl.getBoundingClientRect()
+  return { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
+}
+
+const { _t } = usei18n()
+const resetLabel = _t('Reset zoom')
+function onResetClick(): void {
+  emit('reset')
+}
+function onPlotKeydown(ev: KeyboardEvent): void {
+  if (ev.key !== 'Home') {
+    return
+  }
+  ev.preventDefault()
+  emit('reset')
 }
 
 // Re-fires draw on every devicePixelRatio change (zoom, monitor switch): the media query
@@ -177,6 +228,7 @@ watch(
   () => [
     props.metrics,
     props.time_range,
+    props.valueRange,
     props.size,
     props.consolidationFunction,
     props.curveInterpolator,
@@ -200,8 +252,34 @@ watch(
     <canvas
       ref="canvas"
       class="graphing-time-series-graph__canvas"
-      :style="{ left: `${MARGIN.left}px`, top: `${MARGIN.top}px` }"
+      tabindex="0"
+      :style="{ left: `${MARGIN.left}px`, top: `${MARGIN.top}px`, cursor: plotCursor }"
+      @mousedown="onPlotMouseDown"
+      @keydown="onPlotKeydown"
     />
+    <div
+      v-if="selectionBand"
+      class="graphing-time-series-graph__zoom-band"
+      :style="{
+        left: `${MARGIN.left + selectionBand.x}px`,
+        top: `${MARGIN.top + selectionBand.y}px`,
+        width: `${selectionBand.width}px`,
+        height: `${selectionBand.height}px`
+      }"
+    />
+    <CmkButton
+      v-if="inspecting"
+      variant="secondary"
+      size="small"
+      class="graphing-time-series-graph__reset"
+      :style="{ top: `${MARGIN.top + 6}px`, right: `${MARGIN.right + 6}px` }"
+      :title="resetLabel"
+      :aria-label="resetLabel"
+      @click="onResetClick"
+    >
+      <CmkIcon name="reload" size="small" />
+      <span>{{ resetLabel }}</span>
+    </CmkButton>
   </div>
 </template>
 
@@ -218,6 +296,21 @@ watch(
 
   .graphing-time-series-graph__svg {
     pointer-events: none;
+  }
+
+  .graphing-time-series-graph__zoom-band {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--color-light-blue-50) 15%, transparent);
+    border: var(--border-width-1) solid
+      color-mix(in srgb, var(--color-light-blue-50) 60%, transparent);
+  }
+
+  .graphing-time-series-graph__reset {
+    position: absolute;
+    z-index: 2;
+    gap: var(--dimension-3);
   }
 }
 
