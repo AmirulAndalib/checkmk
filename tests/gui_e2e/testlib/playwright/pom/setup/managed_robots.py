@@ -60,6 +60,11 @@ class ManagedRobotsOverview(CmkPage):
     def delete_confirmation_button(self) -> Locator:
         return self.main_area.get_confirmation_popup_button("Delete")
 
+    @property
+    def error_message(self) -> Locator:
+        """Error message shown e.g. when a robot cannot be deleted."""
+        return self.main_area.locator("div.error")
+
     def delete_robot(self, name: str) -> None:
         logger.info("Deleting robot '%s'", name)
         self.delete_robot_button(name).click()
