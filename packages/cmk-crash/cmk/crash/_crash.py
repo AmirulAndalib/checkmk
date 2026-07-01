@@ -26,12 +26,14 @@ SENSITIVE_KEYWORDS = ["token", "secret", "pass", "key"]
 
 REDACTED_STRING: Final = "redacted"
 
-CRASH_INFO_VERSION: Final = 1
+CRASH_INFO_VERSION: Final = 2
 """Current version of the crash.info on-disk format.
 
 Version history:
   0 (implicit, no key present): ``time`` was a plain float timestamp.
-  1 (current): ``time`` is a ``CrashOccurrences`` dict; ``crash_info_version`` key added.
+  1: ``time`` is a ``CrashOccurrences`` dict; ``crash_info_version`` key added.
+  2 (current): ``time`` is dropped in favor of a dedicated ``occurrences``
+     (``CrashOccurrences``) key. See ``AggregatedCrashInfo``.
 """
 
 
@@ -49,12 +51,22 @@ class ContactDetails(TypedDict):
 
 
 class CrashOccurrences(TypedDict):
+    """Aggregation of repeated occurrences of the same crash (same fingerprint)."""
+
     first_seen: float
     last_seen: float
     count: int
 
 
-class CrashInfo[TDetails](VersionInfoBase):
+class _CrashInfoCommon[TDetails](VersionInfoBase):
+    """Fields shared by the individual and the aggregated crash record.
+
+    The two models differ only in how they represent time: an individual crash
+    carries the single ``time`` it happened, whereas the persisted, deduplicated
+    record carries an ``occurrences`` aggregate instead. See ``CrashInfo`` and
+    ``AggregatedCrashInfo``.
+    """
+
     crash_info_version: NotRequired[int]
     exc_type: str | None
     crash_type: str
@@ -64,7 +76,28 @@ class CrashInfo[TDetails](VersionInfoBase):
     exc_value: str
     contact: NotRequired[ContactDetails]
     id: str
-    time: CrashOccurrences
+
+
+class CrashInfo[TDetails](_CrashInfoCommon[TDetails]):
+    """A single crash occurrence, as produced the moment a crash happens.
+
+    This is what every ``ABCCrashReport`` producer (and the server-side-program
+    crash writer) creates. ``CrashReportStore`` lifts it into an
+    ``AggregatedCrashInfo`` when persisting it.
+    """
+
+    time: float
+
+
+class AggregatedCrashInfo[TDetails](_CrashInfoCommon[TDetails]):
+    """The persisted, deduplicated crash record: one entry per fingerprint.
+
+    Produced exclusively by ``CrashReportStore`` (on save, merge and
+    consolidation) and read back by the GUI and REST API. Instead of a single
+    ``time`` it carries an ``occurrences`` aggregate.
+    """
+
+    occurrences: CrashOccurrences
 
 
 # The default JSON encoder raises an exception when detecting unknown types. For the crash
@@ -197,11 +230,7 @@ def _get_generic_crash_info[TDetails](
         edition=version_info["edition"],
         python_paths=version_info["python_paths"],
         version=version_info["version"],
-        time=CrashOccurrences(
-            first_seen=version_info["time"],
-            last_seen=version_info["time"],
-            count=1,
-        ),
+        time=version_info["time"],
         os=version_info["os"],
     )
 

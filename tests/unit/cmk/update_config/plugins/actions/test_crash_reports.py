@@ -22,11 +22,18 @@ def _crashes_dir(tmp_path: Path, crash_type: str = "check") -> Path:
 def _write_crash(
     crashes_dir: Path,
     name: str,
-    time: object,
+    *,
+    time: object = None,
+    occurrences: object = None,
     traceback: list[tuple[str, int, str, str]] | None = _TRACEBACK,
     exc_type: str = "ValueError",
     crash_info_version: int | None = None,
 ) -> Path:
+    """Write a crash.info in a chosen on-disk shape.
+
+    Pass ``time`` for legacy v0 (float) / v1 (CrashOccurrences dict) records, or
+    ``occurrences`` for the current v2 format.
+    """
     crash_dir = crashes_dir / name
     crash_dir.mkdir()
     info: dict[str, object] = {
@@ -43,8 +50,11 @@ def _write_crash(
         "python_paths": [],
         "version": "2.5.0",
         "os": "Linux",
-        "time": time,
     }
+    if time is not None:
+        info["time"] = time
+    if occurrences is not None:
+        info["occurrences"] = occurrences
     if crash_info_version is not None:
         info["crash_info_version"] = crash_info_version
     store.save_text_to_file(crash_dir / "crash.info", json.dumps(info))
@@ -57,22 +67,23 @@ def _write_crash(
 
 
 def test_migrate_no_traceback_legacy_time_is_written(tmp_path: Path) -> None:
-    """A no-traceback crash with a legacy float time must be rewritten in dict format."""
+    """A no-traceback crash with a legacy float time must be rewritten in v2 format."""
     crashes_dir = _crashes_dir(tmp_path)
     crash_dir = _write_crash(crashes_dir, "crash-a", time=1000.0, traceback=None)
 
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
 
     info = json.loads(store.load_text_from_file(crash_dir / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
+    assert "time" not in info
 
 
 def test_migrate_no_traceback_already_migrated_is_not_rewritten(tmp_path: Path) -> None:
-    """A no-traceback crash already in dict format with version must not be touched."""
+    """A no-traceback crash already in v2 format must not be touched."""
     crashes_dir = _crashes_dir(tmp_path)
     already_migrated = {"first_seen": 500.0, "last_seen": 500.0, "count": 1}
     crash_dir = _write_crash(
-        crashes_dir, "crash-a", time=already_migrated, traceback=None, crash_info_version=1
+        crashes_dir, "crash-a", occurrences=already_migrated, traceback=None, crash_info_version=2
     )
     mtime_before = (crash_dir / "crash.info").stat().st_mtime_ns
 
@@ -87,21 +98,42 @@ def test_migrate_no_traceback_already_migrated_is_not_rewritten(tmp_path: Path) 
 
 
 def test_migrate_single_crash_legacy_time_is_written(tmp_path: Path) -> None:
-    """A single crash with a legacy float time must be rewritten in dict format."""
+    """A single crash with a legacy float time must be rewritten in v2 format."""
     crashes_dir = _crashes_dir(tmp_path)
     crash_dir = _write_crash(crashes_dir, "crash-a", time=2000.0)
 
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
 
     info = json.loads(store.load_text_from_file(crash_dir / "crash.info"))
-    assert info["time"] == {"first_seen": 2000.0, "last_seen": 2000.0, "count": 1}
+    assert info["occurrences"] == {"first_seen": 2000.0, "last_seen": 2000.0, "count": 1}
+    assert "time" not in info
+
+
+def test_migrate_single_crash_v1_time_dict_is_migrated(tmp_path: Path) -> None:
+    """A single crash in the intermediate v1 format (time dict) migrates to v2 occurrences."""
+    crashes_dir = _crashes_dir(tmp_path)
+    crash_dir = _write_crash(
+        crashes_dir,
+        "crash-a",
+        time={"first_seen": 1000.0, "last_seen": 2000.0, "count": 3},
+        crash_info_version=1,
+    )
+
+    CrashReportStore().consolidate_crash_type_dir(crashes_dir)
+
+    info = json.loads(store.load_text_from_file(crash_dir / "crash.info"))
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 2000.0, "count": 3}
+    assert "time" not in info
+    assert info["crash_info_version"] == 2
 
 
 def test_migrate_single_crash_already_migrated_is_not_rewritten(tmp_path: Path) -> None:
-    """A single crash already in dict format with version must not be touched."""
+    """A single crash already in v2 format must not be touched."""
     crashes_dir = _crashes_dir(tmp_path)
     already_migrated = {"first_seen": 1000.0, "last_seen": 2000.0, "count": 3}
-    crash_dir = _write_crash(crashes_dir, "crash-a", time=already_migrated, crash_info_version=1)
+    crash_dir = _write_crash(
+        crashes_dir, "crash-a", occurrences=already_migrated, crash_info_version=2
+    )
     mtime_before = (crash_dir / "crash.info").stat().st_mtime_ns
 
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
@@ -126,7 +158,7 @@ def test_migrate_merges_duplicate_crashes(tmp_path: Path) -> None:
     dirs = [p for p in crashes_dir.iterdir() if p.is_dir()]
     assert len(dirs) == 1
     info = json.loads(store.load_text_from_file(dirs[0] / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 3000.0, "count": 3}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 3000.0, "count": 3}
 
 
 def test_migrate_keeps_directory_with_latest_last_seen(tmp_path: Path) -> None:
@@ -168,11 +200,14 @@ def test_migrate_does_not_merge_different_fingerprints(tmp_path: Path) -> None:
 
 
 def test_migrate_merges_legacy_and_new_format(tmp_path: Path) -> None:
-    """A legacy float crash and an already-migrated dict crash with the same fingerprint are merged."""
+    """A legacy float crash and a v1 dict crash with the same fingerprint are merged."""
     crashes_dir = _crashes_dir(tmp_path)
     _write_crash(crashes_dir, "crash-legacy", time=1000.0)
     _write_crash(
-        crashes_dir, "crash-new", time={"first_seen": 2000.0, "last_seen": 3000.0, "count": 2}
+        crashes_dir,
+        "crash-v1",
+        time={"first_seen": 2000.0, "last_seen": 3000.0, "count": 2},
+        crash_info_version=1,
     )
 
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
@@ -180,7 +215,7 @@ def test_migrate_merges_legacy_and_new_format(tmp_path: Path) -> None:
     dirs = [p for p in crashes_dir.iterdir() if p.is_dir()]
     assert len(dirs) == 1
     info = json.loads(store.load_text_from_file(dirs[0] / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 3000.0, "count": 3}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 3000.0, "count": 3}
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +242,7 @@ def test_migrate_is_idempotent(tmp_path: Path) -> None:
     )
 
     assert dirs_after_first == dirs_after_second
-    assert info_after_first["time"] == info_after_second["time"]
+    assert info_after_first["occurrences"] == info_after_second["occurrences"]
 
 
 # ---------------------------------------------------------------------------
@@ -228,7 +263,7 @@ def test_migrate_skips_unreadable_crash_info(tmp_path: Path) -> None:
 
     # The good crash was migrated; the bad directory was left untouched
     info = json.loads(store.load_text_from_file(good_dir / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
     assert bad_dir.exists()
 
 
@@ -243,7 +278,7 @@ def test_migrate_skips_missing_crash_info(tmp_path: Path) -> None:
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
 
     info = json.loads(store.load_text_from_file(good_dir / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
     assert empty_dir.exists()
 
 
@@ -258,7 +293,7 @@ def test_migrate_skips_non_directory_entries(tmp_path: Path) -> None:
     CrashReportStore().consolidate_crash_type_dir(crashes_dir)
 
     info = json.loads(store.load_text_from_file(crash_dir / "crash.info"))
-    assert info["time"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
+    assert info["occurrences"] == {"first_seen": 1000.0, "last_seen": 1000.0, "count": 1}
 
 
 def test_migrate_empty_crash_type_dir(tmp_path: Path) -> None:
@@ -287,9 +322,9 @@ def test_migrate_processes_multiple_crash_type_dirs(tmp_path: Path) -> None:
     check_dirs = [p for p in check_dir.iterdir() if p.is_dir()]
     assert len(check_dirs) == 1
     check_info = json.loads(store.load_text_from_file(check_dirs[0] / "crash.info"))
-    assert check_info["time"] == {"first_seen": 1000.0, "last_seen": 2000.0, "count": 2}
+    assert check_info["occurrences"] == {"first_seen": 1000.0, "last_seen": 2000.0, "count": 2}
 
     gui_dirs = [p for p in gui_dir.iterdir() if p.is_dir()]
     assert len(gui_dirs) == 1
     gui_info = json.loads(store.load_text_from_file(gui_dirs[0] / "crash.info"))
-    assert gui_info["time"] == {"first_seen": 500.0, "last_seen": 600.0, "count": 2}
+    assert gui_info["occurrences"] == {"first_seen": 500.0, "last_seen": 600.0, "count": 2}

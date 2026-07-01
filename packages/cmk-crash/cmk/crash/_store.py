@@ -18,7 +18,7 @@ import logging
 import time
 import uuid
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import suppress
 from datetime import timedelta
 from itertools import islice
@@ -28,7 +28,9 @@ from typing import Any, Final
 from cmk.ccc import store
 
 from ._crash import (
+    _CrashInfoCommon,
     ABCCrashReport,
+    AggregatedCrashInfo,
     CRASH_INFO_VERSION,
     CrashInfo,
     CrashOccurrences,
@@ -41,10 +43,15 @@ from ._fingerprint import (
     _save_fingerprint_index,
     crash_fingerprint,
     CrashFingerprint,
-    normalize_crash_time,
+    read_occurrences,
 )
 
 _logger = logging.getLogger(__name__)
+
+# Crash records read back from disk during consolidation come from many different
+# crash types in a single pass, so their ``details`` payload type is not statically
+# known — unlike the ``CrashInfo[TDetails]`` a single producer creates.
+type StoredCrashInfo = AggregatedCrashInfo[dict[str, object] | None]
 
 
 def _uuid_crash_dirs(type_dir: Path) -> Iterator[Path]:
@@ -74,7 +81,7 @@ def _crash_dir_last_seen(crash_dir: Path) -> float:
     unreadable, so a corrupted report is never considered "infinitely new"."""
     try:
         info = json.loads(store.load_text_from_file(crash_dir / "crash.info"))
-        return normalize_crash_time(info["time"])["last_seen"]
+        return read_occurrences(info)["last_seen"]
     except Exception:
         try:
             return crash_dir.stat().st_mtime
@@ -186,9 +193,10 @@ class CrashReportStore:
                     continue  # type: ignore[unreachable]
 
                 if fname == "crash.info":
+                    assert not isinstance(value, bytes)
                     store.save_text_to_file(
                         crash.crash_dir() / fname,
-                        self.dump_crash_info(value) + "\n",
+                        self.dump_crash_info(self._lift_to_aggregate(value)) + "\n",
                     )
                 else:
                     assert isinstance(value, bytes)
@@ -256,13 +264,16 @@ class CrashReportStore:
 
     def _merge_into_existing(self, crash: ABCCrashReport[Any], crash_info_path: Path) -> None:
         existing_info = json.loads(store.load_text_from_file(crash_info_path))
-        existing_time = normalize_crash_time(existing_info["time"])
-        new_time = crash.crash_info["time"]
-        existing_info["time"] = CrashOccurrences(
-            first_seen=min(existing_time["first_seen"], new_time["first_seen"]),
-            last_seen=max(existing_time["last_seen"], new_time["last_seen"]),
-            count=existing_time["count"] + new_time["count"],
+        existing_occ = read_occurrences(existing_info)
+        # ``crash`` is an individual, freshly-produced crash: a single occurrence.
+        new_time = float(crash.crash_info["time"])
+        existing_info.pop("time", None)
+        existing_info["occurrences"] = CrashOccurrences(
+            first_seen=min(existing_occ["first_seen"], new_time),
+            last_seen=max(existing_occ["last_seen"], new_time),
+            count=existing_occ["count"] + 1,
         )
+        existing_info["crash_info_version"] = CRASH_INFO_VERSION
         store.save_text_to_file(
             crash_info_path,
             self.dump_crash_info(existing_info) + "\n",
@@ -273,7 +284,47 @@ class CrashReportStore:
         crash.crash_info["id"] = crash_info_path.parent.name
 
     @staticmethod
-    def dump_crash_info(crash_info: CrashInfo[TDetails] | bytes) -> str:
+    def _lift_to_aggregate(
+        crash_info: CrashInfo[TDetails],
+    ) -> AggregatedCrashInfo[TDetails]:
+        """Lift a freshly produced individual crash into a new aggregated record (count 1)."""
+        ts = float(crash_info["time"])
+        return CrashReportStore._build_aggregate(
+            crash_info, CrashOccurrences(first_seen=ts, last_seen=ts, count=1)
+        )
+
+    @staticmethod
+    def _build_aggregate[T](
+        source: _CrashInfoCommon[T], occurrences: CrashOccurrences
+    ) -> AggregatedCrashInfo[T]:
+        """Build an aggregated record from a common crash record plus its occurrences.
+
+        Any legacy ``time`` key on ``source`` is intentionally not carried over.
+        """
+        aggregated: AggregatedCrashInfo[T] = {
+            "crash_info_version": CRASH_INFO_VERSION,
+            "crash_type": source["crash_type"],
+            "exc_type": source["exc_type"],
+            "exc_value": source["exc_value"],
+            "local_vars": source["local_vars"],
+            "details": source["details"],
+            "id": source["id"],
+            "core": source["core"],
+            "python_version": source["python_version"],
+            "edition": source["edition"],
+            "python_paths": source["python_paths"],
+            "version": source["version"],
+            "os": source["os"],
+            "occurrences": occurrences,
+        }
+        if "exc_traceback" in source:
+            aggregated["exc_traceback"] = source["exc_traceback"]
+        if "contact" in source:
+            aggregated["contact"] = source["contact"]
+        return aggregated
+
+    @staticmethod
+    def dump_crash_info(crash_info: Mapping[str, object] | bytes) -> str:
         return json.dumps(
             CrashReportStore._dump_crash_info(crash_info),
             cls=RobustJSONEncoder,
@@ -340,7 +391,8 @@ class CrashReportStore:
     def consolidate_crash_type_dir(self, crash_type_dir: Path) -> None:
         """Migrate, deduplicate, and prune one crash type directory.
 
-        - Migrates v0 (``time: float``) crash.info files to v1 (``CrashOccurrences``).
+        - Migrates legacy v0 (``time: float``) and v1 (``time: CrashOccurrences``)
+          crash.info files to v2 (a dedicated ``occurrences`` key).
         - Merges crash reports that share the same fingerprint.
         - Rebuilds the fingerprint index so subsequent ``save()`` calls take
           the fast index-lookup path.
@@ -348,21 +400,25 @@ class CrashReportStore:
         """
         crash_type_dir.mkdir(parents=True, exist_ok=True)
         with store.locked(crash_type_dir / ".crash_report_lock"):
-            groups: dict[CrashFingerprint, list[tuple[Path, CrashInfo[Any], bool]]] = defaultdict(
+            groups: dict[CrashFingerprint, list[tuple[Path, StoredCrashInfo, bool]]] = defaultdict(
                 list
             )
             # Crashes without a traceback can't be fingerprinted, so they are never
             # merged — only migrated in place to the current on-disk format.
-            no_traceback: list[tuple[Path, CrashInfo[Any], bool]] = []
+            no_traceback: list[tuple[Path, StoredCrashInfo, bool]] = []
 
             for crash_dir in crash_type_dir.iterdir():
                 if not crash_dir.is_dir():
                     continue
                 crash_info_path = crash_dir / "crash.info"
                 try:
-                    crash_info: CrashInfo[Any] = json.loads(
-                        store.load_text_from_file(crash_info_path)
-                    )
+                    # ``json.loads`` returns ``Any``, so this is a cast-free assignment.
+                    parsed: StoredCrashInfo = json.loads(store.load_text_from_file(crash_info_path))
+                    # Bring legacy v0/v1 records up to date: move the timestamp into the
+                    # ``occurrences`` aggregate and drop the old ``time`` key. A single
+                    # unreadable or structurally-invalid report is skipped rather than
+                    # aborting consolidation of the whole crash type directory.
+                    crash_info = self._build_aggregate(parsed, read_occurrences(parsed))
                 except Exception:
                     _logger.debug(
                         "Skipping unreadable crash.info in %(crash_dir)s",
@@ -370,15 +426,9 @@ class CrashReportStore:
                     )
                     continue
 
-                # Bring legacy v0 files up to date: normalize the time field and add the
-                # version. ``needs_write`` stays False for already-current files so we
-                # don't rewrite them (and bump their mtime) on every consolidation run.
-                raw_time = crash_info["time"]
-                needs_write = not isinstance(raw_time, dict)
-                crash_info["time"] = normalize_crash_time(raw_time)
-                if "crash_info_version" not in crash_info:
-                    needs_write = True
-                crash_info.setdefault("crash_info_version", CRASH_INFO_VERSION)
+                # ``needs_write`` stays False for already-current (v2) records so we don't
+                # rewrite them (and bump their mtime) on every consolidation run.
+                needs_write = dict(parsed) != dict(crash_info)
 
                 exc_traceback = crash_info.get("exc_traceback") or []
                 if not exc_traceback:
@@ -411,21 +461,21 @@ class CrashReportStore:
 
     @staticmethod
     def _merge_crash_group[T](
-        group: Sequence[tuple[Path, CrashInfo[T]]],
-    ) -> tuple[Path, CrashInfo[T]]:
+        group: Sequence[tuple[Path, AggregatedCrashInfo[T]]],
+    ) -> tuple[Path, AggregatedCrashInfo[T]]:
         """Merge all crashes in the group into one, deleting the surplus directories.
 
         The crash with the most recent ``last_seen`` survives and inherits the
-        aggregated occurrences; the rest are removed.
+        summed occurrences; the rest are removed.
         """
-        keep_dir, keep_info = max(group, key=lambda x: x[1]["time"]["last_seen"])
+        keep_dir, keep_info = max(group, key=lambda x: x[1]["occurrences"]["last_seen"])
         if len(group) == 1:
             return keep_dir, keep_info
 
-        keep_info["time"] = CrashOccurrences(
-            first_seen=min(info["time"]["first_seen"] for _, info in group),
-            last_seen=max(info["time"]["last_seen"] for _, info in group),
-            count=sum(info["time"]["count"] for _, info in group),
+        keep_info["occurrences"] = CrashOccurrences(
+            first_seen=min(info["occurrences"]["first_seen"] for _, info in group),
+            last_seen=max(info["occurrences"]["last_seen"] for _, info in group),
+            count=sum(info["occurrences"]["count"] for _, info in group),
         )
 
         for crash_dir, _ in group:
@@ -435,5 +485,5 @@ class CrashReportStore:
         return keep_dir, keep_info
 
     @staticmethod
-    def _write_crash_info(path: Path, crash_info: CrashInfo[Any]) -> None:
+    def _write_crash_info[T](path: Path, crash_info: AggregatedCrashInfo[T]) -> None:
         store.save_text_to_file(path, CrashReportStore.dump_crash_info(crash_info) + "\n")

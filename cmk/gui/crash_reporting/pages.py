@@ -23,7 +23,7 @@ import livestatus
 import cmk.ccc.version as cmk_version
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import SiteId
-from cmk.crash import CrashInfo, normalize_crash_time, SENSITIVE_KEYWORDS
+from cmk.crash import AggregatedCrashInfo, read_occurrences, SENSITIVE_KEYWORDS
 from cmk.crash_reporting import crash_report_submit_payload, pack_crash_report
 from cmk.gui import forms, userdb
 from cmk.gui.breadcrumb import (
@@ -92,7 +92,7 @@ class CrashReport:
     crash_id: str
     site_id: str
     row: CrashReportRow
-    info: CrashInfo
+    info: AggregatedCrashInfo
 
     @classmethod
     def build(cls, request: Request, fetcher: CrashReportsRowFetcher) -> Self:
@@ -232,7 +232,7 @@ class PageCrash(Page):
         return breadcrumb
 
     def _page_menu(
-        self, request: Request, breadcrumb: Breadcrumb, info: CrashInfo, site_id: str
+        self, request: Request, breadcrumb: Breadcrumb, info: AggregatedCrashInfo, site_id: str
     ) -> PageMenu:
         return PageMenu(
             dropdowns=[
@@ -275,7 +275,7 @@ class PageCrash(Page):
         )
 
     def _page_menu_entries_related_monitoring(
-        self, info: CrashInfo, site_id: str
+        self, info: AggregatedCrashInfo, site_id: str
     ) -> Iterator[PageMenuEntry]:
         renderer = self._crash_type_renderer(info["crash_type"])
         yield from renderer.page_menu_entries_related_monitoring(info, SiteId(site_id))
@@ -377,7 +377,7 @@ class PageCrash(Page):
             render="form",
         )
 
-    def _warn_about_local_files(self, crash_info: CrashInfo) -> None:
+    def _warn_about_local_files(self, crash_info: AggregatedCrashInfo) -> None:
         files = local_files_involved_in_crash(crash_info["exc_traceback"])
         if not files:
             return
@@ -399,7 +399,7 @@ class PageCrash(Page):
         )
         html.show_warning(warn_text)
 
-    def _warn_about_sensitive_information(self, crash_info: CrashInfo) -> None:
+    def _warn_about_sensitive_information(self, crash_info: AggregatedCrashInfo) -> None:
         if not ((vars_ := crash_info.get("details") or {}).get("vars")):
             return
 
@@ -414,7 +414,9 @@ class PageCrash(Page):
                 )
             )
 
-    def _show_report_form(self, crash_info: CrashInfo, details: ReportSubmitDetails) -> None:
+    def _show_report_form(
+        self, crash_info: AggregatedCrashInfo, details: ReportSubmitDetails
+    ) -> None:
         if crash_info["crash_type"] == "gui":
             self._add_gui_user_infos_to_details(details)
 
@@ -436,7 +438,7 @@ class PageCrash(Page):
         details.setdefault("name", user_spec.get("alias", ""))
         details.setdefault("mail", user_spec.get("mail", ""))
 
-    def _show_crash_report(self, info: CrashInfo) -> None:
+    def _show_crash_report(self, info: AggregatedCrashInfo) -> None:
         html.h3(_("Crash report"), class_="table")
         html.open_table(class_=["data", "crash_report"])
 
@@ -467,7 +469,7 @@ class PageCrash(Page):
         )
 
         _crash_row(_("Crash type"), info["crash_type"], odd=False, legend=True)
-        crash_time = normalize_crash_time(info["time"])
+        crash_time = read_occurrences(info)
         first_seen = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(crash_time["first_seen"]))
         if crash_time["count"] == 1:
             time_text: str = first_seen
@@ -498,7 +500,9 @@ class PageCrash(Page):
     def _format_traceback(self, tb: Sequence[tuple[str, int, str, str]]) -> str:
         return "".join(traceback.format_list(tb))
 
-    def _show_crash_report_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def _show_crash_report_details(
+        self, crash_info: AggregatedCrashInfo, row: CrashReportRow
+    ) -> None:
         self._crash_type_renderer(crash_info["crash_type"]).show_details(crash_info, row)
 
     def _crash_type_renderer(self, crash_type: str) -> ABCReportRenderer:
@@ -515,12 +519,12 @@ class ABCReportRenderer(abc.ABC):
 
     @abc.abstractmethod
     def page_menu_entries_related_monitoring(
-        self, crash_info: CrashInfo, site_id: SiteId
+        self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def show_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
         raise NotImplementedError()
 
 
@@ -538,12 +542,12 @@ class ReportRendererGeneric(ABCReportRenderer):
         return "generic"
 
     def page_menu_entries_related_monitoring(
-        self, crash_info: CrashInfo, site_id: SiteId
+        self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
         # We don't want to produce anything here
         yield from ()
 
-    def show_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
         if not crash_info["details"]:
             return
 
@@ -562,16 +566,16 @@ class ReportRendererSection(ABCReportRenderer):
         return "section"
 
     def page_menu_entries_related_monitoring(
-        self, crash_info: CrashInfo, site_id: SiteId
+        self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
         # We don't want to produce anything here
         yield from ()
 
-    def show_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
         self._show_crashed_section_details(crash_info)
         _show_agent_output(row)
 
-    def _show_crashed_section_details(self, info: CrashInfo) -> None:
+    def _show_crashed_section_details(self, info: AggregatedCrashInfo) -> None:
         def format_bool(val: bool | None) -> str:
             return {
                 True: _("Yes"),
@@ -607,7 +611,7 @@ class ReportRendererCheck(ABCReportRenderer):
         return "check"
 
     def page_menu_entries_related_monitoring(
-        self, crash_info: CrashInfo, site_id: SiteId
+        self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
         details = crash_info["details"]
         host = details["host"]
@@ -647,11 +651,11 @@ class ReportRendererCheck(ABCReportRenderer):
             item=make_simple_link(service_url),
         )
 
-    def show_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
         self._show_crashed_check_details(crash_info)
         _show_agent_output(row)
 
-    def _show_crashed_check_details(self, info: CrashInfo) -> None:
+    def _show_crashed_check_details(self, info: AggregatedCrashInfo) -> None:
         def format_bool(val: bool | None) -> str:
             return {
                 True: _("Yes"),
@@ -705,12 +709,12 @@ class ReportRendererGUI(ABCReportRenderer):
         return "gui"
 
     def page_menu_entries_related_monitoring(
-        self, crash_info: CrashInfo, site_id: SiteId
+        self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
         """Produces nothing"""
         yield from ()
 
-    def show_details(self, crash_info: CrashInfo, row: CrashReportRow) -> None:
+    def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
         details = crash_info["details"]
 
         html.h3(_("Details"), class_="table")

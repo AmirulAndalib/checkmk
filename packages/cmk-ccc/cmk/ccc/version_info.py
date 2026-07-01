@@ -17,14 +17,11 @@ from typing import TypedDict
 class VersionInfoBase(TypedDict):
     """Environment fields shared between ``VersionInfo`` and the crash-reporting ``CrashInfo``.
 
-    ``time`` is intentionally absent from this base class. TypedDict inheritance does not
-    support redefining a key with a different type in a subclass, so each subclass declares
-    its own ``time`` independently:
-
-    - ``VersionInfo.time: float`` — raw timestamp used when *constructing* a new crash
-      report (see ``collect_crash_info``).
-    - ``CrashInfo.time: CrashOccurrences`` — structured occurrence data stored on disk and
-      used wherever the persisted format is read back.
+    ``time`` is intentionally absent from this base class: ``VersionInfo`` carries the raw
+    construction-time timestamp as ``time: float`` (used when *constructing* a new crash
+    report), whereas the crash-reporting models keep their own time representation
+    (``CrashInfo.time: float`` for a single occurrence, ``AggregatedCrashInfo.occurrences``
+    for the persisted, deduplicated record).
     """
 
     core: str

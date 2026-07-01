@@ -12,7 +12,7 @@ occurrence, so repeated crashes merge into one directory instead of piling up.""
 import dataclasses
 import hashlib
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Final
 
@@ -46,10 +46,10 @@ def crash_fingerprint(
 
 
 def normalize_crash_time(raw_time: object) -> CrashOccurrences:
-    """Normalize the time field of a crash report to CrashOccurrences.
+    """Normalize a raw time value to CrashOccurrences.
 
-    Handles the new dict format as well as the legacy float format from older
-    crash.info files, where a single timestamp was stored directly.
+    Handles the ``CrashOccurrences`` dict as well as the legacy float format from
+    older crash.info files, where a single timestamp was stored directly.
     """
     if isinstance(raw_time, dict):
         return CrashOccurrences(
@@ -61,6 +61,20 @@ def normalize_crash_time(raw_time: object) -> CrashOccurrences:
         ts = float(raw_time)
         return CrashOccurrences(first_seen=ts, last_seen=ts, count=1)
     raise TypeError(f"time field in crash report is in an unexpected format: {raw_time!r}")
+
+
+def read_occurrences(crash_info: Mapping[str, object]) -> CrashOccurrences:
+    """Read the occurrence aggregate from a crash.info of any on-disk version.
+
+    - v2: the ``occurrences`` key holds the aggregate directly.
+    - v1: ``time`` is a ``CrashOccurrences`` dict.
+    - v0: ``time`` is a single float timestamp (count 1).
+    """
+    if "occurrences" in crash_info:
+        return normalize_crash_time(crash_info["occurrences"])
+    if "time" in crash_info:
+        return normalize_crash_time(crash_info["time"])
+    raise ValueError("crash report has neither an 'occurrences' nor a legacy 'time' field")
 
 
 def _load_fingerprint_index(base_dir: Path) -> dict[str, str]:

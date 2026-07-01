@@ -14,14 +14,14 @@ from werkzeug.test import create_environ
 
 from livestatus import OnlySites
 
-from cmk.crash import CrashInfo
+from cmk.crash import AggregatedCrashInfo
 from cmk.gui.crash_reporting.pages import CrashReport, CrashReportRow
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.http import Request
 
 
-class CrashInfoFactory(TypedDictFactory[CrashInfo]):
-    __model__ = CrashInfo
+class CrashInfoFactory(TypedDictFactory[AggregatedCrashInfo]):
+    __model__ = AggregatedCrashInfo
 
 
 class FakeCrashReportsRowFetcher:

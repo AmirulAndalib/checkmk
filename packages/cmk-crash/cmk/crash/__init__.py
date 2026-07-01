@@ -15,6 +15,7 @@ from cmk.ccc.version_info import VersionInfo
 
 from ._crash import (
     ABCCrashReport,
+    AggregatedCrashInfo,
     BaseDetails,
     ContactDetails,
     CRASH_INFO_VERSION,
@@ -32,6 +33,7 @@ from ._fingerprint import (
     crash_fingerprint,
     CrashFingerprint,
     normalize_crash_time,
+    read_occurrences,
 )
 from ._store import (
     cleanup_crash_reports,
@@ -42,6 +44,7 @@ from ._store import (
 
 __all__ = [
     "ABCCrashReport",
+    "AggregatedCrashInfo",
     "BaseDetails",
     "cleanup_crash_reports",
     "ContactDetails",
@@ -62,4 +65,5 @@ __all__ = [
     "format_var_for_export",
     "make_crash_report_base_path",
     "normalize_crash_time",
+    "read_occurrences",
 ]

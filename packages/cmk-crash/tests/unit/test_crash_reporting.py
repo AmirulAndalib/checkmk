@@ -22,6 +22,7 @@ from cmk.crash import (
     CrashReportStore,
     format_var_for_export,
     make_crash_report_base_path,
+    read_occurrences,
     REDACTED_STRING,
     VersionInfo,
 )
@@ -430,8 +431,9 @@ def test_crash_report_store_deduplication(tmp_path: Path) -> None:
     assert crash_ids[0] == crash_ids[1] == crash_ids[2] == on_disk[0].name
 
     crash_info = json.loads((on_disk[0] / "crash.info").read_text())
-    assert crash_info["crash_info_version"] == 1
-    assert crash_info["time"] == {
+    assert crash_info["crash_info_version"] == 2
+    assert "time" not in crash_info
+    assert crash_info["occurrences"] == {
         "first_seen": timestamps[0],
         "last_seen": timestamps[-1],
         "count": len(timestamps),
@@ -475,8 +477,9 @@ def test_crash_report_store_deduplication_out_of_order(tmp_path: Path) -> None:
     assert len(on_disk) == 1
 
     crash_info = json.loads((on_disk[0] / "crash.info").read_text())
-    assert crash_info["crash_info_version"] == 1
-    assert crash_info["time"] == {
+    assert crash_info["crash_info_version"] == 2
+    assert "time" not in crash_info
+    assert crash_info["occurrences"] == {
         "first_seen": 1000.0,
         "last_seen": 3000.0,
         "count": 2,
@@ -522,8 +525,8 @@ def test_crash_report_store_corrupted_crash_info_saves_new_crash(tmp_path: Path)
     new_dirs = [p for p in crashes_dir.iterdir() if p.is_dir() and p != bad_dir]
     assert len(new_dirs) == 1
     saved_info = json.loads((new_dirs[0] / "crash.info").read_text())
-    assert saved_info["crash_info_version"] == 1
-    assert saved_info["time"]["count"] == 1
+    assert saved_info["crash_info_version"] == 2
+    assert saved_info["occurrences"]["count"] == 1
 
 
 def test_crash_report_store_missing_crash_info_saves_new_crash(tmp_path: Path) -> None:
@@ -692,3 +695,32 @@ def test_fingerprint_hash_returns_hex_string() -> None:
     assert isinstance(result, str)
     assert len(result) == 64  # SHA-256 hex digest
     int(result, 16)  # raises if not valid hex
+
+
+def test_read_occurrences_v2_occurrences_key() -> None:
+    """v2: the ``occurrences`` key is read directly."""
+    occ = {"first_seen": 1.0, "last_seen": 2.0, "count": 3}
+    assert read_occurrences({"occurrences": occ, "time": 999.0}) == occ
+
+
+def test_read_occurrences_v1_time_dict() -> None:
+    """v1: ``time`` is a CrashOccurrences dict."""
+    assert read_occurrences({"time": {"first_seen": 1.0, "last_seen": 2.0, "count": 3}}) == {
+        "first_seen": 1.0,
+        "last_seen": 2.0,
+        "count": 3,
+    }
+
+
+def test_read_occurrences_v0_time_float() -> None:
+    """v0: ``time`` is a single float timestamp (count 1)."""
+    assert read_occurrences({"time": 1000.0}) == {
+        "first_seen": 1000.0,
+        "last_seen": 1000.0,
+        "count": 1,
+    }
+
+
+def test_read_occurrences_missing_both_raises() -> None:
+    with pytest.raises(ValueError, match="neither"):
+        read_occurrences({"crash_type": "check"})
