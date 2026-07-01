@@ -50,6 +50,18 @@ describe('useGraphView', () => {
     expect(view.inspectionActive.value).toBe(false)
   })
 
+  test('a pan shifts the X window but preserves a prior value-zoom', () => {
+    const view = useGraphView(() => baseline)
+    const valueWindow = { min: 0, max: 50 }
+    view.handleIntent({ kind: 'zoomTransient', timeRange: baseline, valueRange: valueWindow })
+    const shifted = { start: 1100, end: 2100, step: 60 }
+
+    view.handleIntent({ kind: 'pan', timeRange: shifted })
+
+    expect(view.timeRange.value).toEqual(shifted)
+    expect(view.valueRange.value).toEqual(valueWindow)
+  })
+
   test('a range commit clears inspection so the new baseline shows through', () => {
     const committed = ref(baseline)
     const view = useGraphView(() => committed.value)

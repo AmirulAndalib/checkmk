@@ -12,9 +12,12 @@ import type { TimeRange, ValueRange } from '../components/TimeSeriesGraph/types'
 //   so the fresh baseline shows through.
 // - zoomTransient: a drag-zoom. With a valueRange → value-zoom (X unchanged, set Y window).
 //   Without → time-zoom (set X window and re-autoscale Y by clearing the value overlay).
+// - pan: a span-preserving X shift (x-axis drag). Sets the X overlay only and leaves any
+//   value-zoom Y overlay intact; transient like zoom, so reset returns to the baseline.
 export type GraphIntent =
   | { kind: 'rangeCommit'; timeRange: TimeRange }
   | { kind: 'zoomTransient'; timeRange: TimeRange; valueRange?: ValueRange }
+  | { kind: 'pan'; timeRange: TimeRange }
   | { kind: 'reset' }
 
 export function useGraphView(getBaseline: () => TimeRange) {
@@ -43,6 +46,11 @@ export function useGraphView(getBaseline: () => TimeRange) {
           inspectionTimeRange.value = intent.timeRange // time-zoom: X-extent change…
           inspectionValueRange.value = null // …re-autoscale Y
         }
+        break
+      case 'pan':
+        // Span-preserving shift. Transient like zoom: set the X overlay only and leave
+        // inspectionValueRange (a prior value-zoom) untouched. Reset returns to baseline.
+        inspectionTimeRange.value = intent.timeRange
         break
       case 'reset':
         inspectionTimeRange.value = null

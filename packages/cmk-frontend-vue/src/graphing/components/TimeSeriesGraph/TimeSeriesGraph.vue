@@ -24,6 +24,7 @@ import { drawHorizontalLines } from './render/horizontalLines'
 import { computeStackedSeries } from './render/stacked'
 import type { ConsolidationFn, TimeRange, TimeSeriesGraphProps, ZoomPayload } from './types'
 import { useAxes } from './useAxes'
+import { usePanGesture } from './usePanGesture'
 import { useZoomGesture } from './useZoomGesture'
 
 const props = defineProps<TimeSeriesGraphProps>()
@@ -89,6 +90,18 @@ const { selectionBand, plotCursor, onPlotMouseDown } = useZoomGesture({
   plotCoords,
   onZoom: (payload) => emit('zoom', payload)
 })
+
+const { panActive, panDx, panRulerTicks, panClipId, panCursor, panTickX, onPanMouseDown } =
+  usePanGesture({
+    panEnabled: () => props.panEnabled,
+    timeRange: () => props.time_range,
+    fontSizePt: () => props.options.font_size_pt,
+    plotWidth,
+    xScale,
+    plotCoords,
+    onStart: () => {},
+    onCommit: (timeRange) => emit('pan', { timeRange })
+  })
 
 let m4Cache: M4Cache[] = []
 let dataTimeRange = props.time_range
@@ -242,12 +255,57 @@ watch(
 <template>
   <div
     class="graphing-time-series-graph"
+    :class="{ 'graphing-time-series-graph--panning-x': panActive }"
     :style="{ width: `${figureWidth}px`, height: `${figureHeight}px` }"
   >
     <!-- The grid/axes SVG sits first so the data canvas draws on top of it (curves over
          grid lines, not behind them). -->
     <svg class="graphing-time-series-graph__svg" :width="figureWidth" :height="figureHeight">
+      <defs>
+        <!-- Trims the sliding ruler to the plot's bottom strip so off-window labels
+             don't spill over the y-axis numbers / margin. -->
+        <clipPath :id="panClipId">
+          <rect
+            :x="MARGIN.left"
+            :y="MARGIN.top + plotHeight"
+            :width="plotWidth"
+            :height="MARGIN.bottom"
+          />
+        </clipPath>
+      </defs>
       <g ref="axesContainer" :transform="`translate(${MARGIN.left},${MARGIN.top})`" />
+      <!-- Ruler-scrub overlay (pan preview): a shaded band plus ticks/labels that slide
+           with the cursor, clipped to the plot width. Only mounted while dragging. -->
+      <g v-if="panActive" :clip-path="`url(#${panClipId})`">
+        <rect
+          class="graphing-time-series-graph__pan-band"
+          :x="MARGIN.left"
+          :y="MARGIN.top + plotHeight + 1"
+          :width="plotWidth"
+          :height="MARGIN.bottom - 1"
+        />
+        <g :transform="`translate(${MARGIN.left + panDx},${MARGIN.top})`">
+          <template v-for="(tick, index) in panRulerTicks" :key="index">
+            <line
+              v-if="tick.lineWidth > 0"
+              class="graphing-time-series-graph__pan-tick"
+              :x1="panTickX(tick)"
+              :x2="panTickX(tick)"
+              :y1="plotHeight"
+              :y2="plotHeight + 5"
+            />
+            <text
+              v-if="tick.text !== null"
+              class="graphing-time-series-graph__pan-label"
+              :x="panTickX(tick)"
+              :y="plotHeight + 14"
+              text-anchor="middle"
+            >
+              {{ tick.text }}
+            </text>
+          </template>
+        </g>
+      </g>
     </svg>
     <canvas
       ref="canvas"
@@ -266,6 +324,19 @@ watch(
         width: `${selectionBand.width}px`,
         height: `${selectionBand.height}px`
       }"
+    />
+    <!-- Transparent grab strip over the x-axis labels; arms the pan drag. -->
+    <div
+      v-if="panEnabled"
+      class="graphing-time-series-graph__pan-zone"
+      :style="{
+        left: `${MARGIN.left}px`,
+        top: `${MARGIN.top + plotHeight}px`,
+        width: `${plotWidth}px`,
+        height: `${MARGIN.bottom}px`,
+        cursor: panCursor
+      }"
+      @mousedown="onPanMouseDown"
     />
     <CmkButton
       v-if="inspecting"
@@ -305,6 +376,12 @@ watch(
     background: color-mix(in srgb, var(--color-light-blue-50) 15%, transparent);
     border: var(--border-width-1) solid
       color-mix(in srgb, var(--color-light-blue-50) 60%, transparent);
+  }
+
+  .graphing-time-series-graph__pan-zone {
+    position: absolute;
+    z-index: 2;
+    background: transparent;
   }
 
   .graphing-time-series-graph__reset {
@@ -349,7 +426,28 @@ watch(
 
 :deep(.graphing-time-series-graph__x-labels text) {
   fill: currentcolor;
-  font-size: 11px;
+  font-size: var(--font-size-small);
+  opacity: 0.8;
+}
+
+.graphing-time-series-graph--panning-x :deep(.graphing-time-series-graph__x-labels) {
+  opacity: 0;
+}
+
+:deep(.graphing-time-series-graph__pan-band) {
+  fill: rgb(0 0 0 / 4%);
+  shape-rendering: crispedges;
+}
+
+:deep(.graphing-time-series-graph__pan-tick) {
+  stroke: currentcolor;
+  opacity: 0.35;
+  shape-rendering: crispedges;
+}
+
+:deep(.graphing-time-series-graph__pan-label) {
+  fill: currentcolor;
+  font-size: var(--font-size-small);
   opacity: 0.8;
 }
 
