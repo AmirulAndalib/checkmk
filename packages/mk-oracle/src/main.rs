@@ -13,10 +13,36 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-use mk_oracle::{config, setup};
+use mk_oracle::{args::Args, config, setup};
+
+use clap::Parser;
 
 #[tokio::main]
 async fn main() {
+    let cli = Args::parse();
+    if let Some(input) = &cli.migrate_config {
+        let code = match config::migration::migrate(input) {
+            Ok(yml) => match &cli.migrate_output {
+                Some(output) => match std::fs::write(output, &yml) {
+                    Ok(()) => 0,
+                    Err(e) => {
+                        eprintln!("Cannot write {}: {e}", output.display());
+                        1
+                    }
+                },
+                None => {
+                    print!("{yml}");
+                    0
+                }
+            },
+            Err(e) => {
+                eprintln!("Migration failed: {e}");
+                1
+            }
+        };
+        std::process::exit(code);
+    }
+
     let args: Vec<String> = std::env::args().collect();
     let result = setup::init(std::env::args_os());
     let code = if let Ok((config, environment)) = result {

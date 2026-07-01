@@ -18,6 +18,7 @@ rust_library(
         "src/config/authentication.rs",
         "src/config/connection.rs",
         "src/config/defines.rs",
+        "src/config/migration.rs",
         "src/config/options.rs",
         "src/config/ora_sql.rs",
         "src/config/section.rs",
@@ -154,6 +155,13 @@ rust_test_suite(
         "tests/files/orasql_config/**/*.sql",
     ]),
     crate_features = ["build_system_bazel"],
+    data = [
+        "references/output-multiple.cfg",
+        "references/output-multiple.ps1",
+        "references/output-optional.cfg",
+        "references/output-optional.ps1",
+        "references/output-xe-no-tnsalias.cfg",
+    ],
     env_inherit = [
         "CI_ORA2_DB_TEST",
         "LD_LIBRARY_PATH",
