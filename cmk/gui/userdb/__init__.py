@@ -26,9 +26,11 @@ from ._connections import (
     get_saml_connections,
     get_saml_connections_for_current_site,
     load_connection_config,
+    login_connections_of_other_customer,
     register_config_file,
     saml_connection_choices,
     save_snapshot_user_connection_config,
+    sites_with_dangling_login_reference,
     UserConnectionConfigFile,
 )
 from ._connector import (
@@ -129,6 +131,7 @@ __all__ = [
     "is_two_factor_login_enabled",
     "is_valid_user_session",
     "load_connection_config",
+    "login_connections_of_other_customer",
     "load_contacts",
     "load_custom_attr",
     "load_multisite_users",
@@ -154,6 +157,7 @@ __all__ = [
     "save_two_factor_credentials",
     "save_users",
     "show_mode_choices",
+    "sites_with_dangling_login_reference",
     "user_attribute_registry",
     "user_connector_registry",
     "user_exists",

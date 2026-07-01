@@ -6,20 +6,23 @@
 # mypy: disable-error-code="misc"
 # mypy: disable-error-code="type-arg"
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import assert_never, Literal, overload, override, TypeGuard
 
 from livestatus import (
     AuthenticationConnectionEntry,
     SiteConfiguration,
+    SiteConfigurations,
 )
 
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
+from cmk.gui.customer import customer_api
 from cmk.gui.hooks import request_memoize
 from cmk.gui.i18n import _
+from cmk.gui.site_config import site_is_local
 from cmk.gui.user_connection_config_types import (
     ConfigurableUserConnectionSpec,
     HtpasswdUserConnectionConfig,
@@ -197,6 +200,93 @@ def effective_authentication_connections(
     if value is None:
         return active_config.authentication_connections or []
     return value
+
+
+def _referenced_connection_id(entry: AuthenticationConnectionEntry) -> str:
+    if entry[0] == "ldap":
+        return entry[1]
+    return entry[1]["connection_id"]
+
+
+def _references_connection(entry: AuthenticationConnectionEntry, connection_id: str) -> bool:
+    return _referenced_connection_id(entry) == connection_id
+
+
+def sites_with_dangling_login_reference(
+    site_configs: SiteConfigurations,
+    connection_id: str,
+    customer: str | None,
+) -> list[SiteId]:
+    """Sites that reference the connection for login but would no longer receive it.
+
+    In the ultimatemt edition a connection is only synchronized to the sites of its
+    customer (or to all sites if it is scoped globally). A remote site that explicitly
+    lists the connection in its ``authentication_connections`` but belongs to a
+    different customer would be left with a dead login reference. The central site is
+    exempt: as the configuration master it always has every connection.
+
+    Sites without an explicit ``authentication_connections`` value inherit the central
+    site's selection, which is resolved dynamically and simply skips connections that
+    are not available on the site — those are not reported here.
+
+    Outside the ultimatemt edition the customer API stub treats every scope as global,
+    so this always returns an empty list.
+    """
+    _customer_api = customer_api()
+    if _customer_api.is_global(customer):
+        return []
+    assert customer is not None
+    receiving_sites = set(_customer_api.get_sites_of_customer(customer))
+    return [
+        site_id
+        for site_id, site_config in site_configs.items()
+        if site_id not in receiving_sites
+        and not site_is_local(site_config)
+        and any(
+            _references_connection(entry, connection_id)
+            for entry in site_config.get("authentication_connections") or []
+        )
+    ]
+
+
+def login_connections_of_other_customer(
+    site_config: SiteConfiguration,
+    all_connections: Iterable[ConfigurableUserConnectionSpec],
+) -> list[str]:
+    """Login connections the site references but that belong to a different customer.
+
+    The mirror image of :func:`sites_with_dangling_login_reference`: here a site's
+    customer is changing, and every connection it lists in its
+    ``authentication_connections`` must be scoped either globally or to the site's (new)
+    customer. A connection scoped to a different customer is not synchronized to the
+    site, so the login reference would be dead after the change. The IDs of such
+    connections are returned (deduplicated, in reference order).
+
+    The central site is exempt: as the configuration master it always has every
+    connection. Connections the site references but that no longer exist are ignored;
+    they are dangling for an unrelated reason and not this check's concern.
+
+    Outside the ultimatemt edition the customer API stub treats every scope as global,
+    so this always returns an empty list.
+    """
+    if site_is_local(site_config):
+        return []
+    _customer_api = customer_api()
+    site_customer = _customer_api.get_customer_id(site_config)
+    connections_by_id = {connection["id"]: connection for connection in all_connections}
+    conflicting: list[str] = []
+    for entry in site_config.get("authentication_connections") or []:
+        connection_id = _referenced_connection_id(entry)
+        if connection_id in conflicting:
+            continue
+        if (connection := connections_by_id.get(connection_id)) is None:
+            continue
+        connection_customer = _customer_api.get_customer_id(connection)
+        if _customer_api.is_global(connection_customer):
+            continue
+        if connection_customer != site_customer:
+            conflicting.append(connection_id)
+    return conflicting
 
 
 def _resolve_authentication_connections(

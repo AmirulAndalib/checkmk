@@ -44,6 +44,7 @@ from cmk.gui.userdb import (
     get_ldap_connections,
     get_user_attributes,
     load_connection_config,
+    sites_with_dangling_login_reference,
     UserConnectionConfigFile,
 )
 from cmk.gui.utils.csrf_token import check_csrf_token
@@ -853,6 +854,25 @@ class ModeEditLDAPConnection(WatoMode):
         connection_cfg = cast(LDAPUserConnectionConfig, vs.from_html_vars("connection"))
         vs.validate_value(dict(connection_cfg), "connection")
         connection_cfg["type"] = "ldap"
+
+        if dangling := sites_with_dangling_login_reference(
+            config.sites,
+            connection_cfg["id"],
+            customer_api().get_customer_id(connection_cfg),
+        ):
+            raise MKUserError(
+                None,
+                _(
+                    "Cannot assign this connection to customer %(customer)s. The following sites "
+                    "use it for login (authentication connections) but belong to a "
+                    "different customer: %(sites)s. Remove the connection from the "
+                    "configuration of these sites first."
+                )
+                % {
+                    "customer": customer_api().get_customer_name(connection_cfg),
+                    "sites": ", ".join(sorted(dangling)),
+                },
+            )
 
         if self._new:
             if connection_cfg["id"] in _all_connections:
