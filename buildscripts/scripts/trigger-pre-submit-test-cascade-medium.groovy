@@ -221,6 +221,23 @@ void main() {
                         }
                     }
                     println("all_change_info: ${all_change_info}");
+
+                    // Try submit; if submit fails roll back all votes to 0.
+                    try {
+                        voteGerrit(vote: 2, submit: true, identifier: env.GERRIT_PATCHSET_REVISION);
+                    } catch (e) {
+                        for (commit in all_commits_in_chain) {
+                            def changeInfo = all_change_info.get(commit);
+                            println("changeInfo: ${changeInfo}");
+
+                            // status can be: NEW, MERGED, ABANDONED. We want only new changes.
+                            if ("${changeInfo.status}" == "NEW") {
+                                println("Reset vote on ancestor ${changeInfo.number} aka ${changeInfo.id} to 0");
+                                voteGerrit(vote: 0, identifier: "${changeInfo.commit}");
+                            }
+                        }
+                        throw e;
+                    }
                 }
             }
         } else {
