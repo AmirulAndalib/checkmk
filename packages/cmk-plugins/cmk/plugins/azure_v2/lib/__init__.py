@@ -11,6 +11,7 @@ for the consume _outside_ the azure package.
 from cmk.plugins.azure_v2.lib.constants import (
     get_resource_type_abbreviation,
     RESOURCE_TYPE_ABBREVIATIONS,
+    short_resource_type,
 )
 from cmk.plugins.azure_v2.lib.hostname import compute_unique_name_hash
 from cmk.plugins.azure_v2.lib.resource_id import get_params_from_azure_id
@@ -20,4 +21,5 @@ __all__ = [
     "get_params_from_azure_id",
     "get_resource_type_abbreviation",
     "RESOURCE_TYPE_ABBREVIATIONS",
+    "short_resource_type",
 ]

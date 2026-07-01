@@ -46,3 +46,14 @@ def get_resource_type_abbreviation(resource_type: str) -> str | None:
     # lower, because we've seen
     # e.g. "Microsoft.DocumentDB/databaseAccounts" and "Microsoft.DocumentDb/databaseAccounts"
     return _ABBREVIATIONS_BY_LOWERCASE_TYPE.get(resource_type.lower())
+
+
+def short_resource_type(resource_type: str) -> str:
+    """Return the short, lowercased resource type.
+
+    This is the last segment of the Azure resource type, e.g.
+    "Microsoft.Compute/virtualMachines" -> "virtualmachines". It is used both as
+    the piggyback section name and as the value of the ``cmk/azure/resource``
+    host label, so all Azure agents must derive it the same way.
+    """
+    return resource_type.rsplit("/", maxsplit=1)[-1].lower()

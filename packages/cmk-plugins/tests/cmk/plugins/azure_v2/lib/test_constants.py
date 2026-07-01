@@ -6,6 +6,7 @@
 from cmk.plugins.azure_v2.lib import (
     get_resource_type_abbreviation,
     RESOURCE_TYPE_ABBREVIATIONS,
+    short_resource_type,
 )
 
 # Pinned values: the abbreviations are part of the computed unique host
@@ -46,3 +47,8 @@ def test_get_resource_type_abbreviation_is_case_insensitive() -> None:
 
 def test_get_resource_type_abbreviation_unknown_type() -> None:
     assert get_resource_type_abbreviation("Microsoft.Unknown/whatever") is None
+
+
+def test_short_resource_type() -> None:
+    assert short_resource_type("Microsoft.Compute/virtualMachines") == "virtualmachines"
+    assert short_resource_type("Microsoft.Sql/servers/databases") == "databases"

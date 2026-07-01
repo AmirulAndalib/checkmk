@@ -43,6 +43,7 @@ from cmk.plugins.azure_v2.lib import (
     compute_unique_name_hash,
     get_params_from_azure_id,
     RESOURCE_TYPE_ABBREVIATIONS,
+    short_resource_type,
 )
 from cmk.plugins.azure_v2.special_agent.azure_api_client import (
     ApiError,
@@ -893,7 +894,7 @@ class AzureResource(_AzureEntity):
         unique_hostnames_config: UniqueHostnamesConfig,
     ) -> None:
         self.name = info["name"]
-        section = info["type"].split("/")[-1].lower()
+        section = short_resource_type(info["type"])
 
         super().__init__(
             entity_name=self.name, section=section, unique_hostnames_config=unique_hostnames_config
