@@ -24,6 +24,7 @@ import MainMenuApp from './main-menu/MainMenuApp.vue'
 import ChangesApp from './main-menu/changes/ChangesApp.vue'
 import ModeCreateOAuth2ConnectionApp from './mode-oauth2-connection/ModeCreateOAuth2ConnectionApp.vue'
 import ModeRedirectOAuth2ConnectionAppCopy from './mode-oauth2-connection/ModeRedirectOAuth2ConnectionApp.vue'
+import OAuth2ConnectionInfoApp from './mode-oauth2-connection/OAuth2ConnectionInfoApp.vue'
 import ModeCreateOTelConfApp from './mode-otel/ModeCreateOTelConfApp.vue'
 import ModeCreatePrometheusConfApp from './mode-otel/ModeCreatePrometheusConfApp.vue'
 import ModeCreateRelayApp from './mode-relay/ModeCreateRelayApp.vue'
@@ -51,6 +52,7 @@ defineCmkComponent('cmk-mode-create-otel-conf', ModeCreateOTelConfApp)
 defineCmkComponent('cmk-mode-create-prometheus-conf', ModeCreatePrometheusConfApp)
 defineCmkComponent('cmk-mode-create-relay', ModeCreateRelayApp)
 defineCmkComponent('cmk-mode-create-oauth2-connection', ModeCreateOAuth2ConnectionApp)
+defineCmkComponent('cmk-oauth2-connection-info', OAuth2ConnectionInfoApp)
 defineCmkComponent('cmk-mode-redirect-oauth2-connection', ModeRedirectOAuth2ConnectionAppCopy)
 defineCmkComponent('cmk-sidebar', SidebarApp)
 defineCmkComponent('cmk-unified-search', UnifiedSearchApp)
