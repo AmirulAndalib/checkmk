@@ -642,6 +642,7 @@ class BICompiledAggregation:
         computation_options: BIAggregationComputationOptions,
         aggregation_visualization: dict[str, Any],
         groups: BIAggregationGroups,
+        customer: str | None = None,
     ):
         self.id = aggregation_id
         self.frozen_info: FrozenBIInfo | None = None
@@ -649,6 +650,7 @@ class BICompiledAggregation:
         self.computation_options = computation_options
         self.aggregation_visualization = aggregation_visualization
         self.groups = groups
+        self.customer = customer
 
     def compute_branches(
         self, branches: list[BICompiledRule], bi_status_fetcher: ABCBIStatusFetcher
@@ -706,6 +708,7 @@ class BICompiledAggregation:
             "aggr_output": node_result_bundle.actual_result.output,
             "aggr_hosts": bi_compiled_branch.required_hosts,
             "aggr_type": "multi",
+            "customer_id": self.customer,
             "aggr_group": "dummy",  # dummy, will be set later on within the old bi madness
             # Required in availability
             "aggr_compiled_aggregation": self,
@@ -788,6 +791,7 @@ class BICompiledAggregation:
             "aggregation_visualization": self.aggregation_visualization,
             "computation_options": self.computation_options.serialize(),
             "groups": self.groups.serialize(),
+            "customer": self.customer,
         }
 
     @override
@@ -814,6 +818,11 @@ class BICompiledAggregationSchema(Schema):
         BIAggregationGroups,
         example_config={"names": ["groupA", "groupB"], "paths": [["path", "group", "a"]]},
         description="Groups.",
+    )
+    customer = fields.String(
+        allow_none=True,
+        load_default=None,
+        description="[Only in editions: Ultimate with multi-tenancy] The customer id for this aggregation.",
     )
 
 
