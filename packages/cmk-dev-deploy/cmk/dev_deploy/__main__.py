@@ -42,6 +42,7 @@ from cmk.dev_deploy.execution.step_registry import (
     STEP_TO_DEPLOYER,
 )
 from cmk.dev_deploy.manifest.registry import uncovered_changed_files
+from cmk.dev_deploy.site.overlay_paths import OVERLAY_BASE
 from cmk.dev_deploy.site.privilege import SSHState
 from cmk.dev_deploy.site.site_resolver import find_repo_root, resolve_site
 from cmk.dev_deploy.site.warnings import check_branch_mismatch, check_edition_mismatch
@@ -822,9 +823,8 @@ def main(argv: list[str] | None = None) -> int:
         if site_root is None:
             from cmk.dev_deploy.site.sudoers import DEV_VERSIONS_DIR
 
-            overlay_base = Path("/var/tmp/cmk-dev-deploy")  # nosec B108 # BNS:59d87e
             candidates: set[str] = set()
-            for base in (overlay_base, DEV_VERSIONS_DIR):
+            for base in (OVERLAY_BASE, DEV_VERSIONS_DIR):
                 if base.is_dir():
                     # Hidden dirs (e.g. the .uv-cache next to the clones)
                     # are not site data.

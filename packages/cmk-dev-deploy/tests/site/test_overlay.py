@@ -20,6 +20,7 @@ sys.modules.pop("cmk.dev_deploy.site.overlay", None)
 
 from cmk.dev_deploy.errors import OverlayError  # noqa: E402
 from cmk.dev_deploy.site import overlay  # noqa: E402
+from cmk.dev_deploy.site.overlay_paths import OverlayPaths  # noqa: E402
 
 
 class TestSiteTmpfsMount:
@@ -61,6 +62,7 @@ class TestSiteTmpfsMount:
 @dataclass(frozen=True)
 class _Stubs:
     site_root: Path
+    paths: OverlayPaths
     run_as_root: MagicMock
     tmpfs: MagicMock
 
@@ -73,11 +75,9 @@ class TestEnsureOverlayTmpfsHandling:
         """Stub out everything ensure_overlay touches except the tmpfs + mount calls."""
         site_root = tmp_path / "omd" / "sites" / "heute"
         site_root.mkdir(parents=True)
+        paths = OverlayPaths.for_site(site_root, base_dir=tmp_path / "overlay-base")
 
         with (
-            # Redirect overlay dirs into tmp_path: ensure_overlay creates
-            # upper/work dirs below the base, which must not hit /var/tmp.
-            patch("cmk.dev_deploy.site.overlay._OVERLAY_BASE", tmp_path / "overlay-base"),
             patch("cmk.dev_deploy.site.overlay.is_overlay_active", return_value=False),
             patch("cmk.dev_deploy.site.overlay._ensure_overlay_dirs"),
             patch("cmk.dev_deploy.site.overlay._wipe_stale_overlay", return_value=False),
@@ -93,12 +93,14 @@ class TestEnsureOverlayTmpfsHandling:
             mock_run_as_root.return_value = subprocess.CompletedProcess(
                 args=[], returncode=0, stdout="", stderr=""
             )
-            yield _Stubs(site_root=site_root, run_as_root=mock_run_as_root, tmpfs=mock_tmpfs)
+            yield _Stubs(
+                site_root=site_root, paths=paths, run_as_root=mock_run_as_root, tmpfs=mock_tmpfs
+            )
 
     def test_unmounts_tmpfs_before_overlay_mount(self, stubs: _Stubs) -> None:
         stubs.tmpfs.return_value = f"{stubs.site_root}/tmp"
 
-        overlay.ensure_overlay(stubs.site_root, MagicMock())
+        overlay.ensure_overlay(stubs.site_root, MagicMock(), paths=stubs.paths)
 
         calls = [tuple(c.args[0]) for c in stubs.run_as_root.call_args_list]
         umount_idx = next(
@@ -112,7 +114,7 @@ class TestEnsureOverlayTmpfsHandling:
     def test_skips_umount_when_no_tmpfs(self, stubs: _Stubs) -> None:
         stubs.tmpfs.return_value = None
 
-        overlay.ensure_overlay(stubs.site_root, MagicMock())
+        overlay.ensure_overlay(stubs.site_root, MagicMock(), paths=stubs.paths)
 
         umount_calls = [c for c in stubs.run_as_root.call_args_list if c.args[0][:1] == ["umount"]]
         assert umount_calls == []
@@ -130,7 +132,7 @@ class TestEnsureOverlayTmpfsHandling:
             patch("cmk.dev_deploy.site.overlay._run_omd_via_sudo") as mock_omd,
             pytest.raises(OverlayError, match="Failed to unmount tmpfs"),
         ):
-            overlay.ensure_overlay(stubs.site_root, MagicMock())
+            overlay.ensure_overlay(stubs.site_root, MagicMock(), paths=stubs.paths)
         # Site must NOT be restarted after a umount failure.  Restarting would
         # let services reattach to the busy mount, masking which process is
         # holding files open and preventing the user from diagnosing it.
@@ -150,18 +152,13 @@ class TestMaterializeSymlinks:
         """
         site_root = tmp_path / "omd" / "sites" / "heute"
         site_root.mkdir(parents=True)
-        upper = tmp_path / "upper"
-        upper.mkdir()
         version_dir = tmp_path / "version"
         bin_dir = version_dir / "bin"
         bin_dir.mkdir(parents=True)
-        overlay_base = tmp_path / "overlay_base"
-        overlay_base.mkdir()
+        (site_root / "version").symlink_to(version_dir)
+        paths = OverlayPaths.for_site(site_root, base_dir=tmp_path / "overlay-base")
 
         with (
-            patch("cmk.dev_deploy.site.overlay._upper_dir", return_value=upper),
-            patch("cmk.dev_deploy.site.overlay._version_dir", return_value=version_dir),
-            patch("cmk.dev_deploy.site.overlay._site_overlay_dir", return_value=overlay_base),
             patch("cmk.dev_deploy.site.overlay.run_as_root") as mock_run_as_root,
             patch("cmk.dev_deploy.site.overlay.subprocess.run") as mock_subprocess_run,
         ):
@@ -172,7 +169,7 @@ class TestMaterializeSymlinks:
                 args=[], returncode=0, stdout="0\t.", stderr=""
             )
 
-            overlay._materialize_symlinks(site_root)  # noqa: SLF001
+            overlay._materialize_symlinks(site_root, paths)  # noqa: SLF001
 
         rsync_calls = [
             c.args[0] for c in mock_run_as_root.call_args_list if c.args[0][:1] == ["rsync"]

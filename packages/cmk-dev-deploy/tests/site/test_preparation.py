@@ -13,6 +13,7 @@ import pytest
 
 from cmk.dev_deploy.errors import DeployError
 from cmk.dev_deploy.site import preparation, sudoers
+from cmk.dev_deploy.site.overlay_paths import OverlayPaths
 from cmk.dev_deploy.site.preparation import (
     check_backend_conflict,
     CloneBackend,
@@ -134,7 +135,7 @@ class TestOverlayBackend:
         backend = OverlayBackend(ssh_state)
         with patch.object(preparation, "ensure_overlay") as ensure:
             backend.ensure(_SITE_ROOT)
-        ensure.assert_called_once_with(_SITE_ROOT, ssh_state)
+        ensure.assert_called_once_with(_SITE_ROOT, ssh_state, OverlayPaths.for_site(_SITE_ROOT))
 
     def test_teardown_delegates(self) -> None:
         backend = OverlayBackend(SSHState())
@@ -144,7 +145,7 @@ class TestOverlayBackend:
         ):
             backend.teardown(_SITE_ROOT)
         sudo.assert_called_once_with()
-        teardown.assert_called_once_with(_SITE_ROOT)
+        teardown.assert_called_once_with(_SITE_ROOT, OverlayPaths.for_site(_SITE_ROOT))
 
     @pytest.mark.parametrize(
         ("active", "full", "expect_sudo"),

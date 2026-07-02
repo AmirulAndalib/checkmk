@@ -32,21 +32,13 @@ from pathlib import Path
 from cmk.dev_deploy.core import output
 from cmk.dev_deploy.core.timeouts import OVERLAY_CMD
 from cmk.dev_deploy.errors import OverlayError
+from cmk.dev_deploy.site.overlay_paths import OverlayPaths
 from cmk.dev_deploy.site.privilege import (
     get_real_user,
     inject_ssh_key,
     run_as_root,
     SSHState,
 )
-
-# Persistent storage for overlay upper/work directories.
-# /var/tmp survives reboots (unlike /tmp which may be tmpfs).
-_OVERLAY_BASE = Path("/var/tmp/cmk-dev-deploy")  # nosec B108 # BNS:59d87e
-
-# File in the overlay base that records which version was materialized.
-# Used to detect version changes that require re-materialization.
-_VERSION_MARKER = "materialized_version"
-_SITE_INODE_MARKER = "site_inode"
 
 
 def _run_omd_via_sudo(site_name: str, command: str) -> None:
@@ -63,19 +55,7 @@ def _run_omd_via_sudo(site_name: str, command: str) -> None:
     )
 
 
-def _upper_dir(site_root: Path) -> Path:
-    return _OVERLAY_BASE / site_root.name / "upper"
-
-
-def _work_dir(site_root: Path) -> Path:
-    return _OVERLAY_BASE / site_root.name / "work"
-
-
-def _site_overlay_dir(site_root: Path) -> Path:
-    return _OVERLAY_BASE / site_root.name
-
-
-def _wipe_stale_overlay(site_root: Path) -> bool:
+def _wipe_stale_overlay(site_root: Path, paths: OverlayPaths) -> bool:
     """Detect and wipe stale overlay data from a previous site installation.
 
     Compares the current inode of the site root directory against the stored
@@ -84,12 +64,10 @@ def _wipe_stale_overlay(site_root: Path) -> bool:
 
     Returns True if stale data was wiped.
     """
-    site_overlay = _site_overlay_dir(site_root)
-    marker = site_overlay / _SITE_INODE_MARKER
-    if not marker.is_file():
+    if not paths.site_inode_marker.is_file():
         return False
     try:
-        stored_ino = int(marker.read_text().strip())
+        stored_ino = int(paths.site_inode_marker.read_text().strip())
     except (ValueError, OSError):
         return False
     current_ino = site_root.stat().st_ino
@@ -101,7 +79,7 @@ def _wipe_stale_overlay(site_root: Path) -> bool:
         "wiping stale overlay data from previous installation..."
     )
     # Remove everything except the site overlay base dir itself
-    for child in site_overlay.iterdir():
+    for child in paths.site_overlay.iterdir():
         if child.is_dir():
             run_as_root(["rm", "-rf", str(child)])
         else:
@@ -109,13 +87,12 @@ def _wipe_stale_overlay(site_root: Path) -> bool:
     return True
 
 
-def _save_site_inode(site_root: Path, inode: int) -> None:
+def _save_site_inode(paths: OverlayPaths, inode: int) -> None:
     """Persist the site root directory's inode for reinstall detection."""
-    marker = _site_overlay_dir(site_root) / _SITE_INODE_MARKER
-    marker.write_text(str(inode))
+    paths.site_inode_marker.write_text(str(inode))
 
 
-def _ensure_overlay_dirs(site_overlay: Path) -> None:
+def _ensure_overlay_dirs(paths: OverlayPaths) -> None:
     """Ensure the site overlay directory exists and is writable by the deploy user.
 
     Previous runs under ``sudo`` may have created these directories as root.
@@ -125,9 +102,9 @@ def _ensure_overlay_dirs(site_overlay: Path) -> None:
     """
     user = get_real_user()
     # Create base + site dir if they don't exist
-    run_as_root(["mkdir", "-p", str(site_overlay)])
+    run_as_root(["mkdir", "-p", str(paths.site_overlay)])
     # Chown the site overlay dir (and base) to the deploy user
-    run_as_root(["chown", user, str(_OVERLAY_BASE), str(site_overlay)])
+    run_as_root(["chown", user, str(paths.site_overlay.parent), str(paths.site_overlay)])
 
 
 def _version_dir(site_root: Path) -> Path | None:
@@ -246,7 +223,7 @@ def _chown_upper(upper: Path) -> None:
         output.verbose(f"Upper layer ownership set to {user} ({elapsed:.1f}s)")
 
 
-def _materialize_symlinks(site_root: Path) -> None:
+def _materialize_symlinks(site_root: Path, paths: OverlayPaths) -> None:
     """Copy version-dir symlink targets into the overlay upper layer.
 
     OMD sites have top-level symlinks (``bin/``, ``lib/``, ``share/``, etc.)
@@ -262,18 +239,16 @@ def _materialize_symlinks(site_root: Path) -> None:
     layer.  A version marker detects version changes that require
     re-materialization.
     """
-    upper = _upper_dir(site_root)
     version_dir = _version_dir(site_root)
     if version_dir is None:
         output.warn("Could not determine version directory, skipping symlink materialization")
         return
 
     version_string = version_dir.name
-    marker_path = _site_overlay_dir(site_root) / _VERSION_MARKER
 
     # Check if already materialized for this version
-    if marker_path.exists():
-        stored_version = marker_path.read_text().strip()
+    if paths.version_marker.exists():
+        stored_version = paths.version_marker.read_text().strip()
         if stored_version == version_string:
             return
         # Version changed — need to re-materialize
@@ -282,11 +257,10 @@ def _materialize_symlinks(site_root: Path) -> None:
             "re-materializing overlay upper layer..."
         )
         # Clear existing upper contents and per-directory markers (stale version data)
-        run_as_root(["rm", "-rf", str(upper)])
-        upper.mkdir(parents=True, exist_ok=True)
-        markers = _site_overlay_dir(site_root) / "markers"
-        if markers.exists():
-            run_as_root(["rm", "-rf", str(markers)])
+        run_as_root(["rm", "-rf", str(paths.upper)])
+        paths.upper.mkdir(parents=True, exist_ok=True)
+        if paths.markers_dir.exists():
+            run_as_root(["rm", "-rf", str(paths.markers_dir)])
 
     total_start = time.monotonic()
     materialized: list[tuple[str, str, float]] = []
@@ -294,8 +268,7 @@ def _materialize_symlinks(site_root: Path) -> None:
     # Per-directory completion markers to detect interrupted materializations.
     # If a directory exists but its marker does not, the previous rsync was
     # interrupted and the directory must be re-synced from scratch.
-    markers_dir = _site_overlay_dir(site_root) / "markers"
-    markers_dir.mkdir(parents=True, exist_ok=True)
+    paths.markers_dir.mkdir(parents=True, exist_ok=True)
 
     # Iterate the version directory instead of the site directory.
     # The site directory (drwxr-x--x, owned by site user) is not readable
@@ -307,8 +280,8 @@ def _materialize_symlinks(site_root: Path) -> None:
             continue
         entry_name = target.name
 
-        upper_entry = upper / entry_name
-        dir_marker = markers_dir / f"{entry_name}.done"
+        upper_entry = paths.upper / entry_name
+        dir_marker = paths.markers_dir / f"{entry_name}.done"
 
         if upper_entry.exists() and upper_entry.is_dir():
             if dir_marker.exists():
@@ -372,13 +345,13 @@ def _materialize_symlinks(site_root: Path) -> None:
         # _clean_package removes and rsync recreates them) inherit write
         # access.  omd-setup-version-for-dev only sets access ACLs, not
         # default ACLs, so rsync -aA copies them but new dirs won't inherit.
-        _chown_upper(upper)
+        _chown_upper(paths.upper)
 
         # Write version marker so we skip next time
-        marker_path.write_text(version_string)
+        paths.version_marker.write_text(version_string)
     # Still write marker if upper dir has content
-    elif not marker_path.exists() and upper.exists():
-        marker_path.write_text(version_string)
+    elif not paths.version_marker.exists() and paths.upper.exists():
+        paths.version_marker.write_text(version_string)
 
 
 def _restore_capabilities(site_root: Path) -> None:
@@ -410,7 +383,7 @@ def _restore_capabilities(site_root: Path) -> None:
         try_setcap(binary, cap)
 
 
-def ensure_overlay(site_root: Path, state: SSHState) -> None:
+def ensure_overlay(site_root: Path, state: SSHState, paths: OverlayPaths) -> None:
     """Ensure an OverlayFS is mounted on *site_root*.
 
     If already mounted, this is a no-op.  If the upper directory exists from
@@ -427,37 +400,33 @@ def ensure_overlay(site_root: Path, state: SSHState) -> None:
         output.info(f"Overlay active on {site_root}")
         return
 
-    upper = _upper_dir(site_root)
-    work = _work_dir(site_root)
-    site_overlay = _site_overlay_dir(site_root)
-
     # Ensure the overlay base directory is owned by the deploy user so
     # subsequent file operations (mkdir, marker writes) work without root.
-    _ensure_overlay_dirs(site_overlay)
+    _ensure_overlay_dirs(paths)
 
     # Detect site reinstall: if the site root inode changed, the old overlay
     # data is stale and must be wiped before proceeding.
-    _wipe_stale_overlay(site_root)
+    _wipe_stale_overlay(site_root, paths)
 
     # Capture the bare site inode before mounting (overlay changes st_ino).
     bare_site_inode = site_root.stat().st_ino
 
-    resuming = upper.exists() and any(upper.iterdir())
+    resuming = paths.upper.exists() and any(paths.upper.iterdir())
 
     # Create directories
-    upper.mkdir(parents=True, exist_ok=True)
+    paths.upper.mkdir(parents=True, exist_ok=True)
     # work dir must be empty for overlayfs
-    if work.exists():
-        run_as_root(["rm", "-rf", str(work)])
-    work.mkdir(parents=True, exist_ok=True)
+    if paths.work.exists():
+        run_as_root(["rm", "-rf", str(paths.work)])
+    paths.work.mkdir(parents=True, exist_ok=True)
 
     # Materialize version-dir symlinks into upper layer (before mounting).
     # On resume, checks version marker and skips if already done.
-    _materialize_symlinks(site_root)
+    _materialize_symlinks(site_root, paths)
 
     site_name = site_root.name
     resolved = str(site_root.resolve())
-    opts = f"lowerdir={resolved},upperdir={upper},workdir={work}"
+    opts = f"lowerdir={resolved},upperdir={paths.upper},workdir={paths.work}"
 
     # Stop site so processes start on the overlay after mount
     output.info(f"Stopping site {site_name} for overlay mount...")
@@ -511,8 +480,8 @@ def ensure_overlay(site_root: Path, state: SSHState) -> None:
     # requires the home directory to be owned by the site user and not be
     # group/world-writable.  Fix the upper layer's root dir (which maps to
     # the site home on the merged view).
-    run_as_root(["chown", site_name, str(upper)])
-    run_as_root(["chmod", "755", str(upper)])
+    run_as_root(["chown", site_name, str(paths.upper)])
+    run_as_root(["chmod", "755", str(paths.upper)])
 
     # Clear cached SSH check results -- the old overlay (and its key) is
     # gone, so any cached True/False from teardown is stale.
@@ -531,7 +500,7 @@ def ensure_overlay(site_root: Path, state: SSHState) -> None:
 
     # Persist the bare site inode (captured before mount) so we can detect
     # reinstalls on the next run.
-    _save_site_inode(site_root, bare_site_inode)
+    _save_site_inode(paths, bare_site_inode)
 
     if resuming:
         output.info(f"Overlay resumed on {site_root} (existing changes preserved)")
@@ -539,7 +508,7 @@ def ensure_overlay(site_root: Path, state: SSHState) -> None:
         output.info(f"Overlay mounted on {site_root}")
 
 
-def teardown_overlay(site_root: Path) -> None:
+def teardown_overlay(site_root: Path, paths: OverlayPaths) -> None:
     """Unmount the overlay and remove upper/work directories.
 
     Stops the site before unmounting (services hold open file handles on the
@@ -588,7 +557,6 @@ def teardown_overlay(site_root: Path) -> None:
         output.info(f"Overlay unmounted from {site_root}")
 
     # Clean up upper/work directories and version marker
-    site_overlay_dir = _site_overlay_dir(site_root)
-    if site_overlay_dir.exists():
-        run_as_root(["rm", "-rf", str(site_overlay_dir)])
-        output.info(f"Overlay data removed: {site_overlay_dir}")
+    if paths.site_overlay.exists():
+        run_as_root(["rm", "-rf", str(paths.site_overlay)])
+        output.info(f"Overlay data removed: {paths.site_overlay}")

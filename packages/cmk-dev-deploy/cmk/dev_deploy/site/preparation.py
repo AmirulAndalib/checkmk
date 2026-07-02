@@ -26,6 +26,7 @@ from cmk.dev_deploy.core import output
 from cmk.dev_deploy.errors import DeployError
 from cmk.dev_deploy.site import sudoers
 from cmk.dev_deploy.site.overlay import ensure_overlay, is_overlay_active, teardown_overlay
+from cmk.dev_deploy.site.overlay_paths import OverlayPaths
 from cmk.dev_deploy.site.privilege import ensure_sudo, SSHState
 from cmk.dev_deploy.site.version_clone import ensure_clone, is_clone_active, teardown_clone
 
@@ -73,13 +74,13 @@ class OverlayBackend:
             ensure_sudo()
 
     def ensure(self, site_root: Path) -> None:
-        ensure_overlay(site_root, self.ssh_state)
+        ensure_overlay(site_root, self.ssh_state, OverlayPaths.for_site(site_root))
 
     def teardown(self, site_root: Path) -> None:
         # --purge reaches teardown without prepare_privileges; refreshing a
         # cached sudo timestamp is free, so always pre-authenticate here.
         ensure_sudo()
-        teardown_overlay(site_root)
+        teardown_overlay(site_root, OverlayPaths.for_site(site_root))
 
 
 @dataclasses.dataclass(frozen=True)
