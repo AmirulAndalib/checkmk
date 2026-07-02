@@ -3,30 +3,43 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
+
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    State,
+)
+from cmk.plugins.perle.agent_based.perle_chassis_slots import Section
+from cmk.plugins.perle.lib import perle_check_alarms
+
+_MAP_DIAG_STATES = {
+    "0": (State.OK, "passed"),
+    "1": (State.CRIT, "media converter module's PHY is not functional"),
+    "2": (State.WARN, "firmware download required"),
+}
 
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.perle import perle_check_alarms
+def discover_perle_chassis_slots(section: Section) -> DiscoveryResult:
+    for (
+        index,
+        _name,
+        _modelname,
+        _serial,
+        _bootloader,
+        _fw,
+        _alarms,
+        _diagstate,
+        ty,
+        _descr,
+    ) in section:
+        if ty != "0":
+            yield Service(item=index)
 
-check_info = {}
 
-
-def discover_perle_chassis_slots(info):
-    return [
-        (index, None)
-        for index, _name, _modelname, _serial, _bootloader, _fw, _alarms_str, _diagstate, ty, _descr in info
-        if ty != "0"
-    ]
-
-
-def check_perle_chassis_slots(item, _no_params, info):
-    map_diagstates = {
-        "0": (0, "passed"),
-        "1": (2, "media converter module's PHY is not functional"),
-        "2": (1, "firmware download required"),
-    }
-
+def check_perle_chassis_slots(item: str, section: Section) -> CheckResult:
     for (
         index,
         name,
@@ -38,16 +51,15 @@ def check_perle_chassis_slots(item, _no_params, info):
         diagstate,
         _ty,
         _descr,
-    ) in info:
+    ) in section:
         if item == index:
-            state, state_readable = map_diagstates[diagstate]
-            yield state, f"[{name}] Diagnostic result: {state_readable}"
+            state, state_readable = _MAP_DIAG_STATES[diagstate]
+            yield Result(state=state, summary=f"[{name}] Diagnostic result: {state_readable}")
             yield perle_check_alarms(alarms_str)
 
 
-check_info["perle_chassis_slots"] = LegacyCheckDefinition(
+check_plugin_perle_chassis_slots = CheckPlugin(
     name="perle_chassis_slots",
-    # section is already migrated!
     service_name="Chassis status slot %s",
     discovery_function=discover_perle_chassis_slots,
     check_function=check_perle_chassis_slots,
