@@ -22,6 +22,7 @@ Both enums are required at every call site so handler intent stays visible.
 from __future__ import annotations
 
 import enum
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cached_property
@@ -223,7 +224,7 @@ class AutomationEnvironment:
             case IPLookupFailureMode.COLLECT:
                 error_handler = ip_lookup.CollectFailedHosts()
             case IPLookupFailureMode.HANDLE:
-                error_handler = config.handle_ip_lookup_failure
+                error_handler = handle_ip_lookup_error
         return ip_lookup.ConfiguredIPLookup(
             ip_lookup.make_lookup_ip_address(self.ip_lookup_config),
             allow_empty=self.hosts_config.clusters,
@@ -247,3 +248,12 @@ class AutomationEnvironment:
             relay_id,
             self.trusted_ca_path(config_source=config_source),
         )
+
+
+def handle_ip_lookup_error(host: HostName, exception: Exception) -> None:
+    logger = logging.getLogger("cmk.automations")
+    logger.warning(
+        "Cannot lookup IP address of '%s' (%s). The host will not be monitored correctly.",
+        host,
+        exception,
+    )
