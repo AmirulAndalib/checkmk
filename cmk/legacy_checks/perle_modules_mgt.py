@@ -4,53 +4,54 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-from collections.abc import Generator, Mapping
-from typing import Any
+from collections.abc import Mapping
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition, LegacyResult
-from cmk.agent_based.v2 import SNMPTree, StringTable
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
 from cmk.plugins.perle.lib import DETECT_PERLE
-
-check_info = {}
 
 # .1.3.6.1.4.1.1966.21.1.1.1.1.4.5.1.1.2.1.1 1 --> PERLE-MCR-MGT-MIB::mcrMgtSlotIndex.1.1
 # .1.3.6.1.4.1.1966.21.1.1.1.1.4.5.1.1.3.1.1 MCR-MGT --> PERLE-MCR-MGT-MIB::mcrMgtModelName.1.1
 # .1.3.6.1.4.1.1966.21.1.1.1.1.4.5.3.1.4.1.1 0 --> PERLE-MCR-MGT-MIB::mcrMgtLedALM.1.1
 
-
-def discover_perle_modules_mgt(info: StringTable) -> list[tuple[str, None]]:
-    return [(index, None) for index, _name, _descr, _alarm_led, _status in info]
-
-
-def check_perle_modules_mgt(
-    item: str, _no_params: Mapping[str, Any], info: StringTable
-) -> Generator[LegacyResult]:
-    mappings = {
-        "alarm_led": {
-            "0": (0, "no alarms"),
-            "1": (2, "alarms present"),
-        },
-        "power_led": {
-            "0": (2, "off"),
-            "1": (0, "on"),
-        },
-    }
-
-    for index, _name, _descr, power_led, alarm_led in info:
-        if item == index:
-            for title, value, key in [
-                ("Alarm LED", alarm_led, "alarm_led"),
-                ("Power LED", power_led, "power_led"),
-            ]:
-                state, state_readable = mappings[key][value]
-                yield state, f"{title}: {state_readable}"
+_MAP_ALARM_LED: Mapping[str, tuple[State, str]] = {
+    "0": (State.OK, "no alarms"),
+    "1": (State.CRIT, "alarms present"),
+}
+_MAP_POWER_LED: Mapping[str, tuple[State, str]] = {
+    "0": (State.CRIT, "off"),
+    "1": (State.OK, "on"),
+}
 
 
 def parse_perle_modules_mgt(string_table: StringTable) -> StringTable:
     return string_table
 
 
-check_info["perle_modules_mgt"] = LegacyCheckDefinition(
+def discover_perle_modules_mgt(section: StringTable) -> DiscoveryResult:
+    for index, _name, _descr, _power_led, _alarm_led in section:
+        yield Service(item=index)
+
+
+def check_perle_modules_mgt(item: str, section: StringTable) -> CheckResult:
+    for index, _name, _descr, power_led, alarm_led in section:
+        if item == index:
+            alarm_state, alarm_readable = _MAP_ALARM_LED[alarm_led]
+            yield Result(state=alarm_state, summary=f"Alarm LED: {alarm_readable}")
+            power_state, power_readable = _MAP_POWER_LED[power_led]
+            yield Result(state=power_state, summary=f"Power LED: {power_readable}")
+
+
+snmp_section_perle_modules_mgt = SimpleSNMPSection(
     name="perle_modules_mgt",
     parse_function=parse_perle_modules_mgt,
     detect=DETECT_PERLE,
@@ -59,6 +60,11 @@ check_info["perle_modules_mgt"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.1966.21.1.1.1.1.4.5",
         oids=["1.1.2", "1.1.3", "1.1.4", "3.1.3", "3.1.4"],
     ),
+)
+
+
+check_plugin_perle_modules_mgt = CheckPlugin(
+    name="perle_modules_mgt",
     service_name="Chassis slot %s MGT",
     discovery_function=discover_perle_modules_mgt,
     check_function=check_perle_modules_mgt,
