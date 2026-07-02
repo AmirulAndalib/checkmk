@@ -172,6 +172,7 @@ def _inventory_as_check(
         error_handler=config.handle_ip_lookup_failure,
     )
     file_cache_options = FileCacheOptions()
+    logger = logging.getLogger("cmk.base.inventory")
 
     fetcher = CMKFetcher(
         config_cache,
@@ -231,6 +232,7 @@ def _inventory_as_check(
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -241,7 +243,7 @@ def _inventory_as_check(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.inventory"),
+        logger=logger,
     )
     summarizer = CMKSummarizer(
         hostname,

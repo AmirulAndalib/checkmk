@@ -1637,6 +1637,7 @@ def test_commandline_discovery(monkeypatch: MonkeyPatch) -> None:
     )
 
     file_cache_options = FileCacheOptions()
+    logger = logging.getLogger("tests")
     parser = CMKParser(
         config.make_parser_config(
             loading_result.loaded_config,
@@ -1646,7 +1647,7 @@ def test_commandline_discovery(monkeypatch: MonkeyPatch) -> None:
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("tests"),
+        logger=logger,
     )
     service_name_config = config_cache.make_passive_service_name_config(
         make_final_service_name_config(loading_result.loaded_config, config_cache.ruleset_matcher)
@@ -1698,6 +1699,7 @@ def test_commandline_discovery(monkeypatch: MonkeyPatch) -> None:
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
 
     commandline_discovery(

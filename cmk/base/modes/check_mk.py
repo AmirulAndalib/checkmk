@@ -2186,6 +2186,7 @@ def _mode_check_discovery(
     )
     check_interval = config_cache.check_mk_check_interval(hostname)
     discovery_file_cache_max_age = 1.5 * check_interval if file_cache_options.use_outdated else 0
+    logger = logging.getLogger("cmk.base.discovery")
     fetcher = CMKFetcher(
         config_cache,
         host_tags,
@@ -2248,6 +2249,7 @@ def _mode_check_discovery(
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -2258,7 +2260,7 @@ def _mode_check_discovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.discovery"),
+        logger=logger,
     )
     summarizer = CMKSummarizer(
         hostname,
@@ -2565,6 +2567,7 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
         itertools.chain(plugins.agent_sections.values(), plugins.snmp_sections.values()),
         CheckPluginName,
     )
+    logger = logging.getLogger("cmk.base.discovery")
     parser = CMKParser(
         config.make_parser_config(
             loaded_config,
@@ -2574,7 +2577,7 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
         ),
         selected_sections=selected_sections,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.discovery"),
+        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -2641,6 +2644,7 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     for hostname in sorted(
         _preprocess_hostnames(
@@ -2912,6 +2916,7 @@ def run_checking(
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -3164,6 +3169,7 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         itertools.chain(plugins.agent_sections.values(), plugins.snmp_sections.values()),
         InventoryPluginName,
     )
+    logger = logging.getLogger("cmk.base.inventory")
     fetcher = CMKFetcher(
         config_cache,
         host_tags,
@@ -3228,6 +3234,7 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -3238,7 +3245,7 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         ),
         selected_sections=selected_sections,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.inventory"),
+        logger=logger,
     )
 
     section_plugins = SectionPluginMapper({**plugins.agent_sections, **plugins.snmp_sections})
@@ -3491,6 +3498,7 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
         allow_empty=hosts_config.clusters,
         error_handler=config.handle_ip_lookup_failure,
     )
+    logger = logging.getLogger("cmk.base.inventory")
 
     parser = CMKParser(
         config.make_parser_config(
@@ -3501,7 +3509,7 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.inventory"),
+        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -3560,6 +3568,7 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
 
     def summarizer(host_name: HostName) -> CMKSummarizer:

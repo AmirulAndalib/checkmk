@@ -224,7 +224,6 @@ from cmk.utils.caching import cache_manager
 from cmk.utils.encoding import ensure_str_with_fallback
 from cmk.utils.ip_lookup import make_lookup_mgmt_board_ip_address
 from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel, LabelManager, Labels
-from cmk.utils.log import console
 from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.password_store import make_staged_passwords_lookup
 from cmk.utils.paths import (
@@ -406,6 +405,7 @@ def _automation_service_discovery(
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     # sort clusters last, to have them operate with the new nodes host labels.
     for is_cluster, hostname in sorted((h in hosts_config.clusters, h) for h in hostnames):
@@ -517,6 +517,7 @@ def _automation_special_agent_discovery_preview(
         },
     )
 
+    logger = logging.getLogger("cmk.automation.discovery")
     fetcher = SpecialAgentFetcher(
         env.make_fetcher_trigger(
             run_settings.host_config.relay_id, config_source=ConfigSource.PENDING
@@ -525,6 +526,7 @@ def _automation_special_agent_discovery_preview(
         agent_name=run_settings.agent_name,
         cmds=cmds,
         is_cmc=env.loaded_config.monitoring_core == "cmc",
+        logger=logger,
     )
     return _get_discovery_preview(
         run_settings.host_config.host_name,
@@ -544,6 +546,7 @@ def _automation_special_agent_discovery_preview(
         run_settings.host_config.ip_address,
         secrets_config=ad_hoc_secrets,
         for_relay=run_settings.host_config.relay_id is not None,
+        logger=logger,
     )
 
 
@@ -587,6 +590,7 @@ def _automation_discovery_preview(
         path=cmk.utils.password_store.pending_secrets_path_site(),
         secrets=secrets,
     )
+    logger = logging.getLogger("cmk.automation.discovery")
 
     fetcher = CMKFetcher(
         config_cache,
@@ -637,6 +641,7 @@ def _automation_discovery_preview(
             config_cache.explicit_host_attributes,
             config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     hosts_config = config.make_hosts_config(env.loaded_config)
     ip_family = ip_lookup_config.default_address_family(host_name)
@@ -666,6 +671,7 @@ def _automation_discovery_preview(
         ip_address=ip_address,
         secrets_config=secrets_config_relay if relay_id else secrets_config_site,
         for_relay=relay_id is not None,
+        logger=logger,
     )
 
 
@@ -690,6 +696,7 @@ def _get_discovery_preview(
     secrets_config: SecretsConfig,
     *,
     for_relay: bool,
+    logger: logging.Logger,
 ) -> ServiceDiscoveryPreviewResult:
     buf = io.StringIO()
 
@@ -713,6 +720,7 @@ def _get_discovery_preview(
             plugins=plugins,
             secrets_config=secrets_config,
             for_relay=for_relay,
+            logger=logger,
         )
 
         _warn_service_name_conflicts(host_name, check_preview)
@@ -858,8 +866,8 @@ def _execute_discovery(
     plugins: AgentBasedPlugins,
     secrets_config: SecretsConfig,
     for_relay: bool,
+    logger: logging.Logger,
 ) -> CheckPreview:
-    logger = logging.getLogger("cmk.automation.discovery")
     hosts_config = config.make_hosts_config(loaded_config)
     discovery_config = DiscoveryConfig(
         ruleset_matcher,
@@ -1162,6 +1170,7 @@ def _execute_autodiscovery(
             env.config_cache.explicit_host_attributes,
             env.config_cache.check_mk_check_interval,
         ),
+        logger=logger,
     )
     section_plugins = SectionPluginMapper(
         {**env.plugins.agent_sections, **env.plugins.snmp_sections}
@@ -1180,10 +1189,14 @@ def _execute_autodiscovery(
     all_hosts = frozenset(itertools.chain(hosts_config.hosts, hosts_config.shadow_hosts))
     for host_name in autodiscovery_queue:
         if host_name in hosts_config.clusters:
-            console.verbose(f"  Removing mark '{host_name}' (host is a cluster)")
+            logger.debug(
+                "Removing host from autodiscovery queue: '%s' (host is a cluster)", host_name
+            )
             autodiscovery_queue.remove(host_name)
         elif host_name not in all_hosts:
-            console.verbose(f"  Removing mark '{host_name}' (host not configured)")
+            logger.debug(
+                "Removing host from autodiscovery queue: '%s' (host not configured)", host_name
+            )
             autodiscovery_queue.remove(host_name)
 
     if (oldest_queued := autodiscovery_queue.oldest()) is None:

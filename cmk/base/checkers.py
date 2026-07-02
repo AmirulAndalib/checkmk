@@ -36,7 +36,6 @@ from cmk.agent_based.v1 import Result as CheckFunctionResult
 from cmk.agent_based.v3_unstable import Metric as MetricV3Unstable
 from cmk.base.config import ConfigCache
 from cmk.base.errorhandling import create_check_crash_dump
-from cmk.ccc import tty
 from cmk.ccc.cpu_tracking import CPUTracker, Snapshot
 from cmk.ccc.exceptions import MKTimeout
 from cmk.ccc.hostaddress import HostAddress, HostName
@@ -119,7 +118,6 @@ from cmk.utils.ip_lookup import (
     IPLookupOptional,
     IPStackConfig,
 )
-from cmk.utils.log import console
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.prediction import make_updated_predictions, MetricRecord, PredictionStore
 from cmk.utils.rulesets import RuleSetName
@@ -163,6 +161,7 @@ def _fetch_all(
     secrets: FetcherSecrets,
     *,
     simulation: bool,
+    logger: logging.Logger,
 ) -> Sequence[
     tuple[
         SourceInfo,
@@ -178,6 +177,7 @@ def _fetch_all(
             source.fetcher(),
             mode,
             secrets,
+            logger,
         )
         for source in sources
     ]
@@ -190,13 +190,14 @@ def _do_fetch(
     fetcher: Fetcher,
     mode: Mode,
     secrets: FetcherSecrets,
+    logger: logging.Logger,
 ) -> tuple[
     SourceInfo,
     result.Result[AgentRawData | SNMPRawData, Exception],
     Snapshot,
 ]:
-    console.debug(f"  Source: {source_info}")
-    with CPUTracker(console.debug) as tracker:
+    logger.debug("Fetching source: %s", source_info)
+    with CPUTracker(logger.debug) as tracker:
         raw_data = trigger.get_raw_data(file_cache, fetcher, mode, secrets)
     return source_info, raw_data, tracker.duration
 
@@ -328,12 +329,14 @@ class SpecialAgentFetcher(FetcherFunction):
         agent_name: str,
         cmds: Iterator[SpecialAgentCommandLine],
         is_cmc: bool,
+        logger: logging.Logger,
     ) -> None:
         self.trigger: Final = trigger
         self.agent_name: Final = agent_name
         self.cmds: Final = cmds
         self.secrets: Final = secrets
         self.is_cmc: Final = is_cmc
+        self.logger: Final = logger
 
     def __call__(
         self, host_name: HostName, *, ip_address: HostAddress | None
@@ -359,6 +362,7 @@ class SpecialAgentFetcher(FetcherFunction):
                 ProgramFetcher(cmdline=cmd.cmdline, stdin=cmd.stdin, is_cmc=self.is_cmc),
                 Mode.DISCOVERY,
                 self.secrets,
+                self.logger,
             )
             for cmd in self.cmds
         ]
@@ -390,6 +394,7 @@ class CMKFetcher(FetcherFunction):
         secrets_config_site: StoredSecrets,
         simulation_mode: bool,
         metric_backend_fetcher_factory: Callable[[HostAddress], Fetcher[AgentRawData] | None],
+        logger: logging.Logger,
         max_cachefile_age: MaxAge | None = None,
     ) -> None:
         self.config_cache: Final = config_cache
@@ -412,6 +417,7 @@ class CMKFetcher(FetcherFunction):
         self.simulation_mode: Final = simulation_mode
         self.max_cachefile_age: Final = max_cachefile_age
         self.metric_backend_fetcher_factory: Final = metric_backend_fetcher_factory
+        self.logger: Final = logger
 
     def __call__(
         self, host_name: HostName, *, ip_address: HostAddress | None
@@ -466,7 +472,7 @@ class CMKFetcher(FetcherFunction):
             site_crt=Path(cmk.utils.paths.site_cert_file),
         )
         secrets_config = self.secrets_config_relay if relay_id else self.secrets_config_site
-        console.verbose(f"{tty.yellow}+{tty.normal} FETCHING DATA")
+        self.logger.debug("Fetching data")
         return [
             fetched
             for current_host_name, current_ip_family, current_ip_stack_config, current_ip_address in hosts
@@ -527,6 +533,7 @@ class CMKFetcher(FetcherFunction):
                 mode=self.mode,
                 secrets=secrets_config,
                 simulation=self.simulation_mode,
+                logger=self.logger,
             )
         ]
 
