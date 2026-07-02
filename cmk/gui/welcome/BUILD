@@ -19,7 +19,6 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/utils:urls",
         "//cmk/gui/wato",
-        "//cmk/utils",
         "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:version",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",

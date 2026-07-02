@@ -59,13 +59,10 @@ py_library(
     ],
     deps = [
         ":graphing",
-        "//cmk/gui:config",
-        "//cmk/gui:core_toolkit",
         "//cmk/gui/openapi/framework",
         "//cmk/gui/openapi/framework:core",
         "//cmk/gui/openapi/framework:types",
         "//cmk/gui/openapi/restful_objects",
-        "//cmk/gui/openapi/restful_objects:type_defs",
         "//packages/cmk-graphing-engine",
         "//packages/cmk-livestatus-client:py_livestatus",
     ],

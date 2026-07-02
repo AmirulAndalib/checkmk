@@ -64,7 +64,6 @@ py_library(
         "//cmk/gui/visuals",
         "//cmk/gui/watolib",
         "//cmk/gui/watolib:groups_io",
-        "//cmk/utils",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:site",
         "//packages/cmk-ccc:user",

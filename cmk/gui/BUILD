@@ -94,7 +94,6 @@ py_library(
         "//cmk/gui/utils:transaction_manager",
         "//cmk/gui/utils:urls",
         "//cmk/gui/utils:user_errors",
-        "//cmk/utils",
         "//cmk/utils:paths",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-crash:crash",
@@ -117,7 +116,6 @@ py_library(
     deps = [
         ":core_toolkit",
         "//cmk/gui/utils:images",
-        "//cmk/utils",
         requirement("reportlab"),
     ],
 )
@@ -334,7 +332,6 @@ py_library(
     ],
     deps = [
         ":auth_core",
-        ":config",
         ":core_toolkit",
         ":html_toolkit",
         ":page_toolkit",

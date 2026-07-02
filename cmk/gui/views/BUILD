@@ -172,7 +172,6 @@ py_library(
         "//cmk/gui:auth_core",
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
-        "//cmk/gui:html_toolkit",
         "//cmk/gui:page_toolkit",
         "//cmk/gui:painter_options",
         "//cmk/gui/graphing",
@@ -183,9 +182,7 @@ py_library(
         "//cmk/gui/utils:temperate_unit",
         "//cmk/gui/utils:urls",
         "//cmk/gui/valuespec",
-        "//cmk/utils",
         "//packages/cmk-ccc:user",
-        "//packages/cmk-ccc:version",
     ],
 )
 
@@ -354,6 +351,5 @@ py_library(
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:site",
-        "//packages/cmk-ccc:version",
     ],
 )
