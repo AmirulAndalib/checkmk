@@ -35,7 +35,8 @@ fi
 # no venv activation, no PATH manipulation. The edition flag is passed to every
 # bazel command that builds something (`bazel coverage` and `bazel run`) so they
 # all share one build configuration and don't thrash the analysis cache. It is
-# omitted where it has no effect: `bazel query` stops after the loading phase.
+# omitted where it has no effect: `bazel query` stops after the loading phase
+# and the --announce_rc probe analyzes nothing.
 EDITION_FLAG="--cmk_edition=ultimate"
 PKG="//tests/qa_metrics/unit_test_coverage"
 
@@ -171,6 +172,24 @@ if [[ "$RUN" == true ]]; then
         except (//tests/... except (//tests/openapi/... + //tests/agent-plugin-unit/... + //tests/unit/...))
     ' >"$PY_TEST_TARGETS"
 
+    # Cap the local resource pool so build and test actions together leave
+    # cores idle for the subprocesses some tests spawn, which Bazel does not
+    # account for (only the pool achieves that: a test-job cap alone would let
+    # Bazel fill the freed cores with build actions). Cap only where no rc file
+    # configures the resource already (e.g. CI build nodes align these limits
+    # with the pod size via /etc/ci.bazelrc) -- flags passed on the command
+    # line would override those rc settings. --announce_rc on a target-less
+    # probe run reveals every rc-provided option (printed to stderr; the probe
+    # exits non-zero because it has no targets, hence the redirect and
+    # `|| true`).
+    rc_options=$(bazel coverage --announce_rc 2>&1 || true)
+    RESOURCE_FLAGS=()
+    grep -q -- "--local_resources=cpu=" <<<"$rc_options" ||
+        RESOURCE_FLAGS+=("--local_resources=cpu=HOST_CPUS*.67")
+    grep -q -- "--local_resources=memory=" <<<"$rc_options" ||
+        RESOURCE_FLAGS+=("--local_resources=memory=HOST_RAM*.67")
+    echo "Resource flags: ${RESOURCE_FLAGS[*]:-(none, all configured via rc files)}"
+
     # --skip_incompatible_explicit_targets: the query is configuration-less, so
     # it also lists edition-gated tests (e.g. //cmk:requirements-test-community)
     # that are platform-incompatible under the edition set above. Without the
@@ -178,6 +197,7 @@ if [[ "$RUN" == true ]]; then
     # targets were analyzed") even when every executed test passes.
     bazel coverage --target_pattern_file="$PY_TEST_TARGETS" \
         "$EDITION_FLAG" \
+        "${RESOURCE_FLAGS[@]}" \
         --skip_incompatible_explicit_targets \
         --test_tag_filters=-cpp,-requires-git \
         --keep_going \
