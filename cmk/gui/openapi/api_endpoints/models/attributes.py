@@ -297,25 +297,25 @@ class SNMPCredentialsConverter:
 
 @api_model
 class IPAddressRangeModel:
-    type: Literal["ip_range"] = api_field(description="Select a range of IP addresses")
+    type: Literal["address_range"] = api_field(description="Select a range of IP addresses")
     from_address: IPv4String = api_field(description="The first IPv4 address of this range.")
     to_address: IPv4String = api_field(description="The last IPv4 address of this range.")
 
     @classmethod
     def from_internal(cls, value: tuple[Literal["ip_range"], tuple[str, str]]) -> Self:
         return cls(
-            type=value[0],
+            type="address_range",
             from_address=IPv4String(value[1][0]),
             to_address=IPv4String(value[1][1]),
         )
 
     def to_internal(self) -> tuple[Literal["ip_range"], tuple[str, str]]:
-        return self.type, (str(self.from_address), str(self.to_address))
+        return "ip_range", (str(self.from_address), str(self.to_address))
 
 
 @api_model
 class IPNetworkModel:
-    type: Literal["ip_network"] = api_field(description="Select an entire network")
+    type: Literal["network_range"] = api_field(description="Select an entire network")
     network: IPv4Network = api_field(
         description="A IPv4 network in CIDR notation. Minimum prefix length is 8 bit, maximum prefix length is 30 bit.\n\nValid examples:\n\n * `192.168.0.0/24`\n * `192.168.0.0/255.255.255.0`"
     )
@@ -324,33 +324,35 @@ class IPNetworkModel:
     def from_internal(cls, value: tuple[Literal["ip_network"], tuple[str, int]]) -> Self:
         network, mask = value[1]
         return cls(
-            type=value[0],
+            type="network_range",
             network=IPv4Network(f"{network}/{mask}"),
         )
 
     def to_internal(self) -> tuple[Literal["ip_network"], tuple[str, int]]:
-        return self.type, (str(self.network.network_address), self.network.prefixlen)
+        return "ip_network", (str(self.network.network_address), self.network.prefixlen)
 
 
 @api_model
 class IPAddressesModel:
-    type: Literal["ip_list"] = api_field(description="Select multiple explicit IP addresses")
+    type: Literal["explicit_addresses"] = api_field(
+        description="Select multiple explicit IP addresses"
+    )
     addresses: list[IPv4String] = api_field(description="List of IPv4 addresses")
 
     @classmethod
     def from_internal(cls, value: tuple[Literal["ip_list"], Sequence[HostAddress]]) -> Self:
         return cls(
-            type=value[0],
+            type="explicit_addresses",
             addresses=[IPv4String(x) for x in value[1]],
         )
 
     def to_internal(self) -> tuple[Literal["ip_list"], Sequence[HostAddress]]:
-        return self.type, [HostAddress(x) for x in self.addresses]
+        return "ip_list", [HostAddress(x) for x in self.addresses]
 
 
 @api_model
 class IPRegexpModel:
-    type: Literal["ip_regex_list"] = api_field(description="Deselect IP addresses with regexes")
+    type: Literal["exclude_by_regexp"] = api_field(description="Deselect IP addresses with regexes")
     regexp_list: list[RegexString] = api_field(
         description="A list of regular expressions which are matched against the found IP addresses. The matches will be excluded from the result."
     )
@@ -358,12 +360,12 @@ class IPRegexpModel:
     @classmethod
     def from_internal(cls, value: tuple[Literal["ip_regex_list"], Sequence[str]]) -> Self:
         return cls(
-            type=value[0],
+            type="exclude_by_regexp",
             regexp_list=[RegexString(x) for x in value[1]],
         )
 
     def to_internal(self) -> tuple[Literal["ip_regex_list"], Sequence[str]]:
-        return self.type, [str(x) for x in self.regexp_list]
+        return "ip_regex_list", [str(x) for x in self.regexp_list]
 
 
 IPRangeModel = IPAddressRangeModel | IPNetworkModel | IPAddressesModel
@@ -540,24 +542,24 @@ class TranslateNamesModel:
         return cls(
             case=TranslateNamesModel.case_from_internal(value.get("case")),
             drop_domain=value["drop_domain"] if "drop_domain" in value else ApiOmitted(),
-            regex=[RegexpRewritesModel.from_internal(entry) for entry in value["regex"]],
-            mapping=[DirectMappingModel.from_internal(entry) for entry in value["mapping"]],
+            regex=[RegexpRewritesModel.from_internal(entry) for entry in value["regex"]]
+            if "regex" in value
+            else ApiOmitted(),
+            mapping=[DirectMappingModel.from_internal(entry) for entry in value["mapping"]]
+            if "mapping" in value
+            else ApiOmitted(),
         )
 
     def to_internal(self) -> TranslationOptions:
-        if not isinstance(self.regex, ApiOmitted):
-            regex = [entry.to_internal() for entry in self.regex]
-        else:
-            regex = []
-        if not isinstance(self.mapping, ApiOmitted):
-            mapping = [entry.to_internal() for entry in self.mapping]
-        else:
-            mapping = []
-        spec = TranslationOptions(
-            case=TranslateNamesModel.case_to_internal(self.case),
-            regex=regex,
-            mapping=mapping,
-        )
+        spec = TranslationOptions(case=TranslateNamesModel.case_to_internal(self.case))
+        if not isinstance(self.regex, ApiOmitted) and (
+            regex := [entry.to_internal() for entry in self.regex]
+        ):
+            spec["regex"] = regex
+        if not isinstance(self.mapping, ApiOmitted) and (
+            mapping := [entry.to_internal() for entry in self.mapping]
+        ):
+            spec["mapping"] = mapping
         if not isinstance(self.drop_domain, ApiOmitted):
             spec["drop_domain"] = self.drop_domain
 
@@ -661,8 +663,9 @@ class NetworkScanModel:
         )
         if not isinstance(self.tag_criticality, ApiOmitted):
             spec["tag_criticality"] = self.tag_criticality
-        if not isinstance(self.max_parallel_pings, ApiOmitted):
-            spec["max_parallel_pings"] = self.max_parallel_pings
+        spec["max_parallel_pings"] = (
+            100 if isinstance(self.max_parallel_pings, ApiOmitted) else self.max_parallel_pings
+        )
         if not isinstance(self.translate_names, ApiOmitted):
             spec["translate_names"] = self.translate_names.to_internal()
 
@@ -690,12 +693,17 @@ class IPMIParametersModel:  # TODO: this is dumb (or at least the IPMICredential
         return spec
 
 
+# Render UTC timestamps as "...+00:00" (via isoformat) rather than pydantic's default "...Z",
+# matching the previous implementation's output.
+_IsoDateTime = Annotated[dt.datetime, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
+
+
 @api_model
 class NetworkScanResultModel:
-    start: dt.datetime | None = api_field(
+    start: _IsoDateTime | None = api_field(
         description="When the scan started",
     )
-    end: dt.datetime | None | ApiOmitted = api_field(
+    end: _IsoDateTime | None | ApiOmitted = api_field(
         description="When the scan finished. Will be Null if not yet run.",
         default_factory=ApiOmitted,
     )
@@ -714,20 +722,17 @@ class NetworkScanResultModel:
         if (end_time_internal := value.get("end")) is True:
             end_time = ApiOmitted()
         elif end_time_internal is not None:
-            end_time = dt.datetime.fromtimestamp(end_time_internal)
+            end_time = dt.datetime.fromtimestamp(end_time_internal, tz=dt.UTC)
         else:
             end_time = None
         return cls(
-            start=dt.datetime.fromtimestamp(start) if (start := value.get("start")) else None,
+            start=dt.datetime.fromtimestamp(start, tz=dt.UTC)
+            if (start := value.get("start"))
+            else None,
             end=end_time,
             state=NetworkScanResultModel.state_from_internal(value.get("state")),
             output=value.get("output", ""),
         )
-
-
-# Render UTC timestamps as "...+00:00" (via isoformat) rather than pydantic's default "...Z",
-# matching the previous implementation's output.
-_IsoDateTime = Annotated[dt.datetime, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
 
 
 @api_model
