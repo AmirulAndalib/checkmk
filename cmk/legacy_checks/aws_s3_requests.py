@@ -3,26 +3,38 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
 
+from collections.abc import Mapping
+from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import IgnoreResultsError, render
-from cmk.legacy_includes.aws import (
+from cmk.agent_based.v1 import check_levels as check_levels_v1
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    IgnoreResultsError,
+    Metric,
+    render,
+    Result,
+    State,
+    StringTable,
+)
+from cmk.plugins.aws.lib import (
     aws_get_bytes_rate_human_readable,
     aws_get_counts_rate_human_readable,
+    AWSMetric,
+    AWSSectionMetrics,
     check_aws_http_errors,
     check_aws_metrics,
+    discover_aws_generic,
+    extract_aws_metrics_by_labels,
     get_data_or_go_stale,
-    inventory_aws_generic,
-    MetricInfo,
+    parse_aws,
 )
-from cmk.plugins.aws.lib import extract_aws_metrics_by_labels, parse_aws
-
-check_info = {}
 
 
-def parse_aws_s3(string_table):
+def parse_aws_s3_requests(string_table: StringTable) -> AWSSectionMetrics:
     return extract_aws_metrics_by_labels(
         [
             "AllRequests",
@@ -46,22 +58,26 @@ def parse_aws_s3(string_table):
     )
 
 
-#   .--requests------------------------------------------------------------.
-#   |                                              _                       |
-#   |               _ __ ___  __ _ _   _  ___  ___| |_ ___                 |
-#   |              | '__/ _ \/ _` | | | |/ _ \/ __| __/ __|                |
-#   |              | | |  __/ (_| | |_| |  __/\__ \ |_\__ \                |
-#   |              |_|  \___|\__, |\__,_|\___||___/\__|___/                |
-#   |                           |_|                                        |
-#   '----------------------------------------------------------------------'
+agent_section_aws_s3_requests = AgentSection(
+    name="aws_s3_requests",
+    parse_function=parse_aws_s3_requests,
+)
 
 
-def check_aws_s3_requests(item, params, section):
+def discover_aws_s3_requests(section: AWSSectionMetrics) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["AllRequests"])
+
+
+def check_aws_s3_requests(
+    item: str, params: Mapping[str, Any], section: AWSSectionMetrics
+) -> CheckResult:
     metrics = get_data_or_go_stale(item, section)
     all_requests_rate = metrics.get("AllRequests")
     if all_requests_rate is None:
         raise IgnoreResultsError("Currently no data from AWS")
-    yield 0, "Total: %s" % aws_get_counts_rate_human_readable(all_requests_rate)
+    yield Result(
+        state=State.OK, summary=f"Total: {aws_get_counts_rate_human_readable(all_requests_rate)}"
+    )
 
     for key, perf_key, title in [
         ("GetRequests", "get_requests", "Get"),
@@ -74,53 +90,45 @@ def check_aws_s3_requests(item, params, section):
     ]:
         requests_rate = metrics.get(key, 0)
 
-        yield (
-            0,
-            f"{title}: {aws_get_counts_rate_human_readable(requests_rate)}",
-            [(perf_key, requests_rate)],
+        yield Result(
+            state=State.OK,
+            summary=f"{title}: {aws_get_counts_rate_human_readable(requests_rate)}",
         )
+        yield Metric(perf_key, requests_rate)
 
         try:
             requests_perc = 100.0 * requests_rate / all_requests_rate
         except ZeroDivisionError:
             requests_perc = 0
 
-        yield check_levels(
+        yield from check_levels_v1(
             requests_perc,
-            "%s_perc" % perf_key,
-            params.get("%s_perc" % perf_key),
-            human_readable_func=render.percent,
-            infoname="%s of total requests" % title,
+            metric_name=f"{perf_key}_perc",
+            levels_upper=params.get(f"{perf_key}_perc"),
+            render_func=render.percent,
+            label=f"{title} of total requests",
         )
 
 
-def discover_aws_s3_requests(p):
-    return inventory_aws_generic(p, ["AllRequests"])
-
-
-check_info["aws_s3_requests"] = LegacyCheckDefinition(
+check_plugin_aws_s3_requests = CheckPlugin(
     name="aws_s3_requests",
-    parse_function=parse_aws_s3,
     service_name="AWS/S3 Requests %s",
     discovery_function=discover_aws_s3_requests,
     check_function=check_aws_s3_requests,
     check_ruleset_name="aws_s3_requests",
+    check_default_parameters={},
 )
 
-# .
-#   .--HTTP errors---------------------------------------------------------.
-#   |       _   _ _____ _____ ____                                         |
-#   |      | | | |_   _|_   _|  _ \    ___ _ __ _ __ ___  _ __ ___         |
-#   |      | |_| | | |   | | | |_) |  / _ \ '__| '__/ _ \| '__/ __|        |
-#   |      |  _  | | |   | | |  __/  |  __/ |  | | | (_) | |  \__ \        |
-#   |      |_| |_| |_|   |_| |_|      \___|_|  |_|  \___/|_|  |___/        |
-#   |                                                                      |
-#   '----------------------------------------------------------------------'
+
+def discover_aws_s3_requests_http_errors(section: AWSSectionMetrics) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["AllRequests", "4xxErrors", "5xxErrors"])
 
 
-def check_aws_s3_http_errors(item, params, section):
+def check_aws_s3_http_errors(
+    item: str, params: Mapping[str, Any], section: AWSSectionMetrics
+) -> CheckResult:
     metrics = get_data_or_go_stale(item, section)
-    return check_aws_http_errors(
+    yield from check_aws_http_errors(
         params.get("levels_load_balancers", params),
         metrics,
         ["4xx", "5xx"],
@@ -129,108 +137,91 @@ def check_aws_s3_http_errors(item, params, section):
     )
 
 
-def discover_aws_s3_requests_http_errors(p):
-    return inventory_aws_generic(p, ["AllRequests", "4xxErrors", "5xxErrors"])
-
-
-check_info["aws_s3_requests.http_errors"] = LegacyCheckDefinition(
+check_plugin_aws_s3_requests_http_errors = CheckPlugin(
     name="aws_s3_requests_http_errors",
     service_name="AWS/S3 HTTP Errors %s",
     sections=["aws_s3_requests"],
     discovery_function=discover_aws_s3_requests_http_errors,
     check_function=check_aws_s3_http_errors,
     check_ruleset_name="aws_s3_http_errors",
+    check_default_parameters={},
 )
 
-# .
-#   .--latency-------------------------------------------------------------.
-#   |                  _       _                                           |
-#   |                 | | __ _| |_ ___ _ __   ___ _   _                    |
-#   |                 | |/ _` | __/ _ \ '_ \ / __| | | |                   |
-#   |                 | | (_| | ||  __/ | | | (__| |_| |                   |
-#   |                 |_|\__,_|\__\___|_| |_|\___|\__, |                   |
-#   |                                             |___/                    |
-#   '----------------------------------------------------------------------'
+
+def discover_aws_s3_requests_latency(section: AWSSectionMetrics) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["TotalRequestLatency"])
 
 
-def check_aws_s3_latency(item, params, section):
+def check_aws_s3_latency(
+    item: str, params: Mapping[str, Any], section: AWSSectionMetrics
+) -> CheckResult:
     metrics = get_data_or_go_stale(item, section)
-    metric_infos = []
+    metrics_to_check = []
     for key, title, perf_key in [
         ("TotalRequestLatency", "Total request latency", "aws_request_latency"),
         ("FirstByteLatency", "First byte latency", None),
     ]:
         metric_val = metrics.get(key)
-        if metric_val:
-            metric_val *= 1e-3
+        if metric_val is None:
+            continue
+        metric_val *= 1e-3
 
+        levels: tuple[float, float] | None
         if perf_key is None:
             levels = None
         else:
             levels = params.get("levels_seconds")
             if levels is not None:
-                levels = tuple(level * 1e-3 for level in levels)
+                levels = (levels[0] * 1e-3, levels[1] * 1e-3)
 
-        metric_infos.append(
-            MetricInfo(
-                metric_val=metric_val,
-                metric_name=perf_key,
-                levels=levels,
-                info_name=title,
-                human_readable_func=render.time_offset,
+        metrics_to_check.append(
+            AWSMetric(
+                value=metric_val,
+                name=perf_key,
+                levels_upper=levels,
+                label=title,
+                render_func=render.time_offset,
             )
         )
 
-    return check_aws_metrics(metric_infos)
+    yield from check_aws_metrics(metrics_to_check)
 
 
-def discover_aws_s3_requests_latency(p):
-    return inventory_aws_generic(p, ["TotalRequestLatency"])
-
-
-check_info["aws_s3_requests.latency"] = LegacyCheckDefinition(
+check_plugin_aws_s3_requests_latency = CheckPlugin(
     name="aws_s3_requests_latency",
     service_name="AWS/S3 Latency %s",
     sections=["aws_s3_requests"],
     discovery_function=discover_aws_s3_requests_latency,
     check_function=check_aws_s3_latency,
     check_ruleset_name="aws_s3_latency",
+    check_default_parameters={},
 )
 
-# .
-#   .--traffic stats-------------------------------------------------------.
-#   |         _              __  __ _            _        _                |
-#   |        | |_ _ __ __ _ / _|/ _(_) ___   ___| |_ __ _| |_ ___          |
-#   |        | __| '__/ _` | |_| |_| |/ __| / __| __/ _` | __/ __|         |
-#   |        | |_| | | (_| |  _|  _| | (__  \__ \ || (_| | |_\__ \         |
-#   |         \__|_|  \__,_|_| |_| |_|\___| |___/\__\__,_|\__|___/         |
-#   |                                                                      |
-#   '----------------------------------------------------------------------'
+
+def discover_aws_s3_requests_traffic_stats(section: AWSSectionMetrics) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["BytesDownloaded", "BytesUploaded"])
 
 
-def check_aws_s3_traffic_stats(item, params, section):
+def check_aws_s3_traffic_stats(item: str, section: AWSSectionMetrics) -> CheckResult:
     metrics = get_data_or_go_stale(item, section)
-    return check_aws_metrics(
+    yield from check_aws_metrics(
         [
-            MetricInfo(
-                metric_val=metrics.get(key),
-                metric_name=perf_key,
-                info_name=title,
-                human_readable_func=aws_get_bytes_rate_human_readable,
+            AWSMetric(
+                value=value,
+                name=perf_key,
+                label=title,
+                render_func=aws_get_bytes_rate_human_readable,
             )
             for key, title, perf_key in [
                 ("BytesDownloaded", "Downloads", "aws_s3_downloads"),
                 ("BytesUploaded", "Uploads", "aws_s3_uploads"),
             ]
+            if (value := metrics.get(key)) is not None
         ]
     )
 
 
-def discover_aws_s3_requests_traffic_stats(p):
-    return inventory_aws_generic(p, ["BytesDownloaded", "BytesUploaded"])
-
-
-check_info["aws_s3_requests.traffic_stats"] = LegacyCheckDefinition(
+check_plugin_aws_s3_requests_traffic_stats = CheckPlugin(
     name="aws_s3_requests_traffic_stats",
     service_name="AWS/S3 Traffic Stats %s",
     sections=["aws_s3_requests"],
@@ -238,40 +229,31 @@ check_info["aws_s3_requests.traffic_stats"] = LegacyCheckDefinition(
     check_function=check_aws_s3_traffic_stats,
 )
 
-# .
-#   .--select objects------------------------------------------------------.
-#   |              _           _           _     _           _             |
-#   |     ___  ___| | ___  ___| |_    ___ | |__ (_) ___  ___| |_ ___       |
-#   |    / __|/ _ \ |/ _ \/ __| __|  / _ \| '_ \| |/ _ \/ __| __/ __|      |
-#   |    \__ \  __/ |  __/ (__| |_  | (_) | |_) | |  __/ (__| |_\__ \      |
-#   |    |___/\___|_|\___|\___|\__|  \___/|_.__// |\___|\___|\__|___/      |
-#   |                                         |__/                         |
-#   '----------------------------------------------------------------------'
+
+def discover_aws_s3_requests_select_object(section: AWSSectionMetrics) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["SelectBytesScanned", "SelectBytesReturned"])
 
 
-def check_aws_s3_select_object(item, params, section):
+def check_aws_s3_select_object(item: str, section: AWSSectionMetrics) -> CheckResult:
     metrics = get_data_or_go_stale(item, section)
-    return check_aws_metrics(
+    yield from check_aws_metrics(
         [
-            MetricInfo(
-                metric_val=metrics.get(key),
-                metric_name=perf_key,
-                info_name=title,
-                human_readable_func=aws_get_bytes_rate_human_readable,
+            AWSMetric(
+                value=value,
+                name=perf_key,
+                label=title,
+                render_func=aws_get_bytes_rate_human_readable,
             )
             for key, title, perf_key in [
                 ("SelectBytesScanned", "Scanned", "aws_s3_select_object_scanned"),
                 ("SelectBytesReturned", "Returned", "aws_s3_select_object_returned"),
             ]
+            if (value := metrics.get(key)) is not None
         ]
     )
 
 
-def discover_aws_s3_requests_select_object(p):
-    return inventory_aws_generic(p, ["SelectBytesScanned", "SelectBytesReturned"])
-
-
-check_info["aws_s3_requests.select_object"] = LegacyCheckDefinition(
+check_plugin_aws_s3_requests_select_object = CheckPlugin(
     name="aws_s3_requests_select_object",
     service_name="AWS/S3 SELECT Object %s",
     sections=["aws_s3_requests"],

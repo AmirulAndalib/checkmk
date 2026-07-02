@@ -387,6 +387,78 @@ def aws_get_counts_rate_human_readable(rate: float) -> str:
     return aws_get_float_human_readable(rate) + "/s"
 
 
+def aws_get_bytes_rate_human_readable(rate: float) -> str:
+    return render.iobandwidth(rate)
+
+
+def check_aws_request_rate(request_rate: float) -> CheckResult:
+    yield Result(
+        state=State.OK,
+        summary=f"Requests: {aws_get_counts_rate_human_readable(request_rate)}",
+    )
+    yield Metric("requests_per_second", request_rate)
+
+
+def check_aws_error_rate(
+    error_rate: float,
+    request_rate: float,
+    metric_name_rate: str,
+    metric_name_perc: str,
+    levels: tuple[float, float] | None,
+    display_text: str,
+) -> CheckResult:
+    yield Result(
+        state=State.OK,
+        summary=f"{display_text}: {aws_get_counts_rate_human_readable(error_rate)}",
+    )
+    yield Metric(metric_name_rate, error_rate)
+
+    try:
+        errors_perc = 100.0 * error_rate / request_rate
+    except ZeroDivisionError:
+        errors_perc = 0
+
+    yield from check_levels_v1(
+        errors_perc,
+        metric_name=metric_name_perc,
+        levels_upper=levels,
+        render_func=render.percent,
+        label=f"{display_text} of total requests",
+    )
+
+
+def check_aws_http_errors(
+    params: Mapping[str, tuple[float, float]],
+    parsed: Mapping[str, float],
+    http_err_codes: Iterable[str],
+    cloudwatch_metrics_format: str,
+    key_all_requests: str = "RequestCount",
+) -> CheckResult:
+    request_rate = parsed.get(key_all_requests)
+    if request_rate is None:
+        raise IgnoreResultsError("Currently no data from AWS")
+
+    yield from check_aws_request_rate(request_rate)
+
+    for http_err_code in http_err_codes:
+        # CloudWatch only reports HTTPCode_... if the value is nonzero
+        yield from check_aws_error_rate(
+            parsed.get(cloudwatch_metrics_format % http_err_code.upper(), 0),
+            request_rate,
+            f"aws_http_{http_err_code}_rate",
+            f"aws_http_{http_err_code}_perc",
+            params.get(f"levels_http_{http_err_code}_perc"),
+            f"{http_err_code.upper()}-Errors",
+        )
+
+
+def get_data_or_go_stale[Data](item: str, section: Mapping[str, Data]) -> Data:
+    try:
+        return section[item]
+    except KeyError:
+        raise IgnoreResultsError("Currently no data from AWS")
+
+
 def aws_rds_service_item(instance_id: str, region: str) -> str:
     return f"{instance_id} [{region}]"
 
