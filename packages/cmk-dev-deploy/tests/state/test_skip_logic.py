@@ -190,13 +190,8 @@ class TestStepToDeployerMapping:
 class TestPartialFailureStateSave:
     """Tests for build_and_save_state with partial failure recovery."""
 
-    def _setup_state_dir(self, tmp_path: Path) -> None:
-        """Create the state directory on disk."""
-        (tmp_path / "tmp" / "cmk-dev-deploy").mkdir(parents=True, exist_ok=True)
-
     def test_save_only_successful_deployers(self, tmp_path: Path) -> None:
         """Only install_spec succeeded; config_spec carries forward from previous state."""
-        self._setup_state_dir(tmp_path)
         site = _make_site(tmp_path)
         previous = _make_state()  # all 3 deployers with commit "a" * 40
 
@@ -216,9 +211,10 @@ class TestPartialFailureStateSave:
                 branch="main",
                 successful_deployers={"install_spec"},
                 previous_state=previous,
+                base_dir=tmp_path,
             )
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         # install_spec got new commit
         assert loaded.deployers["install_spec"].git_commit == "c" * 40
@@ -229,7 +225,6 @@ class TestPartialFailureStateSave:
 
     def test_save_carries_forward_failed_deployers(self, tmp_path: Path) -> None:
         """config_spec not in successful set -> carries forward 'old' commit."""
-        self._setup_state_dir(tmp_path)
         site = _make_site(tmp_path)
         # Give config_spec a distinct "old" commit
         deployers = {
@@ -257,9 +252,10 @@ class TestPartialFailureStateSave:
                 branch="main",
                 successful_deployers={"install_spec"},
                 previous_state=previous,
+                base_dir=tmp_path,
             )
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         # config_spec was NOT successful -> carried forward
         assert loaded.deployers["config_spec"].git_commit == "old" + "0" * 37
@@ -268,7 +264,6 @@ class TestPartialFailureStateSave:
 
     def test_save_all_successful(self, tmp_path: Path) -> None:
         """All 2 pipeline deployers successful -> all get new commit/timestamp."""
-        self._setup_state_dir(tmp_path)
         site = _make_site(tmp_path)
         previous = _make_state()
 
@@ -289,16 +284,16 @@ class TestPartialFailureStateSave:
                 branch="main",
                 successful_deployers=pipeline_deployers,
                 previous_state=previous,
+                base_dir=tmp_path,
             )
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         for name in pipeline_deployers:
             assert loaded.deployers[name].git_commit == "e" * 40, f"{name} should have new commit"
 
     def test_save_no_previous_state(self, tmp_path: Path) -> None:
         """previous_state=None -> only install_spec appears in saved state."""
-        self._setup_state_dir(tmp_path)
         site = _make_site(tmp_path)
 
         with (
@@ -317,9 +312,10 @@ class TestPartialFailureStateSave:
                 branch="main",
                 successful_deployers={"install_spec"},
                 previous_state=None,
+                base_dir=tmp_path,
             )
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert "install_spec" in loaded.deployers
         assert loaded.deployers["install_spec"].git_commit == "f" * 40
@@ -329,7 +325,6 @@ class TestPartialFailureStateSave:
 
     def test_save_uses_per_deployer_dirty_hashes(self, tmp_path: Path) -> None:
         """When deployer_dirty_hashes is provided, each deployer gets its own hashes."""
-        self._setup_state_dir(tmp_path)
         site = _make_site(tmp_path)
         previous = _make_state()
 
@@ -358,9 +353,10 @@ class TestPartialFailureStateSave:
                 successful_deployers={"config_spec", "install_spec"},
                 previous_state=previous,
                 deployer_dirty_hashes=deployer_dirty,
+                base_dir=tmp_path,
             )
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         # Each deployer should have its own filtered dirty hashes
         assert loaded.deployers["config_spec"].dirty_file_hashes == cfg_dirty

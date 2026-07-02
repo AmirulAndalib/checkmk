@@ -49,14 +49,18 @@ class DeployState:
     though the diff base advances past these files."""
 
 
-def state_file_path(site_root: Path) -> Path:
+# /var/tmp survives reboots (unlike /tmp, which may be tmpfs).
+_DEFAULT_STATE_BASE = Path("/var") / "tmp" / "cmk-dev-deploy"
+
+
+def state_file_path(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> Path:
     """Return the canonical state file path for a site."""
-    return Path("/var/tmp/cmk-dev-deploy") / site_root.name / STATE_FILE_NAME  # nosec B108 # BNS:59d87e
+    return base_dir / site_root.name / STATE_FILE_NAME
 
 
-def load_state(site_root: Path) -> DeployState | None:
+def load_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> DeployState | None:
     """Load and validate state from disk, or return None."""
-    path = state_file_path(site_root)
+    path = state_file_path(site_root, base_dir)
     if not path.is_file():
         return None
     try:
@@ -86,9 +90,9 @@ def load_state(site_root: Path) -> DeployState | None:
         return None
 
 
-def save_state(state: DeployState, site_root: Path) -> None:
+def save_state(state: DeployState, site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> None:
     """Atomically write state to disk (temp file + rename)."""
-    path = state_file_path(site_root)
+    path = state_file_path(site_root, base_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
     # Serialize manually (not using dataclasses.asdict to keep control)
     data = {
@@ -124,9 +128,9 @@ def save_state(state: DeployState, site_root: Path) -> None:
         raise
 
 
-def delete_state(site_root: Path) -> None:
+def delete_state(site_root: Path, base_dir: Path = _DEFAULT_STATE_BASE) -> None:
     """Delete the state file, silently ignoring missing files."""
-    path = state_file_path(site_root)
+    path = state_file_path(site_root, base_dir)
     try:
         path.unlink(missing_ok=True)
     except OSError:
@@ -250,6 +254,7 @@ def build_and_save_state(
     all_succeeded: bool = True,
     backend: str = "",
     uncovered_files: dict[str, str] | None = None,
+    base_dir: Path = _DEFAULT_STATE_BASE,
 ) -> None:
     """Assemble and persist deploy state with partial-failure support.
 
@@ -318,7 +323,7 @@ def build_and_save_state(
         # else: no entry (first deploy, deployer didn't run)
 
     try:
-        save_state(new_state, site_root)
+        save_state(new_state, site_root, base_dir)
     except OSError:
         import sys
 

@@ -111,7 +111,7 @@ class TestLoadState:
 
     def test_load_state_missing_file(self, tmp_path: Path) -> None:
         """Returns None when the state file does not exist."""
-        result = load_state(tmp_path)
+        result = load_state(tmp_path, base_dir=tmp_path)
         assert result is None
 
     def test_load_state_valid_round_trip(self, tmp_path: Path) -> None:
@@ -129,9 +129,9 @@ class TestLoadState:
             created_at=now,
             diff_base_commit="c" * 40,
         )
-        save_state(state, tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
 
-        loaded = load_state(tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.schema_version == STATE_SCHEMA_VERSION
         assert loaded.branch == "feature/x"
@@ -148,8 +148,8 @@ class TestLoadState:
         """The site preparation backend is persisted and restored."""
         state = _make_state(branch="master")
         state.backend = "clone"
-        save_state(state, tmp_path)
-        loaded = load_state(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.backend == "clone"
 
@@ -157,14 +157,14 @@ class TestLoadState:
         """Recorded uncovered files are persisted and restored."""
         state = _make_state(branch="master")
         state.uncovered_files = {"some/file.py": "abc123"}
-        save_state(state, tmp_path)
-        loaded = load_state(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.uncovered_files == {"some/file.py": "abc123"}
 
     def test_load_state_missing_backend_defaults_empty(self, tmp_path: Path) -> None:
         """State files written before the backend field default to empty string."""
-        sf = state_file_path(tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         sf.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "schema_version": STATE_SCHEMA_VERSION,
@@ -174,16 +174,13 @@ class TestLoadState:
             "diff_base_commit": "",
         }
         sf.write_text(json.dumps(data))
-        try:
-            loaded = load_state(tmp_path)
-            assert loaded is not None
-            assert loaded.backend == ""
-        finally:
-            sf.unlink(missing_ok=True)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
+        assert loaded is not None
+        assert loaded.backend == ""
 
     def test_load_state_missing_diff_base_commit(self, tmp_path: Path) -> None:
         """State files without diff_base_commit (v2 compat) default to empty string."""
-        sf = state_file_path(tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         sf.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "schema_version": STATE_SCHEMA_VERSION,
@@ -193,24 +190,21 @@ class TestLoadState:
             # No diff_base_commit key
         }
         sf.write_text(json.dumps(data))
-        try:
-            loaded = load_state(tmp_path)
-            assert loaded is not None
-            assert loaded.diff_base_commit == ""
-        finally:
-            sf.unlink(missing_ok=True)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
+        assert loaded is not None
+        assert loaded.diff_base_commit == ""
 
     def test_load_state_corrupt_json(self, tmp_path: Path) -> None:
         """Returns None when the state file contains invalid JSON."""
-        sf = state_file_path(tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         sf.parent.mkdir(parents=True, exist_ok=True)
         sf.write_text("{this is not valid json!!!")
-        result = load_state(tmp_path)
+        result = load_state(tmp_path, base_dir=tmp_path)
         assert result is None
 
     def test_load_state_wrong_schema_version(self, tmp_path: Path) -> None:
         """Returns None when schema_version does not match current version."""
-        sf = state_file_path(tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         sf.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "schema_version": 999,
@@ -219,12 +213,12 @@ class TestLoadState:
             "created_at": 0.0,
         }
         sf.write_text(json.dumps(data))
-        result = load_state(tmp_path)
+        result = load_state(tmp_path, base_dir=tmp_path)
         assert result is None
 
     def test_load_state_missing_fields(self, tmp_path: Path) -> None:
         """Returns None (not crash) when required fields are missing in deployer data."""
-        sf = state_file_path(tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         sf.parent.mkdir(parents=True, exist_ok=True)
         # Missing "deployer" and "git_commit" in the deployer entry -> KeyError
         data = {
@@ -234,14 +228,14 @@ class TestLoadState:
             "created_at": 0.0,
         }
         sf.write_text(json.dumps(data))
-        result = load_state(tmp_path)
+        result = load_state(tmp_path, base_dir=tmp_path)
         assert result is None
 
     def test_load_state_empty_deployers(self, tmp_path: Path) -> None:
         """Valid state with empty deployers dict loads successfully."""
         state = _make_state(branch="main", deployers={}, created_at=1.0)
-        save_state(state, tmp_path)
-        loaded = load_state(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.deployers == {}
         assert loaded.branch == "main"
@@ -258,16 +252,16 @@ class TestSaveState:
     def test_save_state_creates_directory(self, tmp_path: Path) -> None:
         """Save creates the state directory if it doesn't exist."""
         state = _make_state(branch="test")
-        save_state(state, tmp_path)
-        sf = state_file_path(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         assert sf.parent.is_dir()
         assert sf.is_file()
 
     def test_save_state_atomic_write(self, tmp_path: Path) -> None:
         """Save produces valid JSON with no temp files left behind."""
         state = _make_state(branch="atomic-test")
-        save_state(state, tmp_path)
-        sf = state_file_path(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        sf = state_file_path(tmp_path, base_dir=tmp_path)
         # Verify the file contains valid JSON
         raw = json.loads(sf.read_text())
         assert raw["branch"] == "atomic-test"
@@ -278,10 +272,10 @@ class TestSaveState:
     def test_save_state_overwrites_existing(self, tmp_path: Path) -> None:
         """Second save overwrites first save's data."""
         state1 = _make_state(branch="first")
-        save_state(state1, tmp_path)
+        save_state(state1, tmp_path, base_dir=tmp_path)
         state2 = _make_state(branch="second")
-        save_state(state2, tmp_path)
-        loaded = load_state(tmp_path)
+        save_state(state2, tmp_path, base_dir=tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.branch == "second"
 
@@ -290,8 +284,8 @@ class TestSaveState:
         hashes = {"cmk/gui/views.py": "abc" * 20, "cmk/utils/paths.py": "def" * 20}
         ds = _make_deployer_state(dirty_file_hashes=hashes)
         state = _make_state(deployers={"python": ds})
-        save_state(state, tmp_path)
-        loaded = load_state(tmp_path)
+        save_state(state, tmp_path, base_dir=tmp_path)
+        loaded = load_state(tmp_path, base_dir=tmp_path)
         assert loaded is not None
         assert loaded.deployers["python"].dirty_file_hashes == hashes
 
@@ -307,22 +301,21 @@ class TestDeleteState:
     def test_delete_state_existing_file(self, tmp_path: Path) -> None:
         """Delete removes file, subsequent load returns None."""
         state = _make_state(branch="delete-me")
-        save_state(state, tmp_path)
-        assert state_file_path(tmp_path).is_file()
-        delete_state(tmp_path)
-        assert not state_file_path(tmp_path).is_file()
-        assert load_state(tmp_path) is None
+        save_state(state, tmp_path, base_dir=tmp_path)
+        assert state_file_path(tmp_path, base_dir=tmp_path).is_file()
+        delete_state(tmp_path, base_dir=tmp_path)
+        assert not state_file_path(tmp_path, base_dir=tmp_path).is_file()
+        assert load_state(tmp_path, base_dir=tmp_path) is None
 
     def test_delete_state_missing_file(self, tmp_path: Path) -> None:
         """Delete when file doesn't exist raises no error."""
         # Ensure the directory exists but file does not
-        state_file_path(tmp_path).parent.mkdir(parents=True, exist_ok=True)
-        delete_state(tmp_path)  # Should not raise
+        state_file_path(tmp_path, base_dir=tmp_path).parent.mkdir(parents=True, exist_ok=True)
+        delete_state(tmp_path, base_dir=tmp_path)  # Should not raise
 
     def test_delete_state_missing_directory(self, tmp_path: Path) -> None:
-        """Delete when tmp directory doesn't exist raises no error."""
-        # tmp_path exists but tmp/cmk-dev-deploy does not
-        delete_state(tmp_path)  # Should not raise
+        """Delete when the state directory doesn't exist raises no error."""
+        delete_state(tmp_path, base_dir=tmp_path)  # Should not raise
 
 
 # ---------------------------------------------------------------------------

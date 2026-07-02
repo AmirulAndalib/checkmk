@@ -75,6 +75,9 @@ class TestEnsureOverlayTmpfsHandling:
         site_root.mkdir(parents=True)
 
         with (
+            # Redirect overlay dirs into tmp_path: ensure_overlay creates
+            # upper/work dirs below the base, which must not hit /var/tmp.
+            patch("cmk.dev_deploy.site.overlay._OVERLAY_BASE", tmp_path / "overlay-base"),
             patch("cmk.dev_deploy.site.overlay.is_overlay_active", return_value=False),
             patch("cmk.dev_deploy.site.overlay._ensure_overlay_dirs"),
             patch("cmk.dev_deploy.site.overlay._wipe_stale_overlay", return_value=False),
