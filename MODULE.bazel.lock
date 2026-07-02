@@ -5867,12 +5867,12 @@
             "https://files.pythonhosted.org/packages/fd/14/baad3222f424b19ce6ad243c71de1ad9ec6b2e4eb1e458a48fdc6d120401/matplotlib-3.10.8-cp311-cp311-macosx_11_0_arm64.whl": "a2b336e2d91a3d7006864e0990c83b216fcdca64b5a6484912902cef87313d78"
           },
           "mcp": {
-            "https://files.pythonhosted.org/packages/12/ec/2006c54684cf65d5f6e7405e1e604444c7cb000b47de0df8891294a99f0f/mcp-2.0.0a3.tar.gz": "360e38f4aea326db67bfb3a6028e78319c86c21923e694d30cbc6d127287042f",
-            "https://files.pythonhosted.org/packages/76/d4/a86c7536ada67fdf7935df778e1879d7b654235fd2ebab90b11caef46a9f/mcp-2.0.0a3-py3-none-any.whl": "850716457d0813231feab512052e8e6397524be9b9e284c3c27ec281ad542962"
+            "https://files.pythonhosted.org/packages/ac/bb/9c5c4e428e63d40b5542cfc9c61a0438943ccb260bf9929dc02c47527235/mcp-2.0.0b1-py3-none-any.whl": "7e169929da99487b1998f8f53548bb93ff5157165f2f5a10fb45202c02a91fce",
+            "https://files.pythonhosted.org/packages/d6/78/9f540a2f8f673973c9dee7977d020a0c10b97be3a6417a833bc3af166811/mcp-2.0.0b1.tar.gz": "f0bb4543507117f872613fc76bd7b73cc2a8f6ddd9426f0402f268447f21b260"
           },
           "mcp-types": {
-            "https://files.pythonhosted.org/packages/4f/f0/f0ff36eadd5280051f6f7c92c9136502ab82625d178b46e3bb3b24408f41/mcp_types-2.0.0a3-py3-none-any.whl": "6c93bc23fa3e4bab47ddc9bde1ba50002b2b00d2cd7f54ff775844f0368d1731",
-            "https://files.pythonhosted.org/packages/ad/cf/65e3f4fc763974f20d5bf68cba0977ed014115971a9c1f785f5c68d97708/mcp_types-2.0.0a3.tar.gz": "fcce80d6b9a3092e871c310c5e2de3bdcb07ef5a943d82f74c9c56949a477699"
+            "https://files.pythonhosted.org/packages/2b/88/f3e4322a5bfc382f8851e584f2e2c87354467dc17fb602dd4b13dee65b7c/mcp_types-2.0.0b1.tar.gz": "6a26910a737c4cd4de36c7d5629febe7d33d4556a9d196166b5c7187a6516944",
+            "https://files.pythonhosted.org/packages/3f/05/2da79c73dd07d028163c2b24d4cc6e988da11dff83f7902a07d69a87df80/mcp_types-2.0.0b1-py3-none-any.whl": "c1b22b56b0ba7b1d51c84dc99afdd603ae225c55e9e8f07477774552bf34c8cd"
           },
           "mdit-py-plugins": {
             "https://files.pythonhosted.org/packages/b2/fd/a756d36c0bfba5f6e39a1cdbdbfdd448dc02692467d83816dff4592a1ebc/mdit_py_plugins-0.5.0.tar.gz": "f4918cb50119f50446560513a8e311d574ff6aaed72606ddae6d35716fe809c6",

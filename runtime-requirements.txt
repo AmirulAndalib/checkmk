@@ -1730,15 +1730,15 @@ marshmallow-oneofschema==3.2.0 \
     #   -r cmk/requirements.in
     #   -r non-free/packages/cmk-dcd/requirements.in
     #   apispec-oneofschema
-mcp==2.0.0a3 \
-    --hash=sha256:360e38f4aea326db67bfb3a6028e78319c86c21923e694d30cbc6d127287042f \
-    --hash=sha256:850716457d0813231feab512052e8e6397524be9b9e284c3c27ec281ad542962
+mcp==2.0.0b1 \
+    --hash=sha256:7e169929da99487b1998f8f53548bb93ff5157165f2f5a10fb45202c02a91fce \
+    --hash=sha256:f0bb4543507117f872613fc76bd7b73cc2a8f6ddd9426f0402f268447f21b260
     # via
     #   -c requirements.txt
     #   -r non-free/packages/cmk-mcp/requirements.in
-mcp-types==2.0.0a3 \
-    --hash=sha256:6c93bc23fa3e4bab47ddc9bde1ba50002b2b00d2cd7f54ff775844f0368d1731 \
-    --hash=sha256:fcce80d6b9a3092e871c310c5e2de3bdcb07ef5a943d82f74c9c56949a477699
+mcp-types==2.0.0b1 \
+    --hash=sha256:6a26910a737c4cd4de36c7d5629febe7d33d4556a9d196166b5c7187a6516944 \
+    --hash=sha256:c1b22b56b0ba7b1d51c84dc99afdd603ae225c55e9e8f07477774552bf34c8cd
     # via
     #   -c requirements.txt
     #   -r non-free/packages/cmk-mcp/requirements.in
