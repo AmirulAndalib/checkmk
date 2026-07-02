@@ -270,7 +270,7 @@ watch(
 <style scoped>
 .cmk-calendar-grid {
   --day-size: var(--dimension-9);
-  --cmk-calendar-column-bg: var(--color-daylight-grey-60);
+  --cmk-calendar-column-bg: var(--color-daylight-grey-40);
   --cmk-calendar-fg: var(--color-conference-grey-100);
   --cmk-calendar-hover-bg: var(--color-conference-grey-10);
   --cmk-calendar-in-range-bg: var(--color-corporate-green-10);
@@ -350,6 +350,7 @@ body[data-theme='modern-dark'] .cmk-calendar-grid {
   background: transparent;
   color: var(--cmk-calendar-fg);
   font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-default);
   font-variant-numeric: tabular-nums;
   box-shadow: none;
 
@@ -381,8 +382,7 @@ button.cmk-calendar-grid__day {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--success);
-    outline-offset: -2px;
+    outline: revert;
   }
 }
 </style>

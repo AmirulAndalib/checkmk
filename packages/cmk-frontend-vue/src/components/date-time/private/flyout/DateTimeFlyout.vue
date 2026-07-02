@@ -31,6 +31,8 @@ const props = withDefaults(
     label?: TranslatedString
     /** Popup fill: the calendar-based pickers use the `gradient`; the Time picker opts into `solid`. */
     popupBackground?: 'gradient' | 'solid'
+    /** Border tone for the popup, footer, and trigger. */
+    popupBorder?: 'container' | 'field'
     /** Restore focus to the trigger when the popup closes with focus inside it (see `CmkFlyout`). */
     restoreFocus: () => void
   }>(),
@@ -40,7 +42,8 @@ const props = withDefaults(
     showActions: false,
     applyDisabled: false,
     stretchActions: false,
-    popupBackground: 'gradient'
+    popupBackground: 'gradient',
+    popupBorder: 'field'
   }
 )
 
@@ -71,7 +74,10 @@ function onCancel(): void {
 <template>
   <CmkFlyout
     :open="open"
-    :class="`cmk-date-time-flyout--${popupBackground}`"
+    :class="[
+      `cmk-date-time-flyout--${popupBackground}`,
+      `cmk-date-time-flyout--border-${popupBorder}`
+    ]"
     :label="label"
     :restore-focus="restoreFocus"
     @cancel="onCancel"
@@ -106,5 +112,21 @@ function onCancel(): void {
 
 .cmk-date-time-flyout--solid {
   --cmk-flyout-popup-bg: var(--ux-theme-4);
+}
+
+.cmk-date-time-flyout--border-container {
+  --cmk-flyout-popup-border-color: var(--color-mid-grey-10);
+}
+
+body[data-theme='modern-dark'] .cmk-date-time-flyout--border-container {
+  --cmk-flyout-popup-border-color: var(--color-mid-grey-90);
+}
+
+.cmk-date-time-flyout--border-field {
+  --cmk-flyout-popup-border-color: var(--color-mid-grey-50);
+}
+
+body[data-theme='modern-dark'] .cmk-date-time-flyout--border-field {
+  --cmk-flyout-popup-border-color: var(--color-mid-grey-60);
 }
 </style>

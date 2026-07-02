@@ -95,7 +95,7 @@ function onKeydown(event: KeyboardEvent): void {
   flex-direction: column;
   min-width: max-content;
   background: var(--cmk-flyout-popup-bg, var(--ux-theme-1));
-  border: 1px solid var(--default-form-element-border-color);
+  border: 1px solid var(--cmk-flyout-popup-border-color, var(--default-form-element-border-color));
   border-radius: var(--border-radius);
   color: var(--font-color);
 }

@@ -83,19 +83,17 @@ const {
   flex-wrap: nowrap;
 }
 
-/* stylelint-disable-next-line selector-pseudo-class-no-unknown, checkmk/vue-bem-naming-convention */
-.graphing-global-time-picker :deep(.cmk-time-range-picker__trigger) {
-  padding-right: var(--dimension-4);
-}
-
 /* Chrome-less, focusable trigger button. */
 .graphing-global-time-picker__trigger {
+  box-sizing: border-box;
   display: flex;
   align-items: end;
   gap: var(--dimension-4);
   margin: 0;
-  padding: 0;
+  padding: var(--dimension-7);
+  padding-right: var(--dimension-4);
   border: none;
+  border-radius: var(--border-radius);
   background: none;
   font: inherit;
   color: inherit;
@@ -104,8 +102,7 @@ const {
 }
 
 .graphing-global-time-picker__trigger:focus-visible {
-  outline: 2px solid var(--success);
-  outline-offset: var(--dimension-2);
+  outline: revert;
 }
 
 /* the trigger's From/To rows are 32px high, align to them */

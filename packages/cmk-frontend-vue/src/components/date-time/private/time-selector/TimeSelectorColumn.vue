@@ -103,8 +103,7 @@ defineExpose({ focusSelected, centerSelected })
   }
 
   &:focus-visible {
-    outline: 2px solid var(--success);
-    outline-offset: -2px;
+    outline: revert;
   }
 }
 

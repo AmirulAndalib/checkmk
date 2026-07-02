@@ -87,6 +87,7 @@ const timeWidthVariants = computed(() =>
 .cmk-time-range-display__zone {
   grid-column: 2 / 5;
   justify-self: start;
+  margin-bottom: var(--dimension-2);
 }
 
 .cmk-time-range-display__divider {

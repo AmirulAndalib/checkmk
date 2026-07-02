@@ -290,6 +290,7 @@ const serverTimeText = computed(() => {
     v-model:open="open"
     v-model:save-checked="saveChecked"
     :show-actions="true"
+    popup-border="container"
     :save-mode="saveMode"
     :pending-save="pendingSave"
     :save-label="saveLabel ?? _t('Save range')"
@@ -427,7 +428,6 @@ const serverTimeText = computed(() => {
 
 <style scoped>
 .cmk-time-range-picker__trigger {
-  padding: var(--dimension-7);
   border: 1px solid transparent;
   border-radius: var(--border-radius);
   cursor: pointer;
@@ -441,12 +441,12 @@ const serverTimeText = computed(() => {
     .cmk-time-range-picker__trigger--open,
     .cmk-time-range-picker__trigger--disabled
   ):hover {
-  border-color: var(--default-form-element-border-color);
+  border-color: var(--cmk-flyout-popup-border-color, var(--default-form-element-border-color));
 }
 
 .cmk-time-range-picker__trigger--open {
   background: var(--default-bg-color);
-  border-color: var(--default-form-element-border-color);
+  border-color: var(--cmk-flyout-popup-border-color, var(--default-form-element-border-color));
   border-bottom-color: transparent;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -460,10 +460,12 @@ const serverTimeText = computed(() => {
 /* Chrome-less button so the trigger looks unchanged at rest; it only adds keyboard focusability
    (Enter/Space → click bubbles to the trigger area's `toggleTrigger`) and a focus ring. */
 .cmk-time-range-picker__trigger-button {
+  box-sizing: border-box;
   display: block;
   width: 100%;
-  padding: 0;
+  padding: var(--dimension-7);
   border: none;
+  border-radius: var(--border-radius);
   background: none;
   font: inherit;
   color: inherit;
@@ -472,8 +474,7 @@ const serverTimeText = computed(() => {
 }
 
 .cmk-time-range-picker__trigger-button:focus-visible {
-  outline: 2px solid var(--success);
-  outline-offset: var(--dimension-2);
+  outline: revert;
 }
 
 .cmk-time-range-picker__inputs {
@@ -488,7 +489,7 @@ const serverTimeText = computed(() => {
   grid-template-rows: auto auto auto;
   justify-content: start;
   align-items: center;
-  gap: var(--dimension-2) var(--dimension-6);
+  gap: var(--dimension-4) var(--dimension-6);
 }
 
 .cmk-time-range-picker__time,

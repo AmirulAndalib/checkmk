@@ -68,10 +68,15 @@ const applyStatus = computed<TranslatedString>(() =>
 <template>
   <div
     class="cmk-date-time-flyout-footer"
-    :class="{ 'cmk-date-time-flyout-footer--stretch-actions': stretchActions }"
+    :class="{
+      'cmk-date-time-flyout-footer--stretch-actions': stretchActions,
+      'cmk-date-time-flyout-footer--save-open': saveMode && saveChecked
+    }"
   >
     <div v-if="saveMode" class="cmk-date-time-flyout-footer__save">
-      <CmkCheckbox v-model="saveChecked" :label="saveLabel ?? _t('Save')" :padding="'both'" />
+      <div class="cmk-date-time-flyout-footer__save-toggle">
+        <CmkCheckbox v-model="saveChecked" :label="saveLabel ?? _t('Save')" :padding="'both'" />
+      </div>
       <div v-if="saveChecked" class="cmk-date-time-flyout-footer__save-content">
         <slot name="save" />
       </div>
@@ -100,9 +105,10 @@ const applyStatus = computed<TranslatedString>(() =>
 <style scoped>
 .cmk-date-time-flyout-footer {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--dimension-5);
-  border-top: 1px solid var(--default-form-element-border-color);
+  border-top: 1px solid
+    var(--cmk-flyout-popup-border-color, var(--default-form-element-border-color));
   padding: var(--cmk-dt-flyout-footer-padding, var(--dimension-7));
 }
 
@@ -110,13 +116,23 @@ const applyStatus = computed<TranslatedString>(() =>
   display: flex;
   flex-direction: column;
   gap: var(--dimension-3);
-  align-self: flex-start;
+}
+
+/* Match the button height so the checkbox label lines up with the Apply/Cancel labels. */
+.cmk-date-time-flyout-footer__save-toggle {
+  display: flex;
+  align-items: center;
+  min-height: var(--dimension-10);
 }
 
 .cmk-date-time-flyout-footer__actions {
   display: flex;
   gap: var(--dimension-4);
   margin-left: auto;
+}
+
+.cmk-date-time-flyout-footer--save-open .cmk-date-time-flyout-footer__actions {
+  align-self: flex-end;
 }
 
 .cmk-date-time-flyout-footer--stretch-actions .cmk-date-time-flyout-footer__actions {

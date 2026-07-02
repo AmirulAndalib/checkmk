@@ -14,6 +14,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 .cmk-vertical-rule {
   align-self: stretch;
   width: 1px;
+  background: var(--color-mid-grey-10);
+}
+
+body[data-theme='modern-dark'] .cmk-vertical-rule {
   background: var(--color-mid-grey-90);
 }
 </style>

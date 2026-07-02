@@ -16,6 +16,10 @@ conditions defined in the file COPYING, which is part of this source code packag
   border: 0;
   width: 100%;
   height: 1px;
+  background: var(--color-mid-grey-10);
+}
+
+body[data-theme='modern-dark'] .cmk-horizontal-rule {
   background: var(--color-mid-grey-90);
 }
 </style>

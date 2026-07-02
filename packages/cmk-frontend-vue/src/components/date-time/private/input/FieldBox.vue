@@ -88,10 +88,14 @@ defineExpose({ focusTriggerButton: () => triggerButtonRef.value?.focus() })
   gap: var(--dimension-3);
   height: var(--form-field-height);
   padding: 0 var(--dimension-3);
-  border: 1px solid var(--default-form-element-border-color);
+  border: 1px solid var(--color-mid-grey-50);
   border-radius: var(--dimension-3);
   background: var(--default-form-element-bg-color);
   cursor: text;
+}
+
+body[data-theme='modern-dark'] .cmk-field-box {
+  border-color: var(--color-mid-grey-60);
 }
 
 .cmk-field-box--disabled {
@@ -115,6 +119,10 @@ defineExpose({ focusTriggerButton: () => triggerButtonRef.value?.focus() })
   background: transparent;
   color: inherit;
   cursor: pointer;
+}
+
+.cmk-field-box__trigger:focus-visible {
+  outline: revert;
 }
 
 .cmk-field-box--disabled .cmk-field-box__trigger {
