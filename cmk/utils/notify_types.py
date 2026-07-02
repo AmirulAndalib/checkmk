@@ -27,33 +27,6 @@ from cmk.utils.rulesets.ruleset_matcher import TagCondition
 from cmk.utils.tags import TagGroupID
 from cmk.utils.timeperiod import TimeperiodName
 
-__all__ = [
-    # Types
-    "ContactName",
-    "HandlerName",
-    "HandlerParameters",
-    "NotifyPluginParamsDict",
-    "NotifyBulkParameters",
-    "PluginNotificationContext",
-    "NotifyRuleInfo",
-    "NotifyPluginName",
-    "NotifyPluginInfo",
-    "NotifyAnalysisInfo",
-    "UUIDs",
-    "NotifyBulk",
-    "NotifyBulks",
-    "NotificationParameterID",
-    "NotificationParameterMethod",
-    "NotificationParameterSpec",
-    "NotificationParameterSpecs",
-    # Classes
-    "EventRule",
-    "DisabledNotificationsOptions",
-    "Contact",
-    "NotificationParameterGeneralInfos",
-    "NotificationParameterItem",
-]
-
 ContactName = str
 
 HandlerName = str
