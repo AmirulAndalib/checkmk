@@ -201,6 +201,7 @@ COMMUNITY_WHEELS = [
     "//packages/cmk-plugins:wheel-gerrit",
     "//packages/cmk-plugins:wheel-graylog",
     "//packages/cmk-plugins:wheel-ibm_imm",
+    "//packages/cmk-plugins:wheel-ibm_informix",
     "//packages/cmk-plugins:wheel-ibm_mq",
     "//packages/cmk-plugins:wheel-ibm_rsa",
     "//packages/cmk-plugins:wheel-ibm_storage_ts",
