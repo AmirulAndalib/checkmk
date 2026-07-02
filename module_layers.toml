@@ -106,15 +106,12 @@ clean = [
 
 [plugin_families.violations.azure_deprecated]
 allows = [
+  "cmk.plugins.azure_deprecated_extended",
   # FIXME
   "cmk.agent_based.v1",
-  # edition detection
-  "cmk.ccc.version",
   # FormSpec validation
   "cmk.ccc.hostaddress",
   "cmk.utils.http_proxy_config",
-  # edition detection
-  "cmk.utils.paths",
 ]
 
 [plugin_families.violations.azure_v2_extended]
