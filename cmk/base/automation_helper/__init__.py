@@ -17,6 +17,7 @@ from fastapi import FastAPI
 from setproctitle import setproctitle
 
 import cmk.ccc.version as cmk_version
+from cmk.automations.logging import LoggingManager
 from cmk.base import config
 from cmk.base.automations.automations import Automations, discover_automations
 from cmk.base.config import ConfigCache
@@ -31,7 +32,6 @@ from cmk.utils.redis import get_redis_client
 from ._app import make_application
 from ._cache import Cache
 from ._config import config_from_disk_or_default_config
-from ._log import configure_logger, LOGGER
 from ._server import run as run_server
 from ._tracer import configure_tracer
 from ._watcher import run as run_watcher
@@ -57,7 +57,6 @@ def _main() -> int:
     run_directory = omd_root / _RELATIVE_RUN_DIRECTORY
     log_directory = omd_root / _RELATIVE_LOG_DIRECTORY
     run_directory.mkdir(exist_ok=True, parents=True)
-    log_directory.mkdir(exist_ok=True, parents=True)
 
     config = config_from_disk_or_default_config(
         omd_root=omd_root,
@@ -69,9 +68,13 @@ def _main() -> int:
         # We need to catch the re-raised SIGTERM signal to exit cleanly.
         signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
 
-    with pid_file_lock(config.server_config.pid_file):
+    log_manager = LoggingManager()
+    with (
+        pid_file_lock(config.server_config.pid_file),
+        log_manager.file_logging(path=config.server_config.worker_log),
+    ):
+        logger = log_manager.get_logger("automation.server")
         configure_tracer(omd_root)
-        configure_logger(log_directory)
 
         with run_watcher(
             config.watcher_config,
@@ -89,7 +92,7 @@ def _main() -> int:
                 if isinstance(system_exit.code, int):
                     exit_code = system_exit.code
 
-            LOGGER.info("Received termination signal, shutting down")
+            logger.info("Received termination signal, shutting down")
 
     return exit_code
 
@@ -109,7 +112,6 @@ def _application() -> FastAPI:
         # unintentional). We have automation calls that rely on "fork" as the start method.
         _reset_global_multiprocessing_start_method_to_platform_default()
         configure_tracer(omd_root)
-        configure_logger(omd_root / _RELATIVE_LOG_DIRECTORY)
 
     return make_application(
         edition=cmk_version.edition(omd_root),

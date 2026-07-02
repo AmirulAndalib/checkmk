@@ -128,6 +128,7 @@ def _make_test_client(
             pid_file=dev_null,
             access_log=dev_null,
             error_log=dev_null,
+            worker_log=dev_null,
             num_workers=0,
         ),
         watcher_config=WatcherConfig(schedules=[]),
@@ -321,6 +322,7 @@ async def test_reloader_single_change(mocker: MockerFixture, cache: Cache) -> No
             ),
             state=state,
             delayer_factory=lambda delay: _mock_delay(mock_delay_state, delay),
+            logger=logging.getLogger(),
         )
     )
 
@@ -365,6 +367,7 @@ async def test_reloader_two_changes(mocker: MockerFixture, cache: Cache) -> None
             ),
             state=state,
             delayer_factory=lambda delay: _mock_delay(mock_delay_state, delay),
+            logger=logging.getLogger(),
         )
     )
 
@@ -417,6 +420,7 @@ async def test_reloader_takes_state_into_account(mocker: MockerFixture, cache: C
             ),
             state=state,
             delayer_factory=lambda delay: _mock_delay(mock_delay_state, delay),
+            logger=logging.getLogger(),
         )
     )
 

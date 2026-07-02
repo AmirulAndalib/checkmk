@@ -5,6 +5,7 @@
 
 import asyncio
 import io
+import logging
 import sys
 import time
 from collections.abc import AsyncGenerator, Awaitable, Callable, Iterator
@@ -17,6 +18,7 @@ from fastapi.responses import JSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from pydantic import BaseModel
 
+from cmk.automations.logging import LoggingManager
 from cmk.automations.models.helper import AutomationPayload, AutomationResponse
 from cmk.automations.results import ABCAutomationResult
 from cmk.automations.types import AutomationID
@@ -30,11 +32,9 @@ from cmk.ccc.hostaddress import Hosts
 from cmk.ccc.site import SiteId
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.utils.labels import Labels
-from cmk.utils.log import logger as cmk_logger
 
 from ._cache import Cache, CacheError
 from ._config import Config, ReloaderConfig
-from ._log import LOGGER, temporary_log_level
 from ._tracer import TRACER
 
 
@@ -96,6 +96,7 @@ class _ApplicationDependencies:
     config: Config
     clear_caches_before_each_call: Callable[[ConfigCache, Hosts], None]
     state: _State
+    log_manager: LoggingManager
 
 
 class HealthCheckResponse(BaseModel, frozen=True):
@@ -146,6 +147,7 @@ def make_application(
             get_builtin_host_labels=make_app(edition).get_builtin_host_labels,
             changes_cache=cache,
         ),
+        log_manager=LoggingManager(log_level=logging.NOTSET),
     )
 
     async def _automation_endpoint(
@@ -159,6 +161,7 @@ def make_application(
                 dependencies.automation_engine,
                 dependencies.clear_caches_before_each_call,
                 dependencies.state,
+                dependencies.log_manager,
             )
 
     app.post("/automation")(_automation_endpoint)
@@ -173,22 +176,30 @@ def make_application(
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None]:
     dependencies: _ApplicationDependencies = app.state.dependencies
 
-    # Continue on error. Either the reloader can fix it, or we will raise in the automation endpoint.
-    try:
-        dependencies.state.load()
-    except (Exception, SystemExit) as e:
-        LOGGER.error("[reloader] Error reloading configuration: %s", e)
+    with dependencies.log_manager.file_logging(
+        path=dependencies.config.server_config.worker_log,
+        log_level=logging.NOTSET,  # Set on logger, not handler
+    ):
+        logger = dependencies.log_manager.get_logger("automation.reloader")
+        # Continue on error. Either the reloader can fix it, or we will raise in the automation endpoint.
+        try:
+            dependencies.state.load()
+        except SystemExit:
+            logger.warning("Failed to reload configuration. Shutting down")
+        except Exception:
+            logger.exception("Error reloading configuration")
 
-    reloader_task = asyncio.create_task(
-        _reloader_task(
-            config=dependencies.config.reloader_config,
-            state=dependencies.state,
+        reloader_task = asyncio.create_task(
+            _reloader_task(
+                config=dependencies.config.reloader_config,
+                state=dependencies.state,
+                logger=logger,
+            )
+            if dependencies.config.reloader_config.active
+            else asyncio.sleep(0),
         )
-        if dependencies.config.reloader_config.active
-        else asyncio.sleep(0),
-    )
 
-    yield
+        yield
 
     reloader_task.cancel()
 
@@ -196,15 +207,17 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None]:
 async def _reloader_task(
     config: ReloaderConfig,
     state: _State,
+    logger: logging.Logger,
     delayer_factory: Callable[[float], Awaitable[None]] = asyncio.sleep,
 ) -> None:
-    LOGGER.info("[reloader] Operational")
+    logger.info("Operational")
 
     def _get_last_change() -> float:
         try:
             return state.changes_cache.get_last_detected_change()
         except CacheError as error:
-            LOGGER.error("[reloader] Error getting last detected change: %s", error)
+            # The CacheError carries all the relevant information we care about. -> Ignore Ruff rule
+            logger.error("Error getting last detected change: %s", error)  # noqa: TRY400
             return 0.0
 
     # The watcher records a "last detected change" per filesystem event, so a single
@@ -217,8 +230,8 @@ async def _reloader_task(
             continue
 
         last_change = cached_last_change
-        LOGGER.info(
-            "[reloader] Change detected %.2f seconds ago",
+        logger.info(
+            "Change detected %.2f seconds ago",
             time.time() - last_change,
         )
 
@@ -234,9 +247,11 @@ async def _reloader_task(
                     # We will try again on the next change, and report failure in the automation endpoint.
                     try:
                         if state.reload_if_required():
-                            LOGGER.info("[reloader] Triggering reload")
-                    except (Exception, SystemExit) as e:
-                        LOGGER.error("[reloader] Error reloading configuration: %s", e)
+                            logger.info("Triggering reload")
+                    except SystemExit:
+                        logger.error("Failed to reload configuration. Shutting down")  # noqa: TRY400
+                    except Exception:
+                        logger.exception("Error reloading configuration")
                     break
 
             else:
@@ -251,8 +266,8 @@ async def _reloader_task(
                     config.cooldown_interval,
                 )
                 last_change = cached_last_change
-                LOGGER.info(
-                    "[reloader] Change detected %.2f seconds ago",
+                logger.info(
+                    "Change detected %.2f seconds ago",
                     time.time() - last_change,
                 )
 
@@ -263,15 +278,17 @@ def _execute_automation_endpoint(
     engine: AutomationEngine,
     clear_caches_before_each_call: Callable[[ConfigCache, Hosts], None],
     state: _State,
+    log_manager: LoggingManager,
 ) -> AutomationResponse:
-    LOGGER.info(
-        '[automation] Processing automation command "%s" with args: %s',
+    logger = log_manager.get_logger("automation")
+    logger.info(
+        'Processing automation command "%s" with args: %s',
         payload.name,
         payload.args,
     )
     try:
         if state.reload_if_required():
-            LOGGER.warning("[automation] configurations were reloaded due to a stale state.")
+            logger.warning("configurations were reloaded due to a stale state.")
     except (Exception, SystemExit) as e:
         return AutomationResponse(
             serialized_result_or_error_code=AutomationError.UNKNOWN_ERROR,
@@ -292,7 +309,7 @@ def _execute_automation_endpoint(
         redirect_stdout(buffer_stdout),
         redirect_stderr(buffer_stderr),
         _redirect_stdin(io.StringIO(payload.stdin)),
-        temporary_log_level(cmk_logger, payload.log_level),
+        log_manager.temporary_log_level(payload.log_level),
     ):
         if state.loading_result:
             clear_caches_before_each_call(
@@ -309,8 +326,8 @@ def _execute_automation_endpoint(
             )
             automation_end_time = time.time()
         except SystemExit as system_exit:
-            LOGGER.error(
-                '[automation] Encountered SystemExit exception while processing automation "%s" with args: %s',
+            logger.error(  # noqa: TRY400
+                'Encountered SystemExit exception while processing automation "%s" with args: %s',
                 payload.name,
                 payload.args,
             )
@@ -320,8 +337,8 @@ def _execute_automation_endpoint(
                 else AutomationError.UNKNOWN_ERROR
             )
         else:
-            LOGGER.info(
-                '[automation] Processed automation command "%s" with args "%s" in %.2f seconds',
+            logger.info(
+                'Processed automation command "%s" with args "%s" in %.2f seconds',
                 payload.name,
                 payload.args,
                 automation_end_time - automation_start_time,

@@ -58,6 +58,9 @@ class LoggingManager:
         """
         Enable logging to a file.
         """
+        if not isinstance(path, Path):
+            path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
         handler = WatchedFileHandler(filename=path, encoding="utf-8")
         handler.setLevel(log_level)
         handler.setFormatter(logging.Formatter("%(asctime)s [%(levelno)s] [%(name)s] %(message)s"))

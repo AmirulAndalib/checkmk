@@ -17,6 +17,7 @@ class ServerConfig(BaseModel, frozen=True):
     pid_file: Path
     access_log: Path
     error_log: Path
+    worker_log: Path
     num_workers: int
 
 
@@ -56,6 +57,7 @@ def default_config(
             pid_file=run_directory / "automation-helper.pid",
             access_log=log_directory / "access.log",
             error_log=log_directory / "error.log",
+            worker_log=log_directory / "automation-helper.log",
             # Ideally, we would use a single worker and synchronous endpoints. In that case, requests
             # would be handled concurrently via a thread pool. However, `cmk.base` is currently not
             # thread-safe, at least due to two reasons:
