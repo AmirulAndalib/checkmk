@@ -3,24 +3,30 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-# mypy: disable-error-code="type-arg"
+
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.v1 import check_levels as check_levels_v1
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Metric,
+    render,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
+from cmk.plugins.aws.lib import discover_aws_generic, parse_aws
+
+Section = Mapping[str, Mapping[str, Any]]
 
 
-from collections.abc import Iterable, Mapping
-
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render
-from cmk.legacy_includes.aws import inventory_aws_generic
-from cmk.plugins.aws.lib import parse_aws
-
-check_info = {}
-
-Section = Mapping[str, Mapping]
-
-
-def parse_aws_s3(string_table):
-    parsed: dict[str, dict] = {}
+def parse_aws_s3(string_table: StringTable) -> Section:
+    parsed: dict[str, dict[str, Any]] = {}
     for row in parse_aws(string_table):
         bucket = parsed.setdefault(row["Label"], {})
         try:
@@ -43,109 +49,94 @@ def parse_aws_s3(string_table):
     return parsed
 
 
-#   .--S3 objects----------------------------------------------------------.
-#   |            ____ _____         _     _           _                    |
-#   |           / ___|___ /    ___ | |__ (_) ___  ___| |_ ___              |
-#   |           \___ \ |_ \   / _ \| '_ \| |/ _ \/ __| __/ __|             |
-#   |            ___) |__) | | (_) | |_) | |  __/ (__| |_\__ \             |
-#   |           |____/____/   \___/|_.__// |\___|\___|\__|___/             |
-#   |                                  |__/                                |
-#   '----------------------------------------------------------------------'
+def discover_aws_s3(section: Section) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["BucketSizeBytes", "NumberOfObjects"])
 
 
-def check_aws_s3_objects(item, params, parsed):
-    if not (metrics := parsed.get(item)):
+def check_aws_s3_objects(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    if not (metrics := section.get(item)):
         return
 
     bucket_sizes = metrics["BucketSizeBytes"]
-    storage_infos = []
-    for storage_type, value in bucket_sizes.items():
-        storage_infos.append(f"{storage_type}: {render.bytes(value)}")
+    storage_infos = [
+        f"{storage_type}: {render.bytes(value)}" for storage_type, value in bucket_sizes.items()
+    ]
     sum_size = sum(bucket_sizes.values())
-    yield check_levels(
+    yield from check_levels_v1(
         sum_size,
-        "aws_bucket_size",
-        params.get("bucket_size_levels", (None, None)),
-        human_readable_func=render.bytes,
-        infoname="Bucket size",
+        metric_name="aws_bucket_size",
+        levels_upper=params.get("bucket_size_levels", (None, None)),
+        render_func=render.bytes,
+        label="Bucket size",
     )
     if storage_infos:
-        yield 0, ", ".join(storage_infos)
+        yield Result(state=State.OK, summary=", ".join(storage_infos))
 
     num_objects = sum(metrics["NumberOfObjects"].values())
-    yield 0, "Number of objects: %s" % int(num_objects), [("aws_num_objects", num_objects)]
+    yield Result(state=State.OK, summary=f"Number of objects: {int(num_objects)}")
+    yield Metric("aws_num_objects", num_objects)
 
-    location = metrics.get("LocationConstraint")
-    if location:
-        yield 0, "Location: %s" % location
+    if location := metrics.get("LocationConstraint"):
+        yield Result(state=State.OK, summary=f"Location: {location}")
 
-    tag_infos = []
-    for tag in metrics.get("Tagging", {}):
-        tag_infos.append("{}: {}".format(tag["Key"], tag["Value"]))
+    tag_infos = [f"{tag['Key']}: {tag['Value']}" for tag in metrics.get("Tagging", {})]
     if tag_infos:
-        yield 0, "[Tags] %s" % ", ".join(tag_infos)
+        yield Result(state=State.OK, summary=f"[Tags] {', '.join(tag_infos)}")
 
 
-def discover_aws_s3(p):
-    return inventory_aws_generic(p, ["BucketSizeBytes", "NumberOfObjects"])
-
-
-check_info["aws_s3"] = LegacyCheckDefinition(
+agent_section_aws_s3 = AgentSection(
     name="aws_s3",
     parse_function=parse_aws_s3,
+)
+
+
+check_plugin_aws_s3 = CheckPlugin(
+    name="aws_s3",
     service_name="AWS/S3 Objects %s",
     discovery_function=discover_aws_s3,
     check_function=check_aws_s3_objects,
     check_ruleset_name="aws_s3_buckets_objects",
+    check_default_parameters={},
 )
 
-# .
-#   .--summary-------------------------------------------------------------.
-#   |                                                                      |
-#   |           ___ _   _ _ __ ___  _ __ ___   __ _ _ __ _   _             |
-#   |          / __| | | | '_ ` _ \| '_ ` _ \ / _` | '__| | | |            |
-#   |          \__ \ |_| | | | | | | | | | | | (_| | |  | |_| |            |
-#   |          |___/\__,_|_| |_| |_|_| |_| |_|\__,_|_|   \__, |            |
-#   |                                                    |___/             |
-#   '----------------------------------------------------------------------'
 
-
-def discover_aws_s3_summary(section: Section) -> Iterable[tuple[None, dict]]:
+def discover_aws_s3_summary(section: Section) -> DiscoveryResult:
     if section:
-        yield None, {}
+        yield Service()
 
 
-def check_aws_s3_summary(item, params, parsed):
+def check_aws_s3_summary(params: Mapping[str, Any], section: Section) -> CheckResult:
     sum_size = 0
     largest_bucket = None
     largest_bucket_size = 0
-    for bucket_name, bucket in parsed.items():
+    for bucket_name, bucket in section.items():
         bucket_size = sum(bucket["BucketSizeBytes"].values())
         sum_size += bucket_size
         if bucket_size >= largest_bucket_size:
             largest_bucket = bucket_name
             largest_bucket_size = bucket_size
-    yield check_levels(
+    yield from check_levels_v1(
         sum_size,
-        "aws_bucket_size",
-        params.get("bucket_size_levels", (None, None)),
-        human_readable_func=render.bytes,
-        infoname="Total size",
+        metric_name="aws_bucket_size",
+        levels_upper=params.get("bucket_size_levels", (None, None)),
+        render_func=render.bytes,
+        label="Total size",
     )
 
     if largest_bucket:
-        yield (
-            0,
-            f"Largest bucket: {largest_bucket} ({render.bytes(largest_bucket_size)})",
-            [("aws_largest_bucket_size", largest_bucket_size)],
+        yield Result(
+            state=State.OK,
+            summary=f"Largest bucket: {largest_bucket} ({render.bytes(largest_bucket_size)})",
         )
+        yield Metric("aws_largest_bucket_size", largest_bucket_size)
 
 
-check_info["aws_s3.summary"] = LegacyCheckDefinition(
+check_plugin_aws_s3_summary = CheckPlugin(
     name="aws_s3_summary",
     service_name="AWS/S3 Summary",
     sections=["aws_s3"],
     discovery_function=discover_aws_s3_summary,
     check_function=check_aws_s3_summary,
     check_ruleset_name="aws_s3_buckets",
+    check_default_parameters={},
 )
