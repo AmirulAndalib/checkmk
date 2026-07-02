@@ -18,7 +18,7 @@ from cmk.agent_based.v2 import (
     State,
     StringTable,
 )
-from cmk.plugins.ibm.lib import DETECT_IBM_IMM
+from cmk.plugins.ibm_imm.lib import DETECT_IBM_IMM
 
 
 def discover_ibm_imm_fan(section: StringTable) -> DiscoveryResult:
