@@ -3,58 +3,73 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
+
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    State,
+)
+from cmk.plugins.lib.elphase import check_elphase, ElPhase, ReadingWithState
+from cmk.plugins.perle.agent_based.perle_psmu import Section
 
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.elphase import check_elphase
-
-check_info = {}
-
-
-def inventory_perle_psmu(parsed, what_state):
-    for unit, values in parsed.items():
+def _discover_perle_psmu(section: Section, what_state: str) -> DiscoveryResult:
+    for unit, values in section.items():
         if values[what_state][1] != "not present":
-            yield unit, {}
+            yield Service(item=unit)
 
 
-def check_perle_psmu_powersupplies(item, params, parsed):
-    if item in parsed:
-        state, state_readable = parsed[item]["psustate"]
-        yield state, "Status: %s" % state_readable
-        yield from check_elphase(item, params, parsed)
+def discover_perle_psmu(section: Section) -> DiscoveryResult:
+    yield from _discover_perle_psmu(section, "psustate")
 
 
-def discover_perle_psmu(info):
-    return inventory_perle_psmu(info, "psustate")
+def discover_perle_psmu_fan(section: Section) -> DiscoveryResult:
+    yield from _discover_perle_psmu(section, "fanstate")
 
 
-check_info["perle_psmu"] = LegacyCheckDefinition(
+def check_perle_psmu_powersupplies(
+    item: str, params: Mapping[str, Any], section: Section
+) -> CheckResult:
+    if (data := section.get(item)) is None:
+        return
+    state, state_readable = data["psustate"]
+    yield Result(state=State(state), summary=f"Status: {state_readable}")
+    yield from check_elphase(
+        params,
+        ElPhase(
+            voltage=ReadingWithState(value=data["voltage"]) if "voltage" in data else None,
+            power=ReadingWithState(value=data["power"]) if "power" in data else None,
+        ),
+    )
+
+
+def check_perle_psmu_fans(item: str, section: Section) -> CheckResult:
+    if (data := section.get(item)) is None:
+        return
+    state, state_readable = data["fanstate"]
+    yield Result(state=State(state), summary=f"Status: {state_readable}")
+
+
+check_plugin_perle_psmu = CheckPlugin(
     name="perle_psmu",
-    # section is already migrated!
     service_name="Power supply %s",
     discovery_function=discover_perle_psmu,
     check_function=check_perle_psmu_powersupplies,
     check_ruleset_name="el_inphase",
+    check_default_parameters={},
 )
 
 
-def check_perle_psmu_fans(item, _no_params, parsed):
-    if item in parsed:
-        state, state_readable = parsed[item]["fanstate"]
-        return state, "Status: %s" % state_readable
-    return None
-
-
-def discover_perle_psmu_fan(info):
-    return inventory_perle_psmu(info, "fanstate")
-
-
-check_info["perle_psmu.fan"] = LegacyCheckDefinition(
+check_plugin_perle_psmu_fan = CheckPlugin(
     name="perle_psmu_fan",
-    service_name="Fan %s",
     sections=["perle_psmu"],
+    service_name="Fan %s",
     discovery_function=discover_perle_psmu_fan,
     check_function=check_perle_psmu_fans,
 )
