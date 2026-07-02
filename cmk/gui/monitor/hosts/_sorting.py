@@ -6,7 +6,7 @@
 import functools
 import re
 from collections.abc import Callable, Sequence
-from typing import Any
+from typing import Any, assert_never
 
 from ._models import Host, HostSort, HostSortColumn, HostSortDirection
 
@@ -34,6 +34,8 @@ def host_sorter(sorters: Sequence[HostSort]) -> Callable[[Host], Any]:
                 return host.service_counts.unknown
             case HostSortColumn.NUM_SERVICES_PENDING:
                 return host.service_counts.pending
+            case _:
+                assert_never(column)
 
     def _compare(a: Host, b: Host) -> int:
         for sorter in sorters:
