@@ -8,7 +8,10 @@ py_binary(
     srcs = ["@rules_sphinx//sphinx/tools:sphinx_build_wrapper.py"],
     data = ["@plantuml"],
     main = "sphinx_build_wrapper.py",
-    tags = ["no-mypy"],
+    tags = [
+        "no-deballast",  # deps are imported at runtime by sphinx autodoc, not in srcs
+        "no-mypy",
+    ],
     deps = [
         "//packages/cmk-check-engine/cmk/checkengine/parser",
         requirement("sphinx"),

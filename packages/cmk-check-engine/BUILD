@@ -30,7 +30,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        ":helper-interface",
         "//packages/cmk-ccc:cleanup",
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:exceptions",
@@ -119,7 +118,6 @@ py_library(
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:tty",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-crypto",
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:password_store",
     ],
@@ -231,7 +229,6 @@ py_library(
         ":section-parser",
         ":specs",
         "//cmk/inventory",
-        "//cmk/piggyback:backend",
         "//cmk/utils",
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:hostaddress",
@@ -255,7 +252,6 @@ py_cmk_test(
     deps = [
         requirement("pyghmi"),
         ":fetchers",
-        "//packages/cmk-plugin-apis:agent_based",
     ],
 )
 

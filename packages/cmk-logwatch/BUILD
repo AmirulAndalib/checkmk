@@ -38,9 +38,7 @@ py_library(
     ],
     deps = [
         ":config",
-        "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:hostaddress",
-        "//packages/cmk-ec:event",
         "//packages/cmk-ec:forwarder",
         "//packages/cmk-ec:syslog",
         "//packages/cmk-plugin-apis:agent_based",

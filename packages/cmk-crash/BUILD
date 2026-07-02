@@ -36,9 +36,6 @@ py_library(
     data = [":crash_reporting_py_typed"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = [
-        ":crash",
-    ],
 )
 
 filegroup(

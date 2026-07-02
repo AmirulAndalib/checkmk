@@ -137,7 +137,6 @@ py_cmk_test(
     deps = [
         ":utils",
         "//packages/cmk-ccc:exceptions",
-        "//packages/cmk-ccc:store",
         "//packages/cmk-crypto",
     ],
 )
