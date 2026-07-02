@@ -583,7 +583,6 @@ class LoadingResult:
 
 
 def load(
-    get_builtin_host_labels: Callable[[SiteId], Labels],
     edition: cmk_version.Edition,
     with_conf_d: bool = True,
     validate_hosts: bool = True,
@@ -592,7 +591,6 @@ def load(
 
     loading_result = perform_post_config_loading_actions(
         raw_config,
-        get_builtin_host_labels,
         edition=edition,
     )
 
@@ -638,7 +636,6 @@ def load_packed_config(config_path: Path) -> dict[str, Any]:
 
 def perform_post_config_loading_actions(
     loaded_context: dict[str, Any],
-    get_builtin_host_labels: Callable[[SiteId], Labels],
     *,
     edition: cmk_version.Edition,
 ) -> LoadingResult:
@@ -655,12 +652,12 @@ def perform_post_config_loading_actions(
 
     config_cache = ConfigCache(
         loaded_config,
-        get_builtin_host_labels,
         edition,
         hosts_config,
         host_tags,
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
     )
 
     set_global_logwatch_config(
@@ -1448,19 +1445,20 @@ class ConfigCache:
     def __init__(
         self,
         loaded_config: BaseConfig,
-        get_builtin_host_labels: Callable[[SiteId], Labels],
         edition: cmk_version.Edition,
         hosts_config: Hosts,
         host_tags: HostTags,
         *,
         autochecks_dir: Path,
         discovered_host_labels_dir: Path,
+        builtin_host_labels_file: Path,
     ) -> None:
         super().__init__()
         self._loaded_config: Final = loaded_config
         self.edition: Final = edition
         self._autochecks_dir = autochecks_dir
         self._discovered_host_labels_dir = discovered_host_labels_dir
+        self._builtin_host_labels_file = builtin_host_labels_file
         self._hosts_config = hosts_config
         self._host_tags = host_tags
         self.__enforced_services_table: dict[
@@ -1482,9 +1480,9 @@ class ConfigCache:
         self.__explicit_check_command: dict[HostName, HostCheckCommand] = {}
         self.__snmp_fetch_interval: dict[HostName, Mapping[SectionName, int | None]] = {}
         self.__snmp_backend: dict[HostName, SNMPBackendEnum] = {}
-        self.initialize(get_builtin_host_labels)
+        self.initialize()
 
-    def initialize(self, get_builtin_host_labels: Callable[[SiteId], Labels]) -> ConfigCache:
+    def initialize(self) -> ConfigCache:
         # other than directly above, this is only called between the autodiscovery and the
         # subsequent activation. When moving things out of here, carefully consider if
         # they care about changes that could result from that (like the check table)
@@ -1507,10 +1505,6 @@ class ConfigCache:
             nodes_of=self._hosts_config.clusters,
             all_configured_hosts=frozenset(self._hosts_config.all_configured_hosts),
         )
-        builtin_host_labels = {
-            hostname: get_builtin_host_labels(self._site_of_host(hostname))
-            for hostname in self._hosts_config.all_configured_hosts
-        }
         self.label_manager = LabelManager(
             LabelConfig(
                 self.ruleset_matcher,
@@ -1519,7 +1513,7 @@ class ConfigCache:
             ),
             self._hosts_config.clusters,
             self._loaded_config.host_labels,
-            builtin_host_labels=builtin_host_labels,
+            builtin_host_labels_file=self._builtin_host_labels_file,
             discovered_host_labels_dir=self._discovered_host_labels_dir,
         )
         self.clustering = make_clustering_config(

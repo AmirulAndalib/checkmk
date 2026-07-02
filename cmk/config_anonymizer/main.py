@@ -16,10 +16,8 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import ModuleType
 
-from cmk.base.app import make_app
 from cmk.base.config import load, load_all_plugins
 from cmk.ccc import store
-from cmk.ccc.site import omd_site
 from cmk.ccc.version import edition
 from cmk.config_anonymizer.interface import AnonInterface
 from cmk.config_anonymizer.step import AnonymizeStep
@@ -32,6 +30,7 @@ from cmk.gui.watolib.rulesets import (
 )
 from cmk.gui.watolib.utils import ALL_HOSTS, ALL_SERVICES, NEGATE
 from cmk.gui.wsgi.app import gui_context
+from cmk.ruleset_matcher.labels import BuiltinHostLabelsStore
 from cmk.utils import paths
 from cmk.utils.redis import disable_redis
 
@@ -165,11 +164,10 @@ def main(argv: Sequence[str]) -> None:
 
             all_plugins = load_all_plugins()
 
-            builtin_host_labels_callable = make_app(edition(paths.omd_root)).get_builtin_host_labels
-            builtin_host_labels = builtin_host_labels_callable(omd_site())
+            # The builtin host labels are read from the file the LabelManager also uses.
+            builtin_host_labels = BuiltinHostLabelsStore(paths.builtin_host_labels_file).load()
 
             loaded_config_result = load(
-                get_builtin_host_labels=builtin_host_labels_callable,
                 edition=edition(paths.omd_root),
                 with_conf_d=True,
                 validate_hosts=False,

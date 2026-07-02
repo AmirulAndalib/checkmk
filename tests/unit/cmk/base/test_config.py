@@ -2503,12 +2503,12 @@ def test_config_cache_max_cachefile_age_no_cluster() -> None:
     loaded_config = dataclasses.replace(EMPTY_CONFIG, all_hosts=(xyz_host,))
     config_cache = config.ConfigCache(
         loaded_config,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(loaded_config),
         config.make_host_tags(loaded_config, config.make_hosts_config(loaded_config)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
     )
 
     assert xyz_host not in config.make_hosts_config(loaded_config).clusters
@@ -2527,12 +2527,12 @@ def test_config_cache_max_cachefile_age_cluster() -> None:
     loaded_config = dataclasses.replace(EMPTY_CONFIG, clusters={clu: []})
     config_cache = config.ConfigCache(
         loaded_config,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(loaded_config),
         config.make_host_tags(loaded_config, config.make_hosts_config(loaded_config)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
     )
 
     assert clu in config.make_hosts_config(loaded_config).clusters
@@ -2730,14 +2730,14 @@ def test_get_config_file_paths_with_confd(
 def test_load_config_folder_paths(folder_path_test_config: BaseConfig) -> None:
     config_cache = config.ConfigCache(
         folder_path_test_config,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(folder_path_test_config),
         config.make_host_tags(
             folder_path_test_config, config.make_hosts_config(folder_path_test_config)
         ),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=Path("/dev/null"),
     )
     hosts_config = config.make_hosts_config(folder_path_test_config)
     ruleset_matcher = config_cache.ruleset_matcher
@@ -2858,8 +2858,7 @@ cmc_host_rrd_config = [
     _add_rule_in_folder(wato_lvl2_folder, "LVL2")
 
     yield config.load(
-        get_builtin_host_labels=(app := make_app()).get_builtin_host_labels,
-        edition=app.edition,
+        edition=make_app().edition,
     ).loaded_config
 
     # Cleanup after the test. Would be better to use a dedicated test directory
@@ -2951,8 +2950,7 @@ def test_explicit_setting_loading(patch_omd_site: None) -> None:
             _add_explicit_setting_in_folder(wato_main_folder / foldername, setting, values)
 
         loading_result = config.load(
-            get_builtin_host_labels=(app := make_app()).get_builtin_host_labels,
-            edition=app.edition,
+            edition=make_app().edition,
         )
         explicit_host_conf = loading_result.loaded_config.explicit_host_conf
         assert explicit_host_conf["parents"][HostName("hostA")] == "setting1"

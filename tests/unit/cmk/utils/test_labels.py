@@ -11,7 +11,14 @@ from pytest import MonkeyPatch
 
 import cmk.utils.paths
 from cmk.ccc.hostaddress import HostName
-from cmk.ruleset_matcher.labels import ABCLabelConfig, DiscoveredHostLabelsStore, LabelManager
+from cmk.ruleset_matcher.labels import (
+    ABCLabelConfig,
+    BuiltinHostLabelsStore,
+    BuiltinLabelsKey,
+    DiscoveredHostLabelsStore,
+    LabelManager,
+    update_builtin_host_labels,
+)
 
 
 @pytest.fixture(name="discovered_host_labels_dir")
@@ -19,6 +26,24 @@ def fixture_discovered_host_labels_dir(tmp_path: Path, monkeypatch: MonkeyPatch)
     path = tmp_path / "var" / "check_mk" / "discovered_host_labels"
     monkeypatch.setattr(cmk.utils.paths, "discovered_host_labels_dir", path)
     return path
+
+
+@pytest.fixture(name="builtin_host_labels_file")
+def fixture_builtin_host_labels_file(tmp_path: Path, monkeypatch: MonkeyPatch) -> Path:
+    path = tmp_path / "var" / "check_mk" / "builtin_host_labels.mk"
+    monkeypatch.setattr(cmk.utils.paths, "builtin_host_labels_file", path)
+    return path
+
+
+def test_update_builtin_host_labels_merges(builtin_host_labels_file: Path) -> None:
+    # Independent plugins (common cmk/site, MT cmk/customer) each write only their own key;
+    # the merge writer must preserve keys written by the others.
+    update_builtin_host_labels(builtin_host_labels_file, {BuiltinLabelsKey.SITE: "site_a"})
+    update_builtin_host_labels(builtin_host_labels_file, {BuiltinLabelsKey.CUSTOMER: "provider"})
+    assert BuiltinHostLabelsStore(builtin_host_labels_file).load() == {
+        "cmk/site": "site_a",
+        "cmk/customer": "provider",
+    }
 
 
 def test_discovered_host_labels_store_file_path(discovered_host_labels_dir: Path) -> None:
@@ -62,21 +87,21 @@ class _LabelManagerWithMockedDiscoerdLabels(LabelManager):
 
 
 class TestLabelManager:
-    def test_builtin_site_labels(self) -> None:
+    def test_builtin_site_labels(self, builtin_host_labels_file: Path) -> None:
+        # The builtin labels are per site (one file), so every host gets the same ones.
+        BuiltinHostLabelsStore(builtin_host_labels_file).save({"cmk/site": "site_a"})
         label_manager = LabelManager(
             label_config=_LabelConfig(),
             nodes_of={},
             explicit_host_labels={},
-            builtin_host_labels={
-                HostName("host-a"): {"cmk/site": "site_a"},
-                HostName("host-b"): {"cmk/site": "site_b"},
-            },
             discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+            builtin_host_labels_file=builtin_host_labels_file,
         )
         assert label_manager.labels_of_host(HostName("host-a")) == {"cmk/site": "site_a"}
-        assert label_manager.labels_of_host(HostName("host-b")) == {"cmk/site": "site_b"}
+        assert label_manager.labels_of_host(HostName("host-b")) == {"cmk/site": "site_a"}
 
-    def test_host_label_merge_prio(self) -> None:
+    def test_host_label_merge_prio(self, builtin_host_labels_file: Path) -> None:
+        BuiltinHostLabelsStore(builtin_host_labels_file).save({"prio-1": "builtin-value"})
         label_manager = _LabelManagerWithMockedDiscoerdLabels(
             label_config=_LabelConfig(
                 host_labels={
@@ -92,12 +117,8 @@ class TestLabelManager:
                     "prio-2": "explicit-value",
                 }
             },
-            builtin_host_labels={
-                HostName("horst"): {
-                    "prio-1": "builtin-value",
-                },
-            },
             discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+            builtin_host_labels_file=builtin_host_labels_file,
         )
 
         assert label_manager.labels_of_host(HostName("horst")) == {
@@ -114,7 +135,7 @@ class TestLabelManager:
             "prio-4": "discovered",
         }
 
-    def test_labels_of_service(self) -> None:
+    def test_labels_of_service(self, builtin_host_labels_file: Path) -> None:
         test_host = HostName("test-host")
 
         label_manager = LabelManager(
@@ -125,8 +146,8 @@ class TestLabelManager:
             ),
             nodes_of={},
             explicit_host_labels={},
-            builtin_host_labels={},
             discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+            builtin_host_labels_file=builtin_host_labels_file,
         )
 
         assert label_manager.labels_of_service(test_host, "CPU load", {}) == {
@@ -136,7 +157,7 @@ class TestLabelManager:
             "label1": "ruleset",
         }
 
-    def test_labels_of_service_discovered_labels(self) -> None:
+    def test_labels_of_service_discovered_labels(self, builtin_host_labels_file: Path) -> None:
         test_host = HostName("test-host")
         xyz_host = HostName("xyz")
         discovered_labels = {
@@ -151,8 +172,8 @@ class TestLabelManager:
             ),
             nodes_of={},
             explicit_host_labels={},
-            builtin_host_labels={},
             discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+            builtin_host_labels_file=builtin_host_labels_file,
         )
 
         service_description = "CPU load"

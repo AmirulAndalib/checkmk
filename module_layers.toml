@@ -971,6 +971,7 @@ allows = [
   "cmk.telemetry.gui.register",
   "cmk.piggyback",
   "cmk.robotmk.gui",
+  "cmk.ruleset_matcher",
   "cmk.utils.automation_config",
   "cmk.utils.certs",
   "cmk.utils.nonfree.pro",
@@ -1236,6 +1237,15 @@ allows = [
   "cmk.update_config",
   "cmk.utils",
   "cmk.validate_config",
+]
+
+[components."cmk.update_config.plugins.actions.builtin_host_labels"] # lives in cmk-multi-tenancy
+allows = [
+  "@ccc",
+  "cmk.multi_tenancy.shared",
+  "cmk.update_config",
+  "cmk.ruleset_matcher",
+  "cmk.utils.paths",
 ]
 
 [components."cmk.update_config"]
@@ -1611,9 +1621,6 @@ allows = [
 
 [components."cmk.multi_tenancy.shared.customer"]
 allows = ["cmk.ccc.store"]
-
-[components."cmk.multi_tenancy.shared.labels"]
-allows = ["cmk.ccc.site", "cmk.multi_tenancy.shared.customer"]
 
 [components."cmk.utils.oauth2_connection"]
 allows = ["cmk.ccc.site"]

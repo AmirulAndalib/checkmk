@@ -10,7 +10,6 @@ import multiprocessing
 import os
 import signal
 import sys
-from collections.abc import Callable
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -23,8 +22,6 @@ from cmk.base.automations.automations import Automations, discover_automations
 from cmk.base.config import ConfigCache
 from cmk.ccc.daemon import daemonize, pid_file_lock
 from cmk.ccc.hostaddress import Hosts
-from cmk.ccc.site import SiteId
-from cmk.ruleset_matcher.labels import Labels
 from cmk.utils.caching import cache_manager
 from cmk.utils.paths import omd_root
 from cmk.utils.redis import get_redis_client
@@ -128,12 +125,9 @@ def _reset_global_multiprocessing_start_method_to_platform_default() -> None:
     multiprocessing.get_start_method(allow_none=False)
 
 
-def _reload_automation_config(
-    get_builtin_host_labels: Callable[[SiteId], Labels],
-) -> config.LoadingResult:
+def _reload_automation_config() -> config.LoadingResult:
     cache_manager.clear()
     return config.load(
-        get_builtin_host_labels,
         cmk_version.edition(omd_root),
         validate_hosts=False,
     )

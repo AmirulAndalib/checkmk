@@ -29,9 +29,7 @@ from cmk.base.base_app import CheckmkBaseApp
 from cmk.base.config import ConfigCache
 from cmk.ccc import version as cmk_version
 from cmk.ccc.hostaddress import Hosts
-from cmk.ccc.site import SiteId
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.ruleset_matcher.labels import Labels
 
 from ._cache import Cache, CacheError
 from ._config import Config, ReloaderConfig
@@ -55,15 +53,12 @@ class AutomationEngine(Protocol):
 class _State:
     automation_or_reload_lock: asyncio.Lock
     reload_config: Callable[
-        [
-            Callable[[SiteId], Labels],
-        ],
+        [],
         config.LoadingResult,
     ]
     last_reload_at: float
     plugins: AgentBasedPlugins | None
     loading_result: config.LoadingResult | None
-    get_builtin_host_labels: Callable[[SiteId], Labels]
     changes_cache: Cache
 
     def load(self) -> None:
@@ -76,7 +71,7 @@ class _State:
 
         # Do not yet set `self.last_reload_at`. We don't know if we succeed.
         time_right_before_reload = time.time()
-        self.loading_result = self.reload_config(self.get_builtin_host_labels)
+        self.loading_result = self.reload_config()
         self.last_reload_at = time_right_before_reload
 
     def reload_if_required(self) -> bool:
@@ -110,9 +105,7 @@ def make_application(
     cache: Cache,
     config: Config,
     reload_config: Callable[
-        [
-            Callable[[SiteId], Labels],
-        ],
+        [],
         config.LoadingResult,
     ],
     clear_caches_before_each_call: Callable[[ConfigCache, Hosts], None],
@@ -144,7 +137,6 @@ def make_application(
             last_reload_at=0,
             plugins=None,
             loading_result=None,
-            get_builtin_host_labels=make_app(edition).get_builtin_host_labels,
             changes_cache=cache,
         ),
         log_manager=LoggingManager(log_level=logging.NOTSET),

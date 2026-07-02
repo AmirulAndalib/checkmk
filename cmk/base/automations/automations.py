@@ -19,11 +19,9 @@ from cmk.base import config
 from cmk.base.base_app import CheckmkBaseApp
 from cmk.ccc import version as cmk_version
 from cmk.ccc.exceptions import MKGeneralException, MKTimeout
-from cmk.ccc.site import SiteId
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.discover_plugins import discover_plugins_from_modules
-from cmk.ruleset_matcher.labels import Labels
 from cmk.utils import log
 from cmk.utils.log import console
 
@@ -150,9 +148,6 @@ def load_plugins() -> AgentBasedPlugins:
         return config.load_all_plugins()
 
 
-def load_config(
-    get_builtin_host_labels: Callable[[SiteId], Labels],
-    edition: cmk_version.Edition,
-) -> config.LoadingResult:
+def load_config(edition: cmk_version.Edition) -> config.LoadingResult:
     with tracer.span("load_config"):
-        return config.load(get_builtin_host_labels, edition, validate_hosts=False)
+        return config.load(edition, validate_hosts=False)

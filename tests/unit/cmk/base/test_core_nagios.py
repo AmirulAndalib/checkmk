@@ -642,19 +642,19 @@ def test_create_nagios_servicedefs_active_check(
     hostname = HostName("my_host")
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(EMPTY_CONFIG),
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=Path("/dev/null"),
     )
     config_cache.label_manager = LabelManager(
         FakeLabelConfig(service_labels),
         {},
         {},
-        {},
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
     )
     monkeypatch.setattr(config_cache, "alias", lambda hn: {hostname: host_attrs["alias"]}[hn])
     monkeypatch.setattr(config_cache, "active_checks", lambda *args, **kw: active_checks)
@@ -843,12 +843,12 @@ def test_create_nagios_servicedefs_with_warnings(
 
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(EMPTY_CONFIG),
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=Path("/dev/null"),
     )
     monkeypatch.setattr(config_cache, "active_checks", lambda *args, **kw: active_checks)
 
@@ -932,12 +932,12 @@ def test_create_nagios_servicedefs_omit_service(
 
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(EMPTY_CONFIG),
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=Path("/dev/null"),
     )
     monkeypatch.setattr(config_cache, "active_checks", lambda *args, **kw: active_checks)
     monkeypatch.setattr(config_cache, "service_ignored", lambda *_: True)
@@ -1016,12 +1016,12 @@ def test_create_nagios_servicedefs_invalid_args(
 
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(EMPTY_CONFIG),
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=Path("/dev/null"),
     )
     monkeypatch.setattr(config_cache, "active_checks", lambda *args, **kw: active_checks)
 
@@ -1121,12 +1121,12 @@ def test_create_nagios_config_commands(
 
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (app := make_app()).get_builtin_host_labels,
-        app.edition,
+        make_app().edition,
         config.make_hosts_config(EMPTY_CONFIG),
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+        builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
     )
     monkeypatch.setattr(config_cache, "active_checks", lambda *args, **kw: active_checks)
 

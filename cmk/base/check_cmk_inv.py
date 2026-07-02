@@ -143,7 +143,6 @@ def _inventory_as_check(
     plugins: AgentBasedPlugins,
 ) -> ServiceState:
     loading_result = config.load(
-        get_builtin_host_labels=app.get_builtin_host_labels,
         edition=app.edition,
     )
     loaded_config = loading_result.loaded_config

@@ -89,12 +89,12 @@ class TestModeDumpAgent:
                 ),
                 config_cache=config.ConfigCache(
                     loaded_config,
-                    (app := make_app()).get_builtin_host_labels,
-                    app.edition,
+                    make_app().edition,
                     config.make_hosts_config(loaded_config),
                     config.make_host_tags(loaded_config, config.make_hosts_config(loaded_config)),
                     autochecks_dir=cmk_paths.autochecks_dir,
                     discovered_host_labels_dir=cmk_paths.discovered_host_labels_dir,
+                    builtin_host_labels_file=cmk_paths.builtin_host_labels_file,
                 ),
             ),
         )
@@ -168,12 +168,12 @@ class TestModeDumpAgentUseWalk:
                 ),
                 config_cache=config.ConfigCache(
                     loaded_config,
-                    (app := make_app()).get_builtin_host_labels,
-                    app.edition,
+                    make_app().edition,
                     config.make_hosts_config(loaded_config),
                     config.make_host_tags(loaded_config, config.make_hosts_config(loaded_config)),
                     autochecks_dir=cmk_paths.autochecks_dir,
                     discovered_host_labels_dir=cmk_paths.discovered_host_labels_dir,
+                    builtin_host_labels_file=cmk_paths.builtin_host_labels_file,
                 ),
             ),
         )

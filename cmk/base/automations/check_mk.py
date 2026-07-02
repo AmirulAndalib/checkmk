@@ -1287,7 +1287,7 @@ def _execute_autodiscovery(
 
     try:
         cache_manager.clear_all()
-        env.config_cache.initialize(app.get_builtin_host_labels)
+        env.config_cache.initialize()
         hosts_config = config.make_hosts_config(env.loaded_config)
         bake_on_restart = app.make_bake_on_restart(env.loading_result, hosts_config.hosts)
         notify_relay = _make_configured_notify_relay(bool(env.loaded_config.relays))
@@ -1354,7 +1354,7 @@ def _execute_autodiscovery(
             )
     finally:
         cache_manager.clear_all()
-        env.config_cache.initialize(app.get_builtin_host_labels)
+        env.config_cache.initialize()
 
     return discovery_results, True
 
@@ -1467,7 +1467,6 @@ def _automation_update_host_labels(
 
     if loading_result is None:
         loading_result = load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
     _trigger_discovery_check(
@@ -2159,7 +2158,6 @@ def _automation_analyse_host(
 
     if loading_result is None:
         loading_result = load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
@@ -2184,7 +2182,6 @@ def _automation_analyze_host_rule_matches(
 
     if loading_result is None:
         loading_result = load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
@@ -2223,7 +2220,6 @@ def _automation_analyze_service_rule_matches(
 
     if loading_result is None:
         loading_result = load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
@@ -2263,7 +2259,6 @@ def _automation_analyze_host_rule_effectiveness(
 
     if loading_result is None:
         loading_result = load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
 
@@ -2643,7 +2638,6 @@ def _automation_get_configuration(
     variable_names = ast.literal_eval(sys.stdin.read())
 
     base_config = config.load(
-        get_builtin_host_labels=app.get_builtin_host_labels,
         edition=app.edition,
         with_conf_d=False,
     ).loaded_config
@@ -3096,7 +3090,6 @@ def _automation_diag_snmp(
         credentials = diag_input.snmp_community
     else:
         loading_result = loading_result or load_config(
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
         credentials = loading_result.loaded_config.snmp_default_community
@@ -3829,7 +3822,6 @@ def _automation_update_passwords_merged_file(
     loading_result: config.LoadingResult | None,
 ) -> UpdatePasswordsMergedFileResult:
     loading_result = loading_result or load_config(
-        get_builtin_host_labels=app.get_builtin_host_labels,
         edition=app.edition,
     )
     cmk.utils.password_store.save(
@@ -4129,7 +4121,6 @@ def _automation_find_unknown_check_parameter_rule_sets(
 ) -> UnknownCheckParameterRuleSetsResult:
     plugins = plugins or load_plugins()  # do we really still need this?
     loaded_config = loaded_config or load_config(
-        get_builtin_host_labels=app.get_builtin_host_labels,
         edition=app.edition,
     )
     known_check_rule_sets = {

@@ -37,11 +37,9 @@ py_library(
     tags = [
         "deballast-keep=//cmk:message_broker_certs",  # exercised by the config-update at runtime, not a static import
     ],
-    visibility = [
-        "//bin:__subpackages__",
-        "//cmk:__subpackages__",
-        "//tests:__subpackages__",
-    ],
+    # TODO: factor out an API such that packages only have to depend on that.
+    # restrict visibility for the rest.
+    visibility = ["//visibility:public"],
     deps = [
         "//cmk:message_broker_certs",
         "//cmk:validate_config",

@@ -7,13 +7,21 @@
 
 import pytest
 
+from cmk.gui import hooks
 from cmk.gui.watolib.automation_commands import automation_command_registry
+from cmk.gui.watolib.builtin_host_labels import update_builtin_host_labels_file
 from cmk.gui.watolib.config_domain_name import (
     config_domain_registry,
     config_variable_group_registry,
     config_variable_registry,
     configvar_order,
 )
+
+
+def test_builtin_host_labels_hook_registered() -> None:
+    assert update_builtin_host_labels_file in [
+        hook.handler for hook in hooks.get("pre-activate-changes")
+    ]
 
 
 def test_registered_config_domains() -> None:

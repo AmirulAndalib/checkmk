@@ -8,7 +8,6 @@ from typing import override
 
 import cmk.utils.paths as utils_paths
 from cmk.base import config as base_config
-from cmk.base.app import make_app
 from cmk.ccc.site import omd_site
 from cmk.ccc.version import edition
 from cmk.gui.config import active_config
@@ -33,7 +32,6 @@ class UpdateRulesets(UpdateAction):
     def __call__(self, logger: Logger) -> None:
         omd_edition = edition(utils_paths.omd_root)
         loading_result = base_config.load(
-            get_builtin_host_labels=make_app(omd_edition).get_builtin_host_labels,
             edition=omd_edition,
         )
         pending_changes = PendingChanges(

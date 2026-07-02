@@ -17,13 +17,13 @@ from pytest import MonkeyPatch
 
 import cmk.ruleset_matcher.tags
 import cmk.utils.paths
-from cmk.base.app import make_app
 from cmk.base.config import ConfigCache, LoadingResult, make_host_tags, make_hosts_config
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition
 from cmk.checkengine.discovery import AutochecksMemoizer
 from cmk.checkengine.plugins import AutocheckEntry
+from cmk.ruleset_matcher.labels import BuiltinHostLabelsStore
 from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from tests.testlib.common.empty_config import EMPTY_CONFIG
@@ -53,14 +53,19 @@ class Scenario:
         )
         hosts_config = make_hosts_config(loaded_config)
         host_tags = make_host_tags(loaded_config, hosts_config)
+        # Mimic the builtin host labels file written at activation time.
+        builtin_host_labels: dict[str, str] = {"cmk/site": self.site_id}
+        if self._edition is Edition.ULTIMATEMT:
+            builtin_host_labels["cmk/customer"] = loaded_config.current_customer
+        BuiltinHostLabelsStore(cmk.utils.paths.builtin_host_labels_file).save(builtin_host_labels)
         config_cache = ConfigCache(
             loaded_config,
-            self.get_builtin_host_labels,
             self._edition,
             hosts_config,
             host_tags,
             autochecks_dir=cmk.utils.paths.autochecks_dir,
             discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+            builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
         )
         return LoadingResult(
             loaded_config=loaded_config,
@@ -73,7 +78,6 @@ class Scenario:
         super().__init__()
 
         self._edition = edition
-        self.get_builtin_host_labels = make_app(edition).get_builtin_host_labels
         tag_config = cmk.ruleset_matcher.tags.sample_tag_config()
         self.tags = cmk.ruleset_matcher.tags.get_effective_tag_config(tag_config)
         self.site_id = site_id

@@ -38,10 +38,8 @@ from cmk.base.automations.automations import AutomationError
 from cmk.base.base_app import CheckmkBaseApp
 from cmk.base.config import ConfigCache, LoadingResult, make_host_tags, make_hosts_config
 from cmk.ccc.hostaddress import Hosts
-from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition, Version
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.ruleset_matcher.labels import get_builtin_host_labels, Labels
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.common.utils import wait_until
 
@@ -107,12 +105,7 @@ _EXAMPLE_AUTOMATION_PAYLOAD = AutomationPayload(
 def _make_test_client(
     engine: AutomationEngine,
     cache: Cache,
-    reload_config: Callable[
-        [
-            Callable[[SiteId], Labels],
-        ],
-        LoadingResult,
-    ],
+    reload_config: Callable[[], LoadingResult],
     clear_caches_before_each_call: Callable[[ConfigCache, Hosts], None],
     reloader_config: ReloaderConfig = ReloaderConfig(
         active=True,
@@ -274,18 +267,18 @@ def test_health_check(cache: Cache) -> None:
     with _make_test_client(
         _DummyAutomationEngineSuccess(),
         cache,
-        lambda get_builtin_host_labels: LoadingResult(
+        lambda: LoadingResult(
             loaded_config=loaded_config,
             hosts_config=make_hosts_config(loaded_config),
             host_tags=make_host_tags(loaded_config, make_hosts_config(loaded_config)),
             config_cache=ConfigCache(
                 loaded_config,
-                get_builtin_host_labels,
                 Edition.COMMUNITY,
                 make_hosts_config(loaded_config),
                 make_host_tags(loaded_config, make_hosts_config(loaded_config)),
                 autochecks_dir=cmk.utils.paths.autochecks_dir,
                 discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+                builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
             ),
         ),
         lambda config_cache, hosts_config: None,
@@ -305,7 +298,6 @@ async def test_reloader_single_change(mocker: MockerFixture, cache: Cache) -> No
         reload_config=mock_reload_callback,
         plugins=AgentBasedPlugins.empty(),
         loading_result=None,
-        get_builtin_host_labels=get_builtin_host_labels,
         changes_cache=cache,
     )
     mock_delay_state = _MockDelayState(
@@ -350,7 +342,6 @@ async def test_reloader_two_changes(mocker: MockerFixture, cache: Cache) -> None
         plugins=AgentBasedPlugins.empty(),
         reload_config=mock_reload_callback,
         loading_result=None,
-        get_builtin_host_labels=get_builtin_host_labels,
         changes_cache=cache,
     )
     mock_delay_state = _MockDelayState(
@@ -403,7 +394,6 @@ async def test_reloader_takes_state_into_account(mocker: MockerFixture, cache: C
         plugins=None,
         reload_config=mock_reload_callback,
         loading_result=None,
-        get_builtin_host_labels=get_builtin_host_labels,
         changes_cache=cache,
     )
     mock_delay_state = _MockDelayState(
@@ -488,18 +478,18 @@ def test_automation_cache_error_on_stale_config() -> None:
     with _make_test_client(
         _DummyAutomationEngineSuccess(),
         FailingCache(fakeredis.FakeRedis()),
-        lambda get_builtin_host_labels: LoadingResult(
+        lambda: LoadingResult(
             loaded_config=EMPTY_CONFIG,
             hosts_config=make_hosts_config(EMPTY_CONFIG),
             host_tags=make_host_tags(EMPTY_CONFIG, make_hosts_config(EMPTY_CONFIG)),
             config_cache=ConfigCache(
                 EMPTY_CONFIG,
-                get_builtin_host_labels,
                 Edition.COMMUNITY,
                 make_hosts_config(EMPTY_CONFIG),
                 make_host_tags(EMPTY_CONFIG, make_hosts_config(EMPTY_CONFIG)),
                 autochecks_dir=cmk.utils.paths.autochecks_dir,
                 discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+                builtin_host_labels_file=cmk.utils.paths.builtin_host_labels_file,
             ),
         ),
         lambda config_cache, hosts_config: None,

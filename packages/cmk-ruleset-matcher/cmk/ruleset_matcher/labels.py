@@ -7,17 +7,19 @@
 from __future__ import annotations
 
 import contextlib
+import json
 from abc import ABC, abstractmethod
 from ast import literal_eval
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Final, Literal, Self, TypedDict
 
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
-from cmk.ccc.site import SiteId
-from cmk.ruleset_matcher._type_defs import ServiceName
+
+from ._type_defs import ServiceName
 
 Labels = Mapping[str, str]
 
@@ -198,8 +200,61 @@ class DiscoveredHostLabelsStore:
         self._store.write_obj({l.name: l.to_dict() for l in labels})
 
 
-def get_builtin_host_labels(site: SiteId) -> Labels:
-    return {"cmk/site": site}
+class BuiltinLabelsKey(StrEnum):
+    """Centralized place for all possible builtin labels.
+
+    This is to ease documentation.
+    """
+
+    SITE = "cmk/site"
+    CUSTOMER = "cmk/customer"
+
+
+type BuiltinLabels = Mapping[BuiltinLabelsKey, str]
+
+
+class _BuiltinLabelsSerializer:
+    def serialize(self, data: Labels) -> bytes:
+        return json.dumps(data).encode("utf-8")
+
+    @staticmethod
+    def deserialize(raw: bytes) -> Labels:
+        return {str(k): str(v) for k, v in json.loads(raw.decode("utf-8")).items()}
+
+
+class BuiltinHostLabelsStore:
+    """Persistence of the builtin host labels.
+
+    Unlike the discovered host labels this is a *single* file per site: the builtin labels
+    (``cmk/site`` and, on managed sites, ``cmk/customer``) are identical for every host
+    monitored on the site. It is written when the config is (re)generated (activation, site
+    creation, update) and only read - never written - on the checking/base side.
+    """
+
+    def __init__(self, path: Path) -> None:
+        super().__init__()
+        self._store = store.ObjectStore(path=path, serializer=_BuiltinLabelsSerializer())
+        self.file_path: Final = self._store.path
+        self.locked: Final = self._store.locked
+
+    def load(self) -> Labels:
+        return self._store.read_obj(default={})
+
+    def save(self, labels: Labels) -> None:
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+        self._store.write_obj(labels)
+
+
+def update_builtin_host_labels(file_path: Path, labels: BuiltinLabels) -> None:
+    """Merge ``labels`` into the per-site builtin host labels file, preserving other keys.
+
+    Each owner writes only its own keys (base config generation: ``cmk/site``; managed
+    services: ``cmk/customer``), so the independent config-generation, update-config and
+    sample-config plugins never clobber one another.
+    """
+    store = BuiltinHostLabelsStore(file_path)
+    with store.locked():
+        store.save({**store.load(), **{str(k): v for k, v in labels.items()}})
 
 
 # Label group specific types
@@ -255,21 +310,23 @@ class LabelManager:
         label_config: ABCLabelConfig,
         nodes_of: Mapping[HostName, Sequence[HostName]],
         explicit_host_labels: Mapping[HostName, Labels],
-        builtin_host_labels: Mapping[HostName, Labels],
         *,
         discovered_host_labels_dir: Path,
+        builtin_host_labels_file: Path,
     ) -> None:
         self._nodes_of: Final = nodes_of
         self._label_config: Final = label_config
-        self._builtin_host_labels: Final = builtin_host_labels
-        # Public + mutable: the keepalive checker reassigns this per command to point
-        # at the per-serial helper config dir. Long term we should detach the discovered
-        # host labels lookup from LabelManager and pass the dir through the call chain
-        # at the points where labels are actually read.
+        # Public + mutable: the keepalive checker reassigns these per command to point
+        # at the per-serial helper config dir. Long term we should detach the label file
+        # lookups from LabelManager and pass the paths through the call chain at the points
+        # where labels are actually read.
         self.discovered_host_labels_dir = discovered_host_labels_dir
+        self.builtin_host_labels_file = builtin_host_labels_file
         self.explicit_host_labels: Mapping[HostName, Labels] = explicit_host_labels
 
         self.__labels_of_host: dict[HostName, Labels] = {}
+        self.__builtin_host_labels: Labels | None = None
+        self.__builtin_host_labels_path: Path | None = None
 
     def labels_of_host(self, hostname: HostName) -> Labels:
         """Returns the effective set of host labels from all available sources
@@ -290,7 +347,7 @@ class LabelManager:
                 **self._discovered_labels_of_host(hostname),
                 **self._label_config.host_labels(hostname),
                 **self.explicit_host_labels.get(hostname, {}),
-                **self._builtin_host_labels.get(hostname, {}),
+                **self._builtin_host_labels(),
             },
         )
 
@@ -302,8 +359,21 @@ class LabelManager:
         labels.update(dict.fromkeys(self._discovered_labels_of_host(hostname), "discovered"))
         labels.update(dict.fromkeys(self._label_config.host_labels(hostname), "ruleset"))
         labels.update(dict.fromkeys(self.explicit_host_labels.get(hostname, {}), "explicit"))
-        labels.update(dict.fromkeys(self._builtin_host_labels.get(hostname, {}), "discovered"))
+        labels.update(dict.fromkeys(self._builtin_host_labels(), "discovered"))
         return labels
+
+    def _builtin_host_labels(self) -> Labels:
+        # Read once per file path; re-read when the keepalive checker repoints
+        # builtin_host_labels_file at a per-serial helper config dir.
+        if (
+            self.__builtin_host_labels is None
+            or self.__builtin_host_labels_path != self.builtin_host_labels_file
+        ):
+            self.__builtin_host_labels_path = self.builtin_host_labels_file
+            self.__builtin_host_labels = BuiltinHostLabelsStore(
+                self.builtin_host_labels_file
+            ).load()
+        return self.__builtin_host_labels
 
     def _discovered_labels_of_host(self, hostname: HostName) -> Labels:
         host_labels = (

@@ -107,7 +107,6 @@ def main() -> int:
         raw_config["ipv6addresses"] = CONFIG.ipv6addresses
         loading_result = config.perform_post_config_loading_actions(
             raw_config,
-            get_builtin_host_labels=app.get_builtin_host_labels,
             edition=app.edition,
         )
 

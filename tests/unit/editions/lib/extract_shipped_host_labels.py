@@ -17,6 +17,7 @@ from cmk.agent_based.v2 import AgentSection, entry_point_prefixes, SimpleSNMPSec
 from cmk.agent_based.v3_unstable import entry_point_prefixes as entry_point_prefixes_v3_unstable
 from cmk.agent_based.v3_unstable import MetricsSection
 from cmk.discover_plugins import discover_all_plugins, DiscoveredPlugins, PluginGroup
+from cmk.ruleset_matcher.labels import BuiltinLabelsKey
 
 _KNOWN_NON_BUILTIN_LABEL_PRODUCERS: Final = {
     "labels",
@@ -34,6 +35,13 @@ type Section = (
 
 
 def extract_shipped_host_labels() -> Mapping[str, str]:
+    return {
+        **_extract_discovered_labels(),
+        **{e.value: "" for e in BuiltinLabelsKey},
+    }
+
+
+def _extract_discovered_labels() -> Mapping[str, str]:
     ep = entry_point_prefixes()
     ep_v3_unstable = entry_point_prefixes_v3_unstable()
     discovered_plugins: DiscoveredPlugins[Section] = discover_all_plugins(

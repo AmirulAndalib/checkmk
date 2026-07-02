@@ -13,7 +13,6 @@ import pytest
 from cmk.agent_based.v1.value_store import set_value_store_manager
 from cmk.agent_based.v2 import CheckPlugin
 from cmk.base import config
-from cmk.base.app import make_app
 from cmk.base.checkers import (
     CheckerConfig,
     CheckerPluginMapper,
@@ -108,13 +107,13 @@ def test_checks_executor(
     submitter = BasicSubmitter(HOSTNAME)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
-        (get_builtin_host_labels := make_app(edition(paths.omd_root)).get_builtin_host_labels),
         edition(paths.omd_root),
         hosts_config,
         config.make_host_tags(EMPTY_CONFIG, hosts_config),
         autochecks_dir=paths.autochecks_dir,
         discovered_host_labels_dir=paths.discovered_host_labels_dir,
-    ).initialize(get_builtin_host_labels)
+        builtin_host_labels_file=Path("/dev/null"),
+    )
     parser_config = config.make_parser_config(
         EMPTY_CONFIG,
         config_cache.ruleset_matcher,

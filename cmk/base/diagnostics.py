@@ -361,7 +361,6 @@ def create_diagnostics_dump(
             edition=app.edition,
             loaded_config=(
                 load_config(
-                    get_builtin_host_labels=app.get_builtin_host_labels,
                     edition=app.edition,
                 )
                 if loading_result is None

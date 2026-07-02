@@ -110,7 +110,6 @@ class AutomationEnvironment:
             plugins = load_plugins()
         if loading_result is None:
             loading_result = load_config(
-                get_builtin_host_labels=app.get_builtin_host_labels,
                 edition=app.edition,
             )
         return cls(app=app, plugins=plugins, loading_result=loading_result)

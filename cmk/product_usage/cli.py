@@ -47,12 +47,10 @@ def resolve_proxy_config(proxy_setting: ProxySetting) -> ProxyConfig:
     # its transitive `import livestatus`). It is only needed to read the configured HTTP proxies
     # for the upload, so we import it lazily and call this only on the upload path. This keeps
     # disabled and not-due runs cheap and free of cmk.base imports.
-    from cmk.base.app import make_app
     from cmk.base.config import load
 
     this_edition = edition(paths.omd_root)
     base_config = load(
-        get_builtin_host_labels=make_app(this_edition).get_builtin_host_labels,
         edition=this_edition,
     )
 

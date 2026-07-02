@@ -53,6 +53,7 @@ from .broker_certificates import (
     AutomationCreateBrokerCertificates,
     AutomationStoreBrokerCertificates,
 )
+from .builtin_host_labels import update_builtin_host_labels_file
 from .bulk_discovery import BulkDiscoveryBackgroundJob
 from .config_domain_name import (
     ConfigDomainRegistry,
@@ -164,6 +165,7 @@ def register(
     automation_background_job.register(job_registry, automation_command_registry)
     hooks.register_builtin("validate-host", builtin_attributes.validate_host_parents)
     hooks.register_builtin("ldap-sync-finished", handle_ldap_sync_finished)
+    hooks.register_builtin("pre-activate-changes", update_builtin_host_labels_file)
     _register_form_specs()
 
 

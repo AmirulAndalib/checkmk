@@ -56,10 +56,16 @@ from cmk.inventory.config import (
     InvCleanupParamsDefaultCombined,
 )
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
+from cmk.ruleset_matcher.labels import BuiltinLabelsKey, update_builtin_host_labels
 from cmk.ruleset_matcher.tags import sample_tag_config, TagConfig
 from cmk.utils.encryption import raw_certificates_from_file
 from cmk.utils.log import VERBOSE
-from cmk.utils.paths import configuration_lockfile, htpasswd_file, site_cert_file
+from cmk.utils.paths import (
+    builtin_host_labels_file,
+    configuration_lockfile,
+    htpasswd_file,
+    site_cert_file,
+)
 
 from ._abc import SampleConfigGeneratorABCGroups
 from ._constants import SHIPPED_RULES, USE_NEW_DESCRIPTIONS_FOR_SETTING
@@ -278,6 +284,29 @@ class ConfigGeneratorLocalSiteConnection(SampleConfigGenerator):
         )
 
 
+class ConfigGeneratorBuiltinHostLabels(SampleConfigGenerator):
+    """Seed the common ``cmk/site`` builtin host label at site creation.
+
+    The builtin host labels file is read by the base LabelManager and rewritten before every
+    core restart/reload (config generation), but seeding the ``cmk/site`` label at site
+    creation makes it available before the first activation. The managed-services
+    ``cmk/customer`` label is seeded by a separate, edition-shipped generator.
+    """
+
+    @classmethod
+    def ident(cls) -> str:
+        return "builtin_host_labels"
+
+    @classmethod
+    def sort_index(cls) -> int:
+        return 25
+
+    def generate(self) -> None:
+        update_builtin_host_labels(
+            builtin_host_labels_file, {BuiltinLabelsKey.SITE: str(omd_site())}
+        )
+
+
 class ConfigGeneratorAcknowledgeInitialWerks(SampleConfigGenerator):
     """This is not really the correct place for such kind of action, but the best place we could
     find to execute it only for new created sites."""
@@ -372,6 +401,7 @@ class ConfigGeneratorRegistrationUser(SampleConfigGenerator):
 def register(sample_config_generator_registry_: SampleConfigGeneratorRegistry) -> None:
     sample_config_generator_registry_.register(ConfigGeneratorBasicWATOConfig)
     sample_config_generator_registry_.register(ConfigGeneratorLocalSiteConnection)
+    sample_config_generator_registry_.register(ConfigGeneratorBuiltinHostLabels)
     sample_config_generator_registry_.register(ConfigGeneratorAcknowledgeInitialWerks)
     sample_config_generator_registry_.register(ConfigGeneratorRegistrationUser)
     sample_config_generator_registry_.register(ConfigGeneratorInitialAdminUser)

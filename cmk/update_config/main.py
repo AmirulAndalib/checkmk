@@ -25,7 +25,6 @@ from typing import Literal
 # to a specific layer in the future, but for the the moment we need to deal
 # with it.
 from cmk.base import config as base_config
-from cmk.base.app import make_app
 from cmk.ccc import debug, tty
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.version import Edition
@@ -357,7 +356,6 @@ def _check_failed_gui_plugins(logger: logging.Logger) -> None:
 
 def _initialize_base_environment(edition: Edition) -> None:
     base_config.load(
-        get_builtin_host_labels=make_app(edition).get_builtin_host_labels,
         edition=edition,
     )
 
