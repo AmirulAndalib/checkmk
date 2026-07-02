@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
 "Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2026-07-01 08:32+0000\n"
+"PO-Revision-Date: 2026-07-02 06:05+0000\n"
 "Language-Team: Portuguese (Portugal) <https://translate.checkmk.com/projects/"
 "checkmk/stable/pt_PT/>\n"
 "Language: pt_PT\n"
@@ -17373,6 +17373,13 @@ msgstr "Não foi possível criar pacote: %s"
 
 msgid "Could not decode key file"
 msgstr "Não foi possível descodificar o ficheiro-chave"
+
+#, python-format
+msgid ""
+"Could not delete BI rule '%s'. It has to exist and you need either "
+"wato.bi_admin permissions or permissions to modify the parent BI pack to "
+"delete a BI rule."
+msgstr ""
 
 #, fuzzy, python-format
 msgid "Could not detect type of manual page: %s. Maybe the check is missing "

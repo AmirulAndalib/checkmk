@@ -16746,6 +16746,13 @@ msgid "Could not decode key file"
 msgstr "Schlüssel-Datei konnte nicht decodiert werden"
 
 #, python-format
+msgid ""
+"Could not delete BI rule '%s'. It has to exist and you need either "
+"wato.bi_admin permissions or permissions to modify the parent BI pack to "
+"delete a BI rule."
+msgstr ""
+
+#, python-format
 msgid "Could not detect type of manual page: %s. Maybe the check is missing "
 msgstr ""
 "Typ der Handbuchseite konnte nicht festgestellt werden: %s. Vielleicht fehlt "

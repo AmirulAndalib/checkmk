@@ -17511,6 +17511,13 @@ msgstr "Impossible de créer le paquet : %s"
 msgid "Could not decode key file"
 msgstr "Impossible de décoder le fichier clé"
 
+#, python-format
+msgid ""
+"Could not delete BI rule '%s'. It has to exist and you need either "
+"wato.bi_admin permissions or permissions to modify the parent BI pack to "
+"delete a BI rule."
+msgstr ""
+
 #, fuzzy, python-format
 msgid "Could not detect type of manual page: %s. Maybe the check is missing "
 msgstr ""
