@@ -225,7 +225,7 @@ class CMKParser:
         ],
     ) -> Sequence[tuple[SourceInfo, result.Result[HostSections, Exception]]]:
         """Parse fetched data."""
-        console.debug(f"{tty.yellow}+{tty.normal} PARSE FETCHER RESULTS")
+        self.logger.debug("Parse fetcher results")
         output: list[tuple[SourceInfo, result.Result[HostSections, Exception]]] = []
         section_cache_path = cmk.utils.paths.var_dir
         # Special agents can produce data for the same check_plugin_name on the same host, in this case
