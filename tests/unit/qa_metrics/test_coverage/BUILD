@@ -2,7 +2,7 @@ load("@aspect_rules_py//py:defs.bzl", "py_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 
 py_test(
-    name = "unit_test_coverage",
+    name = "tests",
     size = "small",
     srcs = [
         "__init__.py",
@@ -12,7 +12,7 @@ py_test(
     pytest_main = True,
     deps = [
         requirement("pytest"),
-        "//tests/qa_metrics/unit_test_coverage",
+        "//tests/qa_metrics/test_coverage",
         "//tests/unit/qa_metrics",
     ],
 )

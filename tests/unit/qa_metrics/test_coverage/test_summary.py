@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from tests.qa_metrics.unit_test_coverage.summary import (
+from tests.qa_metrics.test_coverage.summary import (
     calculate_total_coverage,
     CoverageStats,
     parse_lcov,

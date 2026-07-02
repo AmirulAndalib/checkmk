@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, UTC
 
-from tests.qa_metrics.unit_test_coverage.rows import (
+from tests.qa_metrics.test_coverage.rows import (
     ModuleCoverageRow,
     PER_MODULE,
     TOTAL,

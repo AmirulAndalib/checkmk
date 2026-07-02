@@ -38,7 +38,7 @@ fi
 # omitted where it has no effect: `bazel query` stops after the loading phase
 # and the --announce_rc probe analyzes nothing.
 EDITION_FLAG="--cmk_edition=ultimate"
-PKG="//tests/qa_metrics/unit_test_coverage"
+PKG="//tests/qa_metrics/test_coverage"
 
 # ---------------------------------------------------------------------------
 # Parse arguments
@@ -266,7 +266,7 @@ if [[ "$GENERATE_HTML" == true ]]; then
     # Both are real properties of the source, not corrupt data.
     bazel run @lcov//:genhtml "$EDITION_FLAG" --run_under="cd $REPO_PATH &&" -- \
         --ignore-errors inconsistent,category \
-        --title "Checkmk Unit Test Coverage" \
+        --title "Checkmk Test Coverage" \
         --quiet \
         --output "$COVERAGE_HTML_DIR" \
         "$COVERAGE_FILTERED_DAT"

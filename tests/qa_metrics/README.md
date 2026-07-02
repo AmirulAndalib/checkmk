@@ -10,7 +10,7 @@ push the result to the QA Metabase postgres for dashboarding.
   row dataclass to postgres table. Every metric depends on this.
 - `change_quality/` — first metric. Per-werk row of "did the introducing
   commit include a test?", written to `cmk_change_tested`.
-- `unit_test_coverage/` — unit-test code coverage. Uploads overall coverage history to
+- `test_coverage/` — Python test coverage. Uploads overall coverage history to
   `cmk_code_coverage_total` and the latest per-module breakdown to
   `cmk_code_coverage_per_module`.
 
@@ -45,7 +45,7 @@ Per-target test invocations:
 ```bash
 bazel test //tests/unit/qa_metrics/db:db                            # shared-lib tests
 bazel test //tests/unit/qa_metrics/change_quality:change_quality    # change-quality metric tests
-bazel test //tests/unit/qa_metrics/unit_test_coverage:unit_test_coverage                # code-coverage metric tests
+bazel test //tests/unit/qa_metrics/test_coverage:tests               # code-coverage metric tests
 ```
 
 The change-quality test target opts out of the bazel sandbox (`tags =

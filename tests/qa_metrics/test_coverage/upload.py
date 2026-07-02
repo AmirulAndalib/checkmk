@@ -36,7 +36,7 @@ from pathlib import Path
 from psycopg import sql
 
 from tests.qa_metrics.db import apply_schema_file, MetabasePostgres
-from tests.qa_metrics.unit_test_coverage.rows import (
+from tests.qa_metrics.test_coverage.rows import (
     ModuleCoverageRow,
     PER_MODULE,
     TOTAL,

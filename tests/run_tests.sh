@@ -90,7 +90,6 @@ UNIT TESTS
   test-unit                               Run unit tests (not slow, respects EDITION)
   test-unit-docker                        Run unit tests in docker
   test-unit-all                           Run all unit tests including doctests
-  test-unit-all-coverage                  Run all unit tests with coverage report
   test-unit-neb                           Run unit tests for neb
   test-unit-cmc                           Run unit tests for cmc
   test-unit-omdlib                        Run unit tests for omdlib
@@ -589,10 +588,6 @@ test-unit-all() {
     cd "$REPO_PATH"
     bazel test --test_verbose_timeout_warnings //tests/unit/... \
         --test_env="TZ=$(_random_tz)"
-}
-
-test-unit-all-coverage() {
-    "$SCRIPT_DIR/qa_metrics/unit_test_coverage/main.sh" --run --generate-html
 }
 
 test-unit-testlib() {

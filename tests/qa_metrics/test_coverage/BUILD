@@ -4,7 +4,7 @@ load("@cmk_requirements//:requirements.bzl", "requirement")
 package(default_visibility = ["//tests:__subpackages__"])
 
 py_library(
-    name = "unit_test_coverage",
+    name = "test_coverage",
     srcs = [
         "__init__.py",
         "rows.py",
@@ -22,7 +22,7 @@ py_binary(
     srcs = ["upload.py"],
     imports = ["../../.."],
     deps = [
-        ":unit_test_coverage",
+        ":test_coverage",
         requirement("psycopg"),
         "//tests/qa_metrics/db",
     ],
