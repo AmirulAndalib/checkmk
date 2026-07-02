@@ -112,6 +112,55 @@ test('FormOptionalChoice updates validation', async () => {
   expect(element.value).toBe('66')
 })
 
+test('FormOptionalChoice with title delegates help rendering to parent', async () => {
+  await renderForm({
+    spec,
+    data: null,
+    backendValidation: []
+  })
+
+  expect(screen.queryAllByRole('button', { name: '?' })).toHaveLength(0)
+})
+
+test('FormOptionalChoice as dictionary element renders help only once', async () => {
+  const dictionarySpec: FormSpec.Dictionary = {
+    type: 'dictionary',
+    title: 'dictionary title',
+    help: '',
+    validators: [],
+    groups: [],
+    additional_static_elements: null,
+    no_elements_text: '',
+    elements: [
+      {
+        name: 'optional',
+        render_only: false,
+        required: true,
+        default_value: null,
+        parameter_form: spec,
+        group: null
+      }
+    ]
+  }
+  await renderForm({
+    spec: dictionarySpec,
+    data: { optional: null },
+    backendValidation: []
+  })
+
+  expect(screen.getAllByRole('button', { name: '?' })).toHaveLength(1)
+})
+
+test('FormOptionalChoice without title renders own help', async () => {
+  await renderForm({
+    spec: { ...spec, title: '' },
+    data: null,
+    backendValidation: []
+  })
+
+  expect(screen.getAllByRole('button', { name: '?' })).toHaveLength(1)
+})
+
 test('FormOptionalChoice enables/disables option', async () => {
   await renderForm({
     spec,

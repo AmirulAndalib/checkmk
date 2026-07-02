@@ -60,7 +60,7 @@ watch(checkboxValue, (newValue: boolean) => {
 
 <template>
   <CmkCheckbox v-model="checkboxValue" :label="untranslated(spec.i18n.label)" />
-  <CmkHelpText :help="untranslated(spec.help)" />
+  <CmkHelpText :help="untranslated(spec.title ? '' : spec.help)" />
   <CmkInlineValidation :validation="localValidation"></CmkInlineValidation>
   <FormIndent v-if="data !== null">
     <FormEditDispatcher
