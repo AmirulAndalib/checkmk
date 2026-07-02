@@ -46,7 +46,7 @@ CI delivers only a password, so `CI_ORA2_DB_TEST` is constructed from it in the 
 
 ## Running the tests
 
-The default flows connect **over the network** to a shared Oracle host (`oracle-rocky-ci.lan.checkmk.net`).
+By default both flows connect **over the network** to the shared Rocky-Linux CI DB. The dedicated Windows job overrides the target to the Windows-native DB (see below).
 
 **Linux** — via Bazel:
 
@@ -55,14 +55,16 @@ bazel test //packages/mk-oracle:mk-oracle-lib-test-internal   # unit tests, no D
 bazel test //packages/mk-oracle:mk-oracle-lib-test-external   # component tests, needs a DB + OCI client
 ```
 
-The component tests need the Oracle Instant Client staged under `runtimes/`; the package's `run` and `run.ps1` scripts orchestrate that and construct `CI_ORA2_DB_TEST` from `CI_ORA_TEST_PASSWORD`.
+The component tests need the Oracle Instant Client staged under `runtimes/`; the package's `run` script orchestrates that and constructs `CI_ORA2_DB_TEST` for `oracle-rocky-ci.lan.checkmk.net` from `CI_ORA_TEST_PASSWORD`.
 
-**Windows** — `run.ps1 --component-tests` builds the `x86_64-pc-windows-msvc` target and runs the suite against `$test_host` (see `run.ps1`).
+**Windows** — `run.ps1 --component-tests` builds the `x86_64-pc-windows-msvc` target and runs the suite.
+By default it constructs `CI_ORA2_DB_TEST` for the Rocky DB from `CI_ORA_TEST_PASSWORD`, exactly as on Linux.
+The `winagt-test-mk-oracle` job overrides `CI_ORA2_DB_TEST` to the Windows-native Oracle 23ai Free on `oracle-win-ci.lan.checkmk.net`, using its `CI_ORA_WIN_TEST_PASSWORD` credential — so that job exercises the Windows agent against a Windows-hosted DB while the shared build jobs keep using Rocky.
 
 ## Validating the Windows binary against a local Oracle host
 
-The default Windows job runs the binary on a build node and connects **over the network** to a Linux database.
-That never touches the host-local paths a co-located agent uses: local `sysdba`/bequeath connections and registry-based instance discovery (`HKLM\SOFTWARE\ORACLE`).
+The default Windows job runs the binary on a build node and connects **over the network** to `oracle-win-ci.lan.checkmk.net`.
+Even against a Windows-native DB, a network connection never touches the host-local paths a co-located agent uses: local `sysdba`/bequeath connections and registry-based instance discovery (`HKLM\SOFTWARE\ORACLE`).
 To cover those, run the Windows test binary **on** a Windows Oracle host and point it at `localhost`.
 
 This is a manual procedure; it is not yet wired into CI.

@@ -27,7 +27,7 @@
 
 Write-Host "run script starts" -ForegroundColor Gray
 
-if ((get-host).version.major -lt 7) {
+if ((Get-Host).version.major -lt 7) {
     Write-Host "PowerShell version 7 or higher is required." -ForegroundColor Red
     exit
 }
@@ -207,7 +207,7 @@ function Test-Administrator {
 
 function Update-Dirs() {
     $root_dir = "$pwd"
-    While (!(Test-Path "$root_dir/.werks" -ErrorAction SilentlyContinue)) {
+    while (!(Test-Path "$root_dir/.werks" -ErrorAction SilentlyContinue)) {
         $root_dir = Split-Path -Parent $root_dir -ErrorAction Stop
         if ($root_dir -eq "") {
             Write-Error "Not found repo root"  -ErrorAction Stop
@@ -217,7 +217,7 @@ function Update-Dirs() {
     Write-Host "Found root dir: '$global:root_dir'" -ForegroundColor White
 
     $arte_dir = "$root_dir/artefacts"
-    If (!(Test-Path -PathType container $arte_dir)) {
+    if (!(Test-Path -PathType container $arte_dir)) {
         Remove-Item $arte_dir -ErrorAction SilentlyContinue     # we may have find strange files from bad scripts
         Write-Host "Creating output dir: '$arte_dir'" -ForegroundColor White
         New-Item -ItemType Directory -Path $arte_dir -ErrorAction Stop > nul
@@ -254,7 +254,7 @@ try {
         & bazel build $target
         if ($LASTEXITCODE -eq 0) {
             $oci_light_win_x64_zip = (& bazel cquery $target --output=starlark  --starlark:expr='target.files.to_list()[0].path' )
-            $packaged = Split-Path "$oci_light_win_x64_zip" -leaf
+            $packaged = Split-Path "$oci_light_win_x64_zip" -Leaf
             Write-Host "Oracle runtime light/win/x64: $oci_light_win_x64_zip with name $packaged" -ForegroundColor Green
             Copy-Item -Path "$root_dir/$oci_light_win_x64_zip" -Destination "$arte_dir/" -Force -ErrorAction Stop
             $source_hash = (Get-FileHash "$arte_dir/$packaged" -Algorithm SHA256).Hash
@@ -274,11 +274,11 @@ try {
     }
     if ($packBuild) {
         $cwd = Get-Location
-        $target_dir = Join-Path (cargo metadata --no-deps | ConvertFrom-json).target_directory "$cargo_target"
+        $target_dir = Join-Path (cargo metadata --no-deps | ConvertFrom-Json).target_directory "$cargo_target"
         Write-Host "Killing processes in $target_dir" -ForegroundColor White
         Get-Process | Where-Object { $_.path -and ($_.path -like "$target_dir\*") } | Stop-Process -Force
         Invoke-Cargo-With-Explicit-Package "build" "--release" "--target" $cargo_target
-        $exe_dir = Join-Path (cargo metadata --no-deps | ConvertFrom-json).target_directory "$cargo_target" "release"
+        $exe_dir = Join-Path (cargo metadata --no-deps | ConvertFrom-Json).target_directory "$cargo_target" "release"
         Write-Host "Uploading artifacts: [ $exe_dir/$exe_name -> $arte_dir/$exe_name ] ..." -Foreground White
         Copy-Item $exe_dir/$exe_name $arte_dir/$exe_name -Force -ErrorAction Stop
     }

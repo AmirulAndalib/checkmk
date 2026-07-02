@@ -20,7 +20,8 @@ extern crate common;
 mod common;
 
 use crate::common::tools::{
-    default_role, make_mini_config, make_mini_config_cdb_root, make_mini_config_custom_instance,
+    default_role, make_endpoint_tns_admin_dir, make_mini_config, make_mini_config_cdb_root,
+    make_mini_config_custom_instance, make_mini_config_custom_instance_with_tns_admin,
     make_mini_config_pdb, make_mini_config_pdb_builtin_then_custom,
     make_mini_config_pdb_custom_then_builtin, make_mini_config_with_sid,
     platform::add_runtime_to_path, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
@@ -467,17 +468,15 @@ async fn test_remote_tns_custom_instance_connection() {
         std::env::var("TNS_ADMIN").unwrap_or_default()
     );
     let endpoint = remote_reference_endpoint();
-    // The fixture freezes ora_remote to the CI database; a local endpoint
-    // (localhost, e.g. the Docker tier) uses the static ora_local alias instead.
-    let alias = if endpoint.host == "localhost" {
-        "ora_local"
-    } else {
-        "ora_remote"
-    };
-    let config = make_mini_config_custom_instance(
+    // Resolve the alias through a generated tnsnames.ora that points at the
+    // reference endpoint itself: the alias mechanics get exercised without
+    // pinning the test to one specific reference DB host.
+    let tns_admin = make_endpoint_tns_admin_dir(&endpoint, "ora_remote");
+    let config = make_mini_config_custom_instance_with_tns_admin(
         &endpoint,
         "FREE",
-        Some(InstanceAlias::from(alias.to_string())),
+        Some(InstanceAlias::from("ora_remote".to_string())),
+        &tns_admin,
     );
     let env = Env::default();
     let r = generate_data(&config, &env).await;
