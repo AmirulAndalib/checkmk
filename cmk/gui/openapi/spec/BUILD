@@ -29,7 +29,6 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        ":utils",
         "//cmk/gui/fields:base",
         "//cmk/gui/openapi:_type_adapter",
         "//cmk/gui/openapi/framework:types",

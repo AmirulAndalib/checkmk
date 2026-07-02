@@ -146,7 +146,6 @@ py_library(
     deps = [
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
-        "//cmk/gui:html_toolkit",
         "//cmk/gui:page_toolkit",
         "//cmk/gui:painter_options",
         "//cmk/gui/painter:v0_base",

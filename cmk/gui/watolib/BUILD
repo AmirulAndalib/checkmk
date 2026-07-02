@@ -26,7 +26,6 @@ py_library(
     ],
     deps = [
         "//cmk/gui:auth_core",
-        "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
         "//cmk/gui/utils:escaping",
         "//cmk/gui/utils:html",
@@ -68,7 +67,6 @@ py_library(
         "//cmk/gui:auth_core",
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
-        "//cmk/gui:html_toolkit",
         "//cmk/gui:page_toolkit",
         "//cmk/gui/utils:loading_transition",
         "//cmk/gui/utils:speaklater",
@@ -135,7 +133,6 @@ py_library(
         "//cmk/gui:core_toolkit",
         "//cmk/gui/userdb",
         "//cmk/utils",
-        "//packages/cmk-ccc:user",
     ],
 )
 
@@ -170,7 +167,6 @@ py_library(
         "//cmk/gui/valuespec",
         "//cmk/utils",
         "//packages/cmk-ccc:plugin-registry",
-        "//packages/cmk-ccc:user",
     ],
 )
 

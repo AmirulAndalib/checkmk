@@ -22,7 +22,6 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/valuespec",
         "//packages/cmk-ccc:plugin-registry",
-        "//packages/cmk-ccc:store",
         requirement("pydantic"),
     ],
 )

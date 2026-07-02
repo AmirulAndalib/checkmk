@@ -86,7 +86,6 @@ py_library(
         "//cmk/utils",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:plugin-registry",
-        "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
         "//packages/cmk-livestatus-client",

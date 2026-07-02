@@ -35,11 +35,9 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        ":api_config",
         "//cmk/gui/openapi:_type_adapter",
         "//cmk/gui/openapi/restful_objects:type_defs",
         "//cmk/gui/utils:dataclasses",
-        "//packages/cmk-ccc:version",
         requirement("pydantic"),
         requirement("werkzeug"),
     ],

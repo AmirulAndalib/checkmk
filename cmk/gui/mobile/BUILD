@@ -32,7 +32,6 @@ py_library(
         "//cmk/gui/views:layout",
         "//cmk/gui/views:store",
         "//cmk/gui/visuals",
-        "//packages/cmk-ccc:site",
         "//packages/cmk-ccc:user",
     ],
 )

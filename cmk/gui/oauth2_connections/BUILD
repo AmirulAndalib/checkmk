@@ -15,7 +15,6 @@ py_library(
         "//cmk/gui/watolib:passwords",
         "//cmk/utils",
         "//packages/cmk-ccc:site",
-        "//packages/cmk-ccc:user",
     ],
 )
 
@@ -47,7 +46,6 @@ py_library(
         "//cmk/gui/watolib:passwords",
         "//cmk/utils",
         "//packages/cmk-ccc:site",
-        "//packages/cmk-ccc:user",
         requirement("requests"),
     ],
 )
