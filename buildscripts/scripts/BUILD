@@ -104,6 +104,7 @@ sh_library(
         "build_wine.sh",
         "check_community_edition_all_free.sh",
         "create_unsign_msi_patch.sh",
+        "extract_llvm.sh",
         "sign-packages.sh",
     ],
 )
