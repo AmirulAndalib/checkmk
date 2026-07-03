@@ -644,7 +644,7 @@ allows = [
 ]
 
 [components."cmk.mcp"]
-allows = ["@ccc", "cmk.utils.paths", "cmk.utils.local_secrets"]
+allows = ["@ccc"]
 
 [components."cmk.messaging"]
 allows = ["@ccc"]
