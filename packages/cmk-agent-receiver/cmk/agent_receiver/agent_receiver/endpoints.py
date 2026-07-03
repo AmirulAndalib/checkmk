@@ -166,9 +166,8 @@ async def register_existing(
         registration_body.host_name,
     )
     logger.info(
-        "uuid=%s registered host %s",
-        registration_body.uuid,
-        registration_body.host_name,
+        "uuid=%(uuid)s registered host %(host_name)s",
+        {"uuid": registration_body.uuid, "host_name": registration_body.host_name},
     )
     return RegisterExistingResponse(
         root_cert=root_cert,
@@ -201,9 +200,8 @@ async def register_existing_token(
         registration_body.host_name,
     )
     logger.info(
-        "uuid=%s registered host %s",
-        registration_body.uuid,
-        registration_body.host_name,
+        "uuid=%(uuid)s registered host %(host_name)s",
+        {"uuid": registration_body.uuid, "host_name": registration_body.host_name},
     )
     return RegisterExistingResponse(
         root_cert=root_cert,
@@ -231,8 +229,8 @@ async def pairing(
     )
 
     logger.info(
-        "uuid=%s Pairing succesful",
-        uuid,
+        "uuid=%(uuid)s Pairing succesful",
+        {"uuid": uuid},
     )
 
     return PairingResponse(
@@ -282,9 +280,8 @@ async def register_with_hostname(
         registration_body.uuid,
     )
     logger.info(
-        "uuid=%s registered host %s",
-        registration_body.uuid,
-        registration_body.host_name,
+        "uuid=%(uuid)s registered host %(host_name)s",
+        {"uuid": registration_body.uuid, "host_name": registration_body.host_name},
     )
     return Response(status_code=HTTP_204_NO_CONTENT)
 
@@ -318,8 +315,8 @@ async def register_new(
         ),
     ).write()
     logger.info(
-        "uuid=%s Stored new request for registration",
-        registration_body.uuid,
+        "uuid=%(uuid)s Stored new request for registration",
+        {"uuid": registration_body.uuid},
     )
 
     return RegisterNewResponse(root_cert=root_cert)
@@ -347,8 +344,8 @@ async def register_new_ongoing(
         r4r = R4R.read(uuid)
     except FileNotFoundError as e:
         logger.error(
-            "uuid=%s No registration in progress",
-            uuid,
+            "uuid=%(uuid)s No registration in progress",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND,
@@ -356,8 +353,8 @@ async def register_new_ongoing(
         ) from e
     if r4r.request.username != credentials.username:
         logger.error(
-            "uuid=%s Username mismatch",
-            uuid,
+            "uuid=%(uuid)s Username mismatch",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN,
@@ -367,14 +364,14 @@ async def register_new_ongoing(
     match r4r.status:
         case R4RStatus.NEW | R4RStatus.PENDING:
             logger.info(
-                "uuid=%s Registration in progress",
-                uuid,
+                "uuid=%(uuid)s Registration in progress",
+                {"uuid": uuid},
             )
             return RegisterNewOngoingResponseInProgress()
         case R4RStatus.DECLINED:
             logger.info(
-                "uuid=%s Registration declined",
-                uuid,
+                "uuid=%(uuid)s Registration declined",
+                {"uuid": uuid},
             )
             return RegisterNewOngoingResponseDeclined(
                 reason=r4r.request.rejection_notice() or "Reason unknown"
@@ -384,8 +381,8 @@ async def register_new_ongoing(
                 host = RegisteredHost(uuid)
             except NotRegisteredException as e:
                 logger.error(
-                    "uuid=%s Not registered even though r4r says otherwise!?",
-                    uuid,
+                    "uuid=%(uuid)s Not registered even though r4r says otherwise!?",
+                    {"uuid": uuid},
                 )
                 raise HTTPException(
                     status_code=HTTP_500_INTERNAL_SERVER_ERROR,
@@ -393,8 +390,8 @@ async def register_new_ongoing(
                     "should not have happend. Maybe someone removed the registration by hand?",
                 ) from e
             logger.info(
-                "uuid=%s Registration successful",
-                uuid,
+                "uuid=%(uuid)s Registration successful",
+                {"uuid": uuid},
             )
             return RegisterNewOngoingResponseSuccess(
                 agent_cert=r4r.request.agent_cert,
@@ -412,8 +409,8 @@ def _validate_is_allowed(credentials: HTTPBasicCredentials, uuid: UUID4) -> None
         )
     ).supports_register_new():
         logger.error(
-            "uuid=%s Registration of new hosts not suppored",
-            uuid,
+            "uuid=%(uuid)s Registration of new hosts not suppored",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_501_NOT_IMPLEMENTED,
@@ -453,8 +450,8 @@ async def agent_data(
         host = RegisteredHost(uuid)
     except NotRegisteredException as e:
         logger.error(
-            "uuid=%s Host is not registered",
-            uuid,
+            "uuid=%(uuid)s Host is not registered",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN,
@@ -462,8 +459,8 @@ async def agent_data(
         ) from e
     if host.connection_mode is not ConnectionMode.PUSH:
         logger.error(
-            "uuid=%s Host is not a push host",
-            uuid,
+            "uuid=%(uuid)s Host is not a push host",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN,
@@ -474,9 +471,8 @@ async def agent_data(
         decompressor = Decompressor(compression)
     except ValueError as e:
         logger.error(
-            "uuid=%s Unsupported compression algorithm: %s",
-            uuid,
-            compression,
+            "uuid=%(uuid)s Unsupported compression algorithm: %(compression)s",
+            {"uuid": uuid, "compression": compression},
         )
         raise HTTPException(
             status_code=400,
@@ -487,9 +483,8 @@ async def agent_data(
         decompressed_agent_data = decompressor(monitoring_data.file.read())
     except DecompressionError as e:
         logger.error(
-            "uuid=%s Decompression of agent data failed: %s",
-            uuid,
-            e,
+            "uuid=%(uuid)s Decompression of agent data failed: %(error)s",
+            {"uuid": uuid, "error": e},
         )
         raise HTTPException(
             status_code=400,
@@ -502,8 +497,8 @@ async def agent_data(
     )
 
     logger.info(
-        "uuid=%s Agent data saved",
-        uuid,
+        "uuid=%(uuid)s Agent data saved",
+        {"uuid": uuid},
     )
     return Response(status_code=HTTP_204_NO_CONTENT)
 
@@ -575,8 +570,8 @@ async def renew_certificate(
         RegisteredHost(uuid)
     except NotRegisteredException as e:
         logger.error(
-            "uuid=%s Host is not registered",
-            uuid,
+            "uuid=%(uuid)s Host is not registered",
+            {"uuid": uuid},
         )
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN,
@@ -586,8 +581,8 @@ async def renew_certificate(
     agent_cert = _sign_agent_csr(uuid, cert_renewal_body.csr)
 
     logger.info(
-        "uuid=%s Certificate renewal succeeded",
-        uuid,
+        "uuid=%(uuid)s Certificate renewal succeeded",
+        {"uuid": uuid},
     )
 
     return RenewCertResponse(

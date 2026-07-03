@@ -87,7 +87,10 @@ class RelaysRepository:
             },
         )
         if resp.status_code != HTTPStatus.OK:
-            logger.error("could not register relay %s : %s", resp.status_code, resp.text)
+            logger.error(
+                "could not register relay %(status_code)s : %(text)s",
+                {"status_code": resp.status_code, "text": resp.text},
+            )
             raise CheckmkAPIError(resp.text)
         assert relay_id == resp.json()["id"]
         return relay_id

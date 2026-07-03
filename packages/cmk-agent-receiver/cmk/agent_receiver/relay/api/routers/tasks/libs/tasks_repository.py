@@ -97,7 +97,7 @@ class TasksRepository:
             # _TimedTaskStore automatically handles expiration when calling values()
             return tasks.values()
         except KeyError:
-            logger.debug("No tasks for relay with ID %s found", relay_id)
+            logger.debug("No tasks for relay with ID %(relay_id)s found", {"relay_id": relay_id})
             return []
 
     def get_task(self, relay_id: RelayID, task_id: TaskID) -> RelayTask:
@@ -128,7 +128,10 @@ class TasksRepository:
         try:
             task = GLOBAL_TASKS[relay_id][task_id]
         except KeyError as exc:
-            logger.warning("Relay %s: Task with ID %s not found", relay_id, task_id)
+            logger.warning(
+                "Relay %(relay_id)s: Task with ID %(task_id)s not found",
+                {"relay_id": relay_id, "task_id": task_id},
+            )
             raise TaskNotFoundError(task_id) from exc
 
         new_task = dataclasses.replace(
@@ -160,7 +163,7 @@ class TimedTaskStore:
         expired_task_ids = [
             task_id for task_id, task in self._tasks.items() if self._is_expired(task)
         ]
-        logger.debug("Expiring Tasks: %s", expired_task_ids)
+        logger.debug("Expiring Tasks: %(task_ids)s", {"task_ids": expired_task_ids})
 
         for task_id in expired_task_ids:
             del self._tasks[task_id]

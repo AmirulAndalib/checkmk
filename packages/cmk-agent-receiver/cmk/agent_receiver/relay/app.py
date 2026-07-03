@@ -48,10 +48,13 @@ def _build_config_task_factory() -> ConfigTaskFactory:
     wait=wait_exponential(multiplier=0.5, max=5),
     retry=retry_if_exception_type(CheckmkAPIError),
     before_sleep=lambda retry_state: logger.info(
-        "Failed to send config to relays (attempt %d): %s. Retrying in %.2f seconds...",
-        retry_state.attempt_number,
-        retry_state.outcome.exception() if retry_state.outcome else "Unknown error",
-        retry_state.next_action.sleep if retry_state.next_action else 0,
+        "Failed to send config to relays (attempt %(attempt)d): %(error)s. "
+        "Retrying in %(sleep).2f seconds...",
+        {
+            "attempt": retry_state.attempt_number,
+            "error": retry_state.outcome.exception() if retry_state.outcome else "Unknown error",
+            "sleep": retry_state.next_action.sleep if retry_state.next_action else 0,
+        },
     ),
     reraise=True,
 )
@@ -60,9 +63,11 @@ async def _build_config_for_relays() -> None:
     factory = _build_config_task_factory()
     created = factory.create_for_all_relays()
     logger.info(
-        "startup: created %d config task(s) for %d relay(s)",
-        len(created),
-        len({t.relay_id for t in created}),
+        "startup: created %(task_count)d config task(s) for %(relay_count)d relay(s)",
+        {
+            "task_count": len(created),
+            "relay_count": len({t.relay_id for t in created}),
+        },
     )
 
 
@@ -86,7 +91,9 @@ def _schedule_initial_relay_config() -> None:
             t.result()
         except Exception as exc:
             logger.warning(
-                "startup: initial relay config task failed after retries: %s", exc, exc_info=True
+                "startup: initial relay config task failed after retries: %(error)s",
+                {"error": exc},
+                exc_info=True,
             )
         else:
             logger.info("startup: initial relay config task finished successfully")

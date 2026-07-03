@@ -131,9 +131,8 @@ def log_http_exception[**TEndpointParams, TEndpointReturn](
             return endpoint_call(*args, **kwargs)
         except HTTPException as http_excpt:
             logger.error(
-                "%s. Error message: %s",
-                log_text,
-                http_excpt.detail,
+                "%(log_text)s. Error message: %(detail)s",
+                {"log_text": log_text, "detail": http_excpt.detail},
             )
             raise http_excpt
 

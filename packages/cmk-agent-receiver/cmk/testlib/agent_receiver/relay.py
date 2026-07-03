@@ -26,5 +26,8 @@ def site_has_relay(client: httpx.Client, relay_id: RelayID, auth: SiteAuth) -> b
         return False
     if resp.status_code == HTTPStatus.OK:
         return True
-    logger.error("could not check if relay exists %s : %s", resp.status_code, resp.text)
+    logger.error(
+        "could not check if relay exists %(status_code)s : %(text)s",
+        {"status_code": resp.status_code, "text": resp.text},
+    )
     raise CheckmkAPIError(resp.text)

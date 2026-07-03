@@ -74,7 +74,9 @@ class ConfigTaskFactory:
         does nothing and returns ConfigTaskSkipped.
         """
         if not self.relays_repository.relay_config_applied(relay_id):
-            logger.debug("Skipping config task creation for relay %s", relay_id)
+            logger.debug(
+                "Skipping config task creation for relay %(relay_id)s", {"relay_id": relay_id}
+            )
             return ConfigTaskSkipped(relay_id)
         return self._create([relay_id])[0]
 
@@ -102,7 +104,10 @@ class ConfigTaskFactory:
                 # TODO This check should be performed in TasksRepository, when saving
                 if self._pending_configuration_task_exists(relay_id, serial):
                     # Skip creating duplicate pending tasks
-                    logger.info("Skipping config task creation for %s, pending", relay_id)
+                    logger.info(
+                        "Skipping config task creation for %(relay_id)s, pending",
+                        {"relay_id": relay_id},
+                    )
                     return ConfigTaskAlreadyExists(relay_id)
                 parent = helper_config_dir / f"{serial}/relays/{relay_id}"
                 relay_config_spec = RelayConfigSpec(serial=serial, tar_data=create_tar(parent))
