@@ -101,6 +101,7 @@ _EXCLUDED_PREFIXES = (
 _INCLUDED_PATHS = (
     "cmk/update_config/plugins/actions/validate_mk_files.py",
     "cmk/base/notify.py",
+    "packages/cmk-ec/cmk/ec/main.py",
 )
 
 
