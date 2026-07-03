@@ -104,6 +104,7 @@ _INCLUDED_PATHS = (
     "packages/cmk-ec/cmk/ec/main.py",
     "non-free/packages/cmk-update-agent",
     "tests/testlib/site.py",
+    "non-free/packages/cmk-dcd/cmk/dcd",
 )
 
 
