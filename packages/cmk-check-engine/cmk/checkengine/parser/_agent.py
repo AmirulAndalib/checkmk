@@ -120,7 +120,10 @@ class ParserState(abc.ABC):
         raise NotImplementedError()
 
     def to_noop_parser(self) -> NOOPParser:
-        self._logger.debug("Transition %s -> %s", type(self).__name__, NOOPParser.__name__)
+        self._logger.debug(
+            "Transition %(from_state)s -> %(to_state)s",
+            {"from_state": type(self).__name__, "to_state": NOOPParser.__name__},
+        )
         return NOOPParser(
             self.hostname,
             self.sections,
@@ -135,10 +138,12 @@ class ParserState(abc.ABC):
         section_header: SectionMarker,
     ) -> HostSectionParser:
         self._logger.debug(
-            "%s / Transition %s -> %s",
-            section_header,
-            type(self).__name__,
-            HostSectionParser.__name__,
+            "%(section_header)s / Transition %(from_state)s -> %(to_state)s",
+            {
+                "section_header": section_header,
+                "from_state": type(self).__name__,
+                "to_state": HostSectionParser.__name__,
+            },
         )
         if not self.sections or self.sections[-1].header != section_header:
             self.sections.append(SectionWithHeader(section_header, []))
@@ -157,10 +162,12 @@ class ParserState(abc.ABC):
         header: PiggybackMarker,
     ) -> PiggybackParser:
         self._logger.debug(
-            "%s / Transition %s -> %s",
-            header,
-            type(self).__name__,
-            PiggybackParser.__name__,
+            "%(header)s / Transition %(from_state)s -> %(to_state)s",
+            {
+                "header": header,
+                "from_state": type(self).__name__,
+                "to_state": PiggybackParser.__name__,
+            },
         )
         self.piggyback_sections.setdefault(header, [])
         return PiggybackParser(
@@ -179,11 +186,13 @@ class ParserState(abc.ABC):
         section_header: SectionMarker,
     ) -> PiggybackSectionParser:
         self._logger.debug(
-            "%r %r / Transition %s -> %s",
-            current_host,
-            section_header,
-            type(self).__name__,
-            PiggybackSectionParser.__name__,
+            "%(current_host)r %(section_header)r / Transition %(from_state)s -> %(to_state)s",
+            {
+                "current_host": current_host,
+                "section_header": section_header,
+                "from_state": type(self).__name__,
+                "to_state": PiggybackSectionParser.__name__,
+            },
         )
         if (
             not self.piggyback_sections[current_host]
@@ -227,9 +236,8 @@ class ParserState(abc.ABC):
 
     def to_error(self, line: bytes) -> ParserState:
         self._logger.warning(
-            "%s: Ignoring invalid data %r",
-            type(self).__name__,
-            line,
+            "%(state)s: Ignoring invalid data %(line)r",
+            {"state": type(self).__name__, "line": line},
             # to_error() is only ever called from within an `except` block,
             # so exc_info is valid here.
             exc_info=True,  # noqa: LOG014

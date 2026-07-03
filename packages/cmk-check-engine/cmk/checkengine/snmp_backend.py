@@ -62,7 +62,8 @@ def make_backend(
         backend_cls = _BACKENDS[backend_type]
     except KeyError:
         logger.exception(
-            "Unknown SNMP backend: %s. Using CLASSIC backend as fallback", backend_type
+            "Unknown SNMP backend: %(backend_type)s. Using CLASSIC backend as fallback",
+            {"backend_type": backend_type},
         )
         backend_cls = _BACKENDS[SNMPBackendEnum.CLASSIC]
     return backend_cls(snmp_config, logger)

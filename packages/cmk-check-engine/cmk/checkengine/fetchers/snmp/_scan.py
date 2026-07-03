@@ -109,7 +109,8 @@ def _prefetch_description_object(*, backend: SNMPBackend) -> Mapping[str, SNMPDe
 def _fake_description_object(logger: Logger) -> Mapping[str, SNMPDecodedString]:
     """Fake OID values to prevent issues with a lot of scan functions"""
     logger.debug(
-        '       Skipping system description OID (Set %s and %s to "")', OID_SYS_DESCR, OID_SYS_OBJ
+        '       Skipping system description OID (Set %(sys_descr)s and %(sys_obj)s to "")',
+        {"sys_descr": OID_SYS_DESCR, "sys_obj": OID_SYS_OBJ},
     )
     return {OID_SYS_DESCR: "", OID_SYS_OBJ: ""}
 
@@ -158,4 +159,13 @@ def _output_snmp_check_plugins(
     title: str, collection: Collection[SNMPSectionName], logger: Logger
 ) -> None:
     collection_out = " ".join(str(n) for n in sorted(collection)) if collection else "-"
-    logger.debug("   %-35s%s%s%s%s", title, tty.bold, tty.yellow, collection_out, tty.normal)
+    logger.debug(
+        "   %(title)-35s%(bold)s%(yellow)s%(collection)s%(normal)s",
+        {
+            "title": title,
+            "bold": tty.bold,
+            "yellow": tty.yellow,
+            "collection": collection_out,
+            "normal": tty.normal,
+        },
+    )

@@ -47,7 +47,10 @@ class SectionStore[T]:
             self.path,
             {str(k): v for k, v in sections.items()},
         )
-        self._logger.debug("Stored persisted sections: %s", ", ".join(str(s) for s in sections))
+        self._logger.debug(
+            "Stored persisted sections: %(sections)s",
+            {"sections": ", ".join(str(s) for s in sections)},
+        )
 
     def load(self) -> MutableMapping[SectionName, tuple[int, int, T]]:
         raw_sections_data = _store.load_object_from_pickle_file(self.path, default={})
@@ -126,11 +129,13 @@ class SectionStore[T]:
             # Don't overwrite sections that have been received from the source with this call
             if section_name in sections:
                 self._logger.debug(
-                    "Skipping persisted section %r, live data available",
-                    section_name,
+                    "Skipping persisted section %(section_name)r, live data available",
+                    {"section_name": section_name},
                 )
                 continue
 
-            self._logger.debug("Using persisted section %r", section_name)
+            self._logger.debug(
+                "Using persisted section %(section_name)r", {"section_name": section_name}
+            )
             result[section_name] = entry[-1]
         return result

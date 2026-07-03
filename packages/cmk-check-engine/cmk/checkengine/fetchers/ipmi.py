@@ -182,9 +182,8 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
 
     def open(self) -> None:
         self._logger.debug(
-            "Connecting to %s:623 (User: %s, Privlevel: 2)",
-            self.address or "local",
-            self.username or "no user",
+            "Connecting to %(address)s:623 (User: %(user)s, Privlevel: 2)",
+            {"address": self.address or "local", "user": self.username or "no user"},
         )
 
         # Performance: See header.
@@ -204,7 +203,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             return
 
-        self._logger.debug("Closing connection to %s:623", self._command.bmc)
+        self._logger.debug("Closing connection to %(bmc)s:623", {"bmc": self._command.bmc})
 
         # This should not be our task, but seems pyghmi is not cleaning up good enough.
         # There are some module and class level caches in pyghmi.ipmi.private.session that
@@ -241,7 +240,9 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             raise OSError(errno.ENOTCONN, os.strerror(errno.ENOTCONN))
 
-        self._logger.debug("Fetching sensor data via UDP from %s:623", self._command.bmc)
+        self._logger.debug(
+            "Fetching sensor data via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
+        )
 
         # Performance: See header.
         import pyghmi.ipmi.sdr as ipmi_sdr  # type: ignore[import-untyped,unused-ignore] # nosec B415 # BNS:7c4e91
@@ -249,7 +250,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         try:
             sdr = ipmi_sdr.SDR(self._command)
         except NotImplementedError as e:
-            self._logger.debug("Failed to fetch sensor data: %r", e)
+            self._logger.debug("Failed to fetch sensor data: %(exc)r", {"exc": e})
             self._logger.debug("Exception", exc_info=True)
             return AgentRawData(b"")
 
@@ -269,7 +270,10 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
                 # not installed
                 if "GPU" in reading.name and has_no_gpu:
                     continue
-                self._logger.debug("Raw reading states of %s: %s", reading.name, reading.states)
+                self._logger.debug(
+                    "Raw reading states of %(name)s: %(states)s",
+                    {"name": reading.name, "states": reading.states},
+                )
                 sensors.append(IPMISensor.from_reading(sensor.sensor_number, reading))
 
         return AgentRawData(
@@ -281,13 +285,15 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             raise OSError(errno.ENOTCONN, os.strerror(errno.ENOTCONN))
 
-        self._logger.debug("Fetching firmware information via UDP from %s:623", self._command.bmc)
+        self._logger.debug(
+            "Fetching firmware information via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
+        )
         try:
             firmware_entries = self._command.get_firmware()
         except MKTimeout:
             raise
         except Exception as e:
-            self._logger.debug("Failed to fetch firmware information: %r", e)
+            self._logger.debug("Failed to fetch firmware information: %(exc)r", {"exc": e})
             self._logger.debug("Exception", exc_info=True)
             return AgentRawData(b"")
 
@@ -309,13 +315,15 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
             return False
 
         # helper to sort out not installed GPU components
-        self._logger.debug("Fetching inventory information via UDP from %s:623", self._command.bmc)
+        self._logger.debug(
+            "Fetching inventory information via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
+        )
         try:
             inventory_entries = self._command.get_inventory_descriptions()
         except MKTimeout:
             raise
         except Exception as e:
-            self._logger.debug("Failed to fetch inventory information: %r", e)
+            self._logger.debug("Failed to fetch inventory information: %(exc)r", {"exc": e})
             self._logger.debug("Exception", exc_info=True)
             # in case of connection problems, we don't want to ignore possible
             # GPU entries

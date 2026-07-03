@@ -68,7 +68,7 @@ class ClassicSNMPBackend(SNMPBackend):
             oid_prefix,
         ]
 
-        self._logger.debug("Running '%s'", subprocess.list2cmdline(command))
+        self._logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
 
         with subprocess.Popen(
             command,
@@ -84,7 +84,8 @@ class ClassicSNMPBackend(SNMPBackend):
 
         if snmp_process.returncode:
             self._logger.debug(
-                "%s%sERROR: %sSNMP error: %s", tty.red, tty.bold, tty.normal, error.strip()
+                "%(red)s%(bold)sERROR: %(normal)sSNMP error: %(error)s",
+                {"red": tty.red, "bold": tty.bold, "normal": tty.normal, "error": error.strip()},
             )
             return None
 
@@ -97,7 +98,7 @@ class ClassicSNMPBackend(SNMPBackend):
             return None
         item = parts[0]
         value = parts[1].strip()
-        self._logger.debug("SNMP answer: ==> [%s]", value)
+        self._logger.debug("SNMP answer: ==> [%(value)s]", {"value": value})
         if value.startswith(
             (
                 "No more variables",
@@ -132,7 +133,7 @@ class ClassicSNMPBackend(SNMPBackend):
         portspec = self._snmp_port_spec()
         command = self._snmp_base_command("snmpwalk", context) + ["-Cc"]
         command += ["-OQ", "-OU", "-On", "-Ot", f"{protospec}{ipaddress}{portspec}", oid]
-        self._logger.debug("Running '%s'", subprocess.list2cmdline(command))
+        self._logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
 
         rowinfo: SNMPRowInfo = []
         with subprocess.Popen(
@@ -154,7 +155,8 @@ class ClassicSNMPBackend(SNMPBackend):
 
         if snmp_process.returncode:
             self._logger.debug(
-                "%s%sERROR: %sSNMP error: %s", tty.red, tty.bold, tty.normal, error.strip()
+                "%(red)s%(bold)sERROR: %(normal)sSNMP error: %(error)s",
+                {"red": tty.red, "bold": tty.bold, "normal": tty.normal, "error": error.strip()},
             )
             raise BackendError(
                 f"SNMP Error on {ipaddress}: {error.strip()} (Exit-Code: {snmp_process.returncode})"

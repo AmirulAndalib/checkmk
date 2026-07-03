@@ -207,10 +207,8 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
             raise FetcherError("IP Address of the host %s is not known" % self.host_name)
 
         self._logger.debug(
-            "Connecting via TCP to %s:%d (%ss timeout)",
-            self.address[0],
-            self.address[1],
-            self.timeout,
+            "Connecting via TCP to %(host)s:%(port)d (%(timeout)ss timeout)",
+            {"host": self.address[0], "port": self.address[1], "timeout": self.timeout},
         )
         self.close()
         self._socket = socket.socket(self.family, socket.SOCK_STREAM)
@@ -233,7 +231,10 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
     def close(self) -> None:
         if self._socket is None:
             return
-        self._logger.debug("Closing TCP connection to %s:%d", self.address[0], self.address[1])
+        self._logger.debug(
+            "Closing TCP connection to %(host)s:%(port)d",
+            {"host": self.address[0], "port": self.address[1]},
+        )
         self._socket.close()
         self._socket = None
 
@@ -272,7 +273,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         except ValueError:
             raise FetcherError(f"Unknown transport protocol: {bytes(memoryview(agent_data)[:2])!r}")
 
-        self._logger.debug("Detected transport protocol: %s", protocol)
+        self._logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
         return protocol, memoryview(agent_data)[2:]
 
     def _get_agent_data(self, sock: socket.socket, server_hostname: str | None) -> AgentRawData:
@@ -289,7 +290,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         except ValueError:
             raise FetcherError(f"Unknown transport protocol: {raw_protocol!r}")
 
-        self._logger.debug("Detected transport protocol: %s", protocol)
+        self._logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
         validate_agent_protocol(
             protocol, self.encryption_handling, is_registered=server_hostname is not None
         )

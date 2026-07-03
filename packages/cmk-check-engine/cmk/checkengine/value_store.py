@@ -52,7 +52,7 @@ class AllValueStoresStore:
     ) -> None:
         self.path: Final = path
         self._log_debug: Final = lambda x: (
-            logger.debug("value store: %s", x) if log_debug is None else log_debug
+            logger.debug("value store: %(msg)s", {"msg": x}) if log_debug is None else log_debug
         )
         self._last_known_state: None | _LastState = None
 
@@ -77,7 +77,10 @@ class AllValueStoresStore:
             self._last_known_state = None
             data = {}
         except (json.JSONDecodeError, ValueError, TypeError) as exc:
-            logger.warning("value store: ignoring corrupt file %s: %s", self.path, exc)
+            logger.warning(
+                "value store: ignoring corrupt file %(path)s: %(exc)s",
+                {"path": self.path, "exc": exc},
+            )
             self._last_known_state = None
             data = {}
 

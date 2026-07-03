@@ -69,12 +69,11 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
         return cls(**params)
 
     def open(self) -> None:
-        self._logger.debug("Calling: %s", self.cmdline)
+        self._logger.debug("Calling: %(cmdline)s", {"cmdline": self.cmdline})
         if self.stdin:
             self._logger.debug(
-                "STDIN (first 30 bytes): %s... (total %d bytes)",
-                self.stdin[:30],
-                len(self.stdin),
+                "STDIN (first 30 bytes): %(stdin_head)s... (total %(stdin_len)d bytes)",
+                {"stdin_head": self.stdin[:30], "stdin_len": len(self.stdin)},
             )
 
         # We can not create a separate process group when running Nagios
@@ -132,10 +131,13 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
         )
         if self._process.returncode:
             self._logger.error(
-                "Program fetcher failure. Command: '%s'. Exit code: %s. Error message: %s",
-                self.cmdline,
-                self._process.returncode,
-                stderr.decode() if hasattr(stderr, "decode") else stderr,
+                "Program fetcher failure. Command: '%(cmdline)s'. Exit code: %(exit_code)s. "
+                "Error message: %(error)s",
+                {
+                    "cmdline": self.cmdline,
+                    "exit_code": self._process.returncode,
+                    "error": stderr.decode() if hasattr(stderr, "decode") else stderr,
+                },
             )
             # FYI: We do not want to expose any details about the command in the UI.
             # It might contain sensitive information!

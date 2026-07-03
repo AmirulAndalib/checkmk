@@ -340,7 +340,10 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
         for section_name in self._sort_section_names(section_names):
             if section_name in cached_data:
                 continue
-            self._logger.debug("%s: Fetching data (%s)", section_name, walk_cache_msg)
+            self._logger.debug(
+                "%(section_name)s: Fetching data (%(walk_cache_msg)s)",
+                {"section_name": section_name, "walk_cache_msg": walk_cache_msg},
+            )
             try:
                 fetched_data[section_name] = [
                     get_snmp_table(

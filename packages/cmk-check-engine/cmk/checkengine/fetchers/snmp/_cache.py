@@ -81,13 +81,19 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
         for path in self._iterfiles():
             fetchoid, context_hash = self._name2oid(path.name)
 
-            self._logger.debug("  Loading %s from walk cache %s", fetchoid, path)
+            self._logger.debug(
+                "  Loading %(fetchoid)s from walk cache %(path)s",
+                {"fetchoid": fetchoid, "path": path},
+            )
             try:
                 read_walk = self._read_row(path)
             except MKTimeout:
                 raise
             except Exception:
-                self._logger.debug("  Failed to load %s from walk cache %s", fetchoid, path)
+                self._logger.debug(
+                    "  Failed to load %(fetchoid)s from walk cache %(path)s",
+                    {"fetchoid": fetchoid, "path": path},
+                )
                 continue
 
             if read_walk is not None:
@@ -101,7 +107,10 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
                 continue
 
             path = self._path / self._oid2name(fetchoid, context_hash)
-            self._logger.debug("  Saving walk of %s to walk cache %s", fetchoid, path)
+            self._logger.debug(
+                "  Saving walk of %(fetchoid)s to walk cache %(path)s",
+                {"fetchoid": fetchoid, "path": path},
+            )
             self._write_row(path, rowinfo)
 
 
