@@ -22,6 +22,7 @@ import EventsWizard from '../Wizard/wizards/events/EventsWizard.vue'
 import HostsSiteWizard from '../Wizard/wizards/hosts-site/HostsSiteWizard.vue'
 import HwSwInventoryWizard from '../Wizard/wizards/hw_sw_inventory/HwSwInventoryWizard.vue'
 import MetricsWizard from '../Wizard/wizards/metrics/MetricsWizard.vue'
+import NetworkFlowWizard from '../Wizard/wizards/network-flow/NetworkFlowWizard.vue'
 import NtopWizard from '../Wizard/wizards/ntop/NtopWizard.vue'
 import OtherWizard from '../Wizard/wizards/other/OtherWizard.vue'
 import ServicesOverviewWizard from '../Wizard/wizards/services/ServicesOverviewWizard.vue'
@@ -86,7 +87,7 @@ const handleAddEditWidget = (
       :aria-label="
         props.editWidgetId ? _t('Edit widget properties') : _t('Add widget to dashboard')
       "
-      :size="['other', 'ntop'].includes(selectedWizard) ? 'small' : 'medium'"
+      :size="['other', 'ntop', 'network_flow'].includes(selectedWizard) ? 'small' : 'medium'"
     >
       <AlertsAndNotificationsWizard
         v-if="selectedWizard === 'alerts_notifications'"
@@ -184,6 +185,14 @@ const handleAddEditWidget = (
 
       <NtopWizard
         v-if="selectedWizard === 'ntop'"
+        :edit-widget-spec="editWidgetSpec"
+        @go-back="handleGoBack"
+        @close="handleClose"
+        @add-widget="handleAddEditWidget"
+      />
+
+      <NetworkFlowWizard
+        v-if="selectedWizard === 'network_flow'"
         :edit-widget-spec="editWidgetSpec"
         @go-back="handleGoBack"
         @close="handleClose"

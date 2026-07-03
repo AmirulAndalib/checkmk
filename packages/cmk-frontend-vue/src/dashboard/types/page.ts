@@ -49,7 +49,11 @@ export interface DashboardPageProperties {
     user_guide: string
   }
   available_layouts: DashboardLayout[]
-  available_features: { dashboard_features: DashboardFeatures; ntop_active: boolean }
+  available_features: {
+    dashboard_features: DashboardFeatures
+    ntop_active: boolean
+    network_flow_active: boolean
+  }
   permissions: DashboardPermissions
   logged_in_user: string
 }

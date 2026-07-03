@@ -81,6 +81,7 @@ py_library(
         "//cmk/gui/views:store",
         "//cmk/gui/visuals",
         "//cmk/gui/watolib",
+        "//cmk/gui/watolib:config_infra",
         "//cmk/gui/watolib:groups_io",
         "//cmk/utils",
         "//packages/cmk-ccc:exceptions",

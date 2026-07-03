@@ -19,7 +19,8 @@ export interface WorkflowItem {
 }
 
 export function getDashboardWidgetWorkflows(
-  ntopActive: boolean = false
+  ntopActive: boolean = false,
+  networkFlowActive: boolean = false
 ): Record<string, WorkflowItem> {
   const workflows: Record<string, WorkflowItem> = {
     metrics_graphs: {
@@ -77,6 +78,13 @@ export function getDashboardWidgetWorkflows(
       icon: 'ntop'
     }
   }
+  if (networkFlowActive) {
+    workflows['network_flow'] = {
+      title: _t('Network flow monitoring'),
+      subtitle: _t('Visualize network flow traffic, applications and autonomous systems'),
+      icon: 'network-topology'
+    }
+  }
   return workflows
 }
 
@@ -91,3 +99,4 @@ export type DashboardWidgetWorkflowKey =
   | 'event_stats'
   | 'other'
   | 'ntop'
+  | 'network_flow'

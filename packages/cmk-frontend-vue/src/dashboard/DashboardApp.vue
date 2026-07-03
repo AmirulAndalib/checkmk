@@ -181,7 +181,10 @@ const widgetTitles = useComputeWidgetTitles(
   dashboardFilters.baseFilters,
   dashboardWidgets.widgetCores
 )
-const dashboardWidgetWorkflows = getDashboardWidgetWorkflows(props.available_features.ntop_active)
+const dashboardWidgetWorkflows = getDashboardWidgetWorkflows(
+  props.available_features.ntop_active,
+  props.available_features.network_flow_active
+)
 
 useProvideMissingRuntimeFiltersAction(dashboardFilters.areAllMandatoryFiltersApplied, () => {
   openDashboardFilterSettings.value = true
