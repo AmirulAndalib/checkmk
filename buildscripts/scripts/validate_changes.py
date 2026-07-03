@@ -245,7 +245,7 @@ def evaluate_vars(raw_vars: Sequence[Vars], env_vars: Vars) -> Vars:
     result: dict[str, str] = dict(env_vars)
     for e in raw_vars:
         if e["NAME"] in result:
-            LOG.info("Trying to set existing variable %r", e["NAME"])
+            LOG.info("Trying to set existing variable %(name)r", {"name": e["NAME"]})
             continue
 
         cmd = replace_variables(e["SH"], result)
@@ -255,10 +255,10 @@ def evaluate_vars(raw_vars: Sequence[Vars], env_vars: Vars) -> Vars:
                 " Did you forget to provide them with --env?"
             )
 
-        LOG.debug("evaluate %r run command %r", e["NAME"], cmd)
+        LOG.debug("evaluate %(name)r run command %(cmd)r", {"name": e["NAME"], "cmd": cmd})
         replace_newlines = convert_newline_entry_to_bool(e.get("REPLACE_NEWLINES", False))
         cmd_result = run_shell_command(cmd, replace_newlines)
-        LOG.debug("set to %r", cmd_result)
+        LOG.debug("set to %(cmd_result)r", {"cmd_result": cmd_result})
         result[e["NAME"]] = cmd_result
 
     return result
@@ -372,7 +372,7 @@ async def run_locally(
         print(f"RUN stage ======== {col['bold']}{name}{col['reset']} ============")
 
         for key, value in stage.items():
-            LOG.debug("%s: %s", key, value)
+            LOG.debug("%(key)s: %(value)s", {"key": key, "value": value})
 
         output: list[str] = []
         t_before = time.time()
@@ -430,13 +430,16 @@ def main() -> None:
         datefmt="%H:%M:%S",
         level=getattr(logging, {0: "WARNING", 1: "INFO", 2: "DEBUG"}.get(args.verbose, "WARNING")),
     )
-    LOG.debug("Python: %s %s", ".".join(map(str, sys.version_info)), sys.executable)
-    LOG.debug("Args: %s", args.__dict__)
-    LOG.debug("CWD: %s", os.getcwd())
+    LOG.debug(
+        "Python: %(version)s %(executable)s",
+        {"version": ".".join(map(str, sys.version_info)), "executable": sys.executable},
+    )
+    LOG.debug("Args: %(args)s", {"args": args.__dict__})
+    LOG.debug("CWD: %(cwd)s", {"cwd": os.getcwd()})
     env_vars = {key: value for var in args.env for key, value in (var.split("=", 1),)}
-    LOG.debug("Variables provided via command: %s", env_vars)
+    LOG.debug("Variables provided via command: %(env_vars)s", {"env_vars": env_vars})
     for key, value in os.environ.items():
-        LOG.debug("ENV: %s: %s", key, value)
+        LOG.debug("ENV: %(key)s: %(value)s", {"key": key, "value": value})
 
     if not args.write_file:
         print(f"Read and process {args.input}")

@@ -91,7 +91,10 @@ def main() -> None:
     alias_name, source_name = sys.argv[1], sys.argv[2]
 
     client = docker.from_env(timeout=1200)
-    LOG.info("Docker version: %r", client.info()["ServerVersion"])
+    LOG.info(
+        "Docker version: %(server_version)r",
+        {"server_version": client.info()["ServerVersion"]},
+    )
 
     print(f"pull image {source_name}")
     image = client.images.pull(source_name)
@@ -102,7 +105,7 @@ def main() -> None:
         f"{REGISTRY}/{source_base_name}:{'-'.join(source_tags + ['image-alias'] + git_info())}"
     )
 
-    LOG.info("tag image as %s", name_in_registry)
+    LOG.info("tag image as %(name_in_registry)s", {"name_in_registry": name_in_registry})
     result = image.tag(name_in_registry)
     assert result
 
@@ -122,7 +125,10 @@ def main() -> None:
 
     remote_image_name = f"{REGISTRY}/{source_base_name}@{digest}"
 
-    LOG.info("pull sha %s (for verification)", remote_image_name)
+    LOG.info(
+        "pull sha %(remote_image_name)s (for verification)",
+        {"remote_image_name": remote_image_name},
+    )
     repulled = client.images.pull(remote_image_name)
 
     new_digests = [d for d in repulled.attrs["RepoDigests"] if d.startswith(REGISTRY)]
