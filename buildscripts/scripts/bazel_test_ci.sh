@@ -14,6 +14,7 @@ RC=0
 bazel test \
     --build_event_json_file="$bep_json" \
     --keep_going \
+    --build_tests_only \
     --//:use_faked_artifacts=true \
     --test_tag_filters="$tag_filters" \
     "$@" || RC=$?
