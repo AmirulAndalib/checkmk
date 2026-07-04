@@ -27,6 +27,7 @@ py_cmk_test(
         "//tests/unit/cmk/gui:conftest",
         requirement("flask"),
         requirement("pytest-mock"),
+        requirement("redis"),
         requirement("responses"),
         requirement("time-machine"),
     ],

@@ -207,19 +207,10 @@ class FolderMetaData:
 
     def num_hosts_recursively(self, acting_user: LoggedInUser) -> int:
         if self._num_hosts_recursively is None:
-            if may_use_redis():
-                self._num_hosts_recursively = self.tree.redis_client.num_hosts_recursively_lua(
-                    self._path,
-                    skip_permission_checks=(
-                        acting_user.may("wato.see_all_folders")
-                        or not self.tree.config.wato_hide_folders_without_read_permissions
-                    ),
-                    user_contact_groups=(
-                        set(userdb.contactgroups_of_user(acting_user.id))
-                        if acting_user.id is not None
-                        else set()
-                    ),
-                )
+            if (
+                cached := self.tree.cache.num_hosts_recursively(self._path, acting_user)
+            ) is not None:
+                self._num_hosts_recursively = cached
             else:
                 self._num_hosts_recursively = self.tree.folder(
                     self._path.rstrip("/")
@@ -1123,44 +1114,10 @@ class WATOHosts(TypedDict):
     clusters: dict[HostName, list[HostName]]
 
 
-_REDIS_ENABLED_LOCALLY = True
-
-
-def may_use_redis() -> bool:
-    # Redis can't be used for certain scenarios. For example
-    # - Redis server is not running during cmk_update_config.py
-    # - Bulk operations which would update redis several thousand times, instead of just once
-    #     There is a special context manager which allows to disable redis handling in this case
-    return redis_enabled() and _REDIS_ENABLED_LOCALLY and _redis_available()
-
-
-@request_memoize()
-def _redis_available() -> bool:
-    return redis_server_reachable(get_redis_client())
-
-
-@contextmanager
-def _disable_redis_locally() -> Iterator[None]:
-    global _REDIS_ENABLED_LOCALLY
-    last_value = _REDIS_ENABLED_LOCALLY
-    _REDIS_ENABLED_LOCALLY = False
-    try:
-        yield
-    finally:
-        _REDIS_ENABLED_LOCALLY = last_value
-
-
 def _wato_folders_factory(tree: FolderTree) -> Mapping[PathWithoutSlash, Folder]:
-    if not may_use_redis():
-        return _get_fully_loaded_wato_folders(tree)
-
-    redis_client = tree.redis_client
-    if redis_client.loaded_wato_folders is not None:
-        # Folders were already completely loaded during cache generation -> use these
-        return redis_client.loaded_wato_folders
-
-    # Provide a dict where the values are generated on demand
-    return WATOFoldersOnDemand(tree, {x.rstrip("/"): None for x in redis_client.folder_paths})
+    if (cached_folders := tree.cache.all_folders()) is not None:
+        return cached_folders
+    return _get_fully_loaded_wato_folders(tree)
 
 
 def _core_settings_hosts_to_update(hostnames: Sequence[HostName]) -> DomainSettings:
@@ -1176,16 +1133,9 @@ class FolderTree:
         self._all_host_attributes: dict[str, ABCHostAttribute] | None = None
         self._attribute_default_values: Mapping[str, Any] | None = None
         self.cache: WATOFolderCache = _make_folder_cache(self)
-        self._redis_client: _RedisHelper | None = None
         self._folders: Mapping[PathWithoutSlash, Folder] | None = None
         self._folder_choices: Sequence[tuple[str, str]] | None = None
         self._folder_choices_fulltitle: Sequence[tuple[str, str]] | None = None
-
-    @property
-    def redis_client(self) -> _RedisHelper:
-        if self._redis_client is None:
-            self._redis_client = _RedisHelper(self, get_redis_client())
-        return self._redis_client
 
     @contextmanager
     def cache_disabled(self) -> Iterator[None]:
@@ -1298,8 +1248,7 @@ class FolderTree:
         # "wato_folders"), losing all references to its subfolders. This leads
         # to the recursive .drop_caches missing them them.
         self.root_folder().drop_caches()
-        if may_use_redis():
-            self.redis_client.clear_cached_folders()
+        self.cache.invalidate()
         self._folders = None
         self._folder_choices = None
         self._folder_choices_fulltitle = None
@@ -1308,8 +1257,8 @@ class FolderTree:
         with suppress(AttributeError):
             del self.folder_lookup_cache
 
-    def reset_redis_client(self) -> None:
-        self._redis_client = None
+    def reset_cache(self) -> None:
+        self.cache.reset()
 
     def refresh_config(self) -> None:
         """Re-read the config snapshot from the global active_config.
@@ -1675,9 +1624,8 @@ class Folder:
                 pprint_value=pprint_value,
                 acting_user_id=acting_user.id,
             )
-            if may_use_redis():
-                # Inform redis that the modified-timestamp of the folder has been updated.
-                self.tree.redis_client.folder_updated(self.filesystem_path())
+            # Inform the cache that the modified-timestamp of the folder has been updated.
+            self.tree.cache.folder_updated(self.filesystem_path())
 
         call_hook_hosts_changed(self)
 
@@ -1915,8 +1863,7 @@ class Folder:
         self._save_folder_attributes(
             storage_list=self.tree.wato_info_storage_manager.write_storages,
         )
-        if may_use_redis():
-            self.tree.redis_client.save_folder_info(self)
+        self.tree.cache.save_folder_info(self)
 
     def _save_folder_attributes(self, *, storage_list: Sequence[ABCWATOInfoStorage]) -> None:
         Path(self.wato_info_path()).parent.mkdir(mode=0o770, parents=True, exist_ok=True)
@@ -1950,7 +1897,7 @@ class Folder:
         return self.path()
 
     def path(self) -> str:
-        if may_use_redis() and self._path is not None:
+        if self.tree.cache.enabled and self._path is not None:
             return self._path
 
         if (parent := self.parent()) and not parent.is_root() and not self.is_root():
@@ -2041,8 +1988,8 @@ class Folder:
         return self._num_hosts
 
     def num_hosts_recursively(self, acting_user: LoggedInUser) -> int:
-        if may_use_redis():
-            if folder_metadata := self.tree.redis_client.folder_metadata(self.path()):
+        if self.tree.cache.enabled:
+            if folder_metadata := self.tree.cache.folder_metadata(self.path()):
                 return folder_metadata.num_hosts_recursively(acting_user)
             return 0
 
@@ -2201,19 +2148,12 @@ class Folder:
     def _choices_for_moving(self, what: str, acting_user: LoggedInUser) -> Choices:
         choices: Choices = []
 
-        if may_use_redis():
-            return self._get_sorted_choices(
-                self.tree.redis_client.choices_for_moving(
-                    self.path(),
-                    _MoveType(what),
-                    may_see_all_folders=acting_user.may("wato.all_folders"),
-                    user_contact_groups=(
-                        set(userdb.contactgroups_of_user(acting_user.id))
-                        if acting_user.id is not None
-                        else set()
-                    ),
-                )
+        if (
+            cached_choices := self.tree.cache.choices_for_moving(
+                self.path(), _MoveType(what), acting_user
             )
+        ) is not None:
+            return self._get_sorted_choices(list(cached_choices))
 
         for folder in self.tree.all_folders().values():
             if not folder.permissions.may("write", acting_user):
@@ -2701,7 +2641,7 @@ class Folder:
         # Since redis only updates on the next request, we can no longer use it here
         # We COULD enforce a redis update here, but this would take too much time
         # After the move action, the request is finished anyway.
-        with _disable_redis_locally():
+        with self.tree.cache_disabled():
             # Reload folder at new location and rewrite host files
             # Again, some special handling because of the missing slash in the main folder
             if not target_folder.is_root():

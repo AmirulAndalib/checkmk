@@ -19,12 +19,14 @@ from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from itertools import count
+from typing import cast
 from unittest.mock import MagicMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
 import time_machine
 from pytest import MonkeyPatch
+from redis import Redis
 
 import cmk.utils.paths
 import cmk.utils.tags
@@ -93,8 +95,12 @@ def tree() -> Iterator[FolderTree]:
     cmk.utils.paths.profile_dir.mkdir(parents=True, exist_ok=True)
     raw_config = get_default_config()
     raw_config["tags"] = cmk.utils.tags.get_effective_tag_config(raw_config["wato_tags"])
-    tree = make_folder_tree(make_config_object(raw_config))
-    with disable_redis():  # tests may allow_redis, but our bookkeeping shall not use it
+    # Tests may allow_redis, but our bookkeeping shall not use it: building
+    # the tree with redis disabled makes it pick the null folder cache. Tests
+    # exercising the redis cache inject their own (see
+    # get_fake_setup_redis_client).
+    with disable_redis():
+        tree = make_folder_tree(make_config_object(raw_config))
         tree.invalidate_caches()
 
     yield tree
@@ -1159,12 +1165,11 @@ def get_fake_setup_redis_client(
     redis_answers: list[list[list[str]]],
 ) -> Iterator[MockRedisClient]:
     try:
-        monkeypatch.setattr(hosts_and_folders, "may_use_redis", lambda: True)
         mock_redis_client = MockRedisClient(redis_answers)
-        monkeypatch.setattr(hosts_and_folders, "get_redis_client", lambda: mock_redis_client)
         monkeypatch.setattr(hosts_and_folders._RedisHelper, "_cache_integrity_ok", lambda x: True)
-        redis_helper = tree.redis_client
-        monkeypatch.setattr(redis_helper, "_client", mock_redis_client)
+        cache = hosts_and_folders.RedisFolderCache(tree, cast(Redis, mock_redis_client))
+        monkeypatch.setattr(tree, "cache", cache)
+        redis_helper = cache._redis
         monkeypatch.setattr(redis_helper, "_folder_paths", [f"{x}/" for x in all_folders])
         monkeypatch.setattr(
             redis_helper,
@@ -1176,8 +1181,6 @@ def get_fake_setup_redis_client(
         )
         yield mock_redis_client
     finally:
-        monkeypatch.setattr(hosts_and_folders, "may_use_redis", lambda: False)
-        # I have no idea if this is actually working..
         monkeypatch.undo()
 
 

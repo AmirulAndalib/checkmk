@@ -240,7 +240,7 @@ def _reset_cache_for_folders_and_hosts_setup() -> None:
 
     if hasattr(g, "folder_tree"):
         g.folder_tree.invalidate_caches()
-        g.folder_tree.reset_redis_client()
+        g.folder_tree.reset_cache()
         # The folder tree snapshots the relevant config at creation time. Refresh it
         # so config changes made between REST calls (e.g. via set_config) are reflected,
         # just like in a freshly created request.

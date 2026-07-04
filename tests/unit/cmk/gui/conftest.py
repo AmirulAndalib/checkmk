@@ -66,8 +66,8 @@ def deactivate_redis(request: pytest.FixtureRequest) -> Iterator[None]:
     """Disable redis for all GUI unit tests by default
 
     The flask_app fixture patches the redis client with a reachable fakeredis
-    instance. This makes may_use_redis() return True, which lets e.g. the
-    hosts_and_folders code build its redis folder caches from disk over and
+    instance. This makes the FolderTree pick its redis-backed folder cache,
+    which lets e.g. the hosts_and_folders code build its folder caches from disk over and
     over again in each test, slowing down the tests significantly without any
     functional benefit.
 
