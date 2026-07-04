@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Any, cast, Final, Literal, NamedTuple, NotRequired, Self, TypedDict
+from typing import Any, cast, Final, Literal, NamedTuple, NotRequired, Protocol, Self, TypedDict
 
 from redis import Redis
 from redis.client import Pipeline
@@ -752,6 +752,175 @@ def _get_fully_loaded_wato_folders(
     return wato_folders
 
 
+class WATOFolderCache(Protocol):
+    """Cache of metadata about the Setup folder hierarchy.
+
+    Which implementation is used is decided once when the FolderTree is
+    created (see _make_folder_cache()). Query methods return None when no
+    cached answer is available; callers fall back to computing the answer
+    from the folder tree on disk.
+    """
+
+    @property
+    def enabled(self) -> bool:
+        """Whether this cache actually caches anything"""
+
+    def all_folders(self) -> Mapping[PathWithoutSlash, Folder] | None: ...
+
+    def folder_metadata(self, path: PathWithoutSlash) -> FolderMetaData | None: ...
+
+    def num_hosts_recursively(
+        self, path_with_slash: PathWithSlash, acting_user: LoggedInUser
+    ) -> int | None: ...
+
+    def choices_for_moving(
+        self, path: PathWithoutSlash, move_type: _MoveType, acting_user: LoggedInUser
+    ) -> Choices | None: ...
+
+    def recursive_subfolders_for_path(
+        self, path: PathWithSlash
+    ) -> Sequence[PathWithSlash] | None: ...
+
+    def folder_updated(self, filesystem_path: str) -> None: ...
+
+    def save_folder_info(self, folder: Folder) -> None: ...
+
+    def invalidate(self) -> None:
+        """Drop cached data, e.g. after the folder hierarchy changed"""
+
+    def reset(self) -> None:
+        """Drop the entire cache state, including the redis connection"""
+
+
+class NullFolderCache:
+    """Used when redis is not available: all queries miss, all updates are no-ops"""
+
+    enabled = False
+
+    def all_folders(self) -> Mapping[PathWithoutSlash, Folder] | None:
+        return None
+
+    def folder_metadata(self, path: PathWithoutSlash) -> FolderMetaData | None:
+        return None
+
+    def num_hosts_recursively(
+        self, path_with_slash: PathWithSlash, acting_user: LoggedInUser
+    ) -> int | None:
+        return None
+
+    def choices_for_moving(
+        self, path: PathWithoutSlash, move_type: _MoveType, acting_user: LoggedInUser
+    ) -> Choices | None:
+        return None
+
+    def recursive_subfolders_for_path(self, path: PathWithSlash) -> Sequence[PathWithSlash] | None:
+        return None
+
+    def folder_updated(self, filesystem_path: str) -> None:
+        pass
+
+    def save_folder_info(self, folder: Folder) -> None:
+        pass
+
+    def invalidate(self) -> None:
+        pass
+
+    def reset(self) -> None:
+        pass
+
+
+class RedisFolderCache:
+    """Answers folder hierarchy queries from the redis cache
+
+    The redis state itself is managed by _RedisHelper, which is created on
+    first use since constructing it may build the whole cache from disk.
+    """
+
+    enabled = True
+
+    def __init__(self, tree: FolderTree, client: Redis) -> None:
+        self._tree = tree
+        self._client = client
+        self._helper: _RedisHelper | None = None
+
+    @property
+    def _redis(self) -> _RedisHelper:
+        if self._helper is None:
+            self._helper = _RedisHelper(self._tree, self._client)
+        return self._helper
+
+    def all_folders(self) -> Mapping[PathWithoutSlash, Folder] | None:
+        if (loaded_folders := self._redis.loaded_wato_folders) is not None:
+            # Folders were already completely loaded during cache generation -> use these
+            return loaded_folders
+        # Provide a dict where the values are generated on demand
+        return WATOFoldersOnDemand(
+            self._tree, {x.rstrip("/"): None for x in self._redis.folder_paths}
+        )
+
+    def folder_metadata(self, path: PathWithoutSlash) -> FolderMetaData | None:
+        return self._redis.folder_metadata(path)
+
+    def num_hosts_recursively(
+        self, path_with_slash: PathWithSlash, acting_user: LoggedInUser
+    ) -> int | None:
+        return self._redis.num_hosts_recursively_lua(
+            path_with_slash,
+            skip_permission_checks=(
+                acting_user.may("wato.see_all_folders")
+                or not self._tree.config.wato_hide_folders_without_read_permissions
+            ),
+            user_contact_groups=self._contact_groups_of(acting_user),
+        )
+
+    def choices_for_moving(
+        self, path: PathWithoutSlash, move_type: _MoveType, acting_user: LoggedInUser
+    ) -> Choices | None:
+        return self._redis.choices_for_moving(
+            path,
+            move_type,
+            may_see_all_folders=acting_user.may("wato.all_folders"),
+            user_contact_groups=self._contact_groups_of(acting_user),
+        )
+
+    @staticmethod
+    def _contact_groups_of(acting_user: LoggedInUser) -> set[str]:
+        if acting_user.id is None:
+            return set()
+        return set(userdb.contactgroups_of_user(acting_user.id))
+
+    def recursive_subfolders_for_path(self, path: PathWithSlash) -> Sequence[PathWithSlash] | None:
+        return self._redis.recursive_subfolders_for_path(path)
+
+    def folder_updated(self, filesystem_path: str) -> None:
+        self._redis.folder_updated(filesystem_path)
+
+    def save_folder_info(self, folder: Folder) -> None:
+        self._redis.save_folder_info(folder)
+
+    def invalidate(self) -> None:
+        if self._helper is not None:
+            self._helper.clear_cached_folders()
+
+    def reset(self) -> None:
+        self._helper = None
+
+
+def _make_folder_cache(tree: FolderTree) -> WATOFolderCache:
+    """Decide once per FolderTree whether the redis cache can be used
+
+    Redis can't be used in certain scenarios, e.g. when the redis server is
+    not running during cmk_update_config.py. In these cases all cache queries
+    miss and the callers compute their answers from disk.
+    """
+    if not redis_enabled():
+        return NullFolderCache()
+    client = get_redis_client()
+    if not redis_server_reachable(client):
+        return NullFolderCache()
+    return RedisFolderCache(tree, client)
+
+
 class ABCWATOInfoStorage:
     def read(self, file_path: Path) -> WATOFolderInfo | None:
         raise NotImplementedError
@@ -1006,6 +1175,7 @@ class FolderTree:
         self.config = config
         self._all_host_attributes: dict[str, ABCHostAttribute] | None = None
         self._attribute_default_values: Mapping[str, Any] | None = None
+        self.cache: WATOFolderCache = _make_folder_cache(self)
         self._redis_client: _RedisHelper | None = None
         self._folders: Mapping[PathWithoutSlash, Folder] | None = None
         self._folder_choices: Sequence[tuple[str, str]] | None = None
@@ -1016,6 +1186,20 @@ class FolderTree:
         if self._redis_client is None:
             self._redis_client = _RedisHelper(self, get_redis_client())
         return self._redis_client
+
+    @contextmanager
+    def cache_disabled(self) -> Iterator[None]:
+        """Temporarily bypass the folder cache
+
+        Used for bulk operations which would otherwise update redis several
+        thousand times instead of once; redis catches up on the next request.
+        """
+        saved_cache = self.cache
+        self.cache = NullFolderCache()
+        try:
+            yield
+        finally:
+            self.cache = saved_cache
 
     @cached_property
     def wato_info_storage_manager(self) -> _WATOInfoStorageManager:
