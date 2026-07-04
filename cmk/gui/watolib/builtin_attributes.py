@@ -7,14 +7,17 @@
 
 import time
 from collections.abc import Callable, Mapping, Sequence
-from typing import Any, Literal
+from typing import Any, Literal, override
 
 from marshmallow import ValidationError
 from marshmallow.fields import Field
 
+from livestatus import SiteConfigurations
+
 import cmk.utils.tags
 from cmk import fields
 from cmk.ccc.hostaddress import HostName
+from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.gui import hooks, userdb
 from cmk.gui.config import active_config, Config
@@ -615,8 +618,22 @@ class HostAttributeNetworkScan(ABCHostAttributeValueSpec):
         return False
 
     def valuespec(self) -> ValueSpec:
+        # The form preselects the acting user for "run_as"
+        return self._valuespec(lambda: user.id if user.id is not None else DEF_VALUE)
+
+    @override
+    def effective_default_value(self, sites: SiteConfigurations) -> Any:
+        # The form's "run as the acting user" default must not leak into the
+        # effective attributes, which have to be identical for all users.
+        # run_as is left unset; the None default avoids loading the user
+        # choices just to compute a default that is dropped anyway.
+        default = dict(self._valuespec(None).default_value())
+        default.pop("run_as", None)
+        return default
+
+    def _valuespec(self, run_as_default: ValueSpecDefault[UserId | None]) -> ValueSpec:
         return Dictionary(
-            elements=self._network_scan_elements,
+            elements=lambda: self._network_scan_elements(run_as_default),
             title=_("Network scan"),
             help=_(
                 "For each folder an automatic network scan can be configured. It will "
@@ -640,7 +657,9 @@ class HostAttributeNetworkScan(ABCHostAttributeValueSpec):
             ),
         )
 
-    def _network_scan_elements(self) -> list[tuple[str, ValueSpec]]:
+    def _network_scan_elements(
+        self, run_as_default: ValueSpecDefault[UserId | None]
+    ) -> list[tuple[str, ValueSpec]]:
         elements: list[tuple[str, ValueSpec]] = [
             (
                 "ip_ranges",
@@ -718,7 +737,7 @@ class HostAttributeNetworkScan(ABCHostAttributeValueSpec):
             ),
             (
                 "run_as",
-                DropdownChoice[UserId](
+                DropdownChoice[UserId | None](
                     title=_("Run as"),
                     help=_(
                         "Execute the network scan in the Checkmk user context of the "
@@ -726,7 +745,7 @@ class HostAttributeNetworkScan(ABCHostAttributeValueSpec):
                         "to this folder."
                     ),
                     choices=self._get_all_user_ids,
-                    default_value=lambda: user.id if user.id is not None else DEF_VALUE,
+                    default_value=run_as_default,
                 ),
             ),
             (
@@ -1191,6 +1210,15 @@ class HostAttributeSite(ABCHostAttributeValueSpec):
     def show_in_folder(self) -> bool:
         return True
 
+    @override
+    def effective_default_value(self, sites: SiteConfigurations) -> SiteId:
+        # The form default (the acting user's default site) is presentation
+        # only; effective attributes must be identical for all users.
+        if is_distributed_setup_remote_site(sites):
+            # Placeholder for "central site" (see SetupSiteChoice)
+            return SiteId("")
+        return omd_site()
+
     def valuespec(self) -> ValueSpec:
         return SetupSiteChoice(
             title=_("Monitored on site"),
@@ -1303,7 +1331,9 @@ class LockedByValuespec(Tuple):
             orientation="horizontal",
             title_br=False,
             elements=[
-                SetupSiteChoice(),
+                # This attribute is not editable, so there is no point in
+                # using the request dependent default site of SetupSiteChoice
+                SetupSiteChoice(default_value=omd_site),
                 ID(
                     title=_("Program"),
                 ),
@@ -1419,6 +1449,16 @@ class HostAttributeMetaData(ABCHostAttributeValueSpec):
         return False
 
     def valuespec(self) -> ValueSpec:
+        # The form preselects the acting user for "created_by"
+        return self._valuespec(lambda: user.id)
+
+    @override
+    def effective_default_value(self, sites: SiteConfigurations) -> Any:
+        # The form's "created by the acting user" default must not leak into
+        # the effective attributes, which have to be identical for all users.
+        return self._valuespec(None).default_value()
+
+    def _valuespec(self, created_by_default: ValueSpecDefault[UserId | None]) -> ValueSpec:
         return Dictionary(
             elements=[
                 (
@@ -1452,7 +1492,7 @@ class HostAttributeMetaData(ABCHostAttributeValueSpec):
                                 default_value="unknown",
                             ),
                         ],
-                        default_value=lambda: user.id,
+                        default_value=created_by_default,
                     ),
                 ),
             ],

@@ -87,7 +87,6 @@ from cmk.gui.watolib.host_attributes import (
     ABCHostAttribute,
     all_host_attributes,
     collect_attributes,
-    get_host_attribute_default_value,
     host_attribute_matches,
     HostAttributes,
     HostContactGroupSpec,
@@ -1007,6 +1006,7 @@ class FolderTree:
         self._root_dir = _ensure_trailing_slash(root_dir if root_dir else str(wato_root_dir()))
         self.config = config
         self._all_host_attributes: dict[str, ABCHostAttribute] | None = None
+        self._attribute_default_values: Mapping[str, Any] | None = None
         self._redis_client: _RedisHelper | None = None
         self._folders: Mapping[PathWithoutSlash, Folder] | None = None
         self._folder_choices: Sequence[tuple[str, str]] | None = None
@@ -1121,6 +1121,7 @@ class FolderTree:
         self._folder_choices = None
         self._folder_choices_fulltitle = None
         self._all_host_attributes = None
+        self._attribute_default_values = None
         with suppress(AttributeError):
             del self.folder_lookup_cache
 
@@ -1143,6 +1144,16 @@ class FolderTree:
                 self.config.wato_host_attrs, self.config.tags.get_tag_groups_by_topic()
             )
         return self._all_host_attributes
+
+    def attribute_default_values(self) -> Mapping[str, Any]:
+        """Defaults filled in for unset attributes when computing effective attributes"""
+        if self._attribute_default_values is None:
+            sites = SiteConfigurations(self.config.sites)
+            self._attribute_default_values = {
+                name: attribute.effective_default_value(sites)
+                for name, attribute in self.all_host_attributes().items()
+            }
+        return self._attribute_default_values
 
     def _by_id(self, identifier: str) -> Folder:
         """Return the Folder instance of this particular identifier.
@@ -2100,10 +2111,10 @@ class Folder:
         effective.update(self.attributes)
 
         # now add default values of attributes for all missing values
-        for attrname, host_attribute in self.tree.all_host_attributes().items():
+        for attrname, default_value in self.tree.attribute_default_values().items():
             if attrname not in effective:
                 # Mypy can not help here with the dynamic key
-                effective.setdefault(attrname, get_host_attribute_default_value(host_attribute))  # type: ignore[misc]
+                effective.setdefault(attrname, default_value)  # type: ignore[misc]
 
         return effective
 

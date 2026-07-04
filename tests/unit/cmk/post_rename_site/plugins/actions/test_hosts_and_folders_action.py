@@ -171,7 +171,9 @@ host_attributes.update(
     # Simulate changed omd_site that we would have in application code in the moment the rename
     # action is executed.
     monkeypatch.setattr(cmk.gui.watolib.hosts_and_folders, "omd_site", lambda: "dingdong")
-    monkeypatch.setattr(HostAttributeSite, "default_value", lambda self: "dingdong")
+    monkeypatch.setattr(
+        HostAttributeSite, "effective_default_value", lambda self, sites: "dingdong"
+    )
 
     update_hosts_and_folders(SiteId("NO_SITE"), SiteId("dingdong"), logger)
 

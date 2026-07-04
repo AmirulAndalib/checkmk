@@ -21,6 +21,8 @@ from typing import Any, Final, Literal, NotRequired, TypedDict
 
 from marshmallow import fields
 
+from livestatus import SiteConfigurations
+
 import cmk.ccc.plugin_registry
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
@@ -359,8 +361,21 @@ class ABCHostAttribute(abc.ABC):
         return None
 
     def default_value(self) -> Any:
-        """Return the default value for new hosts"""
+        """Return the default value for new hosts
+
+        This value is used to prefill the GUI forms and may depend on the
+        request context (e.g. the logged in user)."""
         return None
+
+    def effective_default_value(self, sites: SiteConfigurations) -> Any:
+        """Return the default value used when computing effective attributes
+
+        In contrast to default_value() this must not depend on request
+        globals like the logged in user: Effective attributes are also
+        computed outside of request contexts and must be identical for all
+        users. Attributes whose form default depends on the request need to
+        override this method."""
+        return self.default_value()
 
     def paint(self, value: Any, hostname: HostName) -> tuple[str, str | HTML]:
         """Render HTML code displaying a value"""
@@ -1335,8 +1350,3 @@ def EnumAttribute(
             "_enumlist": enumlist,
         },
     )
-
-
-@request_memoize(maxsize=1024)
-def get_host_attribute_default_value(host_attribute: ABCHostAttribute) -> Any:
-    return host_attribute.default_value()

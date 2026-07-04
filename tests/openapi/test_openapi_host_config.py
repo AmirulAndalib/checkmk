@@ -2092,7 +2092,6 @@ def test_openapi_host_config_effective_attributes_includes_all_host_attributes_r
         "network_scan": {
             "addresses": [],
             "exclude_addresses": [],
-            "run_as": username,
             "scan_interval": 86400,
             "set_ip_address": True,
             "time_allowed": [{"end": "23:59:59", "start": "00:00:00"}],
