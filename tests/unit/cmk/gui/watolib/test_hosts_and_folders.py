@@ -34,6 +34,7 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui import userdb
 from cmk.gui.exceptions import MKUserError
+from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.logged_in import user as logged_in_user
 from cmk.gui.search import MatchItem
 from cmk.gui.utils.roles import UserPermissions
@@ -44,6 +45,11 @@ from cmk.gui.watolib.host_match_item_generator import MatchItemGeneratorHosts
 from cmk.gui.watolib.hosts_and_folders import EffectiveAttributes, Folder, folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.utils.redis import disable_redis
+
+# Cheap in-memory acting user with all permissions. Avoids the expensive
+# with_admin_login fixture (which creates a real user on disk) for tests that
+# only need *an* authorized acting_user, not the request-global login.
+_SUPERUSER = LoggedInSuperUser()
 
 
 def _noop_pending_changes() -> PendingChanges:
@@ -71,7 +77,7 @@ def test_effective_attributes() -> None:
 
 
 @pytest.fixture(autouse=True)
-def test_env(with_admin_login: UserId, load_config: None) -> Iterator[None]:
+def test_env(request_context: None) -> Iterator[None]:
     # Ensure we have clean folder/host caches
     tree = folder_tree()
     tree.invalidate_caches()
@@ -218,7 +224,7 @@ def test_write_and_read_host_attributes(attributes: HostAttributes) -> None:
         [(HostName("testhost"), attributes, [])],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     write_folder_hosts = write_data_folder.hosts()
     assert len(write_folder_hosts) == 1
@@ -241,20 +247,20 @@ def test_create_multiple_hosts() -> None:
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     root.create_hosts(
         [(HostName("host-1"), {}, [])],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     subfolder.create_hosts(
         [(HostName("host-2"), {}, [])],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     all_hosts = root.all_hosts_recursively()
@@ -335,7 +341,7 @@ def test_mgmt_inherit_credentials_explicit_host_snmp() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -372,7 +378,7 @@ def test_mgmt_inherit_credentials_explicit_host_ipmi() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -403,7 +409,7 @@ def test_mgmt_inherit_credentials_snmp() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -434,7 +440,7 @@ def test_mgmt_inherit_credentials_ipmi() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -467,7 +473,7 @@ def test_mgmt_inherit_protocol_explicit_host_snmp() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -503,7 +509,7 @@ def test_mgmt_inherit_protocol_explicit_host_ipmi() -> None:
         ],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     data = folder._load_hosts_file()
@@ -545,7 +551,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     a.create_subfolder(
         "c",
@@ -553,7 +559,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     a.create_subfolder(
         "d",
@@ -561,7 +567,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     b = main.create_subfolder(
@@ -570,7 +576,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     e = b.create_subfolder(
         "e",
@@ -578,7 +584,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     e.create_subfolder(
         "f",
@@ -586,7 +592,7 @@ def three_levels() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     return main
@@ -604,7 +610,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     a.permissions._may_see = False  # type: ignore[attr-defined]
     c = a.create_subfolder(
@@ -613,7 +619,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     c.permissions._may_see = False  # type: ignore[attr-defined]
     a.create_subfolder(
@@ -622,7 +628,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     b = main.create_subfolder(
@@ -631,7 +637,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     b.permissions._may_see = False  # type: ignore[attr-defined]
     e = b.create_subfolder(
@@ -640,7 +646,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     e.permissions._may_see = False  # type: ignore[attr-defined]
     e.create_subfolder(
@@ -649,7 +655,7 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
         attributes={},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     return main
@@ -691,9 +697,7 @@ def test_recursive_subfolder_choices(
 ) -> None:
     folder = actual_builder()
     with hide_folders_without_permission(True):
-        assert (
-            folder.recursive_subfolder_choices(pretty=True, acting_user=logged_in_user) == expected
-        )
+        assert folder.recursive_subfolder_choices(pretty=True, acting_user=_SUPERUSER) == expected
 
 
 @pytest.mark.usefixtures("patch_may")
@@ -702,7 +706,7 @@ def test_recursive_subfolder_choices_function_calls(mocker: MagicMock) -> None:
     spy = mocker.spy(hosts_and_folders.Folder, "_walk_tree")
     tree = three_levels_leaf_permissions()
     with hide_folders_without_permission(True):
-        tree.recursive_subfolder_choices(pretty=True, acting_user=logged_in_user)
+        tree.recursive_subfolder_choices(pretty=True, acting_user=_SUPERUSER)
     assert spy.call_count == 7
 
 
@@ -714,7 +718,7 @@ def test_subfolder_creation() -> None:
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
 
     # Upon instantiation, all the subfolders should be already known.
@@ -1185,14 +1189,14 @@ def test_folder_exists() -> None:
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     ).create_subfolder(
         "bar",
         "bar",
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     assert tree.folder_exists("foo")
     assert tree.folder_exists("foo/bar")
@@ -1210,14 +1214,14 @@ def test_folder_access() -> None:
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     ).create_subfolder(
         "bar",
         "bar",
         {},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     assert isinstance(tree.folder("foo/bar"), hosts_and_folders.Folder)
     assert isinstance(tree.folder(""), hosts_and_folders.Folder)
@@ -1350,7 +1354,7 @@ def test_subfolder_attributes_are_cached() -> None:
         {"alias": "sub1"},
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=logged_in_user,
+        acting_user=_SUPERUSER,
     )
     subfolder.effective_attributes()
 
@@ -1372,7 +1376,7 @@ def test_subfolder_cache_invalidated() -> None:
             {"alias": "sub1"},
             pprint_value=False,
             pending_changes=_noop_pending_changes(),
-            acting_user=logged_in_user,
+            acting_user=_SUPERUSER,
         )
     )
     subfolder.effective_attributes()
