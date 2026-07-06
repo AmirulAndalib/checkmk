@@ -723,13 +723,7 @@ def test__check_summary_text(filesystem_levels: df.FilesystemLevels, summary: st
     assert df._check_summary_text(filesystem_levels) == summary
 
 
-@pytest.mark.parametrize(
-    "allocatable_fs",
-    [
-        pytest.param(0, marks=[pytest.mark.xfail(reason="unhandled zero division")]),
-        pytest.param(-1, marks=[pytest.mark.xfail(reason="shouldn't continue")]),
-    ],
-)
+@pytest.mark.parametrize("allocatable_fs", [0, -1])
 def test_check_filesystem_levels_bad_allocatable_filesystem_size(allocatable_fs: int) -> None:
     value = list(
         df.check_filesystem_levels(
