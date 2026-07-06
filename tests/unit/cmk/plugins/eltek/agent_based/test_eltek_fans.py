@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from cmk.agent_based.v2 import Result, Service, State, StringTable
-from cmk.legacy_checks.eltek_fans import (
+from cmk.plugins.eltek.agent_based.eltek_fans import (
     check_eltek_fans,
     discover_eltek_fans,
     parse_eltek_fans,
