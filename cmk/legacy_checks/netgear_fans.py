@@ -3,18 +3,24 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
 
-
-# mypy: disable-error-code="var-annotated"
-
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import OIDEnd, SNMPTree
-from cmk.legacy_includes.fan import check_fan
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    OIDEnd,
+    Result,
+    Service,
+    SNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
+from cmk.plugins.lib.fan import check_fan
 from cmk.plugins.netgear.lib import DETECT_NETGEAR
-
-check_info = {}
 
 # .1.3.6.1.4.1.4526.10.43.1.6.1.3.1.0 2 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesFanItemState.1.0
 # .1.3.6.1.4.1.4526.10.43.1.6.1.3.1.1 2 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesFanItemState.1.1
@@ -44,15 +50,27 @@ check_info = {}
 # Just assumed
 
 
-def netgear_map_state_txt_to_int(state_nr, version):
-    map_state_txt_to_int = {
-        "operational": 0,
-        "failed": 2,
-        "powering": 0,
-        "not powering": 1,
-        "not present": 1,
-        "no power": 2,
-        "incompatible": 2,
+@dataclass(frozen=True)
+class Fan:
+    state: str
+    reading_str: str
+
+
+@dataclass(frozen=True)
+class Section:
+    version: str
+    fans: Mapping[str, Fan]
+
+
+def netgear_map_state_txt_to_state(state_nr: str, version: str) -> tuple[State, str]:
+    map_state_txt_to_state = {
+        "operational": State.OK,
+        "failed": State.CRIT,
+        "powering": State.OK,
+        "not powering": State.WARN,
+        "not present": State.WARN,
+        "no power": State.CRIT,
+        "incompatible": State.CRIT,
     }
 
     if version.startswith("8."):
@@ -80,52 +98,39 @@ def netgear_map_state_txt_to_int(state_nr, version):
             "3": "failed",
         }
 
-    state_txt = map_states.get(state_nr, "unknown(%s)" % state_nr)
-    return map_state_txt_to_int.get(state_txt, 3), state_txt
+    state_txt = map_states.get(state_nr, f"unknown({state_nr})")
+    return map_state_txt_to_state.get(state_txt, State.UNKNOWN), state_txt
 
 
-def parse_netgear_fans(string_table):
+def parse_netgear_fans(string_table: Sequence[StringTable]) -> Section:
     versioninfo, sensorinfo = string_table
-    if versioninfo == []:
-        parsed = {"__fans__": {}}
-    else:
-        parsed = {
-            "__version__": versioninfo[0][0],
-            "__fans__": {},
-        }
+    fans: dict[str, Fan] = {}
     for oid_end, sstate, reading_str in sensorinfo:
-        parsed["__fans__"].setdefault(
-            "%s" % oid_end.replace(".", "/"),
-            {
-                "state": sstate,
-                "reading_str": reading_str,
-            },
+        fans.setdefault(
+            oid_end.replace(".", "/"),
+            Fan(state=sstate, reading_str=reading_str),
         )
-    return parsed
+    return Section(version=versioninfo[0][0] if versioninfo else "", fans=fans)
 
 
-def discover_netgear_fans(parsed):
-    for sensorname, sensorinfo in parsed["__fans__"].items():
-        state = sensorinfo["state"]
-        if state != "1" and not (state == "2" and sensorinfo["reading_str"] in ["0"]):
-            yield sensorname, {}
+def discover_netgear_fans(section: Section) -> DiscoveryResult:
+    for sensorname, fan in section.fans.items():
+        if fan.state != "1" and not (fan.state == "2" and fan.reading_str == "0"):
+            yield Service(item=sensorname)
 
 
-def check_netgear_fans(item, params, parsed):
-    data = parsed["__fans__"].get(item)
-    if data is None:
+def check_netgear_fans(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    fan = section.fans.get(item)
+    if fan is None:
         return
 
-    reading_str = data["reading_str"]
-    if reading_str != "Not Supported":
-        yield check_fan(int(data["reading_str"]), params)
-    state, state_readable = netgear_map_state_txt_to_int(
-        data["state"], parsed.get("__version__", "")
-    )
-    yield state, "Status: %s" % state_readable
+    if fan.reading_str != "Not Supported":
+        yield from check_fan(int(fan.reading_str), params)
+    state, state_readable = netgear_map_state_txt_to_state(fan.state, section.version)
+    yield Result(state=state, summary=f"Status: {state_readable}")
 
 
-check_info["netgear_fans"] = LegacyCheckDefinition(
+snmp_section_netgear_fans = SNMPSection(
     name="netgear_fans",
     detect=DETECT_NETGEAR,
     fetch=[
@@ -139,6 +144,11 @@ check_info["netgear_fans"] = LegacyCheckDefinition(
         ),
     ],
     parse_function=parse_netgear_fans,
+)
+
+
+check_plugin_netgear_fans = CheckPlugin(
+    name="netgear_fans",
     service_name="Fan %s",
     discovery_function=discover_netgear_fans,
     check_function=check_netgear_fans,
