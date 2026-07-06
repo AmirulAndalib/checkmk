@@ -38,11 +38,6 @@ void main() {
         ];
 
         def sign_creds = use_azure ? [
-            string(credentialsId: "azure_artifact_signing_endpoint",        variable: "AZURE_ARTIFACT_SIGNING_ENDPOINT"),
-            string(credentialsId: "azure_artifact_signing_account",         variable: "AZURE_ARTIFACT_SIGNING_ACCOUNT"),
-            string(credentialsId: "azure_artifact_signing_profile",         variable: "AZURE_ARTIFACT_SIGNING_PROFILE"),
-            string(credentialsId: "azure_artifact_signing_tenant_id",       variable: "AZURE_ARTIFACT_SIGNING_TENANT_ID"),
-            string(credentialsId: "azure_artifact_signing_client_id",       variable: "AZURE_ARTIFACT_SIGNING_CLIENT_ID"),
             string(credentialsId: "azure_artifact_signing_client_secret",   variable: "AZURE_ARTIFACT_SIGNING_CLIENT_SECRET"),
         ] : [
             usernamePassword(
@@ -53,7 +48,14 @@ void main() {
 
         withCredentials(common_creds + sign_creds) {
             // The windows.build function will create stages.
-            withEnv(["CMK_VERSION=${cmk_version}"]) {
+            withEnv([
+                "CMK_VERSION=${cmk_version}",
+                "AZURE_ARTIFACT_SIGNING_ENDPOINT=${env.AZURE_ARTIFACT_SIGNING_ENDPOINT}",
+                "AZURE_ARTIFACT_SIGNING_ACCOUNT=${env.AZURE_ARTIFACT_SIGNING_ACCOUNT}",
+                "AZURE_ARTIFACT_SIGNING_PROFILE=${env.AZURE_ARTIFACT_SIGNING_PROFILE}",
+                "AZURE_ARTIFACT_SIGNING_TENANT_ID=${env.AZURE_ARTIFACT_SIGNING_TENANT_ID}",
+                "AZURE_ARTIFACT_SIGNING_CLIENT_ID=${env.AZURE_ARTIFACT_SIGNING_CLIENT_ID}",
+            ]) {
                 windows.build(
                     TARGET: sign_target,
                     CREDS: NEXUS_USERNAME + ':' + NEXUS_PASSWORD,
