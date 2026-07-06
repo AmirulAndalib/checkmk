@@ -164,6 +164,7 @@ class CheckboxWithFolderStrOutput(CheckboxOutput):
 class AuxTagOutput(BaseSchema):
     tag_type = fields.Constant(
         "aux_tag",
+        required=True,
         description="Identifies the type of host tag.",
     )
     operator = fields.String(
@@ -179,6 +180,7 @@ class AuxTagOutput(BaseSchema):
 class TagGroupBaseOutput(BaseSchema):
     tag_type = fields.String(
         enum=["aux_tag", "tag_group"],
+        required=True,
         example="tag_group",
         description="Identifies the type of host tag.",
     )
@@ -190,7 +192,7 @@ class TagGroupBaseOutput(BaseSchema):
 
 
 class TagGroupNoneOfOrOneOfOutput(TagGroupBaseOutput):
-    operator = fields.String(enum=["one_of", "none_of"])
+    operator = fields.String(enum=["one_of", "none_of"], required=True)
     tag_ids = fields.List(
         AuxTagIDField(
             example="checkmk-agent",
@@ -201,7 +203,7 @@ class TagGroupNoneOfOrOneOfOutput(TagGroupBaseOutput):
 
 
 class TagGroupIsNotOrIsOutput(TagGroupBaseOutput):
-    operator = fields.String(enum=["is", "is_not"])
+    operator = fields.String(enum=["is", "is_not"], required=True)
     tag_id = AuxTagIDField(
         example="checkmk-agent",
         description="Tag groups tag ids are available via the host tag group endpoint.",

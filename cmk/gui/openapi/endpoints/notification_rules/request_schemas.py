@@ -63,6 +63,7 @@ from cmk.utils.notify_types import (
 class Checkbox(BaseSchema):
     state = fields.String(
         enum=["enabled", "disabled"],
+        required=True,
         description="To enable or disable this field",
         example="enabled",
     )
@@ -141,7 +142,7 @@ class TagGroupBase(BaseSchema):
 
 
 class TagGroupNoneOfOrOneof(TagGroupBase):
-    operator = fields.String(enum=["one_of", "none_of"])
+    operator = fields.String(enum=["one_of", "none_of"], required=True)
     tag_ids = fields.List(
         AuxTagIDField(
             example="checkmk-agent",
@@ -152,7 +153,7 @@ class TagGroupNoneOfOrOneof(TagGroupBase):
 
 
 class TagGroupIsNotOrIs(TagGroupBase):
-    operator = fields.String(enum=["is", "is_not"])
+    operator = fields.String(enum=["is", "is_not"], required=True)
     tag_id = AuxTagIDField(
         example="checkmk-agent",
         description="Tag groups tag ids are available via the host tag group endpoint.",
@@ -453,7 +454,7 @@ class ServiceEventType(HostOrServiceEventTypeCommon):
 class CheckboxHostEventType(BaseSchema):
     state = fields.String(
         enum=["enabled", "disabled"],
-        load_default="enabled",
+        required=True,
         description="To enable or disable this field",
         example="enabled",
     )
@@ -467,7 +468,7 @@ class CheckboxHostEventType(BaseSchema):
 class CheckboxServiceEventType(BaseSchema):
     state = fields.String(
         enum=["enabled", "disabled"],
-        load_default="enabled",
+        required=True,
         description="To enable or disable this field",
         example="enabled",
     )
@@ -2901,11 +2902,11 @@ class RuleConditions(BaseSchema):
     )
     match_host_event_type = fields.Nested(
         MatchHostEventTypeCheckbox,
-        load_default=lambda: CheckboxHostEventType().load({}),
+        load_default=lambda: {"state": "enabled", "value": HostEventType().load({})},
     )
     match_service_event_type = fields.Nested(
         MatchServiceEventTypeCheckbox,
-        load_default=lambda: CheckboxServiceEventType().load({}),
+        load_default=lambda: {"state": "enabled", "value": ServiceEventType().load({})},
     )
     restrict_to_notification_numbers = fields.Nested(
         RestrictNotificationNumCheckbox,
