@@ -806,6 +806,7 @@ allows = [
 allows = [
   "@ccc",
   "cmk.gui.autocompleters",
+  "cmk.gui.dashboard",
   "cmk.gui.graphing",
   "cmk.gui.openapi",
   "cmk.gui.pagetypes",

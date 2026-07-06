@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 from cmk.ccc.version import Edition
 from cmk.gui.autocompleters import AutocompleterRegistry
+from cmk.gui.dashboard import DashletRegistry
 from cmk.gui.openapi.framework.registry import VersionedEndpointRegistry
 from cmk.gui.openapi.restful_objects.endpoint_family import EndpointFamilyRegistry
 from cmk.gui.pagetypes import BuiltinPagetypeTopicRegistry
@@ -25,6 +26,7 @@ class RegistrationContext:
     builtin_pagetype_topic_registry: BuiltinPagetypeTopicRegistry
     config_domain_registry: ConfigDomainRegistry
     config_variable_registry: ConfigVariableRegistry
+    dashlet_registry: DashletRegistry
     endpoint_family_registry: EndpointFamilyRegistry
     replication_path_registry: ReplicationPathRegistry
     snapin_registry: SnapinRegistry

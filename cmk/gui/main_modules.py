@@ -9,6 +9,7 @@ from typing import assert_never
 from cmk.ccc.version import Edition
 from cmk.discover_plugins import discover_plugins_from_modules
 from cmk.gui.autocompleters import autocompleter_registry
+from cmk.gui.dashboard import dashlet_registry
 from cmk.gui.legacy_plugins import get_failed_plugins as get_failed_plugins
 from cmk.gui.main_navigation import main_navigation_renderer_registry, MainNavigation
 from cmk.gui.openapi import endpoint_family_registry, versioned_endpoint_registry
@@ -36,6 +37,7 @@ def _build_context(edition: Edition, features: LicenseOptions) -> RegistrationCo
         builtin_pagetype_topic_registry=builtin_pagetype_topic_registry,
         config_domain_registry=config_domain_registry,
         config_variable_registry=config_variable_registry,
+        dashlet_registry=dashlet_registry,
         endpoint_family_registry=endpoint_family_registry,
         replication_path_registry=replication_path_registry,
         snapin_registry=snapin_registry,

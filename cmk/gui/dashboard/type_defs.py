@@ -141,6 +141,18 @@ class TopListDashletConfig(DashletConfig):
     limit_to: int
 
 
+NetworkFlowTopTableDimension = Literal[
+    "local_hosts", "remote_hosts", "applications", "autonomous_systems"
+]
+NetworkFlowBarAccent = Literal["blue", "magenta", "green", "yellow", "orange", "purple"]
+
+
+class NetworkFlowTopTableDashletConfig(DashletConfig):
+    dimension: NetworkFlowTopTableDimension
+    accent: NetworkFlowBarAccent
+    limit_to: int
+
+
 class StateDashletConfig(DashletConfig):
     status_display: StatusDisplay
     show_summary: Literal["not_ok"] | None
