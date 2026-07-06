@@ -83,9 +83,11 @@ void build(Map args) {
                 "pwsh -File build-msi.ps1 -ProductVersion ${args.VERSION} -OutputDir ..\\..\\..\\..\\${artifacts_dir}",
                 "CheckmkRelayInstaller.msi"] :
 
-            (args.TARGET == "relay_msi_with_sign") ? [
+            (args.TARGET == "relay_msi_with_sign") || (args.TARGET == "relay_msi_with_sign_azure") ? [
                 "non-free/packages/cmk-relay-engine/windows-installer",
-                "pwsh -File build-msi.ps1 -ProductVersion ${args.VERSION} -OutputDir ..\\..\\..\\..\\${artifacts_dir} -Sign",
+                "pwsh -File build-msi.ps1 " +
+                    "-ProductVersion ${args.VERSION} -OutputDir ..\\..\\..\\..\\${artifacts_dir} " +
+                    "${args.TARGET == 'relay_msi_with_sign_azure' ? '-SignAzure' : '-Sign'}",
                 "CheckmkRelayInstaller.msi"] :
 
             (args.TARGET == "relay_msi_test") ? [

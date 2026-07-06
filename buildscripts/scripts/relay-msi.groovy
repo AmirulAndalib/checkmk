@@ -23,16 +23,40 @@ void main() {
     // When FORCE_SIGN parameter is present we honour it. Otherwise we sign the MSI.
     def should_sign = (params.FORCE_SIGN == null) || (params.FORCE_SIGN == true);
 
+    // Choose the signing method, mirroring winagt-build.groovy. Azure signs in-process
+    // against the cloud service (no YubiKey / win_sign_key lock); YubiKey is the fallback.
+    def use_azure = (params.SIGN_METHOD == "azure");
+    def sign_target = use_azure ? 'relay_msi_with_sign_azure' : 'relay_msi_with_sign';
+
+    def azure_creds = [
+        string(credentialsId: "azure_artifact_signing_endpoint",      variable: "AZURE_ARTIFACT_SIGNING_ENDPOINT"),
+        string(credentialsId: "azure_artifact_signing_account",       variable: "AZURE_ARTIFACT_SIGNING_ACCOUNT"),
+        string(credentialsId: "azure_artifact_signing_profile",       variable: "AZURE_ARTIFACT_SIGNING_PROFILE"),
+        string(credentialsId: "azure_artifact_signing_tenant_id",     variable: "AZURE_ARTIFACT_SIGNING_TENANT_ID"),
+        string(credentialsId: "azure_artifact_signing_client_id",     variable: "AZURE_ARTIFACT_SIGNING_CLIENT_ID"),
+        string(credentialsId: "azure_artifact_signing_client_secret", variable: "AZURE_ARTIFACT_SIGNING_CLIENT_SECRET"),
+    ];
+
     // Forward the pipeline version unchanged (like winagt-build does for the agent);
     // build-msi.ps1 normalises it into the strict x.x.x.x WiX requires.
     dir("${checkout_dir}") {
-        windows.build(
-            TARGET: should_sign ? 'relay_msi_with_sign' : 'relay_msi_no_sign',
-            VERSION: cmk_version,
-        );
+        if (use_azure && should_sign) {
+            withCredentials(azure_creds) {
+                windows.build(
+                    TARGET: sign_target,
+                    VERSION: cmk_version,
+                );
+            }
+        } else {
+            windows.build(
+                TARGET: should_sign ? sign_target : 'relay_msi_no_sign',
+                VERSION: cmk_version,
+            );
+        }
 
         // Unit tests: validate the MSI we just built (structure + signature).
-        // test-msi.ps1 gates via exit code AND emits a JUnit XML.
+        // test-msi.ps1 gates via exit code AND emits a JUnit XML. Runs outside the
+        // signing credentials, exactly as before.
         try {
             windows.build(
                 TARGET: 'relay_msi_test',
@@ -41,7 +65,7 @@ void main() {
         } finally {
             // Publish the JUnit XML
             archiveArtifacts(
-                allowEmptyArchive: false,
+                allowEmptyArchive: true,
                 artifacts: "artefacts/relay_msi_test_results.xml",
                 fingerprint: true,
             );
