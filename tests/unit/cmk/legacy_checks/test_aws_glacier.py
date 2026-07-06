@@ -4,14 +4,13 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 # mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-untyped-call"
 
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 import pytest
 
-from cmk.agent_based.v2 import StringTable
+from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
 from cmk.legacy_checks.aws_glacier import check_aws_glacier_archives as check_aws_glacier
 from cmk.legacy_checks.aws_glacier import discover_aws_glacier, parse_aws_glacier
 
@@ -113,21 +112,21 @@ from cmk.legacy_checks.aws_glacier import discover_aws_glacier, parse_aws_glacie
                 ]
             ],
             [
-                ("axi_empty_vault", {}),
-                ("axi_vault", {}),
-                ("fake_vault_1", {}),
-                ("fake_vault_2", {}),
+                Service(item="axi_empty_vault"),
+                Service(item="fake_vault_1"),
+                Service(item="fake_vault_2"),
+                Service(item="axi_vault"),
             ],
         ),
     ],
 )
 def test_discover_aws_glacier(
-    string_table: StringTable, expected_discoveries: Sequence[tuple[str, Mapping[str, Any]]]
+    string_table: StringTable, expected_discoveries: Sequence[Service]
 ) -> None:
     """Test discovery function for aws_glacier check."""
     parsed = parse_aws_glacier(string_table)
     result = list(discover_aws_glacier(parsed))
-    assert sorted(result) == sorted(expected_discoveries)
+    assert result == list(expected_discoveries)
 
 
 @pytest.mark.parametrize(
@@ -229,8 +228,10 @@ def test_discover_aws_glacier(
                 ]
             ],
             [
-                (0, "Vault size: 0 B", [("aws_glacier_vault_size", 0, None, None)]),
-                (0, "Number of archives: 0", [("aws_glacier_num_archives", 0)]),
+                Result(state=State.OK, summary="Vault size: 0 B"),
+                Metric("aws_glacier_vault_size", 0.0),
+                Result(state=State.OK, summary="Number of archives: 0"),
+                Metric("aws_glacier_num_archives", 0.0),
             ],
         ),
         (
@@ -329,8 +330,10 @@ def test_discover_aws_glacier(
                 ]
             ],
             [
-                (0, "Vault size: 0 B", [("aws_glacier_vault_size", 0, None, None)]),
-                (0, "Number of archives: 0", [("aws_glacier_num_archives", 0)]),
+                Result(state=State.OK, summary="Vault size: 0 B"),
+                Metric("aws_glacier_vault_size", 0.0),
+                Result(state=State.OK, summary="Number of archives: 0"),
+                Metric("aws_glacier_num_archives", 0.0),
             ],
         ),
         (
@@ -429,8 +432,10 @@ def test_discover_aws_glacier(
                 ]
             ],
             [
-                (0, "Vault size: 22.5 GB", [("aws_glacier_vault_size", 22548578304, None, None)]),
-                (0, "Number of archives: 2025", [("aws_glacier_num_archives", 2025)]),
+                Result(state=State.OK, summary="Vault size: 22.5 GB"),
+                Metric("aws_glacier_vault_size", 22548578304.0),
+                Result(state=State.OK, summary="Number of archives: 2025"),
+                Metric("aws_glacier_num_archives", 2025.0),
             ],
         ),
         (
@@ -529,8 +534,10 @@ def test_discover_aws_glacier(
                 ]
             ],
             [
-                (0, "Vault size: 117 MB", [("aws_glacier_vault_size", 117440512, None, None)]),
-                (0, "Number of archives: 17", [("aws_glacier_num_archives", 17)]),
+                Result(state=State.OK, summary="Vault size: 117 MB"),
+                Metric("aws_glacier_vault_size", 117440512.0),
+                Result(state=State.OK, summary="Number of archives: 17"),
+                Metric("aws_glacier_num_archives", 17.0),
             ],
         ),
     ],

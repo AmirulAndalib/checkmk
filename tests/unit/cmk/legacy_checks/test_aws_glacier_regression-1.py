@@ -4,20 +4,18 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 # mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-any-return"
-# mypy: disable-error-code="no-untyped-call"
 
 # NOTE: This file has been created by an LLM (from something that was worse).
 # It mostly serves as test to ensure we don't accidentally break anything.
 # If you encounter something weird in here, do not hesitate to replace this
 # test by something more appropriate.
 
-# mypy: disable-error-code="var-annotated"
-
+from collections.abc import Mapping
 from typing import Any
 
 import pytest
 
+from cmk.agent_based.v2 import Metric, Result, Service, State
 from cmk.legacy_checks.aws_glacier import (
     check_aws_glacier_archives,
     check_aws_glacier_summary,
@@ -28,7 +26,7 @@ from cmk.legacy_checks.aws_glacier import (
 
 
 @pytest.fixture(name="parsed", scope="module")
-def fixture_parsed() -> dict[str, Any]:
+def fixture_parsed() -> Mapping[str, Mapping[str, Any]]:
     string_table = [
         [
             '[{"SizeInBytes":',
@@ -161,103 +159,66 @@ def test_discover_aws_glacier(parsed: dict[str, Any]) -> None:
     """Test discovery of AWS Glacier vaults"""
     result = list(discover_aws_glacier(parsed))
 
-    expected = [
-        ("axi_empty_vault", {}),
-        ("axi_vault", {}),
-        ("fake_vault_1", {}),
-        ("fake_vault_2", {}),
-    ]
-    assert sorted(result) == sorted(expected)
+    assert {service.item for service in result} == {
+        "axi_empty_vault",
+        "axi_vault",
+        "fake_vault_1",
+        "fake_vault_2",
+    }
 
 
 def test_discover_aws_glacier_summary(parsed: dict[str, Any]) -> None:
     """Test discovery of AWS Glacier summary service"""
     result = list(discover_aws_glacier_summary(parsed))
-    assert result == [(None, {})]
+    assert result == [Service()]
 
 
 def test_check_aws_glacier_empty_vault(parsed: dict[str, Any]) -> None:
     """Test check function for empty vault"""
     result = list(check_aws_glacier_archives("axi_empty_vault", {}, parsed))
 
-    assert len(result) == 2
-
-    # Vault size check
-    state, summary, metrics = result[0]
-    assert state == 0
-    assert "Vault size: 0 B" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_vault_size", 0, None, None)
-
-    # Number of archives check
-    state, summary, metrics = result[1]
-    assert state == 0
-    assert "Number of archives: 0" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_num_archives", 0)
+    assert result == [
+        Result(state=State.OK, summary="Vault size: 0 B"),
+        Metric("aws_glacier_vault_size", 0.0),
+        Result(state=State.OK, summary="Number of archives: 0"),
+        Metric("aws_glacier_num_archives", 0.0),
+    ]
 
 
 def test_check_aws_glacier_vault_with_data(parsed: dict[str, Any]) -> None:
     """Test check function for vault with data"""
     result = list(check_aws_glacier_archives("fake_vault_1", {}, parsed))
 
-    assert len(result) == 2
-
-    # Vault size check
-    state, summary, metrics = result[0]
-    assert state == 0
-    assert "Vault size: 22.5 GB" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_vault_size", 22548578304, None, None)
-
-    # Number of archives check
-    state, summary, metrics = result[1]
-    assert state == 0
-    assert "Number of archives: 2025" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_num_archives", 2025)
+    assert result == [
+        Result(state=State.OK, summary="Vault size: 22.5 GB"),
+        Metric("aws_glacier_vault_size", 22548578304.0),
+        Result(state=State.OK, summary="Number of archives: 2025"),
+        Metric("aws_glacier_num_archives", 2025.0),
+    ]
 
 
 def test_check_aws_glacier_smaller_vault(parsed: dict[str, Any]) -> None:
     """Test check function for smaller vault"""
     result = list(check_aws_glacier_archives("fake_vault_2", {}, parsed))
 
-    assert len(result) == 2
-
-    # Vault size check
-    state, summary, metrics = result[0]
-    assert state == 0
-    assert "Vault size: 117 MB" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_vault_size", 117440512, None, None)
-
-    # Number of archives check
-    state, summary, metrics = result[1]
-    assert state == 0
-    assert "Number of archives: 17" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_num_archives", 17)
+    assert result == [
+        Result(state=State.OK, summary="Vault size: 117 MB"),
+        Metric("aws_glacier_vault_size", 117440512.0),
+        Result(state=State.OK, summary="Number of archives: 17"),
+        Metric("aws_glacier_num_archives", 17.0),
+    ]
 
 
 def test_check_aws_glacier_summary(parsed: dict[str, Any]) -> None:
     """Test summary check function"""
-    result = list(check_aws_glacier_summary(None, {}, parsed))
+    result = list(check_aws_glacier_summary({}, parsed))
 
-    assert len(result) == 2
-
-    # Total size check
-    state, summary, metrics = result[0]
-    assert state == 0
-    assert "Total size: 22.7 GB" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_total_vault_size", 22666018816, None, None)
-
-    # Largest vault check
-    state, summary, metrics = result[1]
-    assert state == 0
-    assert "Largest vault: fake_vault_1 (22.5 GB)" in summary
-    assert len(metrics) == 1
-    assert metrics[0] == ("aws_glacier_largest_vault_size", 22548578304)
+    assert result == [
+        Result(state=State.OK, summary="Total size: 22.7 GB"),
+        Metric("aws_glacier_total_vault_size", 22666018816.0),
+        Result(state=State.OK, summary="Largest vault: fake_vault_1 (22.5 GB)"),
+        Metric("aws_glacier_largest_vault_size", 22548578304.0),
+    ]
 
 
 def test_check_aws_glacier_nonexistent_vault() -> None:
