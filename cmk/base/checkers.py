@@ -94,7 +94,7 @@ from cmk.checkengine.sectionparserutils import (
     get_section_kwargs,
 )
 from cmk.checkengine.snmplib import SNMPBackendEnum, SNMPRawData
-from cmk.checkengine.sources import (
+from cmk.checkengine.sources.api import (
     Source,
     SourceBuilder,
     SourceConfig,

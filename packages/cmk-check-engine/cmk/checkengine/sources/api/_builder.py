@@ -21,13 +21,7 @@ from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.helper_interface import AgentRawData, FetcherType
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPBackendEnum
-from cmk.server_side_calls_backend import SpecialAgentCommandLine
-from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.tags import ComputedDataSources, TagID
-
-from ._api import Source
-from ._source_config import SourceConfig
-from ._sources import (
+from cmk.checkengine.sources._sources import (
     IPMISource,
     MetricBackendSource,
     MgmtSNMPSource,
@@ -40,6 +34,11 @@ from ._sources import (
     SpecialAgentSource,
     TCPSource,
 )
+from cmk.checkengine.sources.api._abc import Source
+from cmk.checkengine.sources.api._config import SourceConfig
+from cmk.server_side_calls_backend import SpecialAgentCommandLine
+from cmk.utils.ip_lookup import IPStackConfig
+from cmk.utils.tags import ComputedDataSources, TagID
 
 
 class SourceBuilder:

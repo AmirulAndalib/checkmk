@@ -111,7 +111,7 @@ from cmk.checkengine.snmplib import (
     SNMPSectionName,
     walk_for_export,
 )
-from cmk.checkengine.sources import SourceBuilder
+from cmk.checkengine.sources.api import SourceBuilder
 from cmk.checkengine.specs.checkresults import ActiveCheckResult, ServiceState
 from cmk.checkengine.submitters import get_submitter
 from cmk.checkengine.summarize import summarize, SummarizerFunction

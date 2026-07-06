@@ -183,7 +183,7 @@ from cmk.checkengine.snmplib import (
     SNMPVersion,
     walk_for_export,
 )
-from cmk.checkengine.sources import SourceBuilder
+from cmk.checkengine.sources.api import SourceBuilder
 from cmk.checkengine.specs.checkresults import ServiceState
 from cmk.checkengine.specs.parameters import TimespecificParameters
 from cmk.checkengine.submitters import ServiceDetails
