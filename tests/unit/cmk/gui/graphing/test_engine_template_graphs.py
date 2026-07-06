@@ -13,6 +13,7 @@ from cmk.graphing.v1 import graphs as graphs_v1
 from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing.v1 import Title
 from cmk.graphing_engine import (
+    CheckCommand,
     ConsolidationFunction,
     HostName,
     MetricName,
@@ -44,7 +45,7 @@ class _FakeRRDFetchRawMetricNames:
     def __call__(self, services: Sequence[Service]) -> Mapping[Service, RawMetricNames]:
         return {
             service: RawMetricNames(
-                check_command="check_mk-foo",
+                check_command=CheckCommand("check_mk-foo"),
                 metric_names=[MetricName(name) for name in self.metric_names],
             )
             for service in services
@@ -61,7 +62,7 @@ class _FakeRRDDataSource:
     def _data(self, services: Iterable[Service]) -> Mapping[Service, RawPerformanceData]:
         return {
             service: RawPerformanceData(
-                check_command="check_mk-foo",
+                check_command=CheckCommand("check_mk-foo"),
                 values={MetricName(name): value for name, value in self.values.items()},
             )
             for service in services

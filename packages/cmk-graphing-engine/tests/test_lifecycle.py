@@ -21,6 +21,7 @@ from cmk.graphing.v1 import Title
 from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
     build_matched_graphs,
+    CheckCommand,
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
@@ -182,7 +183,7 @@ def test_update_reproduces_a_title_expression_for_a_non_drawn_metric() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={
                     MetricName("cpu_user"): RawPerformanceValue(value=3.0),
                     MetricName("cpu_cores"): RawPerformanceValue(value=8.0, maximum=8.0),
@@ -210,7 +211,7 @@ def test_update_reproduces_a_compound_and_simple_line_graph() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={
                     MetricName("cpu_user"): RawPerformanceValue(value=10.0),
                     MetricName("cpu_system"): RawPerformanceValue(value=20.0),
@@ -237,7 +238,7 @@ def test_update_reproduces_a_fallback_single_metric_graph() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={MetricName("temp"): RawPerformanceValue(value=42.0)},
             )
         },
@@ -263,7 +264,7 @@ def test_update_reproduces_a_renamed_and_scaled_metric() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={MetricName("temperature"): RawPerformanceValue(value=21.0)},
             )
         },
@@ -284,7 +285,7 @@ def test_update_reproduces_several_graphs_in_order() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={
                     MetricName("cpu_user"): RawPerformanceValue(value=5.0),
                     MetricName("temp"): RawPerformanceValue(value=42.0),
@@ -312,7 +313,7 @@ def test_update_reproduces_a_natively_gridded_series() -> None:
     rrd = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={MetricName("cpu_user"): RawPerformanceValue(value=1.0)},
             )
         },
@@ -340,7 +341,7 @@ def _cpu_rrd(*, value: float, series: TimeSeries) -> _FakeRRDDataSource:
     return _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={MetricName("cpu_user"): RawPerformanceValue(value=value)},
             )
         },
@@ -375,7 +376,7 @@ def test_refresh_picks_up_a_changed_title_scalar() -> None:
         return _FakeRRDDataSource(
             performance_data={
                 _SERVICE: RawPerformanceData(
-                    check_command="check_mk-cpu",
+                    check_command=CheckCommand("check_mk-cpu"),
                     values={
                         MetricName("cpu_user"): RawPerformanceValue(value=3.0),
                         MetricName("cpu_cores"): RawPerformanceValue(
@@ -406,7 +407,7 @@ def test_refresh_drops_a_curve_whose_metric_disappeared() -> None:
     at_discovery = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={
                     MetricName("cpu_user"): RawPerformanceValue(value=3.0),
                     MetricName("cpu_system"): RawPerformanceValue(value=4.0),
@@ -422,7 +423,7 @@ def test_refresh_drops_a_curve_whose_metric_disappeared() -> None:
     later = _FakeRRDDataSource(
         performance_data={
             _SERVICE: RawPerformanceData(
-                check_command="check_mk-cpu",
+                check_command=CheckCommand("check_mk-cpu"),
                 values={MetricName("cpu_user"): RawPerformanceValue(value=3.0)},
             )
         },

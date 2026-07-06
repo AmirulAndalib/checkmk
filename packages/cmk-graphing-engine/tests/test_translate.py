@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.graphing_engine import (
+    CheckCommand,
     MetricName,
     RawPerformanceData,
     RawPerformanceValue,
@@ -14,7 +15,7 @@ from cmk.graphing_engine._translate import translate_performance_data
 
 def test_translate_scales_value_and_scalars() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-cpu",
+        check_command=CheckCommand("check_mk-cpu"),
         values={
             MetricName("cpu_user"): RawPerformanceValue(
                 value=21.0,
@@ -27,7 +28,7 @@ def test_translate_scales_value_and_scalars() -> None:
     )
     # Scale 2.0 must be applied to the value and every scalar bound.
     translations = {
-        "check_mk-cpu": {
+        CheckCommand("check_mk-cpu"): {
             MetricName("cpu_user"): MetricTranslation(name=MetricName("cpu_user"), scale=2.0)
         }
     }
@@ -46,11 +47,13 @@ def test_translate_scales_value_and_scalars() -> None:
 
 def test_translate_renames_metric_to_the_target() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-sensor",
+        check_command=CheckCommand("check_mk-sensor"),
         values={MetricName("temperature"): RawPerformanceValue(value=20.0)},
     )
     translations = {
-        "check_mk-sensor": {MetricName("temperature"): MetricTranslation(name=MetricName("temp"))}
+        CheckCommand("check_mk-sensor"): {
+            MetricName("temperature"): MetricTranslation(name=MetricName("temp"))
+        }
     }
 
     assert translate_performance_data(perf, translations) == {
@@ -64,11 +67,13 @@ def test_translate_renames_metric_to_the_target() -> None:
 
 def test_translate_matches_regex_translation_entries() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-if",
+        check_command=CheckCommand("check_mk-if"),
         values={MetricName("if_in_octets"): RawPerformanceValue(value=10.0)},
     )
     translations = {
-        "check_mk-if": {MetricName("~if_.*_octets"): MetricTranslation(name=MetricName("cpu_user"))}
+        CheckCommand("check_mk-if"): {
+            MetricName("~if_.*_octets"): MetricTranslation(name=MetricName("cpu_user"))
+        }
     }
 
     [(name, data)] = translate_performance_data(perf, translations).items()
@@ -78,7 +83,7 @@ def test_translate_matches_regex_translation_entries() -> None:
 
 def test_translate_falls_back_for_unregistered_metric() -> None:
     perf = RawPerformanceData(
-        check_command="",
+        check_command=CheckCommand(""),
         values={MetricName("unknown"): RawPerformanceValue(value=1.0)},
     )
 
@@ -92,11 +97,13 @@ def test_translate_falls_back_for_unregistered_metric() -> None:
 
 def test_translate_keeps_the_predict_prefix_on_the_renamed_metric() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-sensor",
+        check_command=CheckCommand("check_mk-sensor"),
         values={MetricName("predict_temperature"): RawPerformanceValue(value=19.0)},
     )
     translations = {
-        "check_mk-sensor": {MetricName("temperature"): MetricTranslation(name=MetricName("temp"))}
+        CheckCommand("check_mk-sensor"): {
+            MetricName("temperature"): MetricTranslation(name=MetricName("temp"))
+        }
     }
 
     [(name, data)] = translate_performance_data(perf, translations).items()
@@ -106,12 +113,12 @@ def test_translate_keeps_the_predict_prefix_on_the_renamed_metric() -> None:
 
 def test_translate_scales_a_predictive_metric_like_its_base() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-cpu",
+        check_command=CheckCommand("check_mk-cpu"),
         values={MetricName("predict_cpu_user"): RawPerformanceValue(value=21.0)},
     )
     # The scale of the base metric (cpu_user) is applied to its predictive companion as well.
     translations = {
-        "check_mk-cpu": {
+        CheckCommand("check_mk-cpu"): {
             MetricName("cpu_user"): MetricTranslation(name=MetricName("cpu_user"), scale=2.0)
         }
     }
@@ -127,11 +134,13 @@ def test_translate_adds_the_deprecated_column_for_a_renamed_metric() -> None:
     # deprecated `temperature` onto `temp`. The deprecated column is appended as a further original so a
     # graph spanning the rename keeps its historic segment.
     perf = RawPerformanceData(
-        check_command="check_mk-sensor",
+        check_command=CheckCommand("check_mk-sensor"),
         values={MetricName("temp"): RawPerformanceValue(value=20.0)},
     )
     translations = {
-        "check_mk-sensor": {MetricName("temperature"): MetricTranslation(name=MetricName("temp"))}
+        CheckCommand("check_mk-sensor"): {
+            MetricName("temperature"): MetricTranslation(name=MetricName("temp"))
+        }
     }
 
     [(name, data)] = translate_performance_data(perf, translations).items()
@@ -145,12 +154,12 @@ def test_translate_adds_the_deprecated_column_for_a_renamed_metric() -> None:
 
 def test_translate_scales_the_deprecated_column_with_its_own_scale() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-cpu",
+        check_command=CheckCommand("check_mk-cpu"),
         values={MetricName("cpu_user"): RawPerformanceValue(value=21.0)},
     )
     # `cpu_user_old` was renamed-and-scaled onto `cpu_user`; its historic column carries the old scale.
     translations = {
-        "check_mk-cpu": {
+        CheckCommand("check_mk-cpu"): {
             MetricName("cpu_user_old"): MetricTranslation(name=MetricName("cpu_user"), scale=2.0)
         }
     }
@@ -167,11 +176,13 @@ def test_translate_does_not_reverse_translate_regex_entries() -> None:
     # A regex translation maps many names onto one and cannot be inverted, so no deprecated column is
     # added — only the current column remains.
     perf = RawPerformanceData(
-        check_command="check_mk-if",
+        check_command=CheckCommand("check_mk-if"),
         values={MetricName("if_octets"): RawPerformanceValue(value=10.0)},
     )
     translations = {
-        "check_mk-if": {MetricName("~if_.*"): MetricTranslation(name=MetricName("if_octets"))}
+        CheckCommand("check_mk-if"): {
+            MetricName("~if_.*"): MetricTranslation(name=MetricName("if_octets"))
+        }
     }
 
     [(name, data)] = translate_performance_data(perf, translations).items()
@@ -181,11 +192,13 @@ def test_translate_does_not_reverse_translate_regex_entries() -> None:
 
 def test_translate_adds_the_deprecated_column_with_the_predict_prefix() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-sensor",
+        check_command=CheckCommand("check_mk-sensor"),
         values={MetricName("predict_temp"): RawPerformanceValue(value=19.0)},
     )
     translations = {
-        "check_mk-sensor": {MetricName("temperature"): MetricTranslation(name=MetricName("temp"))}
+        CheckCommand("check_mk-sensor"): {
+            MetricName("temperature"): MetricTranslation(name=MetricName("temp"))
+        }
     }
 
     [(name, data)] = translate_performance_data(perf, translations).items()
@@ -198,14 +211,14 @@ def test_translate_adds_the_deprecated_column_with_the_predict_prefix() -> None:
 
 def test_translate_merges_metrics_renaming_to_the_same_target() -> None:
     perf = RawPerformanceData(
-        check_command="check_mk-cpu",
+        check_command=CheckCommand("check_mk-cpu"),
         values={
             MetricName("user"): RawPerformanceValue(value=1.0),
             MetricName("usr"): RawPerformanceValue(value=2.0),
         },
     )
     translations = {
-        "check_mk-cpu": {
+        CheckCommand("check_mk-cpu"): {
             MetricName("user"): MetricTranslation(name=MetricName("cpu_user")),
             MetricName("usr"): MetricTranslation(name=MetricName("cpu_user")),
         }

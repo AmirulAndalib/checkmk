@@ -14,7 +14,7 @@ from cmk.graphing.v2_unstable import graphs as graphs_v2_unstable
 from cmk.graphing.v2_unstable import metrics as metrics_v2_unstable
 
 from ._graph import Bound, Curve, Graph, Line, MinimalRange, Rule, Stack
-from ._perfdata import MetricName, MetricTranslation, Service
+from ._perfdata import CheckCommand, MetricName, MetricTranslation, Service
 from ._quantities import (
     Constant,
     Difference,
@@ -535,24 +535,26 @@ def _parse_check_command(
         | translations_v1.HostCheckCommand
         | translations_v1.NagiosPlugin
     ),
-) -> str:
+) -> CheckCommand:
     match check_command:
         case translations_v1.PassiveCheck():
             name = check_command.name
-            return name if name.startswith("check_mk-") else f"check_mk-{name}"
+            return CheckCommand(name if name.startswith("check_mk-") else f"check_mk-{name}")
         case translations_v1.ActiveCheck():
             name = check_command.name
-            return name if name.startswith("check_mk_active-") else f"check_mk_active-{name}"
+            return CheckCommand(
+                name if name.startswith("check_mk_active-") else f"check_mk_active-{name}"
+            )
         case translations_v1.HostCheckCommand():
             name = check_command.name
-            return name if name.startswith("check-mk-") else f"check-mk-{name}"
+            return CheckCommand(name if name.startswith("check-mk-") else f"check-mk-{name}")
         case translations_v1.NagiosPlugin():
             name = (
                 check_command.name
                 if check_command.name.startswith("check_")
                 else (f"check_{check_command.name}")
             )
-            return name.replace(".", "_")
+            return CheckCommand(name.replace(".", "_"))
         case _:
             assert_never(check_command)
 
@@ -578,8 +580,8 @@ def _parse_metric_translation(
 
 def parse_translations_from_api(
     registered_translations: Iterable[translations_v1.Translation],
-) -> Mapping[str, Mapping[MetricName, MetricTranslation]]:
-    result: dict[str, Mapping[MetricName, MetricTranslation]] = {}
+) -> Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]]:
+    result: dict[CheckCommand, Mapping[MetricName, MetricTranslation]] = {}
     for translation in registered_translations:
         parsed = {
             MetricName(old_name): _parse_metric_translation(MetricName(old_name), spec)

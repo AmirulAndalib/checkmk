@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.graphing.v1 import translations as translations_v1
-from cmk.graphing_engine import MetricName
+from cmk.graphing_engine import CheckCommand, MetricName
 from cmk.graphing_engine._from_api import parse_translations_from_api
 from cmk.graphing_engine._perfdata import MetricTranslation
 
@@ -74,4 +74,4 @@ def test_a_translation_applies_to_each_of_its_check_commands() -> None:
     )
     parsed = parse_translations_from_api([translation])
     assert set(parsed) == {"check_mk-a", "check_mk-b"}
-    assert parsed["check_mk-a"] == parsed["check_mk-b"]
+    assert parsed[CheckCommand("check_mk-a")] == parsed[CheckCommand("check_mk-b")]

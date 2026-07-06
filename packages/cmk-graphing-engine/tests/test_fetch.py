@@ -8,6 +8,7 @@ from collections.abc import Mapping, Sequence
 from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
     AutoPrecision,
+    CheckCommand,
     ConsolidationFunction,
     Curve,
     CurveAttributes,
@@ -75,7 +76,7 @@ def _perf(name: str, *, value: float = 1.0) -> tuple[MetricName, RawPerformanceV
 
 
 def _perf_data(*values: tuple[MetricName, RawPerformanceValue]) -> RawPerformanceData:
-    return RawPerformanceData(check_command="check_mk-test", values=dict(values))
+    return RawPerformanceData(check_command=CheckCommand("check_mk-test"), values=dict(values))
 
 
 def _ts(*values: float | None) -> TimeSeries:

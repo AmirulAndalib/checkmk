@@ -7,6 +7,7 @@ import re
 from collections.abc import Collection, Iterator, Mapping, Sequence
 
 from ._perfdata import (
+    CheckCommand,
     MetricName,
     MetricTranslation,
     PerformanceData,
@@ -27,15 +28,17 @@ def _split_predict_prefix(metric_name: str) -> tuple[str, str]:
 
 
 def _translations_for_command(
-    check_command: str,
-    translations: Mapping[str, Mapping[MetricName, MetricTranslation]],
+    check_command: CheckCommand,
+    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
 ) -> Mapping[MetricName, MetricTranslation]:
     if not check_command:
         return {}
     if check_command in translations:
         return translations[check_command]
     if check_command.startswith("check_mk-mgmt_"):
-        return translations.get(check_command.replace("check_mk-mgmt_", "check_mk-", 1), {})
+        return translations.get(
+            CheckCommand(check_command.replace("check_mk-mgmt_", "check_mk-", 1)), {}
+        )
     return {}
 
 
@@ -75,8 +78,8 @@ def _deprecated_originals(
 
 def originals_for_metric_name(
     metric_name: MetricName,
-    translations: Mapping[str, Mapping[MetricName, MetricTranslation]],
-    check_command: str,
+    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
+    check_command: CheckCommand,
 ) -> Sequence[RRDOriginal]:
     command_translations = _translations_for_command(check_command, translations)
     return [
@@ -87,7 +90,7 @@ def originals_for_metric_name(
 
 def translate_metric_names(
     raw_metrics: RawMetricNames,
-    translations: Mapping[str, Mapping[MetricName, MetricTranslation]],
+    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
 ) -> frozenset[MetricName]:
     command_translations = _translations_for_command(raw_metrics.check_command, translations)
     names = set()
@@ -100,7 +103,7 @@ def translate_metric_names(
 
 def translate_performance_data(
     raw_performance_data: RawPerformanceData,
-    translations: Mapping[str, Mapping[MetricName, MetricTranslation]],
+    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
 ) -> Mapping[MetricName, PerformanceData]:
     command_translations = _translations_for_command(
         raw_performance_data.check_command, translations
