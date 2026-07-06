@@ -126,16 +126,15 @@ def fetch_time_series(
     time_range: TimeRange,
     rrd: RRDDataSource,
 ) -> Mapping[RRDMetric, TimeSeries]:
-    rrd_metrics_per_metric: dict[
-        RRDMetric, tuple[ConsolidationFunction, list[tuple[RRDMetric, float]]]
+    originals_per_function: dict[
+        ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
     ] = {}
-    rrd_metrics_per_function: dict[ConsolidationFunction, list[RRDMetric]] = {}
     for metric in graph.metrics():
         service = Service(host_name=metric.host_name, service_name=metric.service_name)
         if (data := performance_data.get(service, {}).get(metric.metric_name)) is None:
             continue
         function = _consolidation_function(metric, consolidation_function)
-        rrd_metrics = [
+        originals_per_function.setdefault(function, {})[metric] = [
             (
                 RRDMetric(
                     host_name=metric.host_name,
@@ -146,28 +145,26 @@ def fetch_time_series(
             )
             for original in data.originals
         ]
-        rrd_metrics_per_metric[metric] = (function, rrd_metrics)
-        rrd_metrics_per_function.setdefault(function, []).extend(
-            rrd_metric for rrd_metric, _scale in rrd_metrics
-        )
 
-    raw_per_function = {
-        function: rrd.fetch_raw_time_series(
-            list(dict.fromkeys(rrd_metrics)),
+    result: dict[RRDMetric, TimeSeries] = {}
+    for function, originals_per_metric in originals_per_function.items():
+        raw = rrd.fetch_raw_time_series(
+            list(
+                dict.fromkeys(
+                    rrd_metric
+                    for originals in originals_per_metric.values()
+                    for rrd_metric, _scale in originals
+                )
+            ),
             consolidation_function=function,
             time_range=time_range,
         )
-        for function, rrd_metrics in rrd_metrics_per_function.items()
-    }
-
-    result: dict[RRDMetric, TimeSeries] = {}
-    for metric, (function, rrd_metrics) in rrd_metrics_per_metric.items():
-        raw = raw_per_function[function]
-        scaled = [
-            _scaled(resample(raw[rrd_metric], time_range, function), scale)
-            for rrd_metric, scale in rrd_metrics
-            if rrd_metric in raw
-        ]
-        if scaled:
-            result[metric] = _merge(scaled, time_range)
+        for metric, originals in originals_per_metric.items():
+            scaled = [
+                _scaled(resample(raw[rrd_metric], time_range, function), scale)
+                for rrd_metric, scale in originals
+                if rrd_metric in raw
+            ]
+            if scaled:
+                result[metric] = _merge(scaled, time_range)
     return result
