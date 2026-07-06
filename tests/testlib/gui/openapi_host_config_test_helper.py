@@ -10,7 +10,13 @@ from typing import Any
 import pytest
 
 VALID_METRICS_ASSOCIATION_CONFIG: dict[str, Any] = {
-    "attribute_filters": [],
+    "host_name_lookup_rules": [
+        {
+            "resource_attributes": [{"key": "k", "value": "v"}],
+            "scope_attributes": [],
+            "data_point_attributes": [],
+        },
+    ],
 }
 
 INVALID_METRICS_ASSOCIATION_PARAMS = [
@@ -39,7 +45,7 @@ INVALID_METRICS_ASSOCIATION_PARAMS = [
         [
             "enabled",
             {
-                # Missing 'attribute_filters'
+                # Missing 'host_name_lookup_rules'
             },
         ],
         "Field required",
@@ -49,40 +55,54 @@ INVALID_METRICS_ASSOCIATION_PARAMS = [
         [
             "enabled",
             {
-                "attribute_filters": "not-a-dict",  # Wrong type
+                "host_name_lookup_rules": "not-a-list",  # Wrong type
             },
         ],
-        "Input should be a dictionary or an instance of MetricsAssociationAttributeFiltersModel",
-        id="filters_type_mismatch",
+        "instances are not allowed as a Sequence value",
+        id="lookup_rules_type_mismatch",
     ),
     pytest.param(
         [
             "enabled",
             {
-                "attribute_filters": {
-                    # Missing 'data_point_attributes'
-                    "resource_attributes": [{"key": "k", "value": "v"}],
-                    "scope_attributes": [],
-                },
+                "host_name_lookup_rules": [],  # An enabled association needs at least one rule
+            },
+        ],
+        "at least 1 item",
+        id="lookup_rules_empty",
+    ),
+    pytest.param(
+        [
+            "enabled",
+            {
+                "host_name_lookup_rules": [
+                    {
+                        # Missing 'data_point_attributes'
+                        "resource_attributes": [{"key": "k", "value": "v"}],
+                        "scope_attributes": [],
+                    },
+                ],
             },
         ],
         "Field required",
-        id="filters_missing_key",
+        id="rule_missing_key",
     ),
     pytest.param(
         [
             "enabled",
             {
-                "attribute_filters": {
-                    "resource_attributes": [{"key": "k", "value": "v"}],
-                    "scope_attributes": [
-                        {
-                            "key": "k",
-                            # Missing 'value' key
-                        }
-                    ],
-                    "data_point_attributes": [],
-                },
+                "host_name_lookup_rules": [
+                    {
+                        "resource_attributes": [{"key": "k", "value": "v"}],
+                        "scope_attributes": [
+                            {
+                                "key": "k",
+                                # Missing 'value' key
+                            }
+                        ],
+                        "data_point_attributes": [],
+                    },
+                ],
             },
         ],
         "Field required",

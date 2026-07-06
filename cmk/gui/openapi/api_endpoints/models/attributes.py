@@ -884,7 +884,7 @@ class MetricsAssociationAttributeFilterModel:
 
 
 @api_model
-class MetricsAssociationAttributeFiltersModel:
+class MetricsAssociationFilterGroupModel:
     resource_attributes: Sequence[MetricsAssociationAttributeFilterModel] = api_field(
         description="A list of resource attribute filters."
     )
@@ -894,29 +894,21 @@ class MetricsAssociationAttributeFiltersModel:
     data_point_attributes: Sequence[MetricsAssociationAttributeFilterModel] = api_field(
         description="A list of data point attribute filters."
     )
+    host_name_template: str | ApiOmitted = api_field(
+        description="Optional. The host name template of this host name lookup rule (macros "
+        "$RESOURCE_ATTR.<key>$, $SCOPE_ATTR.<key>$, $DATA_POINT_ATTR.<key>$), resolved at query "
+        "time to select this rule's series.",
+        default_factory=ApiOmitted,
+    )
 
 
 @api_model
 class MetricsAssociationEnabledModel:
-    attribute_filters: MetricsAssociationAttributeFiltersModel = api_field(
-        description="Attribute filters. All filters must match (logical AND). "
-        "The resource attributes that the host name template resolved to are included here, "
-        "so the host's series can be selected by filtering on exactly these values."
-    )
-    host_name_template: str | ApiOmitted = api_field(
-        description="Optional. For manually configured hosts: a host name template (e.g. "
-        "$RESOURCE_ATTR.service.name$) using the macros $RESOURCE_ATTR.<key>$, $SCOPE_ATTR.<key>$ "
-        "and $DATA_POINT_ATTR.<key>$. Resolved at query time to select the series belonging to "
-        "this host. Left unset for hosts created by the Dynamic Host Management connection.",
-        default_factory=ApiOmitted,
-    )
-    attribute_filter_groups: Sequence[MetricsAssociationAttributeFiltersModel] | ApiOmitted = (
+    host_name_lookup_rules: Annotated[Sequence[MetricsAssociationFilterGroupModel], MinLen(1)] = (
         api_field(
-            description="One attribute filter group per host name lookup rule that produced this "
-            "host. The host's series are the union of all groups (logical OR across groups, logical "
-            "AND within each group). Set by the Dynamic Host Management connection for hosts "
-            "produced by more than one rule; single-rule hosts use ``attribute_filters`` only.",
-            default_factory=ApiOmitted,
+            description="One entry per host name lookup rule that produced this host. The host's "
+            "series are the union of all rules (logical OR across rules, logical AND within each "
+            "rule)."
         )
     )
 

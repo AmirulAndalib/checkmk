@@ -54,17 +54,11 @@ def test_bake_agent_package_rejected_when_bakery_feature_disabled(
         ).validate_python({"bake_agent_package": True})
 
 
-def test_metrics_association_accepts_multi_rule_filter_groups(
+def test_metrics_association_multi_rule_request_maps_to_lookup_rules(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Regression: a multi-rule ``metrics_association`` (carrying ``attribute_filter_groups``) must
-    validate and round-trip to the internal structure.
-
-    Hosts produced by more than one DCD host name lookup rule store one filter group per rule under
-    ``attribute_filter_groups``. The schema previously declared only ``attribute_filters``, so the
-    REST API rejected the create request and the Dynamic Host Management connection could not create
-    such hosts.
-    """
+    """A request carrying several host name lookup rules validates and maps to the internal
+    ``host_name_lookup_rules`` list, preserving each rule's template."""
     monkeypatch.setattr(
         "cmk.gui.openapi.framework.model.restrict_editions.edition",
         lambda _omd_root: Edition.ULTIMATE,
@@ -73,21 +67,18 @@ def test_metrics_association_accepts_multi_rule_filter_groups(
         "metrics_association": [
             "enabled",
             {
-                "attribute_filters": {
-                    "resource_attributes": [{"key": "k8s.namespace.name", "value": "blog"}],
-                    "scope_attributes": [],
-                    "data_point_attributes": [],
-                },
-                "attribute_filter_groups": [
+                "host_name_lookup_rules": [
                     {
                         "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-a"}],
                         "scope_attributes": [],
                         "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
                     },
                     {
                         "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-b"}],
                         "scope_attributes": [],
                         "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
                     },
                 ],
             },
@@ -101,43 +92,67 @@ def test_metrics_association_accepts_multi_rule_filter_groups(
     assert model.to_internal()["metrics_association"] == (
         "enabled",
         {
-            "attribute_filters": {
-                "resource_attributes": [{"key": "k8s.namespace.name", "value": "blog"}],
-                "scope_attributes": [],
-                "data_point_attributes": [],
-            },
-            "attribute_filter_groups": [
+            "host_name_lookup_rules": [
                 {
                     "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-a"}],
                     "scope_attributes": [],
                     "data_point_attributes": [],
+                    "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
                 },
                 {
                     "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-b"}],
                     "scope_attributes": [],
                     "data_point_attributes": [],
+                    "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
                 },
             ],
         },
     )
 
 
-def test_metrics_association_view_exposes_multi_rule_filter_groups() -> None:
-    """The view model exposes ``attribute_filter_groups`` for hosts produced by several rules."""
+def test_metrics_association_empty_lookup_rules_request_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An enabled association always names at least one host name lookup rule, so an empty list
+    is rejected."""
+    monkeypatch.setattr(
+        "cmk.gui.openapi.framework.model.restrict_editions.edition",
+        lambda _omd_root: Edition.ULTIMATE,
+    )
+    payload = {
+        "metrics_association": [
+            "enabled",
+            {
+                "host_name_lookup_rules": [],
+            },
+        ]
+    }
+
+    with pytest.raises(ValidationError):
+        TypeAdapter(  # astrein: disable=pydantic-type-adapter
+            HostAttributeRequestModel
+        ).validate_python(payload)
+
+
+def test_metrics_association_view_multi_rule_exposes_all_rules_with_templates() -> None:
+    """A host stored with several lookup rules is exposed as one ``host_name_lookup_rules`` entry
+    per rule, each carrying its template."""
     internal_value = {
         "metrics_association": (
             "enabled",
             {
-                "attribute_filters": {
-                    "resource_attributes": [],
-                    "scope_attributes": [],
-                    "data_point_attributes": [],
-                },
-                "attribute_filter_groups": [
+                "host_name_lookup_rules": [
                     {
                         "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-a"}],
                         "scope_attributes": [],
                         "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
+                    },
+                    {
+                        "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-b"}],
+                        "scope_attributes": [],
+                        "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
                     },
                 ],
             },
@@ -150,6 +165,7 @@ def test_metrics_association_view_exposes_multi_rule_filter_groups() -> None:
     status, config = model.metrics_association
     assert status == "enabled"
     assert config is not None
-    groups = config.attribute_filter_groups
-    assert not isinstance(groups, ApiOmitted)
-    assert [(f.key, f.value) for f in groups[0].resource_attributes] == [("k8s.pod.name", "pod-a")]
+    rules = config.host_name_lookup_rules
+    assert [(f.key, f.value) for f in rules[0].resource_attributes] == [("k8s.pod.name", "pod-a")]
+    assert [(f.key, f.value) for f in rules[1].resource_attributes] == [("k8s.pod.name", "pod-b")]
+    assert rules[1].host_name_template == "$RESOURCE_ATTR.k8s.pod.name$"

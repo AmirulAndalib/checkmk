@@ -10,7 +10,7 @@
 # snmp_community), which mypy flags as covariant/mutable overrides.
 # mypy: disable-error-code="mutable-override"
 
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Sequence
 from typing import Annotated, Literal, Self
 
 from pydantic import AfterValidator, model_validator, PlainSerializer, WithJsonSchema
@@ -28,8 +28,8 @@ from cmk.gui.openapi.api_endpoints.models.attributes import (
     LockedByModel,
     MetaDataModel,
     MetricsAssociationAttributeFilterModel,
-    MetricsAssociationAttributeFiltersModel,
     MetricsAssociationEnabledModel,
+    MetricsAssociationFilterGroupModel,
     MetricsAssociationModel,
     NetworkScanModel,
     NetworkScanResultModel,
@@ -51,8 +51,8 @@ from cmk.gui.watolib.host_attributes import (
     HostAttributes,
     IPMICredentials,
     MetricsAssociationAttributeFilter,
-    MetricsAssociationAttributeFilters,
     MetricsAssociationEnabled,
+    MetricsAssociationHostNameLookupRule,
 )
 from cmk.licensing.basics.options import OptionName
 from cmk.utils.agent_registration import HostAgentConnectionMode
@@ -550,52 +550,27 @@ class HostAttributeRequestModel(
         return attributes
 
 
-def _metrics_association_host_name_template(enabled: Mapping[str, object]) -> str | ApiOmitted:
-    if "host_name_template" in enabled:
-        return str(enabled["host_name_template"])
-    # Backward compatibility: map the legacy single key to its template form.
-    # Mirrors cmk.telemetry.host_name_template.macro_for_key.
-    if "host_name_resource_attribute_key" in enabled:
-        return f"$RESOURCE_ATTR.{enabled['host_name_resource_attribute_key']}$"
-    return ApiOmitted()
-
-
-def _attribute_filters_to_internal(
-    filters: MetricsAssociationAttributeFiltersModel,
-) -> MetricsAssociationAttributeFilters:
-    return MetricsAssociationAttributeFilters(
+def _lookup_rule_to_internal(
+    rule: MetricsAssociationFilterGroupModel,
+) -> MetricsAssociationHostNameLookupRule:
+    """Build one internal host name lookup rule from an API rule."""
+    internal = MetricsAssociationHostNameLookupRule(
         resource_attributes=[
             MetricsAssociationAttributeFilter(key=f.key, value=f.value)
-            for f in filters.resource_attributes
+            for f in rule.resource_attributes
         ],
         scope_attributes=[
             MetricsAssociationAttributeFilter(key=f.key, value=f.value)
-            for f in filters.scope_attributes
+            for f in rule.scope_attributes
         ],
         data_point_attributes=[
             MetricsAssociationAttributeFilter(key=f.key, value=f.value)
-            for f in filters.data_point_attributes
+            for f in rule.data_point_attributes
         ],
     )
-
-
-def _attribute_filters_from_internal(
-    filters: MetricsAssociationAttributeFilters,
-) -> MetricsAssociationAttributeFiltersModel:
-    return MetricsAssociationAttributeFiltersModel(
-        resource_attributes=[
-            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
-            for f in filters["resource_attributes"]
-        ],
-        scope_attributes=[
-            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
-            for f in filters["scope_attributes"]
-        ],
-        data_point_attributes=[
-            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
-            for f in filters["data_point_attributes"]
-        ],
-    )
+    if not isinstance(rule.host_name_template, ApiOmitted):
+        internal["host_name_template"] = rule.host_name_template
+    return internal
 
 
 def _metrics_association_to_internal(
@@ -604,18 +579,34 @@ def _metrics_association_to_internal(
     _status, config = model
     if config is None:
         return ("disabled", None)
-    enabled = MetricsAssociationEnabled(
-        attribute_filters=_attribute_filters_to_internal(config.attribute_filters),
+    return (
+        "enabled",
+        MetricsAssociationEnabled(
+            host_name_lookup_rules=[
+                _lookup_rule_to_internal(rule) for rule in config.host_name_lookup_rules
+            ]
+        ),
     )
-    # Optional manual host name template; absent for hosts created by the DCD connector.
-    if not isinstance(config.host_name_template, ApiOmitted):
-        enabled["host_name_template"] = config.host_name_template
-    # Multiple filter groups for hosts produced by more than one host name lookup rule.
-    if not isinstance(config.attribute_filter_groups, ApiOmitted):
-        enabled["attribute_filter_groups"] = [
-            _attribute_filters_to_internal(group) for group in config.attribute_filter_groups
-        ]
-    return ("enabled", enabled)
+
+
+def _lookup_rule_from_internal(
+    rule: MetricsAssociationHostNameLookupRule,
+) -> MetricsAssociationFilterGroupModel:
+    return MetricsAssociationFilterGroupModel(
+        resource_attributes=[
+            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
+            for f in rule["resource_attributes"]
+        ],
+        scope_attributes=[
+            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
+            for f in rule["scope_attributes"]
+        ],
+        data_point_attributes=[
+            MetricsAssociationAttributeFilterModel(key=f["key"], value=f["value"])
+            for f in rule["data_point_attributes"]
+        ],
+        host_name_template=rule.get("host_name_template", ApiOmitted()),
+    )
 
 
 def _metrics_association_from_internal(
@@ -627,15 +618,8 @@ def _metrics_association_from_internal(
     return (
         "enabled",
         MetricsAssociationEnabledModel(
-            attribute_filters=_attribute_filters_from_internal(config["attribute_filters"]),
-            host_name_template=_metrics_association_host_name_template(config),
-            attribute_filter_groups=(
-                [
-                    _attribute_filters_from_internal(group)
-                    for group in config["attribute_filter_groups"]
-                ]
-                if "attribute_filter_groups" in config
-                else ApiOmitted()
-            ),
+            host_name_lookup_rules=[
+                _lookup_rule_from_internal(rule) for rule in config["host_name_lookup_rules"]
+            ]
         ),
     )

@@ -143,28 +143,24 @@ class AttributeFiltersSchema(BaseSchema):
     )
 
 
-class MetricsAssociationConfig(BaseSchema):
-    attribute_filters = fields.Nested(
-        AttributeFiltersSchema,
-        required=True,
-        description="List of filters to apply",
-    )
-    attribute_filter_groups = fields.List(
-        fields.Nested(AttributeFiltersSchema),
-        required=False,
-        description="One attribute filter group per host name lookup rule that produced this host "
-        "(Dynamic Host Management multi-rule connection). The host's series are the union of all "
-        "groups. Set only for hosts produced by more than one rule; single-rule hosts use "
-        "'attribute_filters' alone.",
-    )
+class AttributeFilterGroupSchema(AttributeFiltersSchema):
     host_name_template = fields.String(
         required=False,
         minLength=1,
         example="$RESOURCE_ATTR.service.name$",
-        description="Optional. For manually configured hosts: a host name template using the macros "
-        "$RESOURCE_ATTR.<key>$, $SCOPE_ATTR.<key>$ and $DATA_POINT_ATTR.<key>$, resolved at query "
-        "time to select this host's series. Left unset for hosts created by the Dynamic Host "
-        "Management connection.",
+        description="Optional. The host name template of this host name lookup rule, using the "
+        "macros $RESOURCE_ATTR.<key>$, $SCOPE_ATTR.<key>$ and $DATA_POINT_ATTR.<key>$, resolved at "
+        "query time to select this rule's series.",
+    )
+
+
+class MetricsAssociationConfig(BaseSchema):
+    host_name_lookup_rules = fields.List(
+        fields.Nested(AttributeFilterGroupSchema),
+        required=True,
+        description="One entry per host name lookup rule that produced this host. The host's "
+        "series are the union of all rules. A host always has at least one rule. Each entry "
+        "carries the 'host_name_template' it was resolved from.",
     )
 
 

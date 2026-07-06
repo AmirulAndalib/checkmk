@@ -128,22 +128,21 @@ class MetricsAssociationAttributeFilter(TypedDict):
     value: str
 
 
-class MetricsAssociationAttributeFilters(TypedDict):
+class MetricsAssociationHostNameLookupRule(TypedDict):
     resource_attributes: Sequence[MetricsAssociationAttributeFilter]
     scope_attributes: Sequence[MetricsAssociationAttributeFilter]
     data_point_attributes: Sequence[MetricsAssociationAttributeFilter]
+    # Optional: a host name template (e.g. "$RESOURCE_ATTR.service.name$") that resolves to the
+    # host's own name. Resolved into concrete attribute filters at fetch time. A rule without a
+    # template selects its series by the attribute filters alone.
+    host_name_template: NotRequired[str]
 
 
 class MetricsAssociationEnabled(TypedDict):
-    attribute_filters: MetricsAssociationAttributeFilters
-    # Optional: a host name template (e.g. "$RESOURCE_ATTR.service.name$") that resolves to the
-    # host's own name. Used for hosts configured manually; hosts created by the DCD connector leave
-    # this unset and store the resolved values directly in attribute_filters.
-    host_name_template: NotRequired[str]
-    # One filter group per host name lookup rule that produced this host (DCD multi-rule
-    # connections). The host's series are the union of every group's matches. Set only for hosts
-    # produced by more than one rule; single-rule hosts use ``attribute_filters`` alone.
-    attribute_filter_groups: NotRequired[Sequence[MetricsAssociationAttributeFilters]]
+    # One rule per host name lookup rule associated with this host. Each rule is evaluated
+    # independently and the host's series are the union of every rule's matches. Always holds at
+    # least one rule.
+    host_name_lookup_rules: Sequence[MetricsAssociationHostNameLookupRule]
 
 
 # Possible improvements for the future:
