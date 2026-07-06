@@ -23,6 +23,7 @@ import pytest
 from cmk.ccc.version import Edition
 from cmk.gui.openapi import versioned_endpoint_registry
 from cmk.gui.openapi.framework import validate_endpoint_definition
+from cmk.gui.openapi.framework.api_config import APIConfig
 from tests.testlib.openapi_slim_registration import register_edition_into_empty_registries
 
 
@@ -34,7 +35,9 @@ def assert_registered_endpoints_valid(
 
     Re-registers ``edition`` via the slim registration path into emptied
     registries, then asserts that every endpoint passes framework validation and
-    that no two endpoints share a (family, link relation) key.
+    that no two endpoints share a (family, link relation) key within the same API
+    version. A single endpoint may expose several API versions (e.g. a stable and
+    an internal shape), so the key uniqueness is per version, not global.
     """
     register_edition_into_empty_registries(edition, monkeypatch)
 
@@ -43,9 +46,14 @@ def assert_registered_endpoints_valid(
         f"slim registration for edition {edition.long!r} left the versioned registry empty"
     )
 
-    seen_endpoints: set[tuple[str, str]] = set()
     for endpoint in versioned_endpoints:
         validate_endpoint_definition(endpoint)
-        endpoint_key = (endpoint.family.name, endpoint.metadata.link_relation)
-        assert endpoint_key not in seen_endpoints, f"Duplicate endpoint detected: {endpoint_key}"
-        seen_endpoints.add(endpoint_key)
+
+    for version in APIConfig.RELEASED_VERSIONS_IN_ORDER:
+        seen_endpoints: set[tuple[str, str]] = set()
+        for endpoint in versioned_endpoint_registry.specified_endpoints(version):
+            endpoint_key = (endpoint.family.name, endpoint.metadata.link_relation)
+            assert endpoint_key not in seen_endpoints, (
+                f"Duplicate endpoint detected in version {version.value}: {endpoint_key}"
+            )
+            seen_endpoints.add(endpoint_key)
