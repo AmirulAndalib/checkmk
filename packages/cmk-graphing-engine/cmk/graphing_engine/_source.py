@@ -60,35 +60,6 @@ def fetch_metric_names(
     }
 
 
-def fetch_performance_data(
-    *,
-    registered_graphs: Sequence[Graph],
-    registered_translations: Iterable[translations_v1.Translation],
-    rrd: RRDDataSource,
-) -> Mapping[Service, Mapping[MetricName, PerformanceData]]:
-    parsed_translations = parse_translations_from_api(registered_translations)
-    rrd_metrics = list(
-        dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
-    )
-    raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
-    performance_data = {
-        service: dict(translate_performance_data(raw, parsed_translations))
-        for service, raw in raw_performance_data.items()
-    }
-    for metric in rrd_metrics:
-        service = Service(host_name=metric.host_name, service_name=metric.service_name)
-        if (raw := raw_performance_data.get(service)) is None:
-            continue
-        if metric.metric_name not in performance_data[service]:
-            performance_data[service][metric.metric_name] = PerformanceData(
-                value=None,
-                originals=originals_for_metric_name(
-                    metric.metric_name, parsed_translations, raw.check_command
-                ),
-            )
-    return performance_data
-
-
 def _consolidation_function(
     metric: RRDMetric, consolidation_function: ConsolidationFunction
 ) -> ConsolidationFunction:
@@ -118,18 +89,42 @@ def _merge(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeri
     )
 
 
-def fetch_time_series(
+def fetch_evaluation_data(
     *,
-    graph: Graph,
-    performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]],
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
+    registered_graphs: Sequence[Graph],
+    registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
-) -> Mapping[RRDMetric, TimeSeries]:
+) -> tuple[
+    Mapping[Service, Mapping[MetricName, PerformanceData]],
+    Mapping[RRDMetric, TimeSeries],
+]:
+    parsed_translations = parse_translations_from_api(registered_translations)
+    rrd_metrics = list(
+        dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
+    )
+    raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
+    performance_data = {
+        service: dict(translate_performance_data(raw, parsed_translations))
+        for service, raw in raw_performance_data.items()
+    }
+    for metric in rrd_metrics:
+        service = Service(host_name=metric.host_name, service_name=metric.service_name)
+        if (raw := raw_performance_data.get(service)) is None:
+            continue
+        if metric.metric_name not in performance_data[service]:
+            performance_data[service][metric.metric_name] = PerformanceData(
+                value=None,
+                originals=originals_for_metric_name(
+                    metric.metric_name, parsed_translations, raw.check_command
+                ),
+            )
+
     originals_per_function: dict[
         ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
     ] = {}
-    for metric in graph.metrics():
+    for metric in rrd_metrics:
         service = Service(host_name=metric.host_name, service_name=metric.service_name)
         if (data := performance_data.get(service, {}).get(metric.metric_name)) is None:
             continue
@@ -146,9 +141,9 @@ def fetch_time_series(
             for original in data.originals
         ]
 
-    result: dict[RRDMetric, TimeSeries] = {}
+    time_series: dict[RRDMetric, TimeSeries] = {}
     for function, originals_per_metric in originals_per_function.items():
-        raw = rrd.fetch_raw_time_series(
+        raw_time_series = rrd.fetch_raw_time_series(
             list(
                 dict.fromkeys(
                     rrd_metric
@@ -161,10 +156,10 @@ def fetch_time_series(
         )
         for metric, originals in originals_per_metric.items():
             scaled = [
-                _scaled(resample(raw[rrd_metric], time_range, function), scale)
+                _scaled(resample(raw_time_series[rrd_metric], time_range, function), scale)
                 for rrd_metric, scale in originals
-                if rrd_metric in raw
+                if rrd_metric in raw_time_series
             ]
             if scaled:
-                result[metric] = _merge(scaled, time_range)
-    return result
+                time_series[metric] = _merge(scaled, time_range)
+    return performance_data, time_series
