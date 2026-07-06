@@ -18,6 +18,7 @@ from cmk.gui.fields.base import BaseSchema
 class NoRestriction(BaseSchema):
     type = fields.Constant(
         "no_restriction",
+        required=True,
         description="No restriction on the path.",
     )
 
@@ -25,6 +26,7 @@ class NoRestriction(BaseSchema):
 class RestrictAll(BaseSchema):
     type = fields.Constant(
         "restrict_all",
+        required=True,
         description="Restrict all values.",
     )
 
@@ -32,6 +34,7 @@ class RestrictAll(BaseSchema):
 class RestrictValues(BaseSchema):
     type = fields.Constant(
         "restrict_values",
+        required=True,
         description="Restrict specific values.",
     )
     values = fields.List(
@@ -84,6 +87,7 @@ class InventoryPathSpecificPath(BaseSchema):
 class InventoryPathSpecificPaths(BaseSchema):
     type = fields.Constant(
         "specific_paths",
+        required=True,
         description="Allowed to see parts of the tree.",
     )
     paths = fields.List(
@@ -96,6 +100,7 @@ class InventoryPathSpecificPaths(BaseSchema):
 class InventoryPathAllowAll(BaseSchema):
     type = fields.Constant(
         "allow_all",
+        required=True,
         description="Allowed to see the whole tree.",
     )
 
@@ -103,6 +108,7 @@ class InventoryPathAllowAll(BaseSchema):
 class InventoryPathForbidAll(BaseSchema):
     type = fields.Constant(
         "forbid_all",
+        required=True,
         description="Forbidden to see the whole tree.",
     )
 
