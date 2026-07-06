@@ -3,29 +3,37 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
 # .1.3.6.1.4.1.20632.2.5 2
 
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render, SNMPTree, StringTable
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.v2 import (
+    check_levels,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    render,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    StringTable,
+)
 from cmk.plugins.barracuda.lib import DETECT_BARRACUDA
 
-check_info = {}
+
+def discover_barracuda_mail_latency(section: StringTable) -> DiscoveryResult:
+    yield Service()
 
 
-def discover_barracuda_mail_latency(info):
-    yield None, {}
-
-
-def check_barracuda_mail_latency(_no_item, params, info):
-    return check_levels(
-        int(info[0][0]),
-        "mail_latency",
-        params["levels"],
-        human_readable_func=render.timespan,
-        infoname="Average",
+def check_barracuda_mail_latency(params: Mapping[str, Any], section: StringTable) -> CheckResult:
+    yield from check_levels(
+        int(section[0][0]),
+        levels_upper=("no_levels", None) if (l := params["levels"]) is None else ("fixed", l),
+        metric_name="mail_latency",
+        render_func=render.timespan,
+        label="Average",
     )
 
 
@@ -33,17 +41,22 @@ def parse_barracuda_mail_latency(string_table: StringTable) -> StringTable | Non
     return string_table or None
 
 
-check_info["barracuda_mail_latency"] = LegacyCheckDefinition(
+snmp_section_barracuda_mail_latency = SimpleSNMPSection(
     name="barracuda_mail_latency",
-    parse_function=parse_barracuda_mail_latency,
     detect=DETECT_BARRACUDA,
     # The barracuda spam firewall does not response or returns a timeout error
     # executing 'snmpwalk' on whole tables. But we can workaround here specifying
-    # all needed OIDs. Then we can use 'snmpget' and 'snmpwalk' on these single OIDs.,
+    # all needed OIDs. Then we can use 'snmpget' and 'snmpwalk' on these single OIDs.
     fetch=SNMPTree(
         base=".1.3.6.1.4.1.20632.2",
         oids=["5"],
     ),
+    parse_function=parse_barracuda_mail_latency,
+)
+
+
+check_plugin_barracuda_mail_latency = CheckPlugin(
+    name="barracuda_mail_latency",
     service_name="Mail Latency",
     discovery_function=discover_barracuda_mail_latency,
     check_function=check_barracuda_mail_latency,
