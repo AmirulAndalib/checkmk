@@ -351,3 +351,22 @@ def test_resolves_a_title_expression_against_a_non_drawn_metric() -> None:
     [evaluated] = _update(graph, rrd=rrd)
 
     assert evaluated.title == "Load - 8 cores"
+
+
+def test_resolves_a_title_expression_against_a_metric_value() -> None:
+    # Without a scalar the expression references the metric's current value.
+    load = _rrd_with_cf("load")
+    graph = Graph(
+        name="g",
+        title='Load - _EXPRESSION:{"metric": "cores"} cores',
+        graph_type="test",
+        lines=[_line(load)],
+    )
+    rrd = _FakeRRDSource(
+        performance_response={_service(): _perf_data(_perf("load"), _perf("cores", value=4.0))},
+        time_series_response={_source("load"): _ts(1.0)},
+    )
+
+    [evaluated] = _update(graph, rrd=rrd)
+
+    assert evaluated.title == "Load - 4 cores"

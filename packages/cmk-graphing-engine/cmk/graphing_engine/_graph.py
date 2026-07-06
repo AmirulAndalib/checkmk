@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from ._quantities import Quantity, RRDMetric
+from ._title import title_metrics
 from ._units import CurveAttributes
 
 type Bound = int | float | Quantity
@@ -66,7 +67,7 @@ class Graph:
     rules: Sequence[Rule] = ()
 
     def metrics(self) -> Sequence[RRDMetric]:
-        return list(
+        drawn = list(
             dict.fromkeys(
                 rrd_metric
                 for quantity in itertools.chain(
@@ -78,3 +79,4 @@ class Graph:
                 for rrd_metric in quantity.metrics()
             )
         )
+        return list(dict.fromkeys([*drawn, *title_metrics(self.title, drawn)]))

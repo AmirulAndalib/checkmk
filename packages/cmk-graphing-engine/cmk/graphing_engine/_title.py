@@ -5,46 +5,67 @@
 
 import json
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 
-from ._perfdata import MetricName, PerformanceData
+from ._perfdata import MetricName, Service
+from ._quantities import EvaluationContext, Quantity, RRDMetric, ScalarOf, ScalarType
 
 _TITLE_EXPRESSION_PREFIX = "_EXPRESSION:"
 _TITLE_EXPRESSION_PATTERN = re.compile(re.escape(_TITLE_EXPRESSION_PREFIX) + r"\{.*?\}")
-_TITLE_SCALARS: Mapping[str, Callable[[PerformanceData], float | None]] = {
-    "warn": lambda performance_data: performance_data.warning,
-    "crit": lambda performance_data: performance_data.critical,
-    "warn_lower": lambda performance_data: performance_data.lower_warning,
-    "crit_lower": lambda performance_data: performance_data.lower_critical,
-    "min": lambda performance_data: performance_data.minimum,
-    "max": lambda performance_data: performance_data.maximum,
+_TITLE_SCALAR_TYPES: Mapping[str, ScalarType] = {
+    "warn": ScalarType.WARNING,
+    "crit": ScalarType.CRITICAL,
+    "warn_lower": ScalarType.LOWER_WARNING,
+    "crit_lower": ScalarType.LOWER_CRITICAL,
+    "min": ScalarType.MINIMUM,
+    "max": ScalarType.MAXIMUM,
 }
 
 
-def _parse_title_expression(raw: str) -> Mapping[str, str]:
+def _unique_service(metrics: Iterable[RRDMetric]) -> Service | None:
+    services = {
+        Service(host_name=metric.host_name, service_name=metric.service_name) for metric in metrics
+    }
+    return next(iter(services)) if len(services) == 1 else None
+
+
+def _title_quantity(raw: str, service: Service) -> Quantity | None:
     expression: Mapping[str, str] = json.loads(raw[len(_TITLE_EXPRESSION_PREFIX) :])
-    return expression
+    metric = RRDMetric(
+        host_name=service.host_name,
+        service_name=service.service_name,
+        metric_name=MetricName(expression["metric"]),
+    )
+    if (scalar := expression.get("scalar")) is None:
+        return metric
+    if (scalar_type := _TITLE_SCALAR_TYPES.get(scalar)) is None:
+        return None
+    return ScalarOf(metric=metric, scalar_type=scalar_type)
 
 
-def _evaluate_title_expression(
-    raw: str,
-    performance_data: Mapping[MetricName, PerformanceData],
-) -> float | None:
-    expression = _parse_title_expression(raw)
-    if (data := performance_data.get(MetricName(expression["metric"]))) is None:
-        return None
-    if (scalar := _TITLE_SCALARS.get(expression["scalar"])) is None:
-        return None
-    return scalar(data)
+def title_metrics(title: str, drawn_metrics: Iterable[RRDMetric]) -> Iterator[RRDMetric]:
+    if (service := _unique_service(drawn_metrics)) is None:
+        return
+    for raw in _TITLE_EXPRESSION_PATTERN.findall(title):
+        if (quantity := _title_quantity(raw, service)) is not None:
+            yield from quantity.metrics()
+
+
+def _fallback_title(title: str) -> str:
+    return title.split("-", maxsplit=1)[0].strip()
 
 
 def evaluate_title(
     title: str,
-    performance_data: Mapping[MetricName, PerformanceData],
+    drawn_metrics: Iterable[RRDMetric],
+    context: EvaluationContext,
 ) -> str:
+    service = _unique_service(drawn_metrics)
     for raw in _TITLE_EXPRESSION_PATTERN.findall(title):
-        value = _evaluate_title_expression(raw, performance_data)
-        if value is None:
-            return title.split("-", maxsplit=1)[0].strip()
-        title = title.replace(raw, str(int(value)), 1)
+        if service is None or (quantity := _title_quantity(raw, service)) is None:
+            return _fallback_title(title)
+        evaluated = quantity.evaluate(context)
+        if evaluated is None or evaluated.value is None:
+            return _fallback_title(title)
+        title = title.replace(raw, str(int(evaluated.value)), 1)
     return title

@@ -5,7 +5,7 @@
 
 import enum
 from collections import Counter
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import assert_never
 
@@ -13,7 +13,7 @@ from cmk.graphing.v1 import translations as translations_v1
 
 from ._graph import Bound, Curve, FixedRange, Graph, MinimalRange, Rule, VerticalRange
 from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import MetricName, PerformanceData, Service, TimeSeries
+from ._perfdata import TimeSeries
 from ._quantities import EvaluationContext, Quantity
 from ._source import fetch_evaluation_context, RRDDataSource
 from ._title import evaluate_title
@@ -135,22 +135,6 @@ def _evaluate_rule(rule: Rule, rule_id: str, context: EvaluationContext) -> Eval
     )
 
 
-def _title_metrics(
-    graph: Graph,
-    performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]],
-) -> Mapping[MetricName, PerformanceData]:
-    services = {
-        Service(host_name=metric.host_name, service_name=metric.service_name)
-        for metric in graph.metrics()
-    }
-    return {
-        name: data
-        for service in services
-        if service in performance_data
-        for name, data in performance_data[service].items()
-    }
-
-
 def _evaluate_graph(graph: Graph, context: EvaluationContext) -> EvaluatedGraph:
     seen: Counter[str] = Counter()
     stacks = []
@@ -206,7 +190,7 @@ def _evaluate_graph(graph: Graph, context: EvaluationContext) -> EvaluatedGraph:
     ]
     return EvaluatedGraph(
         name=graph.name,
-        title=evaluate_title(graph.title, _title_metrics(graph, context.performance_data)),
+        title=evaluate_title(graph.title, graph.metrics(), context),
         vertical_range=_evaluate_vertical_range(graph.vertical_range, context),
         stacks=stacks,
         lines=lines,
