@@ -75,7 +75,7 @@ class _FakeRRDDataSource:
             for metric in rrd_metrics
         )
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,

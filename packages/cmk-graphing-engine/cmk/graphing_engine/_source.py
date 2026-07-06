@@ -37,7 +37,7 @@ class RRDDataSource(Protocol):
         self, rrd_metrics: Sequence[RRDMetric]
     ) -> Mapping[Service, RawPerformanceData]: ...
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,
@@ -152,7 +152,7 @@ def fetch_time_series(
         )
 
     raw_per_function = {
-        function: rrd.fetch_time_series(
+        function: rrd.fetch_raw_time_series(
             list(dict.fromkeys(rrd_metrics)),
             consolidation_function=function,
             time_range=time_range,

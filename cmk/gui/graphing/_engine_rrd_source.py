@@ -226,7 +226,7 @@ class EngineRRDDataSource:
                 )
         return {service: result[service] for service in services if service in result}
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,

@@ -102,7 +102,7 @@ class _FakeRRDSource:
         self.performance_data_calls.append(tuple(rrd_metrics))
         return self._performance_response
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,

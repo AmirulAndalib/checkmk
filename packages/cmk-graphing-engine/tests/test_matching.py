@@ -170,7 +170,7 @@ class _FakeRRDDataSource:
     ) -> Mapping[Service, RawPerformanceData]:
         return self.performance_response
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,

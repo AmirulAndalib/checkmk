@@ -93,7 +93,7 @@ class _FakeRRDDataSource:
     ) -> None:
         self.performance_data = performance_data
         self._time_series = time_series
-        # The runtime parameters of every fetch_time_series call, so a test can assert how update
+        # The runtime parameters of every fetch_raw_time_series call, so a test can assert how update
         # drove the source.
         self.time_series_requests: list[tuple[TimeRange, ConsolidationFunction]] = []
 
@@ -110,7 +110,7 @@ class _FakeRRDDataSource:
             if service in self.performance_data
         }
 
-    def fetch_time_series(
+    def fetch_raw_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,
