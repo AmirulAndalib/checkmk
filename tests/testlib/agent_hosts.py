@@ -55,14 +55,12 @@ def _fake_host_and_discover_services(
 
         yield
     finally:
-        if not cleanup:
-            return
-
-        logger.info('Deleting source host "%s"...', host_name)
-        site.openapi.hosts.delete(host_name)
-        site.openapi.changes.activate_and_wait_for_completion(
-            force_foreign_changes=True, strict=False
-        )
+        if cleanup:
+            logger.info('Deleting source host "%s"...', host_name)
+            site.openapi.hosts.delete(host_name)
+            site.openapi.changes.activate_and_wait_for_completion(
+                force_foreign_changes=True, strict=False
+            )
 
 
 @contextmanager
