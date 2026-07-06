@@ -156,7 +156,7 @@ def _refresh(
     return evaluate_graphs(
         consolidation_function=ConsolidationFunction.AVERAGE,
         time_range=_TIME_RANGE,
-        registered_graphs=list(discovered),
+        graphs=list(discovered),
         registered_translations=translations,
         rrd=rrd,
     )

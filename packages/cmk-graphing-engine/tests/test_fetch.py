@@ -126,7 +126,7 @@ def _update(
     return evaluate_graphs(
         consolidation_function=consolidation_function,
         time_range=_time_range(),
-        registered_graphs=graphs,
+        graphs=graphs,
         registered_translations=translations or [],
         rrd=rrd,
     )

@@ -83,14 +83,12 @@ def fetch_evaluation_context(
     *,
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
-    registered_graphs: Sequence[Graph],
+    graphs: Sequence[Graph],
     registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> EvaluationContext:
     parsed_translations = parse_translations_from_api(registered_translations)
-    rrd_metrics = list(
-        dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
-    )
+    rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
     raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
     translated = {
         service: translate_performance_data(raw, parsed_translations)

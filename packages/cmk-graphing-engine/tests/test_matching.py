@@ -215,7 +215,7 @@ def _evaluate(discovered: Graph, rrd: _FakeRRDDataSource) -> EvaluatedGraph:
     [evaluated] = evaluate_graphs(
         consolidation_function=ConsolidationFunction.AVERAGE,
         time_range=_time_range(),
-        registered_graphs=[discovered],
+        graphs=[discovered],
         registered_translations=[],
         rrd=rrd,
     )

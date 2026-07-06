@@ -106,7 +106,7 @@ def evaluate_template_graphs(
     return evaluate_graphs(
         consolidation_function=consolidation_function,
         time_range=time_range,
-        registered_graphs=graphs,
+        graphs=graphs,
         registered_translations=registered_translations,
         rrd=rrd,
     )

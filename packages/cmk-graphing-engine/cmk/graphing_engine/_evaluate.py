@@ -199,15 +199,15 @@ def evaluate_graphs(
     *,
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
-    registered_graphs: Sequence[Graph],
+    graphs: Sequence[Graph],
     registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
     context = fetch_evaluation_context(
         consolidation_function=consolidation_function,
         time_range=time_range,
-        registered_graphs=registered_graphs,
+        graphs=graphs,
         registered_translations=registered_translations,
         rrd=rrd,
     )
-    return [_evaluate_graph(graph, context) for graph in registered_graphs]
+    return [_evaluate_graph(graph, context) for graph in graphs]
