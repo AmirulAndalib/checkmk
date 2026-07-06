@@ -19,7 +19,7 @@ from ._perfdata import (
     Service,
     TimeSeries,
 )
-from ._quantities import RRDMetric
+from ._quantities import EvaluationContext, RRDMetric
 from ._resample import resample
 from ._translate import (
     originals_for_metric_name,
@@ -89,17 +89,14 @@ def _merge(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeri
     )
 
 
-def fetch_evaluation_data(
+def fetch_evaluation_context(
     *,
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
     registered_graphs: Sequence[Graph],
     registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
-) -> tuple[
-    Mapping[Service, Mapping[MetricName, PerformanceData]],
-    Mapping[RRDMetric, TimeSeries],
-]:
+) -> EvaluationContext:
     parsed_translations = parse_translations_from_api(registered_translations)
     rrd_metrics = list(
         dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
@@ -162,4 +159,8 @@ def fetch_evaluation_data(
             ]
             if scaled:
                 time_series[metric] = _merge(scaled, time_range)
-    return performance_data, time_series
+    return EvaluationContext(
+        performance_data=performance_data,
+        time_series=time_series,
+        time_range=time_range,
+    )

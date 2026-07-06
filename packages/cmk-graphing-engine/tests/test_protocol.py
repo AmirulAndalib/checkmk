@@ -90,13 +90,15 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
     )
     result = _evaluate_graph(
         graph,
-        {
-            Service(host_name=HostName("h"), service_name=ServiceName("svc")): {
-                MetricName("a"): _data(value=3.0)
-            }
-        },
-        {a: TimeSeries(time_range=_TR, values=[1.0, None, 3.0])},
-        _TR,
+        EvaluationContext(
+            performance_data={
+                Service(host_name=HostName("h"), service_name=ServiceName("svc")): {
+                    MetricName("a"): _data(value=3.0)
+                }
+            },
+            time_series={a: TimeSeries(time_range=_TR, values=[1.0, None, 3.0])},
+            time_range=_TR,
+        ),
     )
     assert result.lines[0].curve == EvaluatedCurve(
         id="negated(metric:h/svc/a)",

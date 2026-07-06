@@ -14,8 +14,8 @@ from cmk.graphing.v1 import translations as translations_v1
 from ._graph import Bound, Curve, FixedRange, Graph, MinimalRange, Rule, VerticalRange
 from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import MetricName, PerformanceData, Service, TimeSeries
-from ._quantities import EvaluationContext, Quantity, RRDMetric
-from ._source import fetch_evaluation_data, RRDDataSource
+from ._quantities import EvaluationContext, Quantity
+from ._source import fetch_evaluation_context, RRDDataSource
 from ._title import evaluate_title
 from ._units import CurveAttributes
 
@@ -151,17 +151,7 @@ def _title_metrics(
     }
 
 
-def _evaluate_graph(
-    graph: Graph,
-    performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]],
-    time_series: Mapping[RRDMetric, TimeSeries],
-    time_range: TimeRange,
-) -> EvaluatedGraph:
-    context = EvaluationContext(
-        performance_data=performance_data,
-        time_series=time_series,
-        time_range=time_range,
-    )
+def _evaluate_graph(graph: Graph, context: EvaluationContext) -> EvaluatedGraph:
     seen: Counter[str] = Counter()
     stacks = []
     for group in graph.stacks:
@@ -216,7 +206,7 @@ def _evaluate_graph(
     ]
     return EvaluatedGraph(
         name=graph.name,
-        title=evaluate_title(graph.title, _title_metrics(graph, performance_data)),
+        title=evaluate_title(graph.title, _title_metrics(graph, context.performance_data)),
         vertical_range=_evaluate_vertical_range(graph.vertical_range, context),
         stacks=stacks,
         lines=lines,
@@ -232,14 +222,11 @@ def evaluate_graphs(
     registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
-    performance_data, time_series = fetch_evaluation_data(
+    context = fetch_evaluation_context(
         consolidation_function=consolidation_function,
         time_range=time_range,
         registered_graphs=registered_graphs,
         registered_translations=registered_translations,
         rrd=rrd,
     )
-    return [
-        _evaluate_graph(graph, performance_data, time_series, time_range)
-        for graph in registered_graphs
-    ]
+    return [_evaluate_graph(graph, context) for graph in registered_graphs]
