@@ -503,6 +503,25 @@ def test_discover_template_graphs_does_not_claim_a_metric_referenced_only_in_the
     assert _evaluate(cpu, rrd).title == "CPU - 8 cores"
 
 
+def test_discover_template_graphs_title_metric_does_not_make_a_match() -> None:
+    service = _service()
+    cpu_user = MetricName("cpu_user")
+    # The drawn metric util is missing; the title references cpu_user, which is present.
+    plugin = graphs_v1.Graph(
+        name="cpu",
+        title=Title('CPU - _EXPRESSION:{"metric": "cpu_user"} cores'),
+        simple_lines=["util"],
+    )
+    registered_graphs = [plugin]
+    rrd = _FakeRRDDataSource(performance_response={service: _perf_data(_perf(cpu_user))})
+
+    discovered = _discover(service, registered_graphs, rrd=rrd)
+
+    # A metric referenced only by the title cannot make a match: the plugin is rejected for its
+    # missing drawn metric, and cpu_user only gets its own fallback graph.
+    assert [d.name for d in discovered] == [str(cpu_user)]
+
+
 def test_discover_template_graphs_adds_predictive_lines_to_a_matched_graph() -> None:
     service = _service()
     cpu_user = MetricName("cpu_user")
