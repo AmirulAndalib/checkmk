@@ -6,6 +6,9 @@ This page lists the architectural migrations that are currently ongoing in the C
 It is meant to give guidance in code areas that are mit-migration, to help developers not familiar with the code area to understand how they are expected to extend or change the mechanism in question.
 So when you touch an area that is mid-migration, follow the *new* mechanism — do not add to the legacy one.
 
+In this document, "owner" refers to a person, team or component you can turn to for additional information.
+**This is not a document to distribute work.**
+
 Each migration is labeled with one of these phases:
 
 * **conceptualized** — the change is planned and documented, but implementation has not started
@@ -170,7 +173,7 @@ Tooling: Make to Bazel
 ===========================
 
 :Phase: mostly done
-:Owner: TODO
+:Owner: Team CI
 :Old: Makefiles and ad-hoc scripts; direct ``pytest``/``ruff``/``mypy`` calls
 :New: Bazel as the primary build system for builds, unit tests, linting, formatting and type checking
 :References: ``BAZEL.md`` in the repository root
