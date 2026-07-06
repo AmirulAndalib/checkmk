@@ -60,16 +60,6 @@ def fetch_metric_names(
     }
 
 
-def _consolidation_function(
-    metric: RRDMetric, consolidation_function: ConsolidationFunction
-) -> ConsolidationFunction:
-    return (
-        consolidation_function
-        if metric.consolidation_function is None
-        else metric.consolidation_function
-    )
-
-
 def _scaled(time_series: TimeSeries, scale: float) -> TimeSeries:
     if scale == 1.0:
         return time_series
@@ -107,6 +97,9 @@ def fetch_evaluation_context(
         for service, raw in raw_performance_data.items()
     }
     performance_data: dict[RRDMetric, PerformanceData] = {}
+    originals_per_function: dict[
+        ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
+    ] = {}
     for metric in rrd_metrics:
         service = Service(host_name=metric.host_name, service_name=metric.service_name)
         if (raw := raw_performance_data.get(service)) is None:
@@ -119,14 +112,7 @@ def fetch_evaluation_context(
                 ),
             )
         performance_data[metric] = data
-
-    originals_per_function: dict[
-        ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
-    ] = {}
-    for metric in rrd_metrics:
-        if (data := performance_data.get(metric)) is None:
-            continue
-        function = _consolidation_function(metric, consolidation_function)
+        function = metric.consolidation_function or consolidation_function
         originals_per_function.setdefault(function, {})[metric] = [
             (
                 RRDMetric(

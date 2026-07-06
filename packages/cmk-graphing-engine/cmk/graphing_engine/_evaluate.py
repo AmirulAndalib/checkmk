@@ -88,19 +88,16 @@ def _evaluate_vertical_range(
         case None:
             return None
         case MinimalRange():
-            return EvaluatedVerticalRange(
-                range_type=VerticalRangeType.MINIMAL,
-                lower=_evaluate_bound(vertical_range.lower, context),
-                upper=_evaluate_bound(vertical_range.upper, context),
-            )
+            range_type = VerticalRangeType.MINIMAL
         case FixedRange():
-            return EvaluatedVerticalRange(
-                range_type=VerticalRangeType.FIXED,
-                lower=_evaluate_bound(vertical_range.lower, context),
-                upper=_evaluate_bound(vertical_range.upper, context),
-            )
+            range_type = VerticalRangeType.FIXED
         case _:
             assert_never(vertical_range)
+    return EvaluatedVerticalRange(
+        range_type=range_type,
+        lower=_evaluate_bound(vertical_range.lower, context),
+        upper=_evaluate_bound(vertical_range.upper, context),
+    )
 
 
 def _create_id(quantity: Quantity, *, inverse: bool, seen: Counter[str]) -> str:
