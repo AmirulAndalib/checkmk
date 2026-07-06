@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 
 from ._perfdata import (
     MetricName,
@@ -62,22 +62,27 @@ def _reverse_translations(
     }
 
 
+def _deprecated_originals(
+    metric_name: MetricName,
+    translations: Mapping[MetricName, MetricTranslation],
+    present: Collection[MetricName],
+) -> Iterator[RRDOriginal]:
+    prefix, bare_name = _split_predict_prefix(metric_name)
+    for old_name, scale in _reverse_translations(MetricName(bare_name), translations).items():
+        if (column := MetricName(f"{prefix}{old_name}")) not in present:
+            yield RRDOriginal(metric_name=column, scale=scale)
+
+
 def originals_for_metric_name(
     metric_name: MetricName,
     translations: Mapping[str, Mapping[MetricName, MetricTranslation]],
     check_command: str,
 ) -> Sequence[RRDOriginal]:
     command_translations = _translations_for_command(check_command, translations)
-    prefix, bare_name = _split_predict_prefix(metric_name)
-    seen = {metric_name}
-    originals = [RRDOriginal(metric_name=metric_name, scale=1.0)]
-    for old_name, scale in _reverse_translations(
-        MetricName(bare_name), command_translations
-    ).items():
-        if (column := MetricName(f"{prefix}{old_name}")) not in seen:
-            originals.append(RRDOriginal(metric_name=column, scale=scale))
-            seen.add(column)
-    return originals
+    return [
+        RRDOriginal(metric_name=metric_name, scale=1.0),
+        *_deprecated_originals(metric_name, command_translations, {metric_name}),
+    ]
 
 
 def translate_metric_names(
@@ -113,15 +118,8 @@ def translate_performance_data(
 
     result: dict[MetricName, PerformanceData] = {}
     for name, (raw_perf_value, scale) in raw_value_by_name.items():
-        prefix, bare_name = _split_predict_prefix(name)
         present = {original.metric_name for original in originals_by_name[name]}
-        deprecated = [
-            RRDOriginal(metric_name=old_column, scale=old_scale)
-            for old_name, old_scale in _reverse_translations(
-                MetricName(bare_name), command_translations
-            ).items()
-            if (old_column := MetricName(f"{prefix}{old_name}")) not in present
-        ]
+        deprecated = _deprecated_originals(name, command_translations, present)
 
         def _scaled(value: float | None, scale: float = scale) -> float | None:
             return None if value is None else value * scale
