@@ -259,7 +259,7 @@ class BinaryExprSchema(BaseSchema):
 
     """
 
-    op = base.String(description="The operator.")
+    op = base.String(required=True, description="The operator.")
     left = base.String(
         description="The LiveStatus column name.", pattern=r"^([a-z]+\.)?[_a-z]+$", example="name"
     )
@@ -271,7 +271,7 @@ class BinaryExprSchema(BaseSchema):
 class NotExprSchema(BaseSchema):
     """Expression negating another query expression."""
 
-    op = base.String(description="The operator. In this case `not`.")
+    op = base.String(required=True, description="The operator. In this case `not`.")
     expr = base.Nested(
         lambda: ExprSchema(),  # noqa: PLW0108 # forward ref
         description="The query expression to negate.",
@@ -281,7 +281,7 @@ class NotExprSchema(BaseSchema):
 class LogicalExprSchema(BaseSchema):
     """Expression combining multiple other query expressions."""
 
-    op = base.String(description="The operator.")
+    op = base.String(required=True, description="The operator.")
     # many=True does not work here for some reason.
     expr = base.List(
         base.Nested(
