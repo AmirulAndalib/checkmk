@@ -151,7 +151,7 @@ def _title_metrics(
     }
 
 
-def evaluate_graph(
+def _evaluate_graph(
     graph: Graph,
     performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]],
     time_series: Mapping[RRDMetric, TimeSeries],
@@ -240,6 +240,6 @@ def evaluate_graphs(
         rrd=rrd,
     )
     return [
-        evaluate_graph(graph, performance_data, time_series, time_range)
+        _evaluate_graph(graph, performance_data, time_series, time_range)
         for graph in registered_graphs
     ]

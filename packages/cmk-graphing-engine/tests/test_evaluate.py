@@ -39,7 +39,7 @@ from cmk.graphing_engine import (
     Unit,
     VerticalRangeType,
 )
-from cmk.graphing_engine._evaluate import evaluate_graph
+from cmk.graphing_engine._evaluate import _evaluate_graph
 from cmk.graphing_engine._perfdata import PerformanceData
 from cmk.graphing_engine._quantities import EvaluationContext, Quantity
 
@@ -234,7 +234,7 @@ def test_evaluate_time_series_of_a_fraction_guards_zero_and_gaps() -> None:
     assert result == _time_series(5.0, None, None)
 
 
-# --- evaluate_graph -----------------------------------------------------------------------------
+# --- _evaluate_graph -----------------------------------------------------------------------------
 
 
 def test_evaluate_graph_keeps_stacks_and_lines_with_their_direction() -> None:
@@ -251,7 +251,7 @@ def test_evaluate_graph_keeps_stacks_and_lines_with_their_direction() -> None:
 
     # Stacks (filled areas) and lines stay separate, each keeping its direction; curves carry
     # their definition title/unit/colour.
-    assert evaluate_graph(graph, _perf(metric_data), time_series, _TR) == EvaluatedGraph(
+    assert _evaluate_graph(graph, _perf(metric_data), time_series, _TR) == EvaluatedGraph(
         name="g",
         title="g",
         vertical_range=None,
@@ -299,7 +299,7 @@ def test_evaluate_graph_evaluates_the_stack_reference_baseline() -> None:
     # The reference baseline is part of the graph's metrics (so it gets fetched) ...
     assert floor in graph.metrics()
     # ... and is evaluated onto EvaluatedStack.reference, separate from the drawn members.
-    [stack] = evaluate_graph(graph, _perf(metric_data), time_series, _TR).stacks
+    [stack] = _evaluate_graph(graph, _perf(metric_data), time_series, _TR).stacks
     assert [member.attributes.title for member in stack.members] == ["band"]
     assert stack.reference is not None and stack.reference.attributes.title == "floor"
 
@@ -314,7 +314,7 @@ def test_evaluate_graph_drops_curves_of_missing_metrics() -> None:
         lines=[Line(curve=_curve(a, "a"), inverse=False)],
     )
     # "gone" has no metric data, so its stack is dropped; only the line for "a" remains.
-    result = evaluate_graph(
+    result = _evaluate_graph(
         graph, _perf({a: _data(value=3.0)}), {a: _time_series(1.0, 2.0, 3.0)}, _TR
     )
     assert result.stacks == []
@@ -346,7 +346,7 @@ def test_evaluate_graph_builds_rules_from_thresholds_and_constants() -> None:
             ),
         ],
     )
-    result = evaluate_graph(graph, _perf({a: _data(value=3.0, warning=80.0)}), {}, _TR)
+    result = _evaluate_graph(graph, _perf({a: _data(value=3.0, warning=80.0)}), {}, _TR)
     assert result.rules == [
         EvaluatedRule(
             id="warning:metric:h/svc/a",
@@ -388,20 +388,20 @@ def test_evaluate_graph_drops_rules_without_a_value() -> None:
             ),
         ],
     )
-    result = evaluate_graph(graph, _perf({a: _data(value=3.0)}), {}, _TR)
+    result = _evaluate_graph(graph, _perf({a: _data(value=3.0)}), {}, _TR)
     assert result.rules == []
 
 
 def test_evaluate_graph_carries_the_name() -> None:
     graph = Graph(name="my_graph", title="My graph", graph_type="test")
-    assert evaluate_graph(graph, {}, {}, _TR).name == "my_graph"
+    assert _evaluate_graph(graph, {}, {}, _TR).name == "my_graph"
 
 
 def test_evaluate_graph_evaluates_a_fixed_range_of_constants() -> None:
     graph = Graph(
         name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=100)
     )
-    assert evaluate_graph(graph, {}, {}, _TR).vertical_range == EvaluatedVerticalRange(
+    assert _evaluate_graph(graph, {}, {}, _TR).vertical_range == EvaluatedVerticalRange(
         range_type=VerticalRangeType.FIXED, lower=0.0, upper=100.0
     )
 
@@ -411,7 +411,7 @@ def test_evaluate_graph_evaluates_a_fixed_range_with_an_open_upper_bound() -> No
     graph = Graph(
         name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=None)
     )
-    assert evaluate_graph(graph, {}, {}, _TR).vertical_range == EvaluatedVerticalRange(
+    assert _evaluate_graph(graph, {}, {}, _TR).vertical_range == EvaluatedVerticalRange(
         range_type=VerticalRangeType.FIXED, lower=0.0, upper=None
     )
 
@@ -422,7 +422,7 @@ def test_evaluate_graph_resolves_a_minimal_range_bound_expression() -> None:
     graph = Graph(
         name="g", title="g", graph_type="test", vertical_range=MinimalRange(lower=0, upper=a)
     )
-    result = evaluate_graph(graph, _perf({a: _data(value=42.0)}), {}, _TR)
+    result = _evaluate_graph(graph, _perf({a: _data(value=42.0)}), {}, _TR)
     assert result.vertical_range == EvaluatedVerticalRange(
         range_type=VerticalRangeType.MINIMAL, lower=0.0, upper=42.0
     )
@@ -435,7 +435,7 @@ def test_evaluate_graph_range_bound_of_a_missing_metric_is_none() -> None:
         graph_type="test",
         vertical_range=MinimalRange(lower=0, upper=_metric("gone")),
     )
-    result = evaluate_graph(graph, {}, {}, _TR)
+    result = _evaluate_graph(graph, {}, {}, _TR)
     assert result.vertical_range == EvaluatedVerticalRange(
         range_type=VerticalRangeType.MINIMAL, lower=0.0, upper=None
     )
@@ -455,7 +455,7 @@ def test_evaluate_graph_disambiguates_repeated_curves() -> None:
             Line(curve=_curve(a, "a"), inverse=False),
         ],
     )
-    result = evaluate_graph(
+    result = _evaluate_graph(
         graph, _perf({a: _data(value=1.0)}), {a: _time_series(1.0, 2.0, 3.0)}, _TR
     )
     # The same metric drawn twice gets distinct ids: the base, then the base with a "#n" suffix.
@@ -471,7 +471,7 @@ def test_evaluate_graph_folds_direction_into_the_id() -> None:
         stacks=[Stack(members=[_curve(a, "a")], inverse=True)],
         lines=[Line(curve=_curve(a, "a"), inverse=False)],
     )
-    result = evaluate_graph(
+    result = _evaluate_graph(
         graph, _perf({a: _data(value=1.0)}), {a: _time_series(1.0, 2.0, 3.0)}, _TR
     )
     # The inverted (lower) half of a bidirectional graph and the upright half share a metric but not
@@ -496,7 +496,7 @@ def test_evaluate_graph_rule_id_reflects_the_scalar_and_metric() -> None:
             )
         ],
     )
-    result = evaluate_graph(graph, _perf({a: _data(value=1.0, warning=80.0)}), {}, _TR)
+    result = _evaluate_graph(graph, _perf({a: _data(value=1.0, warning=80.0)}), {}, _TR)
     assert result.rules[0].id == "warning:metric:h/svc/a"
 
 
@@ -511,7 +511,7 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
             Line(curve=_curve(b, "b"), inverse=False),
         ],
     )
-    first = evaluate_graph(
+    first = _evaluate_graph(
         graph,
         _perf({a: _data(value=1.0), b: _data(value=2.0)}),
         {a: _time_series(1.0, 2.0, 3.0), b: _time_series(4.0, 5.0, 6.0)},
@@ -520,7 +520,7 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
     # Re-calculate over a different range with "a" now missing (so its line is dropped): "b" keeps
     # exactly the id it had before — the id is a pure function of the graph, not of the data or range.
     other_tr = TimeRange(start=0, end=60, step=10)
-    second = evaluate_graph(
+    second = _evaluate_graph(
         graph,
         _perf({b: _data(value=9.0)}),
         {b: TimeSeries(time_range=other_tr, values=[9.0] * 6)},

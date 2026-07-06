@@ -27,7 +27,7 @@ from cmk.graphing_engine import (
     TimeSeries,
     Unit,
 )
-from cmk.graphing_engine._evaluate import evaluate_graph
+from cmk.graphing_engine._evaluate import _evaluate_graph
 from cmk.graphing_engine._perfdata import PerformanceData
 from cmk.graphing_engine._quantities import EvaluationContext, Quantity
 
@@ -88,7 +88,7 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
             Line(curve=Curve(quantity=Negated(operand=a), attributes=attributes), inverse=False)
         ],
     )
-    result = evaluate_graph(
+    result = _evaluate_graph(
         graph,
         {
             Service(host_name=HostName("h"), service_name=ServiceName("svc")): {
