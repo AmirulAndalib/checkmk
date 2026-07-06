@@ -10,23 +10,9 @@ exports_files([
 ])
 
 py_library(
-    name = "utils",
-    srcs = ["cmk/gui/wsgi/utils.py"],
-    imports = ["."],
-    visibility = [
-        "//cmk:__subpackages__",
-        "//tests:__subpackages__",
-    ],
-    deps = [
-        requirement("flask"),
-    ],
-)
-
-py_library(
     name = "cmk-wsgi",
     srcs = glob(
         include = ["cmk/gui/wsgi/**/*.py"],
-        exclude = ["cmk/gui/wsgi/utils.py"],
     ) + ["cmk/gui/wsgi/applications/index.wsgi"],
     imports = ["."],
     visibility = [
@@ -37,7 +23,6 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        ":utils",
         "//cmk/gui:auth",
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
@@ -95,7 +80,6 @@ py_wheel(
     visibility = ["//visibility:public"],
     deps = [
         ":cmk-wsgi",
-        ":utils",
     ],
 )
 
