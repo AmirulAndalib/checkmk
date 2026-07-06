@@ -792,7 +792,7 @@ def _mode_dump_agent(
                 ),
                 for_relay=relay_id is not None,
             ),
-            agent_connection_mode=config_cache.agent_connection_mode(hostname),
+            is_pull_host=config_cache.is_pull_host(hostname),
             check_mk_check_interval=config_cache.check_mk_check_interval(hostname),
             metric_backend_fetcher=app.make_metric_backend_fetcher(
                 hostname,

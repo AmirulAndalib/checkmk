@@ -115,7 +115,7 @@ def _make_sources(
             executable_finder=lambda name, module: "/yolo/bin/hurra",
             for_relay=False,
         ),
-        agent_connection_mode=config_cache.agent_connection_mode(hostname),
+        is_pull_host=config_cache.is_pull_host(hostname),
         check_mk_check_interval=config_cache.check_mk_check_interval(hostname),
         metric_backend_fetcher=app.make_metric_backend_fetcher(
             hostname,

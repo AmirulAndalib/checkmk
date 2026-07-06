@@ -132,7 +132,6 @@ from cmk.server_side_calls_backend.config_processing import (
     extract_all_adhoc_secrets,
 )
 from cmk.utils import config_warnings, ip_lookup, password_store
-from cmk.utils.agent_registration import connection_mode_from_host_config, HostAgentConnectionMode
 from cmk.utils.caching import cache_manager
 from cmk.utils.check_utils import maincheckify, section_name_of
 from cmk.utils.host_storage import (
@@ -2059,8 +2058,20 @@ class ConfigCache:
             )
         )
 
-    def agent_connection_mode(self, host_name: HostName) -> HostAgentConnectionMode:
-        return connection_mode_from_host_config(self.explicit_host_attributes(host_name))
+    def is_pull_host(self, host_name: HostName) -> bool:
+        # even if this is a non-free feature, the config model is meant to be the same everywhere,
+        # so this belongs here.
+        try:
+            raw = self.explicit_host_attributes(host_name)["cmk_agent_connection"]
+        except KeyError:
+            return True
+        match raw:
+            case "pull-agent":
+                return True
+            case "push-agent":
+                return False
+            case other:
+                raise (ValueError if isinstance(other, str) else TypeError)(other)
 
     def extra_host_attributes(self, host_name: HostName) -> ObjectAttributes:
         attrs: ObjectAttributes = {}

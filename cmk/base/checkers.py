@@ -521,9 +521,7 @@ class CMKFetcher(FetcherFunction):
                         ),
                         for_relay=relay_id is not None,
                     ),
-                    agent_connection_mode=self.config_cache.agent_connection_mode(
-                        current_host_name
-                    ),
+                    is_pull_host=self.config_cache.is_pull_host(current_host_name),
                     check_mk_check_interval=self.config_cache.check_mk_check_interval(
                         current_host_name
                     ),

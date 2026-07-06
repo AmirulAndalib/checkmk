@@ -22,7 +22,6 @@ from cmk.checkengine.helper_interface import AgentRawData, FetcherType
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPBackendEnum
 from cmk.server_side_calls_backend import SpecialAgentCommandLine
-from cmk.utils.agent_registration import HostAgentConnectionMode
 from cmk.utils.ip_lookup import IPStackConfig
 from cmk.utils.tags import ComputedDataSources, TagID
 
@@ -68,7 +67,7 @@ class SourceBuilder:
         management_protocol: Literal["snmp", "ipmi"] | None,
         management_ip: HostAddress | None,
         special_agent_command_lines: Iterable[tuple[str, SpecialAgentCommandLine]],
-        agent_connection_mode: HostAgentConnectionMode,
+        is_pull_host: bool,
         check_mk_check_interval: float,
         metric_backend_fetcher: Fetcher[AgentRawData] | None,
     ) -> None:
@@ -95,7 +94,7 @@ class SourceBuilder:
         self.management_ip: Final = management_ip
         self.special_agent_command_lines: Final = special_agent_command_lines
         self.datasource_programs: Final = datasource_programs
-        self.agent_connection_mode: Final = agent_connection_mode
+        self.is_pull_host: Final = is_pull_host
         self.check_mk_check_interval: Final = check_mk_check_interval
         self._file_cache_path_base: Final = file_cache_path_base
         self._file_cache_path_relative: Final = file_cache_path_relative
@@ -303,37 +302,37 @@ class SourceBuilder:
             )
             return
 
-        connection_mode = self.agent_connection_mode
-        match connection_mode:
-            case HostAgentConnectionMode.PUSH:
-                # add grace period
-                interval = int(1.5 * self.check_mk_check_interval)
-                self._add(
-                    source=PushAgentSource(
-                        self.host_name,
-                        self.ipaddress,
-                        max_age=MaxAge(interval, interval, interval),
-                        file_cache_path_base=self._file_cache_path_base,
-                        file_cache_path_relative=self._file_cache_path_relative,
-                    )
+        if not self.is_pull_host:
+            # PUSH
+            # add grace period
+            interval = int(1.5 * self.check_mk_check_interval)
+            self._add(
+                source=PushAgentSource(
+                    self.host_name,
+                    self.ipaddress,
+                    max_age=MaxAge(interval, interval, interval),
+                    file_cache_path_base=self._file_cache_path_base,
+                    file_cache_path_relative=self._file_cache_path_relative,
                 )
-            case HostAgentConnectionMode.PULL:
-                if self.ip_stack_config is IPStackConfig.NO_IP:
-                    return
-                if self.ipaddress is None:
-                    self._add(MissingIPSource(self.host_name, self.ipaddress, "agent"))
-                    return
-                self._add(
-                    TCPSource(
-                        self._source_config,
-                        self.host_name,
-                        self.host_ip_family,
-                        self.ipaddress,
-                        max_age=self.max_age_agent,
-                        file_cache_path_base=self._file_cache_path_base,
-                        file_cache_path_relative=self._tcp_cache_path_relative,
-                        tls_config=self.tls_config,
-                    )
-                )
-            case _:
-                assert_never(connection_mode)
+            )
+            return
+
+        # PULL
+        if self.ip_stack_config is IPStackConfig.NO_IP:
+            return
+        if self.ipaddress is None:
+            self._add(MissingIPSource(self.host_name, self.ipaddress, "agent"))
+            return
+
+        self._add(
+            TCPSource(
+                self._source_config,
+                self.host_name,
+                self.host_ip_family,
+                self.ipaddress,
+                max_age=self.max_age_agent,
+                file_cache_path_base=self._file_cache_path_base,
+                file_cache_path_relative=self._tcp_cache_path_relative,
+                tls_config=self.tls_config,
+            )
+        )

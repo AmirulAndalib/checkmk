@@ -3448,7 +3448,7 @@ class AutomationDiagHost:
                 ),
                 for_relay=host_relay_id is not None,
             ),
-            agent_connection_mode=config_cache.agent_connection_mode(host_name),
+            is_pull_host=config_cache.is_pull_host(host_name),
             check_mk_check_interval=config_cache.check_mk_check_interval(host_name),
             metric_backend_fetcher=app.make_metric_backend_fetcher(
                 host_name,
@@ -4038,7 +4038,7 @@ def _automation_get_agent_output(
                     ),
                     for_relay=relay_id is not None,
                 ),
-                agent_connection_mode=env.config_cache.agent_connection_mode(hostname),
+                is_pull_host=env.config_cache.is_pull_host(hostname),
                 check_mk_check_interval=env.config_cache.check_mk_check_interval(hostname),
                 metric_backend_fetcher=app.make_metric_backend_fetcher(
                     hostname,
