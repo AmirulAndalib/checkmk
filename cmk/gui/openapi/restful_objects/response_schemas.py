@@ -163,7 +163,7 @@ class ObjectMemberBase(Linkable):
 
 
 class ObjectCollectionMember(ObjectMemberBase):
-    memberType = fields.Constant("collection")
+    memberType = fields.Constant("collection", required=True)
     value = fields.List(fields.Nested(LinkSchema()))
     name = fields.String(example="important_values")
     title = fields.String(
@@ -171,28 +171,8 @@ class ObjectCollectionMember(ObjectMemberBase):
     )
 
 
-class ObjectProperty(Linkable):
-    id = fields.String(description="The unique name of this property, local to this domain type.")
-    value = fields.List(
-        fields.String(),
-        description="The value of the property. In this case a list.",
-    )
-    extensions = fields.Dict(
-        description="Additional attributes alongside the property.",
-    )
-
-
-class ObjectPropertyMember(ObjectMemberBase):
-    memberType = fields.Constant("property")
-    name = fields.String(example="important")
-    value = fields.String(example="the value")
-    title = fields.String(
-        description="A human readable title of this object. Can be used for user interfaces.",
-    )
-
-
 class ObjectActionMember(ObjectMemberBase):
-    memberType = fields.Constant("action")
+    memberType = fields.Constant("action", required=True)
     parameters = fields.Dict()
     name = fields.String(example="frobnicate_foo")
     title = fields.String(
@@ -200,18 +180,10 @@ class ObjectActionMember(ObjectMemberBase):
     )
 
 
-class ObjectMember(OneOfSchema):
-    type_field = "memberType"
-    type_schemas = {
-        "action": ObjectActionMember,
-        "property": ObjectPropertyMember,
-        "collection": ObjectCollectionMember,
-    }
-
-
 class ActionResultBase(Linkable):
     resultType: gui_fields.Field = fields.String(
         enum=["object", "scalar"],
+        required=True,
         description="The type of the result.",
     )
     extensions = fields.Dict(
