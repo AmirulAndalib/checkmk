@@ -2437,7 +2437,7 @@ class CancelPreviousNotification(BaseSchema):
 class CreateNotificationsWithParameters(BaseSchema):
     option = fields.Constant(
         PluginOptions.WITH_PARAMS.value,
-        load_default=PluginOptions.WITH_PARAMS.value,
+        required=True,
         description="Create notifications with parameters",
         example=PluginOptions.WITH_PARAMS.value,
     )

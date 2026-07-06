@@ -2384,7 +2384,7 @@ def test_defaults_are_loaded(plugin: dict[str, Any], clients: ClientRegistry) ->
                     "notification_method": RuleNotificationMethod().load(
                         {
                             "notify_plugin": CreateNotificationsWithParameters().load(
-                                {"plugin_params": plugin}
+                                {"option": PluginOptions.WITH_PARAMS.value, "plugin_params": plugin}
                             )
                         }
                     ),
