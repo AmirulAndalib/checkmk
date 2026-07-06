@@ -52,7 +52,9 @@ export interface GraphPanelProps extends GraphFigureProps {
   showBurgerMenu?: boolean
   showLegend?: boolean
   legendPosition?: 'bottom' | 'right'
-  // TODO: add property showPanningBrush?: boolean; or similar
+  showBrush?: boolean
+  // Coarse, wider, end-anchored dataset for the navigator brush (separate fetch / mock).
+  overview?: { metrics: Metric[]; timeRange: TimeRange }
 }
 
 export type GraphPanelEmits = {

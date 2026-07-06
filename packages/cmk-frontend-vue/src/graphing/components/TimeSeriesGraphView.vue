@@ -26,6 +26,7 @@ import TimeSeriesGraph, {
   type TimeRange,
   type ZoomMode
 } from './TimeSeriesGraph'
+import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 
 interface CmkInteractionFlags {
   zoom: 'enabled' | 'disabled'
@@ -106,8 +107,8 @@ watch(
     />
 
     <!--
-      plot-left=50 / width=size.width+60 mirror the renderer's private figure MARGIN
-      (left=50, left+right=60) so the brush track aligns under the plot. Exporting MARGIN
+      plot-left=CANVAS_MARGIN_LEFT / width=size.width+CANVAS_MARGIN_HORIZONTAL mirror the renderer's private figure MARGIN
+      (left=CANVAS_MARGIN_LEFT, left+right=CANVAS_MARGIN_HORIZONTAL) so the brush track aligns under the plot. Exporting MARGIN
       from TimeSeriesGraph.vue (or deriving these) is a follow-up.
     -->
     <GraphBrush
@@ -117,8 +118,8 @@ watch(
       :domain="overview.timeRange"
       :window="{ start: viewTimeRange.start, end: viewTimeRange.end }"
       :min-span="minTimeRange"
-      :width="size.width + 60"
-      :plot-left="50"
+      :width="size.width + CANVAS_MARGIN_HORIZONTAL"
+      :plot-left="CANVAS_MARGIN_LEFT"
       :plot-width="size.width"
       @update:requested-time-range="(value) => emit('update:requestedTimeRange', value)"
     />

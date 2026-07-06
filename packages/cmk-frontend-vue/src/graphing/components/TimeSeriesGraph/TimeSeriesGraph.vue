@@ -14,6 +14,7 @@ import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
 import CmkButton from '@/components/CmkButton'
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
+import { CANVAS_MARGIN_LEFT, CANVAS_MARGIN_RIGHT } from '../constants'
 import { computeTimeAxis } from './axes/timeAxis'
 import { computeYDomain } from './axes/valueAxis'
 import { downsampleToColumns, m4 } from './decimation/decimate'
@@ -37,7 +38,7 @@ const emit = defineEmits<{
 
 const consolidationFn = computed<ConsolidationFn>(() => props.consolidationFunction ?? 'avg')
 
-const MARGIN = { top: 5, right: 10, bottom: 24, left: 50 } as const
+const MARGIN = { top: 5, right: CANVAS_MARGIN_RIGHT, bottom: 24, left: CANVAS_MARGIN_LEFT } as const
 // Top/bottom canvas padding so lines at the domain min/max are not clipped.
 const CANVAS_Y_PADDING = 4
 // Bucket count for the M4 cache built on receive (4000 is the default, consider changing

@@ -5,13 +5,28 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+import usei18n from '@/lib/i18n'
+
+import { useGraphTimeRange } from '../composables/useGraphTimeRange'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
-import type { ConsolidationFn, GraphPanelEmits, GraphPanelProps } from '../types.ts'
+import type {
+  ConsolidationFn,
+  GraphPanelEmits,
+  GraphPanelProps,
+  RequestedTimeRange
+} from '../types.ts'
+import GraphBrush from './GraphBrush/GraphBrush.vue'
 import GraphBurgerMenu from './GraphBurgerMenu.vue'
 import GraphLegend from './GraphLegend.vue'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
+import type { TimeRange } from './TimeSeriesGraph'
 import TimeSeriesGraph from './TimeSeriesGraph'
+import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
+
+const { _t } = usei18n()
 
 const props = withDefaults(defineProps<GraphPanelProps>(), {
   interactive: true,
@@ -22,9 +37,10 @@ const props = withDefaults(defineProps<GraphPanelProps>(), {
 
 const emit = defineEmits<GraphPanelEmits>()
 
-/* TODO: get activeTimeRange from useGraphTimeRange as well and use it
-const { activeTimeRange, setActiveTimeRange } = useGraphTimeRange(() => props.requestedTimeRange)
-*/
+// Renderer's live time view (= viewTimeRange), used to position the brush window.
+const currentView = ref<TimeRange | null>(null)
+
+const { setActiveTimeRange } = useGraphTimeRange(() => props.requestedTimeRange)
 
 const {
   hiddenMetricNames,
@@ -39,12 +55,10 @@ const {
   () => props.horizontalLines ?? []
 )
 
-/* TODO: trigger updateTimeRange() through the future brush/pan component
 function updateTimeRange(val: RequestedTimeRange) {
   setActiveTimeRange(val)
   emit('update:requestedTimeRange', val)
 }
-*/
 
 function updateConsolidationFunction(val: ConsolidationFn) {
   setConsolidationFunction(val)
@@ -53,7 +67,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
 </script>
 
 <template>
-  <div class="graphing-graph-panel">
+  <div class="graphing-graph-panel" :style="{ width: `${canvasWidth}px` }">
     <div
       class="graphing-graph-panel__container"
       :class="{ 'graphing-graph-panel__container--legend-right': legendPosition === 'right' }"
@@ -68,6 +82,14 @@ function updateConsolidationFunction(val: ConsolidationFn) {
             <GraphTimestamp v-if="showTimestamp && timeRange" :time-range="timeRange" />
           </div>
           <GraphBurgerMenu v-if="showBurgerMenu" :groups="burgerMenuGroups ?? []" />
+        </div>
+
+        <div
+          v-if="timeRange && visibleMetrics.length === 0"
+          class="graphing-graph-panel__empty-state"
+          :style="{ height: `${canvasHeight}px` }"
+        >
+          {{ _t('All metrics are hidden') }}
         </div>
 
         <!-- TODO: 'zoom-mode': pass the right literal ('time' | 'value') once the toggle element
@@ -98,10 +120,23 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           :highlighted-metric-name="highlightedMetricName"
         />
 
-        <!-- TODO: add the brush/pan component here. it may
-         * be conditional by a new boolean prop like 'showPanningBrush',
-         * use 'activeTimeRange' and 'metrics', and
-         * trigger updateTimeRange() -->
+        <!--
+          plot-left=CANVAS_MARGIN_LEFT / width=canvasWidth+CANVAS_MARGIN_HORIZONTAL mirror the renderer's private figure MARGIN
+          (left=CANVAS_MARGIN_LEFT, left+right=CANVAS_MARGIN_HORIZONTAL) so the brush track aligns under the plot. Exporting MARGIN
+          from TimeSeriesGraph.vue (or deriving these) is a follow-up.
+        -->
+        <GraphBrush
+          v-if="showBrush && overview && timeRange"
+          class="graphing-graph-panel__brush"
+          :metrics="overview.metrics"
+          :domain="overview.timeRange"
+          :window="currentView ?? { start: timeRange!.start, end: timeRange!.end }"
+          :min-span="null"
+          :width="canvasWidth + CANVAS_MARGIN_HORIZONTAL"
+          :plot-left="CANVAS_MARGIN_LEFT"
+          :plot-width="canvasWidth"
+          @update:requested-time-range="updateTimeRange($event)"
+        />
       </div>
 
       <GraphLegend
@@ -149,6 +184,23 @@ function updateConsolidationFunction(val: ConsolidationFn) {
 .graphing-graph-panel__canvas-area {
   flex: 1;
   min-width: 0;
+}
+
+// Visible gap separating the graph from the navigator brush, matching the legend's spacing.
+// (CmkTimeSeriesGraph now shrink-wraps its full figure, so the graph's x-axis no longer
+// overflows into this space — this margin is a clean gap, not overflow compensation.)
+.graphing-graph-panel__brush {
+  display: block;
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.graphing-graph-panel__empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-color);
+  opacity: 0.5;
+  font-size: var(--font-size-small);
 }
 
 .graphing-graph-panel__legend {
