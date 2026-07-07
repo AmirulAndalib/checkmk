@@ -8,7 +8,7 @@ from __future__ import annotations
 import abc
 import enum
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, final, Literal, Self
@@ -36,10 +36,6 @@ class DeserializationContext:
 
     base_path: Path
     snmp_plugin_store: SNMPPluginStore
-    # Used by MetricBackendFetcher. Injected by the reading process so that this
-    # (community) module does not depend on the (non-free) telemetry package;
-    # the callable itself resolves its telemetry import lazily, at fetch time.
-    make_output: Callable[[Path, Sequence[str]], str]
 
 
 class FetcherFunction(ABC):
