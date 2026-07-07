@@ -31,13 +31,11 @@ Example::
 
 """
 
-import string as _string
 from collections.abc import Callable as _Callable
 from collections.abc import Iterable as _Iterable
 from collections.abc import Mapping as _Mapping
 from dataclasses import dataclass as _dataclass
 from typing import Any as _Any
-from typing import Final as _Final
 
 from cmk.agent_based.v2 import (
     AgentParseFunction,
@@ -108,27 +106,11 @@ from ._metrics_section import (
     ScopeFilter,
     SumAggregation,
 )
+from ._naming import validate_name as _validate_name
 
 type _DiscoveryFunction = _Callable[..., DiscoveryResult]
 type CheckResult = _Iterable[IgnoreResults | Metric | Result]
 type _CheckFunction = _Callable[..., CheckResult]
-
-
-# A plug-in name must be a non-empty string consisting only
-# of letters A-z, digits and the underscore.
-_VALID_CHARACTERS: _Final = _string.ascii_letters + "_" + _string.digits
-
-
-def _validate_name(raw: str) -> str:
-    if not isinstance(raw, str):
-        raise TypeError(f"Names must be non-empty strings: {raw!r}")
-    if not raw:
-        raise ValueError(f"Names must be non-empty strings: {raw!r}")
-
-    if invalid := "".join(c for c in raw if c not in _VALID_CHARACTERS):
-        raise ValueError(f"Invalid characters in {raw!r}: {invalid!r}")
-
-    return raw
 
 
 @_dataclass(frozen=True, kw_only=True)
