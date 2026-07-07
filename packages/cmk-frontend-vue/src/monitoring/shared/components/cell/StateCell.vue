@@ -11,7 +11,6 @@ import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
 import type { HostState } from '../../api/types.ts'
 import HostStateDisplay from '../HostStateDisplay.vue'
-import StateIcon from '../StateIcon.vue'
 import BaseCell from './BaseCell.vue'
 
 export interface StateCellProps {
@@ -31,12 +30,18 @@ defineProps<StateCellProps>()
     <template #default>
       <div class="monitoring-state-cell">
         <HostStateDisplay :state="state" class="monitoring-state-cell__tag" />
-        <StateIcon v-if="stale">
-          <CmkMultitoneIcon name="stale" primary-color="font" :title="_t('Stale state')" />
-        </StateIcon>
-        <StateIcon v-if="pending">
-          <CmkMultitoneIcon name="reload" primary-color="font" :title="_t('Pending')" />
-        </StateIcon>
+        <CmkMultitoneIcon
+          v-if="stale"
+          name="stale"
+          primary-color="font"
+          :title="_t('Stale state')"
+        />
+        <CmkMultitoneIcon
+          v-if="pending"
+          name="reload"
+          primary-color="font"
+          :title="_t('Pending')"
+        />
       </div>
     </template>
   </BaseCell>
