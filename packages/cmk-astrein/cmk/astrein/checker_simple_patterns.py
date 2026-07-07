@@ -80,6 +80,7 @@ _INCLUDED_PATHS = (
     "non-free/packages/cmk-relay-engine",
     "non-free/packages/cmk-liveproxyd",
     "cmk/gui/nonfree/pro",
+    "non-free/packages/cmk-mknotifyd",
 )
 
 
