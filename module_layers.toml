@@ -1183,6 +1183,35 @@ allows = ["@ccc", "cmk.checkengine.snmplib"]
 [components."cmk.checkengine.snmplib"]
 allows = ["@ccc", "cmk.agent_based.v1"]
 
+[components."cmk.update_config.nonfree.cloud"]
+allows = [
+  "@ccc",
+  "@messaging",
+  "@mkp_tool",
+  "@plugin_apis",
+  "@trace",
+  "@werks",
+  "cmk.backup",
+  "cmk.base",
+  "cmk.checkengine",
+  "cmk.crash",
+  "cmk.dcd.gui",
+  "cmk.dcd.protocols",
+  "cmk.discover_plugins",
+  "cmk.diskspace.config",
+  "cmk.checkengine.fetchers",
+  "cmk.gui",
+  "cmk.licensing",
+  "cmk.message_broker_certs",
+  "cmk.metric_backend.gui",
+  "cmk.otel_collector",
+  "cmk.robotmk",
+  "cmk.telemetry.host_name_template",
+  "cmk.utils",
+  "cmk.update_config",
+  "cmk.validate_config",
+]
+
 [components."cmk.update_config.nonfree.ultimate"]
 allows = [
   "@ccc",
