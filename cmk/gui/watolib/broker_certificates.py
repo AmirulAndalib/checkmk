@@ -121,7 +121,10 @@ class DefaultBrokerCertificateSync(BrokerCertificateSync):
         *,
         debug: bool,
     ) -> None:
-        logger.info("Remote broker certificates creation for site %s", automation_config.site_id)
+        logger.info(
+            "Remote broker certificates creation for site %(site_id)s",
+            {"site_id": automation_config.site_id},
+        )
         csr = CertificateSigningRequest(ask_remote_csr(automation_config, debug=debug))
         if csr.subject.common_name is None:
             raise ValueError("CSR must provide a common name")
@@ -137,7 +140,10 @@ class DefaultBrokerCertificateSync(BrokerCertificateSync):
             signing_ca=central_ca_bundle.certificate.dump_pem().bytes,
         )
 
-        logger.info("Sending signed broker certificates for site %s", automation_config.site_id)
+        logger.info(
+            "Sending signed broker certificates for site %(site_id)s",
+            {"site_id": automation_config.site_id},
+        )
         _sync_broker_certs(automation_config, remote_broker_certs, debug=debug)
 
         # the presence of the following cert is used to determine if the broker certificates need
@@ -303,9 +309,8 @@ class AutomationStoreBrokerCertificates(AutomationCommand[StoreBrokerCertificate
             popen = messaging.rabbitmq.rabbitmqctl_process(command, wait=True)
             if popen.stderr and (lines := popen.stderr.readlines()):
                 logger.error(
-                    "Failed to execute command: %s, with error: %s",
-                    command,
-                    "".join(lines),
+                    "Failed to execute command: %(command)s, with error: %(error)s",
+                    {"command": command, "error": "".join(lines)},
                 )
                 raise MKGeneralException(f"Failed to execute command: {command}")
             return popen.stdout

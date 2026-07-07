@@ -273,7 +273,8 @@ def _execute_site_sync(
 
     except Exception as e:
         logger.error(
-            "Failed to get discovered host labels from site %s: %s", automation_config.site_id, e
+            "Failed to get discovered host labels from site %(site_id)s: %(error)s",
+            {"site_id": automation_config.site_id, "error": e},
         )
         return SiteResult(
             site_id=automation_config.site_id,

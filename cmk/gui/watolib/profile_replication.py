@@ -311,7 +311,8 @@ def start_profile_replication_job(back_url: str, *, config: Config) -> None:
 
     if not automation_configs:
         logging.getLogger(__name__).debug(
-            "Skipping profile replication for %s: no remote sites with automation secret", user.id
+            "Skipping profile replication for %(user_id)s: no remote sites with automation secret",
+            {"user_id": user.id},
         )
         return
 

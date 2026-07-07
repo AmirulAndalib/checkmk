@@ -145,7 +145,10 @@ def execute_network_scan_job(config: Config) -> None:
                     "output": _("An exception occurred: %(e)s") % {"e": e},
                 }
             )
-            logger.error("Exception in network scan:\n%s", traceback.format_exc())
+            logger.error(
+                "Exception in network scan:\n%(traceback)s",
+                {"traceback": traceback.format_exc()},
+            )
 
         result["end"] = time.time()
 

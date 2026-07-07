@@ -150,7 +150,7 @@ def create_snapshot(
         use_git=use_git,
         user_id=created_by,
     )
-    logger.debug("Backup snapshot creation took %.4f", time.time() - start)
+    logger.debug("Backup snapshot creation took %(duration).4f", {"duration": time.time() - start})
 
 
 def _do_create_snapshot(data: SnapshotData, secret: bytes) -> None:
@@ -656,8 +656,8 @@ def extract_snapshot(
         return []
 
     total_errors = []
-    logger.info("Restoring snapshot: %s", tar.name)
-    logger.info("Domains: %s", ", ".join(tar_domains.keys()))
+    logger.info("Restoring snapshot: %(snapshot)s", {"snapshot": tar.name})
+    logger.info("Domains: %(domains)s", {"domains": ", ".join(tar_domains.keys())})
     for what, abort_on_error, handler in [
         ("Permissions", True, check_domain),
         (

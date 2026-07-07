@@ -83,9 +83,8 @@ def _git_command(args: list[str], stdin: str | None = None) -> None:
         else:
             debug_command += f" < {stdin}"
     logger.debug(
-        "GIT: Execute in %s: %s",
-        cmk.utils.paths.default_config_dir,
-        debug_command,
+        "GIT: Execute in %(config_dir)s: %(command)s",
+        {"config_dir": cmk.utils.paths.default_config_dir, "command": debug_command},
     )
     try:
         completed_process = subprocess.run(

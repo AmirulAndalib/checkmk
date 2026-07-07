@@ -367,8 +367,8 @@ class ConfigDomainCACertificates(ABCConfigDomain):
             except NegativeSerialException as e:
                 if not should_be_negative_serial_exception_be_ignored(e):
                     logger.warning(
-                        "There is a certificate %r with a negative serial number in the trusted certificate authorities! Ignoring that...",
-                        e.subject,
+                        "There is a certificate %(subject)r with a negative serial number in the trusted certificate authorities! Ignoring that...",
+                        {"subject": e.subject},
                     )
 
     @staticmethod
@@ -413,9 +413,8 @@ class ConfigDomainCACertificates(ABCConfigDomain):
                     raw_certs = raw_certificates_from_file(cert_file_path)
                 except OSError as e:
                     logger.error(
-                        "Failed to add certificate '%s' to trusted CA certificates with error '%s'.",
-                        cert_file_path,
-                        e,
+                        "Failed to add certificate '%(cert_file_path)s' to trusted CA certificates with error '%(error)s'.",
+                        {"cert_file_path": cert_file_path, "error": e},
                     )
                     continue
 
@@ -428,7 +427,10 @@ class ConfigDomainCACertificates(ABCConfigDomain):
                         if should_be_negative_serial_exception_be_ignored(e):
                             continue
 
-                    logger.exception("Skipping invalid certificates in file %s", cert_file_path)
+                    logger.exception(
+                        "Skipping invalid certificates in file %(cert_file_path)s",
+                        {"cert_file_path": cert_file_path},
+                    )
                     errors.append(
                         f"Failed to add invalid certificate in '{cert_file_path}' to trusted CA certificates. "
                         "See web.log for details."
@@ -651,7 +653,7 @@ class ConfigDomainOMD(ABCConfigDomain):
             validate_port_not_in_use(int(omd_settings["LIVESTATUS_TCP_PORT"]))
 
         config_change_commands: list[str] = []
-        self._logger.debug("Set omd config: %r", omd_settings)
+        self._logger.debug("Set omd config: %(omd_settings)r", {"omd_settings": omd_settings})
 
         for key, val in omd_settings.items():
             if key not in current_settings:
@@ -667,7 +669,7 @@ class ConfigDomainOMD(ABCConfigDomain):
             return []
 
         self._logger.debug('Executing "omd config change"')
-        self._logger.debug("  Commands: %r", config_change_commands)
+        self._logger.debug("  Commands: %(commands)r", {"commands": config_change_commands})
 
         # We need a background job on remote sites to wait for the restart, so
         # that the central site can gather the result of the activation.
@@ -928,8 +930,8 @@ def _do_config_change(config_change_commands: Sequence[str], omd_logger: logging
         check=False,
     )
 
-    omd_logger.debug("  Exit code: %d", completed_process.returncode)
-    omd_logger.debug("  Output: %r", completed_process.stdout)
+    omd_logger.debug("  Exit code: %(exit_code)d", {"exit_code": completed_process.returncode})
+    omd_logger.debug("  Output: %(output)r", {"output": completed_process.stdout})
     if completed_process.returncode:
         raise MKGeneralException(
             # astrein: disable=localization-named-placeholder

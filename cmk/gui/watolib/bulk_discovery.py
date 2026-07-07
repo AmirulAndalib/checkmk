@@ -479,11 +479,11 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
         else:
             # astrein: disable=localization-named-placeholder
             msg = _("Error during discovery of %s") % (", ".join(task.host_names))
-        self._logger.warning("%s, Error: %s", msg, exception[0])
+        self._logger.warning("%(msg)s, Error: %(error)s", {"msg": msg, "error": exception[0]})
         job_interface.send_progress_update(f"{msg}, Error: {exception[0]}")
 
         # only show traceback on debug
-        self._logger.debug("Traceback: %s", exception[1])
+        self._logger.debug("Traceback: %(traceback)s", {"traceback": exception[1]})
 
     def _process_discovery_results(
         self,

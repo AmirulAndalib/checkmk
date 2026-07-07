@@ -216,7 +216,7 @@ class CheckmkAutomationBackgroundJob(BackgroundJob):
         for_cmk_version: Version,
         collect_all_hosts: Callable[[], Mapping[HostName, CollectedHostAttributes]],
     ) -> None:
-        self._logger.info("Starting automation: %s", api_request.command)
+        self._logger.info("Starting automation: %(command)s", {"command": api_request.command})
         self._logger.debug(api_request)
         cmdline_cmd, serialized_result = check_mk_local_automation_serialized(
             command=api_request.command,

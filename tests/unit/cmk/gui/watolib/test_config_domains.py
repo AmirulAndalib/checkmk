@@ -285,6 +285,6 @@ def test_load_cert_ignores_negative_serials(mocker: MockerFixture) -> None:
     )
 
     mock.warning.assert_called_once_with(
-        "There is a certificate %r with a negative serial number in the trusted certificate authorities! Ignoring that...",
-        "CN=Test,O=Internet Widgits Pty Ltd,ST=Some-State,C=DE",
+        "There is a certificate %(subject)r with a negative serial number in the trusted certificate authorities! Ignoring that...",
+        {"subject": "CN=Test,O=Internet Widgits Pty Ltd,ST=Some-State,C=DE"},
     )

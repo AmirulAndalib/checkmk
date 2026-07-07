@@ -155,7 +155,10 @@ class SyncRemoteSitesJob:
         ) = self._get_remote_changes(sites, prev_last_timestamps, debug=debug)
 
         if failed_sites:
-            logger.error("Failed to get changes from sites: %s.", ", ".join(sorted(failed_sites)))
+            logger.error(
+                "Failed to get changes from sites: %(sites)s.",
+                {"sites": ", ".join(sorted(failed_sites))},
+            )
 
         audit_logs_synced_sites = (
             self._store_audit_logs(last_audit_logs) if last_audit_logs else None
@@ -166,7 +169,8 @@ class SyncRemoteSitesJob:
 
         if site_changes_synced_sites:
             logger.debug(
-                "Removing site changes from sites: %s.", ", ".join(site_changes_synced_sites)
+                "Removing site changes from sites: %(sites)s.",
+                {"sites": ", ".join(site_changes_synced_sites)},
             )
             self._clear_site_changes_from_remote_sites(sites, last_site_changes, debug=debug)
 
@@ -201,15 +205,19 @@ class SyncRemoteSitesJob:
 
         for site_id, automation_config in sites:
             since = prev_last_timestamps.get(site_id, now)
-            logger.debug("Getting audit logs from site %s since %s", site_id, since)
-            logger.debug("Getting site changes from site %s", site_id)
+            logger.debug(
+                "Getting audit logs from site %(site_id)s since %(since)s",
+                {"site_id": site_id, "since": since},
+            )
+            logger.debug("Getting site changes from site %(site_id)s", {"site_id": site_id})
 
             try:
                 sync_result = self._sync_remote_site(automation_config, since, debug=debug)
             except Exception as e:
                 failed_sites.add(site_id)
                 logger.error(
-                    "Failed to get audit logs and site changes from site %s: %s", site_id, e
+                    "Failed to get audit logs and site changes from site %(site_id)s: %(error)s",
+                    {"site_id": site_id, "error": e},
                 )
                 continue
 
@@ -278,7 +286,10 @@ class SyncRemoteSitesJob:
 
     def _write_log(self, counter: Counter, change_name: str) -> None:
         for site_id, num_entries in counter.items():
-            logger.debug("Wrote %s %s entries from site %s", num_entries, change_name, site_id)
+            logger.debug(
+                "Wrote %(num_entries)s %(change_name)s entries from site %(site_id)s",
+                {"num_entries": num_entries, "change_name": change_name, "site_id": site_id},
+            )
 
     def _clear_site_changes_from_remote_sites(
         self,

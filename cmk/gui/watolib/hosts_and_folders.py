@@ -3137,7 +3137,9 @@ class FolderLookupCache:
         try:
             return store.load_object_from_pickle_file(cache_path, default={})
         except (TypeError, pickle.UnpicklingError) as e:
-            logger.warning("Unable to read folder_lookup_cache from disk: %s", str(e))
+            logger.warning(
+                "Unable to read folder_lookup_cache from disk: %(error)s", {"error": str(e)}
+            )
             return {}
 
     def rebuild_outdated(self, max_age: int) -> None:

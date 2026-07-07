@@ -192,9 +192,11 @@ class ACTest:
                 )
         except Exception:
             gui_logger.exception(
-                "Error executing configuration test %s: %s",
-                self.__class__.__name__,
-                traceback.format_exc(),
+                "Error executing configuration test %(test_name)s: %(traceback)s",
+                {
+                    "test_name": self.__class__.__name__,
+                    "traceback": traceback.format_exc(),
+                },
             )
             yield ACTestResult(
                 state=ACResultState.EXCEPTION,
@@ -285,7 +287,7 @@ def _perform_tests_for_site(
 ) -> _TestResult:
     # Executes the tests on the site. This method is executed in a dedicated
     # thread (One per site)
-    logger.debug("[%s] Starting", site_id)
+    logger.debug("[%(site_id)s] Starting", {"site_id": site_id})
     try:
         if isinstance(automation_config, LocalAutomationConfig):
             automation = AutomationCheckAnalyzeConfig()
@@ -307,7 +309,10 @@ def _perform_tests_for_site(
             assert isinstance(raw_ac_test_results, list)
             ac_test_results = [ACTestResult.from_repr(r) for r in raw_ac_test_results]
 
-        logger.debug("[%s] Finished: %r", site_id, ac_test_results)
+        logger.debug(
+            "[%(site_id)s] Finished: %(results)r",
+            {"site_id": site_id, "results": ac_test_results},
+        )
         return _TestResult(
             state=0,
             ac_test_results=ac_test_results,
@@ -315,7 +320,7 @@ def _perform_tests_for_site(
         )
 
     except Exception:
-        logger.exception("[%s] Failed", site_id)
+        logger.exception("[%(site_id)s] Failed", {"site_id": site_id})
         return _TestResult(
             state=1,
             ac_test_results=[],
@@ -351,7 +356,7 @@ def perform_tests(
     categories: Sequence[str] | None,  # 'None' means 'No filtering'
     debug: bool,
 ) -> Mapping[SiteId, Sequence[ACTestResult]]:
-    logger.debug("Executing tests for %d sites", len(test_sites))
+    logger.debug("Executing tests for %(num_sites)d sites", {"num_sites": len(test_sites)})
     if not test_sites:
         return {}
 
@@ -416,7 +421,9 @@ def perform_tests(
                             site_id=site_id,
                         )
                     ]
-                logger.exception("error analyzing configuration for site %s", site_id)
+                logger.exception(
+                    "error analyzing configuration for site %(site_id)s", {"site_id": site_id}
+                )
 
     logger.debug("Got test results")
     return results_by_site_id

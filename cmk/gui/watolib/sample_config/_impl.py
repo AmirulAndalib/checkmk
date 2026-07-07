@@ -114,11 +114,14 @@ def _create_sample_config() -> None:
     logger.debug("Start creating the sample config")
     for generator in sample_config_generator_registry.get_generators():
         try:
-            logger.debug("Starting [%s]", generator.ident())
+            logger.debug("Starting [%(generator)s]", {"generator": generator.ident()})
             generator.generate()
-            logger.debug("Finished [%s]", generator.ident())
+            logger.debug("Finished [%(generator)s]", {"generator": generator.ident()})
         except Exception:
-            logger.exception("Exception in sample config generator [%s]", generator.ident())
+            logger.exception(
+                "Exception in sample config generator [%(generator)s]",
+                {"generator": generator.ident()},
+            )
 
     logger.log(VERBOSE, "Finished creating the sample config")
 

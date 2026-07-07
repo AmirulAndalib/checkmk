@@ -101,11 +101,13 @@ def execute_host_removal_job(config: Config) -> None:
         ):
             hostnames = [host.name() for host in hosts_in_folder]
             _LOGGER_BACKGROUND_JOB.debug(
-                "Removing %d host(s) from folder %s",
-                len(hostnames),
-                folder.title(),
+                "Removing %(host_count)d host(s) from folder %(folder)s",
+                {"host_count": len(hostnames), "folder": folder.title()},
             )
-            _LOGGER.info("Removing %s hosts from folder %s", len(hostnames), folder.title())
+            _LOGGER.info(
+                "Removing %(host_count)s hosts from folder %(folder)s",
+                {"host_count": len(hostnames), "folder": folder.title()},
+            )
             with SuperUserContext():
                 folder.delete_hosts(
                     hostnames,
@@ -146,7 +148,7 @@ def execute_host_removal_job(config: Config) -> None:
 
 def _init_logging() -> None:
     handler = FileHandler(log_file := log_dir / "automatic-host-removal.log", encoding="utf-8")
-    _LOGGER.info("Logging host removal to %s", log_file)
+    _LOGGER.info("Logging host removal to %(log_file)s", {"log_file": log_file})
     handler.setFormatter(Formatter("%(asctime)s [%(levelno)s] [%(name)s %(process)d] %(message)s"))
     del _LOGGER.handlers[:]  # Remove all previously existing handlers
     _LOGGER.addHandler(handler)
@@ -180,7 +182,9 @@ def _hosts_to_be_removed_for_site(
         # can happen if the Nagios core is currently restarting during the activation of changes
         except MKLivestatusSocketError:
             _LOGGER.info(
-                "Skipping local site %s, since livestatus is not available", site_id, exc_info=True
+                "Skipping local site %(site_id)s, since livestatus is not available",
+                {"site_id": site_id},
+                exc_info=True,
             )
             return []
     else:
@@ -194,7 +198,10 @@ def _hosts_to_be_removed_for_site(
                 )
             )
         except (MKUserError, MKAutomationException) as e:
-            _LOGGER.info("Skipping remote site %s, might be down or not logged in (%s)", site_id, e)
+            _LOGGER.info(
+                "Skipping remote site %(site_id)s, might be down or not logged in (%(error)s)",
+                {"site_id": site_id, "error": e},
+            )
             return []
         hostnames = json.loads(hostnames_serialized)
 
@@ -208,7 +215,10 @@ def _hosts_to_be_removed_local(*, debug: bool) -> Iterator[HostName]:
     now = time.time()
 
     for hostname, check_mk_service_crit_since in _livestatus_query_local_candidates():
-        _LOGGER.debug("Found '%s' to be CRIT since %0.2fs", hostname, check_mk_service_crit_since)
+        _LOGGER.debug(
+            "Found '%(hostname)s' to be CRIT since %(crit_since)0.2fs",
+            {"hostname": hostname, "crit_since": check_mk_service_crit_since},
+        )
         if not (
             matches := list(
                 analyze_host_rule_matches(
@@ -222,7 +232,7 @@ def _hosts_to_be_removed_local(*, debug: bool) -> Iterator[HostName]:
         # Unfortunately we don't get specific typing of the value out of analyze_host_rule_matches.
         # So reconstruct the original value to help mypy with typing.
         first_match = matches[0]
-        _LOGGER.debug("Matching rule: %r", first_match)
+        _LOGGER.debug("Matching rule: %(rule)r", {"rule": first_match})
         matched_value: (
             tuple[Literal["enabled"], _RemovalConditions] | tuple[Literal["disabled"], None]
         )
@@ -292,7 +302,9 @@ def _activate_changes(
     use_git: bool,
     debug: bool,
 ) -> None:
-    _LOGGER_BACKGROUND_JOB.debug("Activating changes for %d site(s)", len(sites))
+    _LOGGER_BACKGROUND_JOB.debug(
+        "Activating changes for %(site_count)d site(s)", {"site_count": len(sites)}
+    )
 
     # workaround until CMK-13093 is fixed
     tree.invalidate_caches()
@@ -309,7 +321,9 @@ def _activate_changes(
             use_git=use_git,
             debug=debug,
         )
-        _LOGGER_BACKGROUND_JOB.info("Activation %s started", activation_id)
+        _LOGGER_BACKGROUND_JOB.info(
+            "Activation %(activation_id)s started", {"activation_id": activation_id}
+        )
 
         timeout = 60
         while manager.is_running() and timeout > 0:
@@ -321,7 +335,8 @@ def _activate_changes(
             state = manager.get_site_state(site_id)
             if state["_state"] != STATE_SUCCESS:
                 _LOGGER_BACKGROUND_JOB.error(
-                    "Activation of site %s failed: %s", site_id, state["_status_details"]
+                    "Activation of site %(site_id)s failed: %(status_details)s",
+                    {"site_id": site_id, "status_details": state["_status_details"]},
                 )
 
         _LOGGER_BACKGROUND_JOB.info("Activation finished")

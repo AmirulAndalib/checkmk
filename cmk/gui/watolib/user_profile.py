@@ -97,9 +97,11 @@ def _synchronize_profiles_to_sites(
         return
 
     logger.info(
-        "Credentials changed for %s. Trying to sync to %d sites",
-        ", ".join(profiles_to_synchronize.keys()),
-        len(remote_sites),
+        "Credentials changed for %(profiles)s. Trying to sync to %(num_sites)d sites",
+        {
+            "profiles": ", ".join(profiles_to_synchronize.keys()),
+            "num_sites": len(remote_sites),
+        },
     )
 
     states = sites.states()
@@ -141,7 +143,10 @@ def _synchronize_profiles_to_sites(
 
     for result in results:
         if result.error_text:
-            logger.info("  FAILED [%s]: %s", result.site_id, result.error_text)
+            logger.info(
+                "  FAILED [%(site_id)s]: %(error_text)s",
+                {"site_id": result.site_id, "error_text": result.error_text},
+            )
             if wato_enabled:
                 pending_changes.add(
                     Change(
@@ -161,7 +166,12 @@ def _synchronize_profiles_to_sites(
     num_disabled = sum(1 for result in results if result.disabled)
     num_succeeded = sum(1 for result in results if result.succeeded)
     logger.info(
-        "  Disabled: %d, Succeeded: %d, Failed: %d", num_disabled, num_succeeded, num_failed
+        "  Disabled: %(num_disabled)d, Succeeded: %(num_succeeded)d, Failed: %(num_failed)d",
+        {
+            "num_disabled": num_disabled,
+            "num_succeeded": num_succeeded,
+            "num_failed": num_failed,
+        },
     )
 
 

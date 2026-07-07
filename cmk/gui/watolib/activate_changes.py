@@ -416,7 +416,7 @@ def sync_changes_before_remote_automation(site_id: SiteId, debug: bool) -> None:
     if not manager.changes.is_sync_needed(site_id, active_config.sites[site_id]):
         return
 
-    logger.info("Syncing %s", site_id)
+    logger.info("Syncing %(site_id)s", {"site_id": site_id})
 
     manager.start(
         sites=[site_id],
@@ -847,14 +847,20 @@ def fetch_sync_state(
             _set_sync_state(site_activation_state)
 
             _set_sync_state(site_activation_state, _("Fetching sync state"))
-            site_logger.debug("Starting config sync (%r)", site_activation_state)
+            site_logger.debug(
+                "Starting config sync (%(site_activation_state)r)",
+                {"site_activation_state": site_activation_state},
+            )
 
             remote_file_infos, remote_config_generation = _get_config_sync_state(
                 automation_config,
                 replication_paths,
                 debug=debug,
             )
-            site_logger.debug("Received %d file infos from remote", len(remote_file_infos))
+            site_logger.debug(
+                "Received %(count)d file infos from remote",
+                {"count": len(remote_file_infos)},
+            )
 
             return (
                 SyncState(
@@ -896,9 +902,18 @@ def calc_sync_delta(
                 file_filter_func,
             )
 
-            site_logger.debug("New files to be synchronized: %r", sync_delta.to_sync_new)
-            site_logger.debug("Changed files to be synchronized: %r", sync_delta.to_sync_changed)
-            site_logger.debug("Obsolete files to be deleted: %r", sync_delta.to_delete)
+            site_logger.debug(
+                "New files to be synchronized: %(to_sync_new)r",
+                {"to_sync_new": sync_delta.to_sync_new},
+            )
+            site_logger.debug(
+                "Changed files to be synchronized: %(to_sync_changed)r",
+                {"to_sync_changed": sync_delta.to_sync_changed},
+            )
+            site_logger.debug(
+                "Obsolete files to be deleted: %(to_delete)r",
+                {"to_delete": sync_delta.to_delete},
+            )
 
             return sync_delta, site_activation_state, sync_start
         except Exception as e:
@@ -2129,7 +2144,10 @@ class ActivateChangesManager:
 
                 snapshot_manager = snapshot_manager_factory(work_dir, site_snapshot_settings)
                 snapshot_manager.generate_snapshots()
-                logger.debug("Config sync snapshot creation took %.4f", time.time() - start)
+                logger.debug(
+                    "Config sync snapshot creation took %(duration).4f",
+                    {"duration": time.time() - start},
+                )
 
                 logger.debug("Waiting for backup snapshot creation to complete")
 
@@ -2336,7 +2354,7 @@ class ActivationCleanupJob:
         """Cleanup non-running activation directories"""
         with store.lock_checkmk_configuration(configuration_lockfile):
             for activation_id in self._existing_activation_ids():
-                logger.info("Check activation: %s", activation_id)
+                logger.info("Check activation: %(activation_id)s", {"activation_id": activation_id})
                 delete = False
                 manager = ActivateChangesManager()
 
@@ -2357,7 +2375,9 @@ class ActivationCleanupJob:
                         logger.debug("Is not running")
                 except Exception as e:
                     logger.warning(
-                        "  Failed to load activation (%s), trying to delete...", e, exc_info=True
+                        "  Failed to load activation (%(error)s), trying to delete...",
+                        {"error": e},
+                        exc_info=True,
                     )
 
                 if not delete:
@@ -2383,7 +2403,8 @@ class ActivationCleanupJob:
                     dir_stat = os.stat(activation_dir)
                     if time.time() - dir_stat.st_mtime < self.maximum_age:
                         logger.info(
-                            "  -> Keep (created %d seconds ago)", time.time() - dir_stat.st_mtime
+                            "  -> Keep (created %(age)d seconds ago)",
+                            {"age": time.time() - dir_stat.st_mtime},
                         )
                         continue
 
@@ -2392,8 +2413,8 @@ class ActivationCleanupJob:
                         shutil.rmtree(activation_dir)
                     except Exception:
                         logger.error(
-                            "  Failed to delete the activation directory '%s'",
-                            activation_dir,
+                            "  Failed to delete the activation directory '%(activation_dir)s'",
+                            {"activation_dir": activation_dir},
                             exc_info=True,
                         )
 
@@ -2619,7 +2640,8 @@ def _get_site_central_file_infos(
     )
 
     logger.getChild(f"site[{site_id}]").debug(
-        "Got %d file infos from %s", len(central_file_infos), site_config_dir
+        "Got %(count)d file infos from %(site_config_dir)s",
+        {"count": len(central_file_infos), "site_config_dir": site_config_dir},
     )
     return central_file_infos
 
@@ -3188,7 +3210,10 @@ def get_pending_changes(sites: Sequence[SiteId]) -> dict[str, ActivationChange]:
 def _need_to_update_mkps_after_sync() -> bool:
     if not (central_version := _request.headers.get("x-checkmk-version")):
         raise ValueError("Request header x-checkmk-version is missing")
-    logger.debug("Local version: %s, Central version: %s", version.__version__, central_version)
+    logger.debug(
+        "Local version: %(local_version)s, Central version: %(central_version)s",
+        {"local_version": version.__version__, "central_version": central_version},
+    )
     return version.__version__ != central_version
 
 
@@ -3199,10 +3224,10 @@ def _need_to_update_config_after_sync() -> bool:
     other_v = version.Version.from_str(central_version)
     if this_v.base is None or other_v.base is None:
         logger.debug(
-            "Unable to determine base version of master daily build (%s, %s): "
+            "Unable to determine base version of master daily build "
+            "(%(this_base)s, %(other_base)s): "
             "Assume no cmk-update-config needed",
-            this_v.base,
-            other_v.base,
+            {"this_base": this_v.base, "other_base": other_v.base},
         )
         # We can not decide which is the current base version of the master daily builds.
         # For this reason we always treat them to be compatbile.
@@ -3280,9 +3305,8 @@ def _execute_cmk_update_config() -> None:
     )
     logger.log(
         logging.DEBUG if completed_process.returncode == 0 else logging.WARNING,
-        "'cmk-update-config' finished. Exit code: %s, Output: %s",
-        completed_process.returncode,
-        completed_process.stdout,
+        "'cmk-update-config' finished. Exit code: %(returncode)s, Output: %(output)s",
+        {"returncode": completed_process.returncode, "output": completed_process.stdout},
     )
 
     if completed_process.returncode:
@@ -3332,12 +3356,12 @@ def _execute_post_config_sync_actions(
             _execute_cmk_update_config()
         elif installed:
             cmd = ["cmk-migrate-extension-rulesets", *(m.name for m in installed)]
-            logger.debug("Executing `%s`", " ".join(cmd))
+            logger.debug("Executing `%(cmd)s`", {"cmd": " ".join(cmd)})
             try:
                 for line in subprocess.check_output(cmd, text=True).splitlines():
-                    logger.debug("  %s", line.strip())
+                    logger.debug("  %(line)s", {"line": line.strip()})
             except subprocess.CalledProcessError as e:
-                logger.warning("Error while running migration script: %s", e)
+                logger.warning("Error while running migration script: %(error)s", {"error": e})
 
         _execute_update_passwords()
 
@@ -3459,10 +3483,12 @@ def get_file_names_to_sync(
     for existing in central_files.intersection(remote_files_set):
         if sync_state.central_file_infos[existing] != sync_state.remote_file_infos[existing]:
             site_logger.debug(
-                "Sync needed %s: %r <> %r",
-                existing,
-                sync_state.central_file_infos[existing],
-                sync_state.remote_file_infos[existing],
+                "Sync needed %(file)s: %(central_info)r <> %(remote_info)r",
+                {
+                    "file": existing,
+                    "central_info": sync_state.central_file_infos[existing],
+                    "remote_info": sync_state.remote_file_infos[existing],
+                },
             )
             to_sync_changed.append(existing)
 

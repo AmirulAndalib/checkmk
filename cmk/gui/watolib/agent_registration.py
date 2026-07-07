@@ -59,8 +59,8 @@ class AutomationRemoveTLSRegistration(AutomationCommand[Sequence[HostName]]):
                 invalid_hostnames.append(hostname)
         if invalid_hostnames:
             logger.warning(
-                "remove-tls-registration called with the following invalid host names: %s",
-                ", ".join(invalid_hostnames),
+                "remove-tls-registration called with the following invalid host names: %(host_names)s",
+                {"host_names": ", ".join(invalid_hostnames)},
             )
         return valid_hostnames
 

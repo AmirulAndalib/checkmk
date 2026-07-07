@@ -1528,7 +1528,9 @@ class Rule:
                 _("Failed to search rule of rule set '%s': %s") % (self.ruleset.title(), e)
             )
         except Exception as e:
-            logger.exception("error searching ruleset %s", self.ruleset.title())
+            logger.exception(
+                "error searching ruleset %(ruleset)s", {"ruleset": self.ruleset.title()}
+            )
             html.show_warning(
                 # astrein: disable=localization-named-placeholder
                 _("Failed to search rule of rule set '%s' in folder '%s' (%r): %s")
@@ -1568,13 +1570,15 @@ class Rule:
                 return False
         except re.error as e:
             logger.warning(
-                "Rule '%s' of rule set '%s' in folder '%s' contains an invalid regular "
-                "expression (%r): %s",
-                self.id,
-                self.ruleset.title(),
-                self.folder.title(),
-                self.to_config(),
-                e,
+                "Rule '%(rule_id)s' of rule set '%(ruleset)s' in folder '%(folder)s' contains an "
+                "invalid regular expression (%(config)r): %(error)s",
+                {
+                    "rule_id": self.id,
+                    "ruleset": self.ruleset.title(),
+                    "folder": self.folder.title(),
+                    "config": self.to_config(),
+                    "error": e,
+                },
             )
             ruleset_url = makeuri_contextless(
                 request,

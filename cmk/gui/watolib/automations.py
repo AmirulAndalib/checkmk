@@ -182,12 +182,13 @@ def check_mk_local_automation_serialized(
             raise MKAutomationException(msg)
 
         span.set_attribute("cmk.automation.exit_code", result.exit_code)
-        auto_logger.info("FINISHED: %d", result.exit_code)
-        auto_logger.debug("OUTPUT: %r", result.output)
+        auto_logger.info("FINISHED: %(exit_code)d", {"exit_code": result.exit_code})
+        auto_logger.debug("OUTPUT: %(output)r", {"output": result.output})
 
         if result.exit_code:
             auto_logger.error(
-                "Error running %r (exit code %d)", result.command_description, result.exit_code
+                "Error running %(command)r (exit code %(exit_code)d)",
+                {"command": result.command_description, "exit_code": result.exit_code},
             )
             msg = get_local_automation_failure_message(
                 command=command,
@@ -330,9 +331,18 @@ def _do_remote_automation_serialized(
     timeout: float | None,
     debug: bool,
 ) -> str:
-    auto_logger.info("RUN [%s]: %s", automation_config.site_id or "site id not in config", command)
-    auto_logger.debug("Site config: %r", _sanitize_remote_automation_config(automation_config))
-    auto_logger.debug("VARS: %r", vars_)
+    auto_logger.info(
+        "RUN [%(site_id)s]: %(command)s",
+        {
+            "site_id": automation_config.site_id or "site id not in config",
+            "command": command,
+        },
+    )
+    auto_logger.debug(
+        "Site config: %(site_config)r",
+        {"site_config": _sanitize_remote_automation_config(automation_config)},
+    )
+    auto_logger.debug("VARS: %(vars)r", {"vars": vars_})
 
     base_url = automation_config.base_url
     secret = automation_config.secret
@@ -353,7 +363,7 @@ def _do_remote_automation_serialized(
         url, automation_config.insecure, data=post_data, files=files, timeout=timeout
     )
 
-    auto_logger.debug("RESPONSE: %r", response)
+    auto_logger.debug("RESPONSE: %(response)r", {"response": response})
 
     if not response:
         raise MKAutomationException(_("Empty output from remote site."))
@@ -676,14 +686,16 @@ def _do_check_mk_remote_automation_in_background_job_serialized(
             JobStatusSpec.model_validate(raw_response[0]),
             raw_response[1],
         )
-        auto_logger.debug("Job status: %r", response)
+        auto_logger.debug("Job status: %(response)r", {"response": response})
 
         if not response.job_status.is_active:
             if response.job_status.state == JobStatusStates.EXCEPTION:
                 raise MKAutomationException("\n".join(response.job_status.loginfo["JobException"]))
 
             result = response.result
-            auto_logger.debug("Job is not active anymore. Return the result: %s", result)
+            auto_logger.debug(
+                "Job is not active anymore. Return the result: %(result)s", {"result": result}
+            )
             break
         time.sleep(0.25)
 
@@ -710,7 +722,7 @@ def _start_remote_automation_job(
         )
     )
 
-    auto_logger.info("Started background job: %s", job_id)
+    auto_logger.info("Started background job: %(job_id)s", {"job_id": job_id})
     return job_id
 
 

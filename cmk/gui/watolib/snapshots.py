@@ -86,7 +86,7 @@ def _clone_site_config_directory(
     snapshot_settings: SnapshotSettings,
     origin_site_work_dir: str,
 ) -> None:
-    site_logger.debug("Processing site %s", site_id)
+    site_logger.debug("Processing site %(site_id)s", {"site_id": site_id})
 
     if os.path.exists(snapshot_settings.work_dir):
         shutil.rmtree(snapshot_settings.work_dir)
@@ -152,7 +152,7 @@ class CRESnapshotDataCollector(ABCSnapshotDataCollector):
           - Remove files that do not exist anymore
           - Add hard links
         """
-        self._logger.debug("Processing first site %s", site_id)
+        self._logger.debug("Processing first site %(site_id)s", {"site_id": site_id})
         snapshot_settings = self._site_snapshot_settings[site_id]
 
         # Currently we don't have an incremental sync on disk. The performance of some mkdir/link
@@ -207,10 +207,12 @@ class CRESnapshotDataCollector(ABCSnapshotDataCollector):
             )
             if completed_process.returncode:
                 self._logger.error(
-                    "Failed to clone files from %s to %s: %s",
-                    source_path,
-                    str(target_path),
-                    completed_process.stdout,
+                    "Failed to clone files from %(source)s to %(target)s: %(output)s",
+                    {
+                        "source": source_path,
+                        "target": str(target_path),
+                        "output": completed_process.stdout,
+                    },
                 )
                 raise MKGeneralException("Failed to create site config directory")
 
