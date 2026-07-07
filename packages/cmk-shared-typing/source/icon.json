@@ -105,6 +105,8 @@
     "icon_names": {
       "type": "string",
       "enum": [
+        "2fa",
+        "2fa-backup-codes",
         "abort",
         "about-checkmk",
         "accept",
