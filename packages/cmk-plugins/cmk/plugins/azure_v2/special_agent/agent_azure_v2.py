@@ -1677,7 +1677,7 @@ class UsageDetailsCache(AzureAsyncCache):
                     retry_after = int(retry_after_str)
                     if isinstance(remaining_tenant_requests_str, str):  # make mypy happy
                         remaining_tenant_requests = int(
-                            remaining_tenant_requests_str.strip("DefaultQuota:")
+                            remaining_tenant_requests_str.removeprefix("DefaultQuota:")
                         )
 
                     if remaining_tenant_requests <= 0 or retry_after > 10:

@@ -28,7 +28,6 @@ DATAPOWER_TEMP_STATUS_MAPPING = {
 
 @dataclass(frozen=True, kw_only=True)
 class Temp:
-    name: str
     temp: float
     status: Result | None
     dev_levels: tuple[float, float] | None
@@ -39,8 +38,7 @@ Section = Mapping[str, Temp]
 
 def parse_datapower_temp(string_table: StringTable) -> Section:
     return {
-        name.strip("Temperature "): Temp(
-            name=name.strip("Temperature "),
+        name.removeprefix("Temperature "): Temp(
             temp=float(temp),
             status=DATAPOWER_TEMP_STATUS_MAPPING.get(status),
             dev_levels=_create_dev_levels(warn, crit),
