@@ -17,9 +17,9 @@ from typing import Any, Literal, NamedTuple
 
 import livestatus
 
-from cmk.livestatus_client import (  # type: ignore[attr-defined]
+from cmk.ccc.site import SiteId
+from cmk.livestatus_client import (
     SingleSiteConnection,
-    SiteId,
 )
 
 
