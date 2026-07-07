@@ -6,32 +6,32 @@ void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
 
-    def safe_branch_name = versioning.safe_branch_name();
-
     /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
     def branch_base_folder = package_helper.branch_base_folder(true);
+    def safe_branch_name = versioning.safe_branch_name();
+
     def force_build = params.DISABLE_JENKINS_CACHE == true;
 
     def job_names = [
-        "trigger-test-agent-plugin-unit",
         "lint-repository",
         "test-bazel-lint",
         "test-format",
         "test-github-actions",
         "test-plugins-siteless",
-        // the werk test needs all git tags available in the checkout
-        "test-werks",
         "test-python3-typing",
         "test-unit-all",
+        // the werk test needs all git tags available in the checkout
+        "test-werks",
+        "trigger-test-agent-plugin-unit",
     ];
 
     print(
         """
         |===== CONFIGURATION ===============================
-        |safe_branch_name:.... │${safe_branch_name}│
-        |job_names:........... │${job_names}│
         |branch_base_folder:.. │${checkout_dir}│
         |force_build:......... │${force_build}│
+        |job_names:........... │${job_names}│
+        |safe_branch_name:.... │${safe_branch_name}│
         |===================================================
         """.stripMargin());
 

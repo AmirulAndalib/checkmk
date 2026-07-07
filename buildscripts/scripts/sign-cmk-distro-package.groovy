@@ -8,21 +8,13 @@
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        ["EDITION", true],
-        ["DISTRO", true],
-        ["VERSION", true],
-        "DISABLE_CACHE",
-        "FAKE_ARTIFACTS",
         "CIPARAM_GATED_REBASE_ONTO",     // accepted for parameter consistency; no rebase needed (downloads pre-built artifacts)
+        "DISABLE_CACHE",
+        ["DISTRO", true],
+        ["EDITION", true],
+        "FAKE_ARTIFACTS",
+        ["VERSION", true],
     ]);
-
-    def distro = params.DISTRO;
-    def edition = params.EDITION;
-    def version = params.VERSION;
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
-    def fake_artifacts = params.FAKE_ARTIFACTS;
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
-    def disable_cache = params.DISABLE_CACHE;
 
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
@@ -31,40 +23,45 @@ void main() {
     def safe_branch_name = versioning.safe_branch_name();
     def branch_version = versioning.get_branch_version(checkout_dir);
     def branch_base_folder = package_helper.branch_base_folder(false);
-
-    // FIXME
-    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, version);
+    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, params.VERSION);
     def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
-
-    def causes = currentBuild.getBuildCauses();
-    def triggerd_by = "";
-    for (cause in causes) {
-        if (cause.upstreamProject != null) {
-            triggerd_by += cause.upstreamProject + "/" + cause.upstreamBuild + "\n";
-        }
-    }
-    def package_type = distro_package_type(distro);
-    def package_name = "";
-
     def docker_tag = versioning.select_docker_tag(
         params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,  // 'build tag'
         safe_branch_name,  // 'branch', returns '<BRANCH>-latest'
     );
 
+    def disable_cache = params.DISABLE_CACHE;
+    def distro = params.DISTRO;
+    def edition = params.EDITION;
+    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+
+    def causes = currentBuild.getBuildCauses();
+    def package_name = "";
+    def triggerd_by = "";
+
+    for (cause in causes) {
+        if (cause.upstreamProject != null) {
+            triggerd_by += cause.upstreamProject + "/" + cause.upstreamBuild + "\n";
+        }
+    }
+    def package_type = versioning.distro_package_type(distro);
+
     print(
         """
         |===== CONFIGURATION ===============================
+        |checkout_dir:............. │${checkout_dir}│
+        |cmk_version:.............. │${cmk_version}│
+        |disable_cache:............ │${disable_cache}│
         |distro:................... │${distro}│
         |edition:.................. │${edition}│
-        |cmk_version:.............. │${cmk_version}│
-        |safe_branch_name:......... │${safe_branch_name}│
-        |checkout_dir:............. │${checkout_dir}│
-        |triggerd_by:.............. │${triggerd_by}│
-        |package_type:............. │${package_type}│
-        |rebase_onto:.............. |${rebase_onto}|
         |fake_artifacts:........... │${fake_artifacts}│
         |force_build:.............. │${force_build}│
-        |disable_cache:............ │${disable_cache}│
+        |package_type:............. │${package_type}│
+        |rebase_onto:.............. |${rebase_onto}|
+        |safe_branch_name:......... │${safe_branch_name}│
+        |triggerd_by:.............. │${triggerd_by}│
         |===================================================
         """.stripMargin());
 

@@ -13,23 +13,23 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        ["EDITION", true],
-        ["VERSION", true],  // should be deprecated
-        ["OVERRIDE_DISTROS", false],
-        ["USE_CASE", true],
         ["CIPARAM_OVERRIDE_DOCKER_TAG_BUILD", false],
         ["CIPARAM_REMOVE_RC_CANDIDATES", false],
-        ["SKIP_DEPLOY_TO_WEBSITE", false],
         ["DISABLE_CACHE", false],
+        ["EDITION", true],
         ["FAKE_ARTIFACTS", false],
+        ["OVERRIDE_DISTROS", false],
+        ["SKIP_DEPLOY_TO_WEBSITE", false],
+        ["USE_CASE", true],
+        ["VERSION", true],  // should be deprecated
     ]);
 
     check_environment_variables([
-        "INTERNAL_DEPLOY_URL",
-        "INTERNAL_DEPLOY_DEST",
-        "INTERNAL_DEPLOY_PORT",
         "ARTIFACT_STORAGE",
         "DOCKER_REGISTRY",
+        "INTERNAL_DEPLOY_DEST",
+        "INTERNAL_DEPLOY_PORT",
+        "INTERNAL_DEPLOY_URL",
     ]);
 
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
@@ -37,14 +37,38 @@ void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def bazel_logs = load("${checkout_dir}/buildscripts/scripts/utils/bazel_logs.groovy");
 
+    /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
+    def branch_base_folder = package_helper.branch_base_folder(true);
+    def branch_version = versioning.get_branch_version(checkout_dir);
+    def safe_branch_name = versioning.safe_branch_name();
+    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, params.VERSION);
+    def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
+
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+
     /// Might also be taken from editions.yml - there we also have "cloud" and "community" but
     /// AFAIK there is no way to extract the editions we want to test generically, so we
     /// hard-code these:
     def all_distros = [];
-    def selected_distros = [];
+    def bazel_log_prefix = "bazel_log_";
+    def deliverables_dir = "${WORKSPACE}/deliverables/${cmk_version_rc_aware}";
     def exclude_pattern = "";
-    def safe_branch_name = versioning.safe_branch_name();
-    def branch_version = versioning.get_branch_version(checkout_dir);
+    def selected_distros = [];
+    def relative_deliverables_dir = "deliverables/${cmk_version_rc_aware}";
+    /// In order to ensure a fixed order for stages executed in parallel,
+    /// we wait an increasing amount of time (N * 100ms).
+    /// Without this we end up with a capped build overview matrix in the job view (Jenkins doesn't
+    /// like changing order or amount of stages, which will happen with stages started `via parallel()`
+    def timeOffsetForOrder = 0;
+
+    def upload_to_testbuilds = ! (branch_base_folder.startsWith("Testing"));
+    def deploy_to_website = (
+        upload_to_testbuilds
+        && (! currentBuild.fullProjectName.contains("/cv/"))
+        && (! params.SKIP_DEPLOY_TO_WEBSITE)
+        && (! params.DISABLE_CACHE)
+    );
+
     inside_container_minimal(safe_branch_name: safe_branch_name) {
         // run everything requiring python in this container
         all_distros = versioning.get_distros(override: "all");
@@ -55,44 +79,26 @@ void main() {
         exclude_pattern = versioning.get_internal_artifacts_pattern();
     }
 
-    /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
-    def branch_base_folder = package_helper.branch_base_folder(true);
-
-    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, params.VERSION);
-    def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
-    def relative_deliverables_dir = "deliverables/${cmk_version_rc_aware}";
-    def deliverables_dir = "${WORKSPACE}/deliverables/${cmk_version_rc_aware}";
-    def bazel_log_prefix = "bazel_log_";
-
-    def upload_to_testbuilds = ! (branch_base_folder.startsWith("Testing"));
-    def deploy_to_website = (
-        upload_to_testbuilds
-        && (! currentBuild.fullProjectName.contains("/cv/"))
-        && (! params.SKIP_DEPLOY_TO_WEBSITE)
-        && (! params.DISABLE_CACHE)
-    );
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
-
     print(
         """
         |===== CONFIGURATION ===============================
         |all_distros:....................... │${all_distros}│
-        |selected_distros:.................. │${selected_distros}│
-        |EDITION:........................... │${params.EDITION}│
-        |VERSION:........................... │${params.VERSION}│
-        |USE_CASE:.......................... │${params.USE_CASE}│
+        |branch_base_folder:................ │${branch_base_folder}│
         |CIPARAM_REMOVE_RC_CANDIDATES:...... │${params.CIPARAM_REMOVE_RC_CANDIDATES}│
         |CIPARAM_OVERRIDE_DOCKER_TAG_BUILD:. │${params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD}│
-        |FAKE_ARTIFACTS:.................... │${params.FAKE_ARTIFACTS}│
         |cmk_version:....................... │${cmk_version}│
         |cmk_version_rc_aware:.............. │${cmk_version_rc_aware}│
         |deliverables_dir:.................. │${deliverables_dir}│
-        |relative_deliverables_dir:......... │${relative_deliverables_dir}│
-        |upload_to_testbuilds:.............. │${upload_to_testbuilds}│
         |deploy_to_website:................. │${deploy_to_website}│
+        |EDITION:........................... │${params.EDITION}│
+        |FAKE_ARTIFACTS:.................... │${params.FAKE_ARTIFACTS}│
         |force_build:....................... │${force_build}│
-        |branch_base_folder:................ │${branch_base_folder}│
+        |relative_deliverables_dir:......... │${relative_deliverables_dir}│
         |safe_branch_name:.................. │${safe_branch_name}│
+        |selected_distros:.................. │${selected_distros}│
+        |USE_CASE:.......................... │${params.USE_CASE}│
+        |upload_to_testbuilds:.............. │${upload_to_testbuilds}│
+        |VERSION:........................... │${params.VERSION}│
         |===================================================
         """.stripMargin());
 
@@ -101,12 +107,6 @@ void main() {
             cleanup_directory("${deliverables_dir}");
         }
     }
-
-    /// In order to ensure a fixed order for stages executed in parallel,
-    /// we wait an increasing amount of time (N * 100ms).
-    /// Without this we end up with a capped build overview matrix in the job view (Jenkins doesn't
-    /// like changing order or amount of stages, which will happen with stages started `via parallel()`
-    def timeOffsetForOrder = 0;
 
     def stages = [
         "Build source package": {

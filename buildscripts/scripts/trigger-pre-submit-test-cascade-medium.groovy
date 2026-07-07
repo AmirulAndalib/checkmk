@@ -36,40 +36,39 @@ void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
 
-    def safe_branch_name = versioning.safe_branch_name();
-
     /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
     def branch_base_folder = package_helper.branch_base_folder(true);
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def safe_branch_name = versioning.safe_branch_name();
+
+    def disable_cache = params.DISABLE_CACHE;
     def do_rebase = params.CIPARAM_GATED_TRIGGER_REBASE;
     def do_automerge = params.CIPARAM_GATED_TRIGGER_AUTOMERGE;
     def fake_artifacts = true;
-    def disable_cache = params.DISABLE_CACHE;
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+
+    def all_commits_in_chain = [];
+    def all_change_info = [:];
     def edition_medium_chain = "ultimate";
     def distro_medium_chain = "ubuntu-24.04";
-
     def job_names = [
         "test-composition-${edition_medium_chain}",
         "test-integration-${edition_medium_chain}",
     ];
-
     // rebase_onto: tip of target branch, computed below if CIPARAM_GATED_TRIGGER_REBASE is set.
     def rebase_onto = "";
-    def all_commits_in_chain = [];
-    def all_change_info = [:];
 
     print(
         """
         |===== CONFIGURATION ===============================
-        |safe_branch_name:.. │${safe_branch_name}│
-        |job_names:......... │${job_names}│
         |branch_base_folder: │${branch_base_folder}│
-        |force_build:....... │${force_build}│
-        |fake_artifacts:.... │${fake_artifacts} (always active)│
         |disable_cache:..... │${disable_cache}│
         |disable_signing:... │${disable_signing}│
-        |do_rebase:......... │${do_rebase}│
         |do_automerge:...... │${do_automerge}│
+        |do_rebase:......... │${do_rebase}│
+        |fake_artifacts:.... │${fake_artifacts} (always active)│
+        |force_build:....... │${force_build}│
+        |job_names:......... │${job_names}│
+        |safe_branch_name:.. │${safe_branch_name}│
         |===================================================
         """.stripMargin());
 

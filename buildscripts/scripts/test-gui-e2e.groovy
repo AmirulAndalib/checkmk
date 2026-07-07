@@ -18,53 +18,55 @@ void main() {
 
     /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
     def branch_base_folder = package_helper.branch_base_folder(true);
-    def use_case = (params.USE_CASE == "fips") ? params.USE_CASE : "daily_tests";
-    def all_distros = versioning.get_distros(override: "all");
-    def selected_distros = versioning.get_distros(
-        edition: params.EDITION,
-        use_case: use_case,
-        override: params.OVERRIDE_DISTROS
-    );
     def safe_branch_name = versioning.safe_branch_name();
+    def all_distros = versioning.get_distros(override: "all");
     def branch_version = versioning.get_branch_version(checkout_dir);
-    // When building from a git tag (VERSION != "daily"), we cannot get the branch name from the scm so used defines.make instead.
-    // this is save on master as there are no tags/versions built other than daily
-    def branch_name = (params.VERSION == "daily") ? safe_branch_name : branch_version;
     def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, params.VERSION);
     def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
     def docker_tag = versioning.select_docker_tag(
         params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,  // 'build tag'
         safe_branch_name,                   // 'branch' returns '<BRANCH>-latest'
     );
+
+    // When building from a git tag (VERSION != "daily"), we cannot get the branch name from the scm so used defines.make instead.
+    // this is save on master as there are no tags/versions built other than daily
+    def branch_name = (params.VERSION == "daily") ? safe_branch_name : branch_version;
+    def disable_cache = params.DISABLE_CACHE;
     def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
-    def disable_cache = params.DISABLE_CACHE;
+    def use_case = (params.USE_CASE == "fips") ? params.USE_CASE : "daily_tests";
+
+    def selected_distros = versioning.get_distros(
+        edition: params.EDITION,
+        use_case: use_case,
+        override: params.OVERRIDE_DISTROS
+    );
+
+    def relative_job_name = "${branch_base_folder}/builders/test-gui-e2e";
 
     currentBuild.description += (
         """
         |Run GUI E2E tests for<br>
-        |VERSION: ${params.VERSION}<br>
         |EDITION: ${params.EDITION}<br>
         |selected_distros: ${selected_distros}<br>
+        |VERSION: ${params.VERSION}<br>
         """.stripMargin());
 
     print(
         """
         |===== CONFIGURATION ===============================
-        |selected_distros:......... │${selected_distros}│
         |branch_name:.............. │${branch_name}│
-        |safe_branch_name:......... │${safe_branch_name}│
+        |branch_version:........... │${branch_version}│
         |cmk_version:.............. │${cmk_version}│
         |cmk_version_rc_aware:..... │${cmk_version_rc_aware}│
-        |branch_version:........... │${branch_version}│
         |docker_tag:............... │${docker_tag}│
+        |disable_cache:............ │${disable_cache}│
         |fake_artifacts:........... │${fake_artifacts}│
         |force_build:.............. │${force_build}│
-        |disable_cache:............ │${disable_cache}│
+        |safe_branch_name:......... │${safe_branch_name}│
+        |selected_distros:......... │${selected_distros}│
         |===================================================
         """.stripMargin());
-
-    def relative_job_name = "${branch_base_folder}/builders/test-gui-e2e";
 
     /// avoid failures due to leftover artifacts from prior runs
     sh("rm -rf ${checkout_dir}/test-results");

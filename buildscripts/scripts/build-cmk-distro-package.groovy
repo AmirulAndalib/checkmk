@@ -8,86 +8,82 @@
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        ["EDITION", true],
-        ["DISTRO", true],
-        ["VERSION", true],
         "CIPARAM_OVERRIDE_DOCKER_TAG_BUILD",
-        "DISABLE_CACHE",
-        "FAKE_ARTIFACTS",
         "CIPARAM_GATED_REBASE_ONTO",     // git rev of target branch tip; if set, rebase workspace onto it
+        "DISABLE_CACHE",
+        ["DISTRO", true],
+        ["EDITION", true],
+        "FAKE_ARTIFACTS",
+        ["VERSION", true],
     ]);
 
     check_environment_variables([
         "DOCKER_REGISTRY",
     ]);
 
-    def distro = params.DISTRO;
-    def edition = params.EDITION;
-    def version = params.VERSION;
-
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def bazel_logs = load("${checkout_dir}/buildscripts/scripts/utils/bazel_logs.groovy");
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def artifacts_helper = load("${checkout_dir}/buildscripts/scripts/utils/upload_artifacts.groovy");
 
-    def omd_env_vars = [
-        "DEBFULLNAME='Checkmk Team'",
-        "DEBEMAIL='feedback@checkmk.com'",
-    ];
-
     def safe_branch_name = versioning.safe_branch_name();
     def branch_version = versioning.get_branch_version(checkout_dir);
-
-    // FIXME
-    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, version);
-
+    def checkout_hash = checkout_commit_id.substring(0, 6);
+    def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, params.VERSION);
     def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
-
     def docker_tag = versioning.select_docker_tag(
         params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,  // 'build tag'
         safe_branch_name,                   // 'branch' returns '<BRANCH>-latest'
     );
 
-    def checkout_hash = checkout_commit_id.substring(0, 6);
+    def disable_cache = params.DISABLE_CACHE;
+    def distro = params.DISTRO;
+    def edition = params.EDITION;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
+    def version = params.VERSION;
+
+    def package_type = distro_package_type(distro);
+    // groovylint-disable-next-line UnusedVariable
+    def package_name = "";
+    def license_flag = edition == "community" ? '--//:repo_license="gpl"' : "";
+    def fake_artifacts_cli_arg = fake_artifacts ? "--//:use_faked_artifacts=true" : "";
+    def enable_compression = versioning.is_official_release(cmk_version_rc_aware) ? "" : "--//:low_zstd_compression=true";
+
+    def bazel_log_prefix = "bazel_log_";
+    def causes = currentBuild.getBuildCauses();
+    def omd_env_vars = [
+        "DEBFULLNAME='Checkmk Team'",
+        "DEBEMAIL='feedback@checkmk.com'",
+    ];
+    def stages = [:];
+    def triggerd_by = "";
     def workspace_hash = String.format("%06x", WORKSPACE.hashCode());
     def container_name = "build-cmk-package-${distro}-${edition}-${workspace_hash}-${checkout_hash}";
 
-    def bazel_log_prefix = "bazel_log_";
-
-    def causes = currentBuild.getBuildCauses();
-    def triggerd_by = "";
     for (cause in causes) {
         if (cause.upstreamProject != null) {
             triggerd_by += cause.upstreamProject + "/" + cause.upstreamBuild + "\n";
         }
     }
-    def package_type = distro_package_type(distro);
-    // groovylint-disable-next-line UnusedVariable
-    def package_name = "";
-    def license_flag = edition == "community" ? '--//:repo_license="gpl"' : "";
-    def fake_artifacts = params.FAKE_ARTIFACTS;
-    def fake_artifacts_cli_arg = fake_artifacts ? "--//:use_faked_artifacts=true" : "";
-    def enable_compression = versioning.is_official_release(cmk_version_rc_aware) ? "" : "--//:low_zstd_compression=true";
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
-    def disable_cache = params.DISABLE_CACHE;
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
 
     print(
         """
         |===== CONFIGURATION ===============================
-        |distro:................... │${distro}│
-        |edition:.................. │${edition}│
-        |cmk_version:.............. │${cmk_version}│
-        |safe_branch_name:......... │${safe_branch_name}│
-        |fake_artifacts:........... │${fake_artifacts}│
-        |force_build:.............. │${force_build}│
-        |disable_cache:............ │${disable_cache}│
-        |omd_env_vars:............. │${omd_env_vars}│
-        |docker_tag:............... │${docker_tag}│
         |checkout_dir:............. │${checkout_dir}│
         |container_name:........... │${container_name}│
-        |triggerd_by:.............. │${triggerd_by}│
+        |cmk_version:.............. │${cmk_version}│
+        |disable_cache:............ │${disable_cache}│
+        |distro:................... │${distro}│
+        |docker_tag:............... │${docker_tag}│
+        |edition:.................. │${edition}│
+        |fake_artifacts:........... │${fake_artifacts}│
+        |force_build:.............. │${force_build}│
+        |omd_env_vars:............. │${omd_env_vars}│
         |package_type:............. │${package_type}│
+        |safe_branch_name:......... │${safe_branch_name}│
+        |triggerd_by:.............. │${triggerd_by}│
         |===================================================
         """.stripMargin());
 
@@ -121,8 +117,6 @@ void main() {
             }
         }
     }
-
-    def stages = [:];
 
     if (!fake_artifacts) {
         stages += package_helper.provide_agent_binaries(

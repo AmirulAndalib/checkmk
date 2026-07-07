@@ -11,54 +11,56 @@
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        ["EDITION", true],
-        ["DISTRO", true],
-        ["VERSION", true],
+        "CIPARAM_GATED_REBASE_ONTO",     // git rev of target branch tip; if set, rebase workspace onto it
         "CIPARAM_OVERRIDE_DOCKER_TAG_BUILD",
         "DISABLE_CACHE",
+        ["DISTRO", true],
+        ["EDITION", true],
         "FAKE_ARTIFACTS",
-        "CIPARAM_GATED_REBASE_ONTO",     // git rev of target branch tip; if set, rebase workspace onto it
+        ["VERSION", true],
     ]);
-
-    def distro = params.DISTRO;
-    def edition = params.EDITION;
-    def version = params.VERSION;
-    def disable_cache = params.DISABLE_CACHE;
-    def fake_artifacts = params.FAKE_ARTIFACTS;
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
 
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
 
     def safe_branch_name = versioning.safe_branch_name();
-    def branch_version = versioning.get_branch_version(checkout_dir);
     def branch_base_folder = package_helper.branch_base_folder(false);
-
+    def branch_version = versioning.get_branch_version(checkout_dir);
+    def causes = currentBuild.getBuildCauses();
     def cmk_version_rc_aware = versioning.get_cmk_version(safe_branch_name, branch_version, version);
     def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
 
-    def causes = currentBuild.getBuildCauses();
+    def disable_cache = params.DISABLE_CACHE;
+    def disable_signing = params.DISABLE_SIGNING;
+    def distro = params.DISTRO;
+    def edition = params.EDITION;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
+    def version = params.VERSION;
+
+    def bazel_log_prefix = "bazel_log_";
+    def signing_build_instance = null;
     def triggerd_by = "";
+
     for (cause in causes) {
         if (cause.upstreamProject != null) {
             triggerd_by += cause.upstreamProject + "/" + cause.upstreamBuild + "\n";
         }
     }
-    def bazel_log_prefix = "bazel_log_";
-    def signing_build_instance = null;
 
     print(
         """
         |===== CONFIGURATION ===============================
+        |checkout_dir:............. │${checkout_dir}│
+        |disable_cache:............ │${disable_cache}│
+        |disable_signing:.......... │${disable_signing}│
         |distro:................... │${distro}│
         |edition:.................. │${edition}│
-        |safe_branch_name:......... │${safe_branch_name}│
-        |checkout_dir:............. │${checkout_dir}│
-        |triggerd_by:.............. │${triggerd_by}│
         |fake_artifacts:........... │${fake_artifacts}│
-        |disable_cache:............ │${disable_cache}│
         |force_build:.............. │${force_build}│
+        |safe_branch_name:......... │${safe_branch_name}│
+        |triggerd_by:.............. │${triggerd_by}│
         |===================================================
         """.stripMargin());
 

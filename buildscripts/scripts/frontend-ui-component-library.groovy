@@ -4,13 +4,14 @@
 
 void main() {
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
+
     def safe_branch_name = versioning.safe_branch_name();
-    def output_artifacts = "bazel-bin/packages/cmk-frontend-vue/ui-component-library/dist";
 
     // The branch-specific part must not contain dots (e.g. 2.5.0),
     // because this results in an invalid branch name.
     // The pod templates uses - instead.
     def container_safe_branch_name = safe_branch_name.replace(".", "-");
+    def output_artifacts = "bazel-bin/packages/cmk-frontend-vue/ui-component-library/dist";
 
     dir("${checkout_dir}") {
         container("ubuntu-2404-${container_safe_branch_name}-latest") {
