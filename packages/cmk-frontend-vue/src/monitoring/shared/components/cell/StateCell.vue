@@ -29,18 +29,12 @@ defineProps<StateCellProps>()
   <BaseCell :column-id="columnId">
     <template #default>
       <div class="monitoring-state-cell">
-        <HostStateDisplay :state="state" class="monitoring-state-cell__tag" />
+        <HostStateDisplay :state="state" :pending="pending" class="monitoring-state-cell__tag" />
         <CmkMultitoneIcon
           v-if="stale"
           name="stale"
           primary-color="font"
           :title="_t('Stale state')"
-        />
-        <CmkMultitoneIcon
-          v-if="pending"
-          name="reload"
-          primary-color="font"
-          :title="_t('Pending')"
         />
       </div>
     </template>

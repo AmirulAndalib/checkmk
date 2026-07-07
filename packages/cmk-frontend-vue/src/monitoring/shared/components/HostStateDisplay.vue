@@ -13,11 +13,14 @@ import CmkTag, { type Colors } from '@/components/CmkTag.vue'
 
 import type { HostState } from '@/monitoring/shared/api/types'
 
-const props = defineProps<{ state: HostState }>()
+const props = defineProps<{ state: HostState; pending?: boolean | undefined }>()
 
 const { _t } = usei18n()
 
 const stateLabel = computed<TranslatedString>(() => {
+  if (props.pending) {
+    return _t('PEND')
+  }
   switch (props.state) {
     case 'UP':
       return _t('UP')
@@ -30,6 +33,9 @@ const stateLabel = computed<TranslatedString>(() => {
 })
 
 const stateColor = computed<Colors>(() => {
+  if (props.pending) {
+    return 'default'
+  }
   switch (props.state) {
     case 'UP':
       return 'success'
