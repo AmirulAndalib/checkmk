@@ -408,14 +408,13 @@ class HTMLGenerator(HTMLWriter):
     def html_head(
         self,
         title: str,
-        force: bool = False,
         *,
         lang: str,
         inject_js_profiling_code: bool,
         load_frontend_vue: str,
         custom_style_sheet: str | None,
     ) -> None:
-        if force or not self._header_sent:
+        if not self._header_sent:
             self.write_html(HTML.without_escaping("<!DOCTYPE HTML>\n"))
             self.open_html(lang=lang)
             self._head(
@@ -430,7 +429,6 @@ class HTMLGenerator(HTMLWriter):
     def body_start(
         self,
         title: str = "",
-        force: bool = False,
         *,
         lang: str,
         inject_js_profiling_code: bool,
@@ -441,7 +439,6 @@ class HTMLGenerator(HTMLWriter):
     ) -> None:
         self.html_head(
             title,
-            force,
             lang=lang,
             inject_js_profiling_code=inject_js_profiling_code,
             load_frontend_vue=load_frontend_vue,

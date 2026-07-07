@@ -20,7 +20,6 @@ def make_header(
     title: str,
     breadcrumb: Breadcrumb,
     page_menu: PageMenu | None = None,
-    force: bool = False,
     show_body_start: bool = True,
     show_top_heading: bool = True,
     enable_main_page_scrollbar: bool = True,
@@ -52,7 +51,6 @@ def make_header(
         else:
             writer.body_start(
                 title,
-                force=force,
                 lang=lang,
                 inject_js_profiling_code=inject_js_profiling_code,
                 load_frontend_vue=load_frontend_vue,
