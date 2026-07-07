@@ -75,6 +75,44 @@ class _Manifest(typing.NamedTuple):
     stage1: str
 
 
+@lru_cache(maxsize=1)
+def _load_vue_manifest() -> _Manifest:
+    base = cmk.utils.paths.web_dir / "htdocs/cmk-frontend-vue"
+    with (base / ".manifest.json").open() as fo:
+        manifest = json.load(fo)
+
+    main = f"cmk-frontend-vue/{manifest['src/main.ts']['file']}"
+    main_stylesheets = _collect_stylesheets(manifest, "src/main.ts")
+    nav_sidebar = f"cmk-frontend-vue/{manifest['src/nav_sidebar.ts']['file']}"
+    nav_sidebar_stylesheets = _collect_stylesheets(manifest, "src/nav_sidebar.ts")
+    stage1 = f"cmk-frontend-vue/{manifest['src/stage1.ts']['file']}"
+    return _Manifest(main, main_stylesheets, nav_sidebar, nav_sidebar_stylesheets, stage1)
+
+
+def _collect_stylesheets(
+    manifest: Mapping[str, Any], entry_key: str, _seen: set[str] | None = None
+) -> list[str]:
+    """Recursively walk the import graph to collect every stylesheet.
+
+    An entry's "css" only lists the stylesheets of its own chunk. CSS
+    emitted for statically imported (shared) chunks lives under those
+    chunks' own manifest entries. Dependencies come first so shared/base
+    styles load before entry specific overrides.
+    """
+    seen = _seen if _seen is not None else set()
+    if entry_key in seen:
+        return []
+    seen.add(entry_key)
+    entry = manifest[entry_key]
+    stylesheets: list[str] = []
+    for imported in entry.get("imports", []):
+        stylesheets += _collect_stylesheets(manifest, imported, seen)
+    for stylesheet in entry.get("css", []):
+        if stylesheet not in stylesheets:
+            stylesheets.append(stylesheet)
+    return stylesheets
+
+
 EncType = typing.Literal[
     "application/x-url-encoded",
     "application/x-www-form-urlencoded",
@@ -281,45 +319,8 @@ class HTMLGenerator(HTMLWriter):
 
         self.close_head()
 
-    @lru_cache
-    def _load_vue_manifest(self) -> _Manifest:
-        base = cmk.utils.paths.web_dir / "htdocs/cmk-frontend-vue"
-        with (base / ".manifest.json").open() as fo:
-            manifest = json.load(fo)
-
-        main = f"cmk-frontend-vue/{manifest['src/main.ts']['file']}"
-        main_stylesheets = self._collect_stylesheets(manifest, "src/main.ts")
-        nav_sidebar = f"cmk-frontend-vue/{manifest['src/nav_sidebar.ts']['file']}"
-        nav_sidebar_stylesheets = self._collect_stylesheets(manifest, "src/nav_sidebar.ts")
-        stage1 = f"cmk-frontend-vue/{manifest['src/stage1.ts']['file']}"
-        return _Manifest(main, main_stylesheets, nav_sidebar, nav_sidebar_stylesheets, stage1)
-
-    @staticmethod
-    def _collect_stylesheets(
-        manifest: Mapping[str, Any], entry_key: str, _seen: set[str] | None = None
-    ) -> list[str]:
-        """Recursively walk the import graph to collect every stylesheet.
-
-        An entry's "css" only lists the stylesheets of its own chunk. CSS
-        emitted for statically imported (shared) chunks lives under those
-        chunks' own manifest entries. Dependencies come first so shared/base
-        styles load before entry specific overrides.
-        """
-        seen = _seen if _seen is not None else set()
-        if entry_key in seen:
-            return []
-        seen.add(entry_key)
-        entry = manifest[entry_key]
-        stylesheets: list[str] = []
-        for imported in entry.get("imports", []):
-            stylesheets += HTMLGenerator._collect_stylesheets(manifest, imported, seen)
-        for stylesheet in entry.get("css", []):
-            if stylesheet not in stylesheets:
-                stylesheets.append(stylesheet)
-        return stylesheets
-
     def _inject_vue_frontend(self, load_frontend_vue: str) -> None:
-        manifest = self._load_vue_manifest()
+        manifest = _load_vue_manifest()
         if load_frontend_vue == "inject":
             # stage1 will try to load the hot reloading files. if this fails,
             # an error will be shown and the fallback files will be loaded.

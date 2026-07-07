@@ -13,7 +13,7 @@ from werkzeug.test import create_environ
 
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.htmllib.generator import HTMLWriter
-from cmk.gui.htmllib.html import html, HTMLGenerator
+from cmk.gui.htmllib.html import _collect_stylesheets, html
 from cmk.gui.http import Request
 from cmk.gui.logged_in import LoggedInUser, user
 from cmk.gui.utils.html import HTML
@@ -350,4 +350,4 @@ def test_render_a_with_makeuri_contextless() -> None:
 def test_collect_stylesheets(
     manifest: dict[str, dict[str, list[str]]], entry_key: str, expected: list[str]
 ) -> None:
-    assert HTMLGenerator._collect_stylesheets(manifest, entry_key) == expected
+    assert _collect_stylesheets(manifest, entry_key) == expected
