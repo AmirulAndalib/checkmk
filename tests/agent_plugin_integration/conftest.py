@@ -157,7 +157,7 @@ class OracleDatabase:
                     f"DBUSER='{self.cmk_username}:{self.cmk_password}::localhost:{self.PORT}:{self.SID}'",
                 ]
             ),
-            self.cmk_wallet_cfg.name: "\n".join(
+            self.cmk_wallet_cfg.name: "\n".join(  # noqa: FLY002
                 [
                     "MAX_TASKS=10",
                     "DBUSER='/:'",

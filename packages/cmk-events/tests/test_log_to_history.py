@@ -37,15 +37,6 @@ def test_notification_result_message() -> None:
     actual = notification_result_message(
         plugin, NotificationContext({"CONTACTNAME": "harri", "HOSTNAME": "test"}), exit_code, output
     )
-    fields = ";".join(
-        (
-            "harri",
-            "test",
-            "OK",
-            "bulk asciimail",
-            "",
-            "",
-        )
-    )
+    fields = "harri;test;OK;bulk asciimail;;"
     expected = f"HOST NOTIFICATION RESULT: {fields}"
     assert actual == expected

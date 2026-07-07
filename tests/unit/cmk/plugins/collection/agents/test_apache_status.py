@@ -16,7 +16,7 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from cmk.plugins.collection.agents import apache_status
 
-RESPONSE = "\n".join(("1st line", "2nd line", "3rd line"))
+RESPONSE = "\n".join(("1st line", "2nd line", "3rd line"))  # noqa: FLY002
 
 
 @pytest.fixture

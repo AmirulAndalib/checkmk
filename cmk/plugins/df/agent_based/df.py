@@ -145,7 +145,7 @@ def _handle_block_devices(
             else:  # mountpoint_for_block_devices == ItemBehaviour.volume_name
                 suffix = df_block.device
 
-            mountpoint = " ".join([df_block.fs_type, suffix])
+            mountpoint = f"{df_block.fs_type} {suffix}"
 
             df_block = DfBlock(
                 device=df_block.device,

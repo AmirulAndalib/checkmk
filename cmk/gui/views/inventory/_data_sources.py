@@ -141,8 +141,8 @@ class RowTableInventory(ABCRowTable):
         for table_row in table_rows:
             row: dict[str, SDValue | RetentionInterval | None] = {}
             for key, (value, retention_interval) in table_row.items():
-                row["_".join([info_name, key])] = value
-                row["_".join([info_name, key, "retention_interval"])] = retention_interval
+                row[f"{info_name}_{key}"] = value
+                row[f"{info_name}_{key}_retention_interval"] = retention_interval
             yield row
 
 

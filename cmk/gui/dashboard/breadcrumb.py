@@ -242,7 +242,7 @@ def kubernetes_dashboard_breadcrumb(
         if obj_name := context.get(k8s_ids[obj_type], {}).get(k8s_ids[obj_type]):
             title = f"{obj_type_camelcase} {obj_name}"
             add_vars.append((k8s_ids[obj_type], obj_name))
-            host_name = "_".join([obj_type, cluster_name, namespace_name, obj_name])
+            host_name = f"{obj_type}_{cluster_name}_{namespace_name}_{obj_name}"
             breadcrumb.append(
                 BreadcrumbItem(
                     title,

@@ -94,12 +94,10 @@ class SidebarSnapinCMAWebconf(SidebarSnapin):
             encoding="utf-8",
             shell=False,
             close_fds=True,
-            input="\n".join(
-                [
-                    "import imp",
-                    'cma_nav = imp.load_source("cma_nav", "/usr/lib/python2.7/cma_nav.py")',
-                    "print(cma_nav.modules())",
-                ]
+            input=(
+                "import imp\n"
+                'cma_nav = imp.load_source("cma_nav", "/usr/lib/python2.7/cma_nav.py")\n'
+                "print(cma_nav.modules())"
             ),
             check=False,
         )

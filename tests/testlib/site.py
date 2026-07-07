@@ -1176,7 +1176,7 @@ class Site:
         self.makedirs("etc/apache/conf.d")
         self.write_file(
             "etc/apache/conf.d/tune-server-pool.conf",
-            "\n".join(
+            "\n".join(  # noqa: FLY002
                 [
                     "MinSpareServers 1",
                     "MaxSpareServers 2",
@@ -1190,7 +1190,7 @@ class Site:
         self.makedirs("etc/check_mk/conf.d")
         self.write_file(
             "etc/check_mk/conf.d/cmc-helpers.mk",
-            "\n".join(
+            "\n".join(  # noqa: FLY002
                 [
                     "cmc_check_helpers = 2",
                     "cmc_fetcher_helpers = 2",

@@ -90,35 +90,25 @@ def test_discover_mongodb_replica_set() -> None:
     [
         [
             _STRING_TABLE,
-            "\n".join(
-                (
-                    "",
-                    "source: mvgenmongodb02:27017",
-                    "syncedTo: 2022-08-01 10:28:52 (UTC)",
-                    "member (mvgenmongodb02:27017) is 1s (0h) behind primary (mvgenmongodb01:27017)",
-                    "",
-                    "source: mvgenmongodb03:27017",
-                    "syncedTo: 2022-08-01 10:28:53 (UTC)",
-                    "member (mvgenmongodb03:27017) is 0s (0h) behind primary (mvgenmongodb01:27017)",
-                    "",
-                )
-            ),
+            "\n"
+            "source: mvgenmongodb02:27017\n"
+            "syncedTo: 2022-08-01 10:28:52 (UTC)\n"
+            "member (mvgenmongodb02:27017) is 1s (0h) behind primary (mvgenmongodb01:27017)\n"
+            "\n"
+            "source: mvgenmongodb03:27017\n"
+            "syncedTo: 2022-08-01 10:28:53 (UTC)\n"
+            "member (mvgenmongodb03:27017) is 0s (0h) behind primary (mvgenmongodb01:27017)\n",
         ],
         [
             _STRING_TABLE_PYMONGO_3,
-            "\n".join(
-                (
-                    "",
-                    "source: bbbbbbbbbbbbbbbbbbbbbb.bbbbbb:27017",
-                    "syncedTo: 2024-05-13 12:41:07 (UTC)",
-                    "member (bbbbbbbbbbbbbbbbbbbbbb.bbbbbb:27017) is 2s (0h) behind primary (aaaaaaaaaaaaaaaaaaaaaa.aaaaaa:27017)",
-                    "",
-                    "source: cccccccccccccccccccccc.cccccc:27017",
-                    "syncedTo: 2024-05-13 12:41:07 (UTC)",
-                    "member (cccccccccccccccccccccc.cccccc:27017) is 2s (0h) behind primary (aaaaaaaaaaaaaaaaaaaaaa.aaaaaa:27017)",
-                    "",
-                )
-            ),
+            "\n"
+            "source: bbbbbbbbbbbbbbbbbbbbbb.bbbbbb:27017\n"
+            "syncedTo: 2024-05-13 12:41:07 (UTC)\n"
+            "member (bbbbbbbbbbbbbbbbbbbbbb.bbbbbb:27017) is 2s (0h) behind primary (aaaaaaaaaaaaaaaaaaaaaa.aaaaaa:27017)\n"
+            "\n"
+            "source: cccccccccccccccccccccc.cccccc:27017\n"
+            "syncedTo: 2024-05-13 12:41:07 (UTC)\n"
+            "member (cccccccccccccccccccccc.cccccc:27017) is 2s (0h) behind primary (aaaaaaaaaaaaaaaaaaaaaa.aaaaaa:27017)\n",
         ],
     ],
 )

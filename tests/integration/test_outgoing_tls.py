@@ -44,18 +44,14 @@ def test_openssl_overwrite_ssl(site: Site, tmp_path: Path, tls_version: ssl.TLSV
         site_openssl_cnf_path = Path(site_temp_str) / "openssl.cnf"
         site.write_file(
             site_openssl_cnf_path,
-            "\n".join(
-                (
-                    "openssl_conf = openssl_init",
-                    "[openssl_init]",
-                    "ssl_conf = ssl_configuration",
-                    "[ssl_configuration]",
-                    "system_default = policy",
-                    "[policy]",
-                    "MinProtocol = TLSv1",
-                    "CipherString = DEFAULT:@SECLEVEL=0",
-                )
-            ),
+            "openssl_conf = openssl_init\n"
+            "[openssl_init]\n"
+            "ssl_conf = ssl_configuration\n"
+            "[ssl_configuration]\n"
+            "system_default = policy\n"
+            "[policy]\n"
+            "MinProtocol = TLSv1\n"
+            "CipherString = DEFAULT:@SECLEVEL=0",
         )
         with tls_listening_socket(tmp_path, tls_version) as (port, ca_path):
             site.write_file(site_ca_path, ca_path.read_text())

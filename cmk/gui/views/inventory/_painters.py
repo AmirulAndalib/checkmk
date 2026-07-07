@@ -415,7 +415,7 @@ def _paint_host_inventory_column(row: Row, hint: ColumnDisplayHintOfView) -> Cel
             key=SDKey(hint.name),
             title=hint.title,
             value=row[hint.name],
-            retention_interval=row.get("_".join([hint.name, "retention_interval"])),
+            retention_interval=row.get(f"{hint.name}_retention_interval"),
             paint_function=hint.paint_function,
             icon_path_svc_problems=theme.detect_icon_path("svc_problems", "icon_"),
         ).compute_td_spec(time.time()),

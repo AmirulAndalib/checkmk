@@ -1299,7 +1299,7 @@ def fetch_counters_syntax(
     )
 
     return {
-        id_: {"key": ".".join((group, name)), "name": name, "group": group, "unit": unit}
+        id_: {"key": f"{group}.{name}", "name": name, "group": group, "unit": unit}
         for id_, name, group, unit in elements
     }
 

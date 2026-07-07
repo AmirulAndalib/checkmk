@@ -220,9 +220,7 @@ def get_labels_from_core(
     all_labels = _get_labels_from_livestatus(label_type, query_livestatus)
     if search_label is None:
         return list(all_labels)
-    return [
-        (ident, value) for ident, value in all_labels if search_label in ":".join([ident, value])
-    ]
+    return [(ident, value) for ident, value in all_labels if search_label in f"{ident}:{value}"]
 
 
 def _get_labels_from_livestatus(

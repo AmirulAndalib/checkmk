@@ -27,6 +27,7 @@ select = [
   "C90",    # mccabe
   "E",      # pycodestyle (error)
   "F",      # pyflakes
+  "FLY",    # flake8: flynt
   "G",      # flake8: logging format
   "N804",   # pep8-naming: invalid-first-argument-name-for-class-method (cls)
   "N805",   # pep8-naming: invalid-first-argument-name-for-method (self)
@@ -146,14 +147,16 @@ ignore = [
 "agents/modules/*" = ["T20"]
 # Agent plugins still need to support Python 3.4
 "agents/plugins/*" = [
-  "UP007", # PEP 604 (Allow writing union types as X | Y) is a Python 3.10 feature
-  "UP032", # PEP 498 (Literal String Interpolation) is a Python 3.6 feature
-  "UP041", # socket.timeout is an alias of TimeoutError only for Python >= 3.10
+  "FLY002", # flake8-flynt introduces f-strings (Python 3.6 feature)
+  "UP007",  # PEP 604 (Allow writing union types as X | Y) is a Python 3.10 feature
+  "UP032",  # PEP 498 (Literal String Interpolation) is a Python 3.6 feature
+  "UP041",  # socket.timeout is an alias of TimeoutError only for Python >= 3.10
 ]
 "cmk/plugins/*/agents/*.py" = [
-  "UP007", # PEP 604 (Allow writing union types as X | Y) is a Python 3.10 feature
-  "UP032", # PEP 498 (Literal String Interpolation) is a Python 3.6 feature
-  "UP041", # socket.timeout is an alias of TimeoutError only for Python >= 3.10
+  "FLY002", # flake8-flynt introduces f-strings (Python 3.6 feature)
+  "UP007",  # PEP 604 (Allow writing union types as X | Y) is a Python 3.10 feature
+  "UP032",  # PEP 498 (Literal String Interpolation) is a Python 3.6 feature
+  "UP041",  # socket.timeout is an alias of TimeoutError only for Python >= 3.10
 ]
 "tests/agent-plugin-unit/*" = [
   "UP006", # PEP 585 (Type Hinting Generics In Standard Collections) is a Python 3.9 feature

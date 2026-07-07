@@ -86,7 +86,7 @@ class Permission(abc.ABC):
     @property
     def name(self) -> str:
         """The full identity of a permission (including the section identity)."""
-        return ".".join((self.section.name, self.permission_name))
+        return f"{self.section.name}.{self.permission_name}"
 
     @property
     def sort_index(self) -> int:

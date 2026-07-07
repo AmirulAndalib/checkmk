@@ -172,7 +172,7 @@ class RulespecSubGroup(RulespecBaseGroup, abc.ABC):
 
     @property
     def name(self) -> str:
-        return "/".join([self.main_group().name, self.sub_group_name])
+        return f"{self.main_group().name}/{self.sub_group_name}"
 
     @property
     def choice_title(self) -> str:

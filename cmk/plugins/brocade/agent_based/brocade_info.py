@@ -64,7 +64,7 @@ def brocade_info_parse_wwn(val: str) -> str:
 
 def check_brocade_info(section: Sequence[StringTable]) -> CheckResult:
     model, ssn, fw, wwn = brocade_info_try_it(section)
-    data = "".join((model, ssn, fw, wwn))
+    data = f"{model}{ssn}{fw}{wwn}"
     if data != "----":
         wwn = brocade_info_parse_wwn(wwn)
         infotext = f"Model: {model}, SSN: {ssn}, Firmware Version: {fw}, WWN: {wwn}"

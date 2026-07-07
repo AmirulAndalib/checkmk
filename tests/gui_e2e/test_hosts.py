@@ -279,7 +279,7 @@ def _bypass_nslookup(test_site: Site) -> Iterator[None]:
     """
     dummy_nslookup = test_site.path("local/bin/nslookup")
 
-    _input = "\n".join(
+    _input = "\n".join(  # noqa: FLY002
         (
             "#!/bin/bash",
             "",

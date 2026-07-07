@@ -106,11 +106,7 @@ class RfMockupServer(BaseHTTPRequestHandler):
         """
         apath = self.server.mockDir
         rpath = clean_path(path, self.server.shortForm)
-        return (
-            "/".join([apath, rpath, filename])
-            if filename not in ["", None]
-            else "/".join([apath, rpath])
-        )
+        return f"{apath}/{rpath}/{filename}" if filename not in ["", None] else f"{apath}/{rpath}"
 
     def get_cached_link(self, path):
         """get_cached_link
@@ -173,11 +169,11 @@ class RfMockupServer(BaseHTTPRequestHandler):
             m.get("@odata.id").replace(self.path, "").strip("/") for m in members
         ]:
             newpath_id = pattern.format(id=n)
-        newpath = "/".join([self.path, newpath_id])
+        newpath = f"{self.path}/{newpath_id}"
         while newpath in [m.get("@odata.id") for m in members]:
             n = n + 1
             newpath_id = pattern.format(id=n)
-            newpath = "/".join([self.path, newpath_id])
+            newpath = f"{self.path}/{newpath_id}"
         members.append({"@odata.id": newpath})
         data_received["@odata.id"] = newpath
         data_received["Id"] = newpath_id

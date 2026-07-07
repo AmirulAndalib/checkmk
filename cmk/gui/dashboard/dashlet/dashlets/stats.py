@@ -383,26 +383,24 @@ class HostStatsDashletDataGenerator(StatsDashletDataGenerator[HostStats]):
 
     @classmethod
     def _stats_query(cls) -> str:
-        return "\n".join(
-            [
-                "GET hosts",
-                # Up
-                "Stats: state = 0",
-                "Stats: scheduled_downtime_depth = 0",
-                "StatsAnd: 2",
-                # Downtime
-                "Stats: scheduled_downtime_depth > 0",
-                # Unreachable
-                "Stats: state = 2",
-                "Stats: scheduled_downtime_depth = 0",
-                "StatsAnd: 2",
-                # Down
-                "Stats: state = 1",
-                "Stats: scheduled_downtime_depth = 0",
-                "StatsAnd: 2",
-                # Filter
-                "Filter: custom_variable_names < _REALNAME",
-            ]
+        return (
+            "GET hosts\n"
+            # Up
+            "Stats: state = 0\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "StatsAnd: 2\n"
+            # Downtime
+            "Stats: scheduled_downtime_depth > 0\n"
+            # Unreachable
+            "Stats: state = 2\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "StatsAnd: 2\n"
+            # Down
+            "Stats: state = 1\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "StatsAnd: 2\n"
+            # Filter
+            "Filter: custom_variable_names < _REALNAME"
         )
 
 
@@ -423,49 +421,47 @@ class ServiceStatsDashletDataGenerator(StatsDashletDataGenerator[ServiceStats]):
 
     @classmethod
     def _stats_query(cls) -> str:
-        return "\n".join(
-            [
-                "GET services",
-                # OK
-                "Stats: state = 0",
-                "Stats: scheduled_downtime_depth = 0",
-                "Stats: host_scheduled_downtime_depth = 0",
-                "Stats: host_state = 0",
-                "Stats: host_has_been_checked = 1",
-                "StatsAnd: 5",
-                # Downtime
-                "Stats: scheduled_downtime_depth > 0",
-                "Stats: host_scheduled_downtime_depth > 0",
-                "StatsOr: 2",
-                # Down host
-                "Stats: scheduled_downtime_depth = 0",
-                "Stats: host_scheduled_downtime_depth = 0",
-                "Stats: host_state != 0",
-                "StatsAnd: 3",
-                # Warning
-                "Stats: state = 1",
-                "Stats: scheduled_downtime_depth = 0",
-                "Stats: host_scheduled_downtime_depth = 0",
-                "Stats: host_state = 0",
-                "Stats: host_has_been_checked = 1",
-                "StatsAnd: 5",
-                # Unknown
-                "Stats: state = 3",
-                "Stats: scheduled_downtime_depth = 0",
-                "Stats: host_scheduled_downtime_depth = 0",
-                "Stats: host_state = 0",
-                "Stats: host_has_been_checked = 1",
-                "StatsAnd: 5",
-                # Critical
-                "Stats: state = 2",
-                "Stats: scheduled_downtime_depth = 0",
-                "Stats: host_scheduled_downtime_depth = 0",
-                "Stats: host_state = 0",
-                "Stats: host_has_been_checked = 1",
-                "StatsAnd: 5",
-                # Filter
-                "Filter: host_custom_variable_names < _REALNAME",
-            ]
+        return (
+            "GET services\n"
+            # OK
+            "Stats: state = 0\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "Stats: host_scheduled_downtime_depth = 0\n"
+            "Stats: host_state = 0\n"
+            "Stats: host_has_been_checked = 1\n"
+            "StatsAnd: 5\n"
+            # Downtime
+            "Stats: scheduled_downtime_depth > 0\n"
+            "Stats: host_scheduled_downtime_depth > 0\n"
+            "StatsOr: 2\n"
+            # Down host
+            "Stats: scheduled_downtime_depth = 0\n"
+            "Stats: host_scheduled_downtime_depth = 0\n"
+            "Stats: host_state != 0\n"
+            "StatsAnd: 3\n"
+            # Warning
+            "Stats: state = 1\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "Stats: host_scheduled_downtime_depth = 0\n"
+            "Stats: host_state = 0\n"
+            "Stats: host_has_been_checked = 1\n"
+            "StatsAnd: 5\n"
+            # Unknown
+            "Stats: state = 3\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "Stats: host_scheduled_downtime_depth = 0\n"
+            "Stats: host_state = 0\n"
+            "Stats: host_has_been_checked = 1\n"
+            "StatsAnd: 5\n"
+            # Critical
+            "Stats: state = 2\n"
+            "Stats: scheduled_downtime_depth = 0\n"
+            "Stats: host_scheduled_downtime_depth = 0\n"
+            "Stats: host_state = 0\n"
+            "Stats: host_has_been_checked = 1\n"
+            "StatsAnd: 5\n"
+            # Filter
+            "Filter: host_custom_variable_names < _REALNAME"
         )
 
 
@@ -497,7 +493,7 @@ class EventStatsDashletDataGenerator(StatsDashletDataGenerator[EventStats]):
         # In case the user is not allowed to see unrelated events
         ec_filters = ""
         if not user.may("mkeventd.seeall") and not user.may("mkeventd.seeunrelated"):
-            ec_filters = "\n".join(
+            ec_filters = "\n".join(  # noqa: FLY002
                 [
                     "Filter: event_contact_groups != ",
                     "Filter: host_name != ",
@@ -506,14 +502,9 @@ class EventStatsDashletDataGenerator(StatsDashletDataGenerator[EventStats]):
             )
 
         return (
-            "\n".join(
-                [
-                    "GET eventconsoleevents",
-                    "Stats: event_state = 0",  # ok
-                    "Stats: event_state = 1",  # warning
-                    "Stats: event_state = 3",  # unknown
-                    "Stats: event_state = 2",  # critical
-                ]
-            )
-            + ec_filters
+            "GET eventconsoleevents\n"
+            "Stats: event_state = 0\n"  # ok
+            "Stats: event_state = 1\n"  # warning
+            "Stats: event_state = 3\n"  # unknown
+            "Stats: event_state = 2" + ec_filters  # critical
         )

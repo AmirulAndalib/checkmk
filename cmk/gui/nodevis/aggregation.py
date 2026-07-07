@@ -275,8 +275,8 @@ class NodeVisualizationBIDataMapper:
             if self._is_single_host_aggregation:
                 node_data["name"] = bi_compiled_leaf.service_description
             else:
-                node_data["name"] = " ".join(
-                    [bi_compiled_leaf.host_name, bi_compiled_leaf.service_description]
+                node_data["name"] = (
+                    f"{bi_compiled_leaf.host_name} {bi_compiled_leaf.service_description}"
                 )
         return node_data
 

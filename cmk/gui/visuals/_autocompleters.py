@@ -139,7 +139,7 @@ def label_autocompleter(config: Config, value: str, params: dict) -> Choices:
         search_label=value,
         object_type=object_type,
     )
-    label_choices: Choices = [((":".join([id_, val])),) * 2 for id_, val in all_labels]
+    label_choices: Choices = [((f"{id_}:{val}"),) * 2 for id_, val in all_labels]
 
     if filtered_choices := [
         (id_, val) for id_, val in sorted(set(label_choices)) if id_ not in group_labels

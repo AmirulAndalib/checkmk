@@ -49,18 +49,16 @@ def test_query_builder_nested_conditions_and_nodes() -> None:
     )
 
     value = parse_as_livestatus_filter(nodes)
-    expected = "\n".join(
-        [
-            "Filter: name ~~ heute",
-            "Filter: name ~ gestern",
-            "Filter: num_services = 42",
-            "Or: 2",
-            "Filter: acknowledged = 1",
-            "Filter: alias ~ Zukunft",
-            "Or: 2",
-            "Negate:",
-            "And: 3",
-        ]
+    expected = (
+        "Filter: name ~~ heute\n"
+        "Filter: name ~ gestern\n"
+        "Filter: num_services = 42\n"
+        "Or: 2\n"
+        "Filter: acknowledged = 1\n"
+        "Filter: alias ~ Zukunft\n"
+        "Or: 2\n"
+        "Negate:\n"
+        "And: 3"
     )
 
     assert value == expected
@@ -131,7 +129,7 @@ def test_query_builder_state_choice_multiple_with_or() -> None:
     )
 
     value = parse_as_livestatus_filter(condition)
-    expected = "\n".join(
+    expected = "\n".join(  # noqa: FLY002
         [
             "Filter: state = 1",
             "Filter: state = 2",

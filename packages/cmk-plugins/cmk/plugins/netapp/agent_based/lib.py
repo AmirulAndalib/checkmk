@@ -159,7 +159,7 @@ def single_volume_metrics(
     time_now: float,
 ) -> Iterable[Metric]:
     def _create_key(protocol: str, mode: str, field: str) -> str:
-        return "_".join([protocol, mode, field]) if protocol else "_".join([mode, field])
+        return f"{protocol}_{mode}_{field}" if protocol else f"{mode}_{field}"
 
     base = {}
     metrics_map = {"write_ops": "write_ops_s"}

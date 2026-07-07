@@ -71,14 +71,12 @@ class _ProxmoxVeSession:
                 {"PVEAuthCookie": session.auth.pve_auth_cookie}
             )
             session.headers["Connection"] = "keep-alive"
-            session.headers["accept"] = ", ".join(
-                (
-                    "application/json",
-                    "application/x-javascript",
-                    "text/javascript",
-                    "text/x-javascript",
-                    "text/x-json",
-                )
+            session.headers["accept"] = (
+                "application/json, "
+                "application/x-javascript, "
+                "text/javascript, "
+                "text/x-javascript, "
+                "text/x-json"
             )
             return session
 

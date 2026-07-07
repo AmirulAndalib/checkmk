@@ -488,7 +488,7 @@ def aws_region_to_monitor() -> list[tuple[str, str]]:
         *sorted((r for r in AWS_REGIONS if "GovCloud" not in r[1]), key=key),
         *sorted((r for r in AWS_REGIONS if "GovCloud" in r[1]), key=key),
     ]
-    return [(id_, " | ".join((region, id_))) for id_, region in regions_by_display_order]
+    return [(id_, f"{region} | {id_}") for id_, region in regions_by_display_order]
 
 
 def get_region_from_item(item: str) -> str:
