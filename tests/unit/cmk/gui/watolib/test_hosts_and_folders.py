@@ -1420,3 +1420,53 @@ def test_host_action_menu_registry_keys_by_ident() -> None:
 
     assert registry["show_demo_link"] is entry
     assert list(registry.values()) == [entry]
+
+
+def test_folder_attributes_for_base_config_without_bake_attribute(tree: FolderTree) -> None:
+    folder = hosts_and_folders.Folder.new(
+        tree=tree,
+        name="no_baking",
+        parent_folder=tree.root_folder(),
+        attributes=HostAttributes({"cmk_agent_connection": "push-agent"}),
+    )
+
+    assert folder._folder_attributes_for_base_config() == {}
+
+
+def test_folder_attributes_for_base_config_defaults_to_pull_mode(tree: FolderTree) -> None:
+    folder = hosts_and_folders.Folder.new(
+        tree=tree,
+        name="baking",
+        parent_folder=tree.root_folder(),
+        attributes=HostAttributes({"bake_agent_package": True}),
+    )
+
+    attributes = folder._folder_attributes_for_base_config()[folder.path_for_rule_matching()]
+    assert attributes["bake_agent_package"] is True
+    # the attribute's default value may or may not be filled in, depending on
+    # whether the edition under test registers the attribute
+    assert attributes.get("cmk_agent_connection", "pull-agent") == "pull-agent"
+
+
+def test_folder_attributes_for_base_config_exports_inherited_agent_connection(
+    tree: FolderTree,
+) -> None:
+    parent = hosts_and_folders.Folder.new(
+        tree=tree,
+        name="push_folder",
+        parent_folder=tree.root_folder(),
+        attributes=HostAttributes({"cmk_agent_connection": "push-agent"}),
+    )
+    folder = hosts_and_folders.Folder.new(
+        tree=tree,
+        name="baking",
+        parent_folder=parent,
+        attributes=HostAttributes({"bake_agent_package": True}),
+    )
+
+    assert folder._folder_attributes_for_base_config() == {
+        folder.path_for_rule_matching(): {
+            "bake_agent_package": True,
+            "cmk_agent_connection": "push-agent",
+        },
+    }
