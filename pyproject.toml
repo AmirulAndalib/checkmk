@@ -28,6 +28,7 @@ select = [
   "B020",   # flake8-bugbear: loop-variable-overrides-iterator
   "B023",   # flake8-bugbear: function-uses-loop-variable
   "B024",   # flake8-bugbear: abstract-base-class-without-abstract-method
+  "B027",   # flake8-bugbear: empty-method-without-abstract-decorator
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)

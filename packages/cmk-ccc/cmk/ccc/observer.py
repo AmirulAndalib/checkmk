@@ -39,7 +39,7 @@ class ABCResourceObserver(abc.ABC):
         raise NotImplementedError
 
     def config_has_changed(self) -> None:
-        pass
+        return
 
     def _context(self) -> str:
         return f'[cycle {self._num_check_cycles}, host "{self._hint}"]'

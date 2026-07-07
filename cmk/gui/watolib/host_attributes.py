@@ -482,6 +482,7 @@ class ABCHostAttribute(abc.ABC):
     def validate_input(self, value: Any, varprefix: str) -> None:
         """Check if the value entered by the user is valid.
         This method may raise MKUserError in case of invalid user input."""
+        return
 
     def to_nagios(self, value: Any) -> str | None:
         """If this attribute should be present in Nagios as a host custom

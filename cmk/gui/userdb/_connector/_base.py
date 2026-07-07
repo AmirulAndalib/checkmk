@@ -95,7 +95,7 @@ class UserConnector[T_Config: UserConnectionConfig](abc.ABC):
         ],
         default_user_profile: UserSpec,
     ) -> None:
-        pass
+        return
 
     # Optional: Tells whether or not the synchronization (using do_sync()
     # method) is needed.
@@ -105,7 +105,7 @@ class UserConnector[T_Config: UserConnectionConfig](abc.ABC):
     # Optional: Hook function can be registered here to be xecuted
     # to save all users.
     def save_users(self, users: dict[UserId, UserSpec]) -> None:
-        pass
+        return
 
     # List of user attributes locked for all users attached to this
     # connection. Those locked attributes are read-only in Setup.

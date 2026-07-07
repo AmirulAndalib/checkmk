@@ -73,6 +73,7 @@ class WatoMode[RequestOK](abc.ABC):
     def _from_vars(self) -> None:
         """Override this method to set mode specific attributes based on the
         given HTTP variables."""
+        return
 
     def _parse_data_from_request(self, request: Request) -> Result[RequestOK, None]:
         """Parses request and returns a data structure of type T or None"""
@@ -161,7 +162,7 @@ class WatoMode[RequestOK](abc.ABC):
         return PageMenu(breadcrumb=breadcrumb)
 
     def action(self, config: Config) -> ActionResult:
-        pass  # Yes, there are various modes without an action.
+        return None  # Yes, there are various modes without an action.
 
     @abc.abstractmethod
     def page(self, config: Config) -> None:

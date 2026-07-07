@@ -110,7 +110,7 @@ class ABCBakeryFile(ABC):
 
     # overwrite in subclass if applicable
     def add_to_line_mapping(self, _: Mapping[str, str]) -> None:
-        pass
+        return
 
     def place(
         self,

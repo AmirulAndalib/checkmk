@@ -250,6 +250,7 @@ class ValueSpec[T](abc.ABC):
         """Whether the valuespec is allowed to be left empty."""
         return True
 
+    @abc.abstractmethod
     def render_input(self, varprefix: str, value: T) -> None:
         """Create HTML-form elements that represent a given
         value and let the user edit that value
@@ -342,6 +343,7 @@ class ValueSpec[T](abc.ABC):
     # Remember: Parse, don't validate!
     def validate_datatype(self, value: T, varprefix: str) -> None:
         """Check if a given value matches the datatype of described by this class."""
+        return
 
     def _validate_value(self, value: T, varprefix: str) -> None:
         """Override this method to implement custom validation functions for sub-valuespec types
@@ -349,6 +351,7 @@ class ValueSpec[T](abc.ABC):
         This function should assume that the data type is valid (either because
         it has been returned by from_html_vars() or because it has been checked
         with validate_datatype())."""
+        return
 
     # FIXME: The signature seem to be utter nonsense...
     def transform_value(self, value: T) -> T:
