@@ -5,8 +5,9 @@
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 
-from cmk.agent_based.v2 import AgentParseFunction, HostLabelGenerator
+from cmk.agent_based.v2 import HostLabelGenerator
 
+from ._metrics_models import MetricsRecord
 from ._naming import validate_name
 
 # The host label function's signature depends on whether a ruleset is used:
@@ -128,7 +129,8 @@ class MetricsSection[Section]:
         name:                 The unique name of the section to be registered.
         selectors:            A list of selectors to apply to the metric backend
                               to filter for data.
-        parse_function:       The function to parse the raw agent data into the
+        parse_function:       The function turning the deserialized
+                              :class:`MetricsRecord` instances into the
                               section's data format.
         host_label_function:  The function responsible for extracting host labels from
                               the parsed data. For unparameterized host label functions,
@@ -221,7 +223,7 @@ class MetricsSection[Section]:
 
     name: str
     selectors: Sequence[MetricSelector]
-    parse_function: AgentParseFunction[Section]
+    parse_function: Callable[[Sequence[MetricsRecord]], Section | None]
     host_label_function: _HostLabelFunction | None = None
     host_label_default_parameters: Mapping[str, object] | None = None
     host_label_ruleset_name: str | None = None

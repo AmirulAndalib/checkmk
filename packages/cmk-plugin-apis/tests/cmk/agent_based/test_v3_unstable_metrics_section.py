@@ -5,21 +5,22 @@
 
 
 import dataclasses
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import pytest
 
-from cmk.agent_based.v2 import HostLabelGenerator, StringTable
+from cmk.agent_based.v2 import HostLabelGenerator
 from cmk.agent_based.v3_unstable import (
     GaugeAggregation,
     MetricSelector,
+    MetricsRecord,
     MetricsSection,
 )
 
 HOST_LABEL_PARAMS = {"level": "all"}
 
 
-def parse_func(_string_table: StringTable) -> dict[str, object]:
+def parse_func(_records: Sequence[MetricsRecord]) -> dict[str, object]:
     return {"": ""}
 
 

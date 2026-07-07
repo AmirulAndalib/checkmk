@@ -25,7 +25,7 @@ from cmk.agent_based.v2 import (
     StringByteTable,
     StringTable,
 )
-from cmk.agent_based.v3_unstable import MetricsSection
+from cmk.agent_based.v3_unstable import MetricsRecord, MetricsSection
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.regex import regex
 from cmk.checkengine.plugins import (
@@ -301,12 +301,21 @@ def create_metrics_section_plugin(
             host_label_ruleset_type=RuleSetType.MERGED,
         )
 
+    # The plugin's parse function operates on the deserialized records,
+    # the engine only ever sees the raw agent output: one record as one
+    # JSON document per line.
+    @functools.wraps(section_spec.parse_function)
+    def parse_function(string_table: StringTable) -> object:
+        return section_spec.parse_function(
+            [MetricsRecord.model_validate_json(line[0]) for line in string_table]
+        )
+
     return AgentSectionPlugin(
         name=section_name,
         parsed_section_name=ParsedSectionName(
             section_spec.parsed_section_name or str(section_name)
         ),
-        parse_function=section_spec.parse_function,
+        parse_function=parse_function,
         host_label_function=_create_host_label_function(section_spec.host_label_function),
         host_label_default_parameters=section_spec.host_label_default_parameters,
         host_label_ruleset_name=(

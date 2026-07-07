@@ -23,7 +23,14 @@ from cmk.agent_based.v2 import (
     StringByteTable,
     StringTable,
 )
-from cmk.agent_based.v3_unstable import MetricSelector, MetricsSection
+from cmk.agent_based.v3_unstable import (
+    AggregatedInstantGauge,
+    CustomMetricMeta,
+    MetricSelector,
+    MetricsRecord,
+    MetricsSection,
+    MetricType,
+)
 from cmk.checkengine.plugin_backend import section_plugins
 from cmk.checkengine.plugins import (
     AgentSectionPlugin,
@@ -152,7 +159,6 @@ def test_create_metrics_section_plugin() -> None:
     assert len(plugin) == 9
     assert plugin.name == SectionName("norris")
     assert plugin.parsed_section_name == ParsedSectionName("chuck")
-    assert plugin.parse_function is parse_dummy
     assert plugin.host_label_function is section_plugins._noop_host_label_function
     assert plugin.host_label_default_parameters is None
     assert plugin.host_label_ruleset_name is None
@@ -195,6 +201,41 @@ def test_create_metrics_section_plugin_host_label_ruleset() -> None:
     assert plugin.host_label_default_parameters == {"levels": ("fixed", (1, 2))}
     assert plugin.host_label_ruleset_name == RuleSetName("norris_rules")
     assert plugin.host_label_ruleset_type == "merged"
+
+
+def test_create_metrics_section_plugin_deserializes() -> None:
+    """The engine deserializes the raw agent output before calling the plugin's parse function."""
+    records = [
+        MetricsRecord(
+            filter_name="the_filter",
+            metadata=CustomMetricMeta(
+                series_id="series-1",
+                metric_type=MetricType.GAUGE,
+                name="the_metric",
+                description="A metric",
+                resource_attributes={},
+                scope_name="scope",
+                scope_version="1.0",
+                scope_attributes={},
+                attributes={},
+                unit="{units}",
+            ),
+            data=AggregatedInstantGauge(series_id="series-1", value=42.0),
+        ),
+    ]
+
+    plugin = section_plugins.create_metrics_section_plugin(
+        MetricsSection(
+            name="norris",
+            selectors=[MetricSelector(metric_name="cpu.load")],
+            parse_function=list,
+        ),
+        location=PluginLocation(module="norris", name="metrics_section_norris"),
+        validate=True,
+    )
+
+    string_table = [[record.model_dump_json()] for record in records]
+    assert plugin.parse_function(string_table) == records
 
 
 def test_create_snmp_section_plugin() -> None:
