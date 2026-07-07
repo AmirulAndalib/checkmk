@@ -47,6 +47,7 @@ py_library(
         "cmk/agent_based/v3_unstable/__init__.py",
         "cmk/agent_based/v3_unstable/_check_levels.py",
         "cmk/agent_based/v3_unstable/_checking_classes.py",
+        "cmk/agent_based/v3_unstable/_metrics_models.py",
         "cmk/agent_based/v3_unstable/_metrics_section.py",
         "cmk/agent_based/v3_unstable/_naming.py",
     ],

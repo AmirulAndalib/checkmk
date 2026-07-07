@@ -93,6 +93,15 @@ from ._check_levels import (
     PredictiveLevelsT,
 )
 from ._checking_classes import Metric
+from ._metrics_models import (
+    AggregatedInstantGauge,
+    AggregatedInstantHistogram,
+    AggregatedInstantSum,
+    AggregationTemporality,
+    CustomMetricMeta,
+    MetricsRecord,
+    MetricType,
+)
 from ._metrics_section import (
     Aggregation,
     AttributeFilter,
@@ -181,6 +190,13 @@ __all__ = [
     "SNMPDetectSpecification",
     "InventoryPlugin",
     "MetricsSection",
+    "MetricsRecord",
+    "CustomMetricMeta",
+    "MetricType",
+    "AggregationTemporality",
+    "AggregatedInstantGauge",
+    "AggregatedInstantSum",
+    "AggregatedInstantHistogram",
     "MetricSelector",
     "Aggregation",
     "GaugeAggregation",
