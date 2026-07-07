@@ -17,15 +17,14 @@ from typing import Literal
 import cmk.utils.password_store
 import cmk.utils.paths
 import cmk.utils.render
-from cmk.base.config import ConfigCache, CoreObjectsConfig, get_relay_id, ObjectAttributes
+from cmk.base.config import ConfigCache, CoreObjectsConfig, get_relay_id
 from cmk.base.configlib.fetchers import make_parsed_snmp_fetch_intervals_config
 from cmk.base.configlib.loaded_config import BaseConfig
 from cmk.base.configlib.servicename import PassiveServiceNameConfig
 from cmk.ccc import tty
 from cmk.ccc.exceptions import OnError
-from cmk.ccc.hostaddress import HostAddress, HostName, Hosts
+from cmk.ccc.hostaddress import HostName, Hosts
 from cmk.checkengine.checkerplugin import ConfiguredService
-from cmk.checkengine.fetcher import Fetcher
 from cmk.checkengine.fetcher_utils.secrets import StoredSecrets
 from cmk.checkengine.fetchers.ipmi import IPMIFetcher
 from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
@@ -33,7 +32,7 @@ from cmk.checkengine.fetchers.program import ProgramFetcher
 from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcher, SNMPFetcherConfig
 from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
-from cmk.checkengine.helper_interface import AgentRawData, SourceType
+from cmk.checkengine.helper_interface import SourceType
 from cmk.checkengine.plugins import AgentBasedPlugins, ServiceID
 from cmk.checkengine.snmplib import SNMPBackendEnum, SNMPVersion
 from cmk.checkengine.sources.api import Source, SourceBuilder
@@ -136,14 +135,6 @@ def dump_host(
     ip_address_of_mgmt: IPLookupOptional,
     simulation_mode: bool,
     timeperiod_active: IsTimeperiodActiveCallback,
-    make_metric_backend_fetcher: Callable[
-        [
-            HostAddress,
-            Callable[[HostAddress], ObjectAttributes],
-            Callable[[HostAddress], float],
-        ],
-        Fetcher[AgentRawData] | None,
-    ],
 ) -> None:
     print_("\n")
     label_manager = config_cache.label_manager
@@ -299,11 +290,8 @@ def dump_host(
                 ),
                 is_pull_host=config_cache.is_pull_host(hostname),
                 check_mk_check_interval=config_cache.check_mk_check_interval(hostname),
-                metric_backend_fetcher=make_metric_backend_fetcher(
-                    hostname,
-                    config_cache.explicit_host_attributes,
-                    config_cache.check_mk_check_interval,
-                ),
+                metrics_association=config_cache.metrics_association(hostname),
+                omd_root=cmk.utils.paths.omd_root,
             ).sources
         ]
 

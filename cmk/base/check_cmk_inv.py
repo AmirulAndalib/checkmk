@@ -227,11 +227,6 @@ def _inventory_as_check(
             ),
             secrets=secrets,
         ),
-        metric_backend_fetcher_factory=lambda hn: app.make_metric_backend_fetcher(
-            hn,
-            config_cache.explicit_host_attributes,
-            config_cache.check_mk_check_interval,
-        ),
         logger=logger,
     )
     parser = CMKParser(

@@ -35,7 +35,6 @@ from cmk.base.checkers import (
     HostLabelPluginMapper,
     SectionPluginMapper,
 )
-from cmk.base.community_app import make_app
 from cmk.base.config import ConfigCache
 from cmk.base.configlib.checkengine import DiscoveryConfig
 from cmk.base.configlib.servicename import make_final_service_name_config
@@ -1652,7 +1651,6 @@ def test_commandline_discovery(monkeypatch: MonkeyPatch) -> None:
     service_name_config = config_cache.make_passive_service_name_config(
         make_final_service_name_config(loading_result.loaded_config, config_cache.ruleset_matcher)
     )
-    app = make_app()
     fetcher = CMKFetcher(
         config_cache,
         loading_result.host_tags,
@@ -1693,11 +1691,6 @@ def test_commandline_discovery(monkeypatch: MonkeyPatch) -> None:
         secrets_config_site=StoredSecrets(
             path=Path("/pw/store"),
             secrets={},
-        ),
-        metric_backend_fetcher_factory=lambda hn: app.make_metric_backend_fetcher(
-            hn,
-            config_cache.explicit_host_attributes,
-            config_cache.check_mk_check_interval,
         ),
         logger=logger,
     )

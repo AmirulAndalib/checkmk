@@ -396,11 +396,6 @@ def _automation_service_discovery(
             path=cmk.utils.password_store.pending_secrets_path_site(),
             secrets=secrets,
         ),
-        metric_backend_fetcher_factory=lambda hn: app.make_metric_backend_fetcher(
-            hn,
-            config_cache.explicit_host_attributes,
-            config_cache.check_mk_check_interval,
-        ),
         logger=logger,
     )
     # sort clusters last, to have them operate with the new nodes host labels.
@@ -632,11 +627,6 @@ def _automation_discovery_preview(
         # avoid using cache unless prevent_fetching is set (-> fetch new data for rescan
         # and tabula rasa)
         max_cachefile_age=MaxAge.zero(),
-        metric_backend_fetcher_factory=lambda hn: app.make_metric_backend_fetcher(
-            hn,
-            config_cache.explicit_host_attributes,
-            config_cache.check_mk_check_interval,
-        ),
         logger=logger,
     )
     hosts_config = config.make_hosts_config(env.loaded_config)
@@ -1160,11 +1150,6 @@ def _execute_autodiscovery(
                 RELATIVE_PATH_SECRETS, env.latest_config_path
             ),
             secrets=secrets,
-        ),
-        metric_backend_fetcher_factory=lambda hn: app.make_metric_backend_fetcher(
-            hn,
-            env.config_cache.explicit_host_attributes,
-            env.config_cache.check_mk_check_interval,
         ),
         logger=logger,
     )
@@ -3446,11 +3431,8 @@ class AutomationDiagHost:
             ),
             is_pull_host=config_cache.is_pull_host(host_name),
             check_mk_check_interval=config_cache.check_mk_check_interval(host_name),
-            metric_backend_fetcher=app.make_metric_backend_fetcher(
-                host_name,
-                config_cache.explicit_host_attributes,
-                config_cache.check_mk_check_interval,
-            ),
+            metrics_association=config_cache.metrics_association(host_name),
+            omd_root=cmk.utils.paths.omd_root,
         ).sources:
             source_info = source.source_info()
             if source_info.fetcher_type is FetcherType.SNMP:
@@ -4036,11 +4018,8 @@ def _automation_get_agent_output(
                 ),
                 is_pull_host=env.config_cache.is_pull_host(hostname),
                 check_mk_check_interval=env.config_cache.check_mk_check_interval(hostname),
-                metric_backend_fetcher=app.make_metric_backend_fetcher(
-                    hostname,
-                    env.config_cache.explicit_host_attributes,
-                    env.config_cache.check_mk_check_interval,
-                ),
+                metrics_association=env.config_cache.metrics_association(hostname),
+                omd_root=cmk.utils.paths.omd_root,
             ).sources:
                 source_info = source.source_info()
                 if source_info.fetcher_type is FetcherType.SNMP:

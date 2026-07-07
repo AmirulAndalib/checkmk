@@ -2139,7 +2139,10 @@ class ConfigCache:
         )
 
     def _has_metric_backend(self, host_name: HostName) -> bool:
-        return "metrics_association" in self.explicit_host_attributes(host_name)
+        return self.metrics_association(host_name) is not None
+
+    def metrics_association(self, host_name: HostName) -> str | None:
+        return self.explicit_host_attributes(host_name).get("metrics_association")
 
     def is_tcp(self, host_name: HostName) -> bool:
         return self.computed_datasources(host_name).is_tcp

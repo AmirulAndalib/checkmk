@@ -11,16 +11,14 @@ from cmk.base.core.interface import MonitoringCore
 from cmk.ccc.hostaddress import HostAddress
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition
-from cmk.checkengine.fetcher import Fetcher
 from cmk.checkengine.fetcher_utils.trigger import FetcherTriggerFactory
-from cmk.checkengine.helper_interface import AgentRawData
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPPluginStore
 from cmk.licensing.handler import LicensingHandler
 from cmk.utils.labels import LabelManager, Labels
 from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
 
-from .config import ConfigCache, LoadingResult, ObjectAttributes
+from .config import ConfigCache, LoadingResult
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -46,13 +44,5 @@ class CheckmkBaseApp:
     ]
     licensing_handler_factory: Callable[[], LicensingHandler]
     make_fetcher_trigger: FetcherTriggerFactory
-    make_metric_backend_fetcher: Callable[
-        [
-            HostAddress,
-            Callable[[HostAddress], ObjectAttributes],
-            Callable[[HostAddress], float],
-        ],
-        Fetcher[AgentRawData] | None,
-    ]
     get_builtin_host_labels: Callable[[SiteId], Labels]
     core_performance_settings: Callable[[BaseConfig], Mapping[str, int]]

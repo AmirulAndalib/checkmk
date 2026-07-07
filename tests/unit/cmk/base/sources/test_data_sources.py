@@ -15,7 +15,6 @@ from typing import Literal, Never
 
 import pytest
 
-from cmk.base.community_app import make_app
 from cmk.base.config import ConfigCache, make_host_tags, make_hosts_config
 from cmk.ccc.exceptions import OnError
 from cmk.ccc.hostaddress import HostAddress, HostName
@@ -58,7 +57,6 @@ def _make_sources(
     # to test.
     ipaddress = HostAddress("127.0.0.1")
     ip_family: Literal[socket.AddressFamily.AF_INET] = socket.AddressFamily.AF_INET
-    app = make_app()
     return SourceBuilder(
         AgentBasedPlugins.empty(),
         hostname,
@@ -112,11 +110,8 @@ def _make_sources(
         ),
         is_pull_host=config_cache.is_pull_host(hostname),
         check_mk_check_interval=config_cache.check_mk_check_interval(hostname),
-        metric_backend_fetcher=app.make_metric_backend_fetcher(
-            hostname,
-            config_cache.explicit_host_attributes,
-            config_cache.check_mk_check_interval,
-        ),
+        metrics_association=config_cache.metrics_association(hostname),
+        omd_root=Path("/"),
     ).sources
 
 

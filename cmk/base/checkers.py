@@ -391,7 +391,6 @@ class CMKFetcher(FetcherFunction):
         secrets_config_relay: AdHocSecrets | StoredSecrets,
         secrets_config_site: StoredSecrets,
         simulation_mode: bool,
-        metric_backend_fetcher_factory: Callable[[HostAddress], Fetcher[AgentRawData] | None],
         logger: logging.Logger,
         max_cachefile_age: MaxAge | None = None,
     ) -> None:
@@ -414,7 +413,6 @@ class CMKFetcher(FetcherFunction):
         self.secrets_config_site: Final = secrets_config_site
         self.simulation_mode: Final = simulation_mode
         self.max_cachefile_age: Final = max_cachefile_age
-        self.metric_backend_fetcher_factory: Final = metric_backend_fetcher_factory
         self.logger: Final = logger
 
     def __call__(
@@ -523,7 +521,8 @@ class CMKFetcher(FetcherFunction):
                     check_mk_check_interval=self.config_cache.check_mk_check_interval(
                         current_host_name
                     ),
-                    metric_backend_fetcher=self.metric_backend_fetcher_factory(current_host_name),
+                    metrics_association=self.config_cache.metrics_association(current_host_name),
+                    omd_root=cmk.utils.paths.omd_root,
                 ).sources,
                 file_cache_options=self.file_cache_options,
                 mode=self.mode,

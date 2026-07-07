@@ -15,10 +15,9 @@ from pathlib import Path
 from typing import assert_never, Final, Literal
 
 from cmk.ccc.hostaddress import HostAddress, HostName
-from cmk.checkengine.fetcher import Fetcher
 from cmk.checkengine.fetchers.tcp import TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
-from cmk.checkengine.helper_interface import AgentRawData, FetcherType
+from cmk.checkengine.helper_interface import FetcherType
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPBackendEnum
 from cmk.checkengine.sources._sources import (
@@ -39,7 +38,8 @@ from cmk.server_side_calls_backend import SpecialAgentCommandLine
 from cmk.utils.ip_lookup import IPStackConfig
 from cmk.utils.tags import ComputedDataSources, TagID
 
-# TODO: Remove temporary conditional import
+# TODO: Remove temporary conditional import?
+# Will the feature flag prevent this import?
 try:
     from cmk.checkengine.sources.metric_backend import (  # type: ignore[import-not-found, unused-ignore]
         MetricBackendSource,
@@ -75,7 +75,8 @@ class SourceBuilder:
         special_agent_command_lines: Iterable[tuple[str, SpecialAgentCommandLine]],
         is_pull_host: bool,
         check_mk_check_interval: float,
-        metric_backend_fetcher: Fetcher[AgentRawData] | None,
+        metrics_association: str | None,
+        omd_root: Path,
     ) -> None:
         self.plugins: Final = plugins
         self.host_name: Final = host_name
@@ -106,7 +107,8 @@ class SourceBuilder:
         self._file_cache_path_relative: Final = file_cache_path_relative
         self._tcp_cache_path_relative: Final = tcp_cache_path_relative
         self.tls_config: Final = tls_config
-        self.metric_backend_fetcher: Final = metric_backend_fetcher
+        self._metrics_association: Final = metrics_association
+        self.omd_root: Final = omd_root
 
         self._elems: dict[str, Source] = {}
         self._initialize_agent_based()
@@ -196,15 +198,17 @@ class SourceBuilder:
             if not special_agents:
                 self._add_agent()
 
-        if self.metric_backend_fetcher is not None and MetricBackendSource is not None:
+        if MetricBackendSource is not None and self._metrics_association is not None:
             self._add(
                 MetricBackendSource(
-                    self.metric_backend_fetcher,
                     self.host_name,
                     self.ipaddress,
+                    metrics_association=self._metrics_association,
+                    check_interval=self.check_mk_check_interval,
                     max_age=self.max_age_agent,
                     file_cache_path_base=self._file_cache_path_base,
                     file_cache_path_relative=self._file_cache_path_relative,
+                    omd_root=self.omd_root,
                 )
             )
 
