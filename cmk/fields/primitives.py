@@ -2,13 +2,31 @@
 # Copyright (C) 2022 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+from typing import Any
+
 from marshmallow import fields
 
 from cmk.fields import base
 
+_JSON_TYPES: dict[type, str] = {
+    str: "string",
+    bool: "boolean",
+    int: "integer",
+    float: "number",
+    dict: "object",
+    list: "array",
+}
+
 
 class Constant(base.OpenAPIAttributes, fields.Constant):
-    pass
+    def __init__(self, constant: Any, **kwargs: Any) -> None:
+        super().__init__(constant, **kwargs)
+        # A marshmallow Constant renders into JSON Schema without a ``type`` (its MRO maps to
+        # the generic ``Field`` type in apispec). Discriminator validation in
+        # openapi-generator requires the discriminator's ``propertyName`` to be string-typed
+        # in every ``oneOf`` member, so derive the JSON type from the constant's Python type.
+        if (json_type := _JSON_TYPES.get(type(constant))) is not None:
+            self.metadata.setdefault("type", json_type)
 
 
 class Boolean(base.OpenAPIAttributes, fields.Boolean):
