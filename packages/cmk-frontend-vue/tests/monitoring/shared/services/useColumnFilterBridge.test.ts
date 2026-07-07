@@ -47,6 +47,18 @@ const columns: ColumnDef<Host>[] = [
     accessorKey: 'services_col',
     meta: { filter: { type: 'numeric', field: 'num_services' } }
   },
+  {
+    accessorKey: 'modes_col',
+    meta: {
+      filter: {
+        type: 'boolean-group',
+        groups: [
+          { field: 'in_downtime', title: 'In downtime' },
+          { field: 'acknowledged', title: 'Acknowledged' }
+        ]
+      }
+    }
+  },
   // No filter meta -> the bridge must ignore this column in both directions.
   { accessorKey: 'unfilterable' }
 ]
@@ -61,6 +73,19 @@ const servicesRange: FilterNode = {
     { type: 'condition', field: 'num_services', op: 'lte', value: 10 }
   ]
 }
+const inDowntime: ConditionNode = {
+  type: 'condition',
+  field: 'in_downtime',
+  op: 'eq',
+  value: true
+}
+const acknowledged: ConditionNode = {
+  type: 'condition',
+  field: 'acknowledged',
+  op: 'eq',
+  value: false
+}
+const modesBoth: FilterNode = { type: 'and', children: [inDowntime, acknowledged] }
 
 function makeBridge(): {
   store: FilterStore
@@ -203,6 +228,39 @@ describe('useColumnFilterBridge round trip', () => {
     expect(store.activeFilterCount).toBe(1)
     expect(store.getColumnFilter('name')).toStrictEqual(name)
     expect(bridge.tableColumnFilters.value).toStrictEqual([{ id: 'name_col', value: name }])
+  })
+
+  it('combines a boolean group filter across fields into one column value', () => {
+    const { store, bridge } = makeBridge()
+
+    store.setColumnFilters(
+      new Map<FilterField, FilterNode | undefined>([
+        ['in_downtime', inDowntime],
+        ['acknowledged', acknowledged]
+      ])
+    )
+
+    expect(bridge.tableColumnFilters.value).toContainEqual({ id: 'modes_col', value: modesBoth })
+  })
+
+  it('splits a boolean group filter node back into per-field store conditions', () => {
+    const { store, bridge } = makeBridge()
+
+    bridge.onColumnFiltersUpdate([{ id: 'modes_col', value: modesBoth }])
+
+    expect(store.getColumnFilter('in_downtime')).toStrictEqual(inDowntime)
+    expect(store.getColumnFilter('acknowledged')).toStrictEqual(acknowledged)
+    expect(store.activeFilterCount).toBe(2)
+  })
+
+  it('round trips a single active boolean group as a lone condition', () => {
+    const { store, bridge } = makeBridge()
+
+    bridge.onColumnFiltersUpdate([{ id: 'modes_col', value: inDowntime }])
+
+    expect(store.getColumnFilter('in_downtime')).toStrictEqual(inDowntime)
+    expect(store.getColumnFilter('acknowledged')).toBeUndefined()
+    expect(bridge.tableColumnFilters.value).toContainEqual({ id: 'modes_col', value: inDowntime })
   })
 
   it('clears every condition when the table state goes empty', () => {

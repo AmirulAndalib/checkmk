@@ -48,6 +48,28 @@ export interface NumericFilter<F extends FilterField = FilterField> {
   unit?: string
 }
 
+/** A single boolean field shown as a tri-state radio group in a {@link BooleanGroupFilter}. */
+export interface BooleanFilterGroup<F extends FilterField = FilterField> {
+  /** Boolean API field this group targets (e.g. `in_downtime`, `acknowledged`). */
+  field: F
+  /** Label shown above the group's radio buttons. */
+  title: string
+}
+
+/**
+ * Filter that presents one tri-state radio group per boolean field. Each group
+ * offers "both" (no condition), "has to be true" and "has to be false". A group
+ * left on "both" contributes nothing; the remaining groups produce `eq` boolean
+ * conditions that are AND-combined into the column filter node.
+ *
+ * The v-model value is a `ColumnFilterNode<F>` so the column filter state stores
+ * a typed condition directly — no `filterToNode` translation needed.
+ */
+export interface BooleanGroupFilter<F extends FilterField = FilterField> {
+  type: 'boolean-group'
+  groups: BooleanFilterGroup<F>[]
+}
+
 /**
  * Per-column filter description, injected via `columnDef.meta.filter`. The
  * `FilterDropdown` switches its rendered content on `type`.
@@ -60,3 +82,14 @@ export type ColumnFilterDefinition<F extends FilterField = FilterField> =
   | CheckboxListFilter<F>
   | StringInputFilter<F>
   | NumericFilter<F>
+  | BooleanGroupFilter<F>
+
+/**
+ * The API field(s) a column filter targets: single-field filters expose one,
+ * a boolean group one per group. Centralised alongside the filter definitions
+ * so consumers (e.g. the column-filter bridge) stay generic and never switch on
+ * a concrete filter shape — a new filter type extends this one function.
+ */
+export function filterFields(filter: ColumnFilterDefinition): FilterField[] {
+  return 'groups' in filter ? filter.groups.map((group) => group.field) : [filter.field]
+}

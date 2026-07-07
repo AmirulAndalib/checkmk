@@ -30,6 +30,7 @@ import CmkButton from '@/components/CmkButton/CmkButton.vue'
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 
 import { MONITORING_SERVICE } from '../MonitoringTableContext'
+import FilterBooleanGroup from './FilterBooleanGroup.vue'
 import FilterCheckboxList from './FilterCheckboxList.vue'
 import FilterNumeric from './FilterNumeric.vue'
 import FilterStringInput from './FilterStringInput.vue'
@@ -38,7 +39,8 @@ import type { ColumnFilterDefinition } from './types'
 const FILTER_COMPONENTS: Record<ColumnFilterDefinition['type'], Component> = {
   'checkbox-list': FilterCheckboxList,
   'string-input': FilterStringInput,
-  numeric: FilterNumeric
+  numeric: FilterNumeric,
+  'boolean-group': FilterBooleanGroup
 }
 
 const props = defineProps<{
@@ -201,7 +203,10 @@ function moveFocus(delta: number): void {
 // Filter types whose input owns the vertical arrow keys (e.g. a number field's
 // native increment/decrement). For these the dropdown must not hijack ArrowUp /
 // ArrowDown for row navigation; Tab still moves between rows.
-const ARROW_NAV_DISABLED_TYPES = new Set<ColumnFilterDefinition['type']>(['numeric'])
+const ARROW_NAV_DISABLED_TYPES = new Set<ColumnFilterDefinition['type']>([
+  'numeric',
+  'boolean-group'
+])
 
 function registerShortcuts(): void {
   if (shortcutIds.length > 0) {
@@ -326,6 +331,7 @@ onBeforeUnmount(() => {
 
   &:hover {
     text-decoration: none;
+    color: var(--cmk-link-hover-color);
   }
 }
 

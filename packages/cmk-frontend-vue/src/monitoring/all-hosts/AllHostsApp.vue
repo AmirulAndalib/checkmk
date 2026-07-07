@@ -29,6 +29,7 @@ import { MONITORING_SERVICE } from '@/monitoring/shared/components/MonitoringTab
 import type { CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'
 import QuickFilterChip from '@/monitoring/shared/components/filter/QuickFilterChip.vue'
 import type {
+  BooleanGroupFilter,
   CheckboxListFilter,
   NumericFilter,
   StringInputFilter
@@ -127,6 +128,14 @@ const pendingServicesFilter: NumericFilter<'num_services_pending'> = {
   field: 'num_services_pending'
 }
 
+const modesFilter: BooleanGroupFilter<'in_downtime' | 'acknowledged'> = {
+  type: 'boolean-group',
+  groups: [
+    { field: 'in_downtime', title: _t('In downtime') },
+    { field: 'acknowledged', title: _t('Acknowledged') }
+  ]
+}
+
 const columns: ColumnDef<HostEntry>[] = [
   {
     id: 'select',
@@ -145,12 +154,12 @@ const columns: ColumnDef<HostEntry>[] = [
     meta: { filter: stateFilter }
   },
   {
-    id: 'modes',
+    accessorKey: 'modes',
     header: _t('Modes'),
     enableSorting: false,
     minSize: 80,
     maxSize: 120,
-    meta: { justify: 'left' }
+    meta: { justify: 'left', filter: modesFilter }
   },
   {
     accessorKey: 'name',

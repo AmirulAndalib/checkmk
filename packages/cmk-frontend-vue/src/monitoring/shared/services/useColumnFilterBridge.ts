@@ -7,8 +7,22 @@ import { type ColumnDef, type ColumnFiltersState } from '@tanstack/vue-table'
 import { type ComputedRef, computed } from 'vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
+import { filterFields } from '@/monitoring/shared/components/filter/types'
 
 import type { FilterStore } from './FilterStore'
+import { getTopLevelConditions } from './filterNodeUtils'
+
+function combine(
+  conditions: ColumnFilterNode<FilterField>[]
+): ColumnFilterNode<FilterField> | undefined {
+  if (conditions.length === 0) {
+    return undefined
+  }
+  if (conditions.length === 1) {
+    return conditions[0]
+  }
+  return { type: 'and', children: conditions }
+}
 
 /**
  * Bridges a FilterStore (field-centric) with TanStack Table's column filter state
@@ -27,25 +41,32 @@ export function useColumnFilterBridge<TData>(
 } {
   const tableColumnFilters = computed<ColumnFiltersState>(() =>
     columns.flatMap((col) => {
-      const field = col.meta?.filter?.field
-      if (field === undefined || !('accessorKey' in col)) {
+      const filter = col.meta?.filter
+      if (filter === undefined || !('accessorKey' in col)) {
         return []
       }
-      const condition = filterStore.getColumnFilter(field)
-      return condition !== undefined ? [{ id: col.accessorKey as string, value: condition }] : []
+      const conditions = filterFields(filter)
+        .map((field) => filterStore.getColumnFilter(field))
+        .filter((condition): condition is ColumnFilterNode<FilterField> => condition !== undefined)
+      const value = combine(conditions)
+      return value !== undefined ? [{ id: col.accessorKey as string, value }] : []
     })
   )
 
   function onColumnFiltersUpdate(next: ColumnFiltersState): void {
     const map = new Map<FilterField, ColumnFilterNode<FilterField> | undefined>()
     for (const col of columns) {
-      const field = col.meta?.filter?.field
-      if (field === undefined || !('accessorKey' in col)) {
+      const filter = col.meta?.filter
+      if (filter === undefined || !('accessorKey' in col)) {
         continue
       }
-      const id = col.accessorKey as string
-      const entry = next.find((f) => f.id === id)
-      map.set(field, entry?.value as ColumnFilterNode<FilterField> | undefined)
+      const value = next.find((f) => f.id === col.accessorKey)?.value as
+        | ColumnFilterNode<FilterField>
+        | undefined
+      const conditions = value !== undefined ? getTopLevelConditions(value) : []
+      for (const field of filterFields(filter)) {
+        map.set(field, combine(conditions.filter((condition) => condition.field === field)))
+      }
     }
     filterStore.setColumnFilters(map)
   }
