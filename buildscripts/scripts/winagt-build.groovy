@@ -39,12 +39,7 @@ void main() {
 
         def sign_creds = use_azure ? [
             string(credentialsId: "azure_artifact_signing_client_secret",   variable: "AZURE_ARTIFACT_SIGNING_CLIENT_SECRET"),
-        ] : [
-            usernamePassword(
-                credentialsId: 'win_sign',
-                passwordVariable: 'WIN_SIGN_PASSWORD',
-                usernameVariable: ''),
-        ];
+        ] : [];
 
         withCredentials(common_creds + sign_creds) {
             // The windows.build function will create stages.
