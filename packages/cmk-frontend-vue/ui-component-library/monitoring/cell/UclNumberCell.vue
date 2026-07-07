@@ -50,33 +50,59 @@ export const panelConfig = {
     ],
     initialState: 'inline'
   },
-  highlightEnabled: {
+  tagEnabled: {
     type: 'boolean' as const,
-    title: 'highlight',
+    title: 'tagProperties',
     initialState: false,
-    help: 'Apply a coloured highlight to the cell.'
+    help: 'Render the value inside a CmkTag instead of as plain text.'
   },
-  highlightType: {
+  tagSize: {
     type: 'list' as const,
-    title: '↳ type',
+    title: '↳ size',
     options: [
-      { title: 'inline', name: 'inline' },
-      { title: 'outline', name: 'outline' },
-      { title: 'full', name: 'full' }
+      { title: 'small', name: 'small' },
+      { title: 'medium', name: 'medium' },
+      { title: 'large', name: 'large' }
     ],
-    initialState: 'inline'
+    initialState: 'medium'
   },
-  highlightColor: {
+  tagColor: {
     type: 'list' as const,
     title: '↳ color',
     options: [
       { title: 'default', name: 'default' },
       { title: 'success', name: 'success' },
       { title: 'warning', name: 'warning' },
-      { title: 'danger', name: 'danger' },
-      { title: 'info', name: 'info' }
+      { title: 'unknown', name: 'unknown' },
+      { title: 'danger', name: 'danger' }
     ],
     initialState: 'default'
+  },
+  tagVariant: {
+    type: 'list' as const,
+    title: '↳ variant',
+    options: [
+      { title: 'fill', name: 'fill' },
+      { title: 'outline', name: 'outline' },
+      { title: 'weighted', name: 'weighted' }
+    ],
+    initialState: 'outline'
+  },
+  tagMinWidth: {
+    type: 'number' as const,
+    title: '↳ minWidth',
+    initialState: 0,
+    help: 'Minimum width in px applied to the tag. 0 leaves it unset.'
+  },
+  tagJustify: {
+    type: 'list' as const,
+    title: '↳ justify',
+    options: [
+      { title: 'left', name: 'left' },
+      { title: 'center', name: 'center' },
+      { title: 'right', name: 'right' }
+    ],
+    initialState: 'right'
   },
   minWidth: {
     type: 'number' as const,
@@ -119,8 +145,7 @@ import { computed, ref } from 'vue'
 import MonitoringTable from '@/monitoring/shared/components/MonitoringTable.vue'
 import type { ColumnJustify } from '@/monitoring/shared/components/MonitoringTableContext'
 import type { CellLink } from '@/monitoring/shared/components/cell/BaseCell.vue'
-import NumberCell from '@/monitoring/shared/components/cell/NumberCell.vue'
-import type { CellHighlight } from '@/monitoring/shared/components/cell/base/highlight'
+import NumberCell, { type NumberTagProps } from '@/monitoring/shared/components/cell/NumberCell.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 
@@ -140,19 +165,22 @@ const linkedTo = computed<CellLink | undefined>(() =>
     : undefined
 )
 
-const justify = computed<ColumnJustify>(() => propState.value.justify as ColumnJustify)
-
-const highlight = computed<CellHighlight | undefined>(() =>
-  propState.value.highlightEnabled
+const tagProperties = computed<NumberTagProps | undefined>(() =>
+  propState.value.tagEnabled
     ? {
-        type: propState.value.highlightType as CellHighlight['type'],
-        color: propState.value.highlightColor as CellHighlight['color']
+        size: propState.value.tagSize as NumberTagProps['size'],
+        color: propState.value.tagColor as NumberTagProps['color'],
+        variant: propState.value.tagVariant as NumberTagProps['variant'],
+        minWidth: propState.value.tagMinWidth || undefined,
+        justify: (propState.value.tagJustify || 'right') as NumberTagProps['justify']
       }
     : undefined
 )
 
+const justify = computed<ColumnJustify>(() => propState.value.justify as ColumnJustify)
+
 const LINK_SUB_KEYS = ['linkHref', 'linkTarget', 'linkVariant'] as const
-const HIGHLIGHT_SUB_KEYS = ['highlightType', 'highlightColor'] as const
+const TAG_SUB_KEYS = ['tagSize', 'tagColor', 'tagVariant', 'tagMinWidth', 'tagJustify'] as const
 
 const visibleConfig = computed(() =>
   Object.fromEntries(
@@ -160,10 +188,7 @@ const visibleConfig = computed(() =>
       if (!propState.value.linkEnabled && (LINK_SUB_KEYS as readonly string[]).includes(key)) {
         return false
       }
-      if (
-        !propState.value.highlightEnabled &&
-        (HIGHLIGHT_SUB_KEYS as readonly string[]).includes(key)
-      ) {
+      if (!propState.value.tagEnabled && (TAG_SUB_KEYS as readonly string[]).includes(key)) {
         return false
       }
       return true
@@ -209,7 +234,7 @@ const columns = computed<ColumnDef<DemoRow>[]>(() => [
               column-id="cell"
               :value="propState.value"
               :decimals="propState.decimals"
-              :highlight="highlight"
+              :tag-properties="tagProperties"
               :linked-to="linkedTo"
             />
           </template>
@@ -246,9 +271,11 @@ const columns = computed<ColumnDef<DemoRow>[]>(() => [
 .ucl-number-cell__panel :deep(div:has(> div > label[for$='-linkHref'])),
 .ucl-number-cell__panel :deep(div:has(> div > label[for$='-linkTarget'])),
 .ucl-number-cell__panel :deep(div:has(> div > label[for$='-linkVariant'])),
-.ucl-number-cell__panel :deep(div:has(> div > label[for$='-highlightType'])),
-.ucl-number-cell__panel :deep(div:has(> div > label[for$='-highlightColor'])),
-.ucl-number-cell__panel :deep(div:has(> div > label[for$='-highlightOutline'])) {
+.ucl-number-cell__panel :deep(div:has(> div > label[for$='-tagSize'])),
+.ucl-number-cell__panel :deep(div:has(> div > label[for$='-tagColor'])),
+.ucl-number-cell__panel :deep(div:has(> div > label[for$='-tagVariant'])),
+.ucl-number-cell__panel :deep(div:has(> div > label[for$='-tagMinWidth'])),
+.ucl-number-cell__panel :deep(div:has(> div > label[for$='-tagJustify'])) {
   padding-left: 16px;
 }
 /* stylelint-enable selector-pseudo-class-no-unknown */

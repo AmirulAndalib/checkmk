@@ -11,12 +11,15 @@ import type { TranslatedString } from '@/lib/i18nString'
 
 import CmkTag, { type Colors, type Sizes, type Variants } from '@/components/CmkTag.vue'
 
+import { type ColumnJustify, justifyToFlex } from '../MonitoringTableContext'
 import BaseCell, { type CellLink } from './BaseCell.vue'
 
 export interface NumberTagProps {
   size?: Sizes
   color?: Colors
   variant?: Variants
+  minWidth?: number | undefined
+  justify?: ColumnJustify | undefined
 }
 
 export interface NumberCellProps {
@@ -39,10 +42,16 @@ const valueString = computed(() => {
     <template #default>
       <CmkTag
         v-if="tagProperties"
+        class="monitoring-number-cell__tag"
+        :class="{ 'monitoring-number-cell--tag-fixed': tagProperties.minWidth }"
         :variant="tagProperties.variant"
         :size="tagProperties.size"
         :color="tagProperties.color"
         :content="valueString"
+        :style="{
+          'min-width': tagProperties.minWidth ? `${tagProperties.minWidth}px` : undefined,
+          'justify-content': justifyToFlex(tagProperties.justify ?? 'right')
+        }"
       />
       <template v-else>
         {{ valueString }}
@@ -50,3 +59,16 @@ const valueString = computed(() => {
     </template>
   </BaseCell>
 </template>
+
+<style scoped>
+.monitoring-number-cell__tag {
+  margin: 0;
+}
+
+.monitoring-number-cell--tag-fixed {
+  display: flex;
+  box-sizing: border-box;
+  height: 21px;
+  align-items: center;
+}
+</style>

@@ -14,7 +14,7 @@ import NumberCell from '@/monitoring/shared/components/cell/NumberCell.vue'
         <NumberCell
           :value="42"
           :decimals="0"
-          :highlight="{ type: 'inline', color: 'success' }"
+          :tag-properties="{ size: 'medium', color: 'success', variant: 'outline', minWidth: 80 }"
           :linked-to="{ href: 'https://checkmk.com', target: '_blank' }"
         />
       </tr>
