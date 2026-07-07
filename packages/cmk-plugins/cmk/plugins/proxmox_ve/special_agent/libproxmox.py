@@ -167,7 +167,7 @@ class ProxmoxVeAPI:
         self, host: str, port: int, credentials: Any, timeout: int, verify_ssl: bool
     ) -> None:
         try:
-            LOGGER.info("Establish connection to Proxmox VE host %r", host)
+            LOGGER.info("Establish connection to Proxmox VE host %(host)r", {"host": host})
             self._session = _ProxmoxVeSession(
                 endpoint=(host, port),
                 credentials=credentials,

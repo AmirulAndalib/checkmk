@@ -241,7 +241,10 @@ class BaseAsyncApiClient:
                     context=response.headers,
                 )
 
-            LOGGER.error("Rate limit exceeded, waiting %s seconds", cool_off_interval)
+            LOGGER.error(
+                "Rate limit exceeded, waiting %(seconds)s seconds",
+                {"seconds": cool_off_interval},
+            )
             await asyncio.sleep(cool_off_interval)
             response = await get_response()
         self._update_ratelimit(response)
@@ -264,7 +267,7 @@ class BaseAsyncApiClient:
         if not uri:
             raise ValueError("No URI provided")
 
-        LOGGER.debug("Querying uri: %r", uri)
+        LOGGER.debug("Querying uri: %(uri)r", {"uri": uri})
         response = await self._handle_ratelimit_async(
             method,
             uri,
@@ -274,7 +277,7 @@ class BaseAsyncApiClient:
             raise_for_rate_limit=raise_for_rate_limit,
         )
         json_data = await response.json()
-        LOGGER.debug("API response: %r", json_data)
+        LOGGER.debug("API response: %(json_data)r", {"json_data": json_data})
 
         if (error := json_data.get("error")) is not None:
             raise _make_exception(error)

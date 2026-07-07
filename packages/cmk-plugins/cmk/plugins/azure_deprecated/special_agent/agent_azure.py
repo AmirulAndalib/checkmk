@@ -405,7 +405,7 @@ def parse_arguments(argv: Sequence[str]) -> Args:
     for key, value in vars(args).items():
         if key == "secret":
             value = "****"
-        LOGGER.debug("argparse: %s = %r", key, value)
+        LOGGER.debug("argparse: %(key)s = %(value)r", {"key": key, "value": value})
 
     return args
 
@@ -548,7 +548,10 @@ class BaseApiClient(abc.ABC):
             if response.status_code != 429:
                 break
 
-            LOGGER.debug("Rate limit exceeded, waiting %s seconds", cool_off_interval)
+            LOGGER.debug(
+                "Rate limit exceeded, waiting %(seconds)s seconds",
+                {"seconds": cool_off_interval},
+            )
             time.sleep(cool_off_interval)
             response = get_response()
             self._update_ratelimit(response)
@@ -668,7 +671,7 @@ class BaseApiClient(abc.ABC):
 
         response = self._handle_ratelimit(get_response)
         json_data = response.json()
-        LOGGER.debug("response: %r", json_data)
+        LOGGER.debug("response: %(json_data)r", {"json_data": json_data})
         return json_data
 
     @staticmethod
@@ -742,7 +745,10 @@ class MgmtApiClient(BaseApiClient):
         available_names = match.groups()[0]
         retry_names = set(desired_names.split(",")) & set(available_names.split(","))
         if not retry_names:
-            LOGGER.debug("None of the expected metrics are available for %s", resource_type)
+            LOGGER.debug(
+                "None of the expected metrics are available for %(resource_type)s",
+                {"resource_type": resource_type},
+            )
             return None
 
         return ",".join(sorted(retry_names))
@@ -1085,7 +1091,7 @@ def create_metric_dict(metric, aggregation, interval_id):
             pass
 
         for data in reversed(dataset):
-            LOGGER.debug("data: %s", data)
+            LOGGER.debug("data: %(data)s", {"data": data})
             metric_dict["value"] = data.get(aggregation)
             if metric_dict["value"] is not None:
                 metric_dict["timestamp"] = data["timeStamp"]
@@ -1622,8 +1628,8 @@ def gather_metrics(
                         metric_resource.metrics += resource_metrics
                     else:
                         LOGGER.info(
-                            "Resource %s found in metrics cache no longer monitored",
-                            resource_id,
+                            "Resource %(resource_id)s found in metrics cache no longer monitored",
+                            {"resource_id": resource_id},
                         )
 
             except ApiError as exc:
@@ -1816,7 +1822,7 @@ def get_usage_data(client: MgmtApiClient, args: Args) -> Sequence[Mapping[str, A
             raise NoConsumptionAPIError
         raise
 
-    LOGGER.debug("yesterdays usage details: %d", len(usage_data))
+    LOGGER.debug("yesterdays usage details: %(count)d", {"count": len(usage_data)})
 
     for usage in usage_data:
         usage["type"] = "Microsoft.Consumption/usageDetails"
@@ -1863,7 +1869,7 @@ def usage_details(mgmt_client: MgmtApiClient, monitored_groups: list[str], args:
     except Exception as exc:
         if args.debug:
             raise
-        LOGGER.warning("%s", exc)
+        LOGGER.warning("%(error)s", {"error": exc})
         write_exception_to_agent_info_section(exc, "Usage client")
         write_usage_section([], monitored_groups, args.tag_key_pattern)
 
@@ -2013,7 +2019,7 @@ def main(argv=None):
                 return test_result
         return 0
 
-    LOGGER.debug("%s", selector)
+    LOGGER.debug("%(selector)s", {"selector": selector})
     main_graph_client(args)
     for subscription in args.subscriptions:
         main_subscription(args, selector, subscription)

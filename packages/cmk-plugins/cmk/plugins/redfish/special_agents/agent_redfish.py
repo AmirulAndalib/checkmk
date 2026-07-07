@@ -342,7 +342,9 @@ def fetch_list_of_elements(
         except Exception:
             if redfishobj.debug:
                 raise
-            LOGGER.exception("redfish: failed fetching list section %s", section)
+            LOGGER.exception(
+                "redfish: failed fetching list section %(section)s", {"section": section}
+            )
     return redfishobj
 
 
@@ -386,7 +388,7 @@ def fetch_sections(
         except Exception:
             if redfishobj.debug:
                 raise
-            LOGGER.exception("redfish: failed fetching section %s", section)
+            LOGGER.exception("redfish: failed fetching section %(section)s", {"section": section})
     return redfishobj
 
 
@@ -472,7 +474,7 @@ def _phase(redfishobj: RedfishData, name: str) -> Iterator[None]:
     except Exception:
         if redfishobj.debug:
             raise
-        LOGGER.exception("redfish: failure during phase %s", name)
+        LOGGER.exception("redfish: failure during phase %(name)s", {"name": name})
     finally:
         _emit_pending(redfishobj)
 
@@ -501,11 +503,13 @@ def _fetch_systems(redfishobj: RedfishData, systems_url: str) -> Sequence[Mappin
     for attempt in range(redfishobj.systems_retries + 1):
         if attempt:
             LOGGER.warning(
-                "redfish: %s unusable, retry %d/%d in %.1fs",
-                systems_url,
-                attempt,
-                redfishobj.systems_retries,
-                redfishobj.systems_retry_delay,
+                "redfish: %(systems_url)s unusable, retry %(attempt)d/%(retries)d in %(delay).1fs",
+                {
+                    "systems_url": systems_url,
+                    "attempt": attempt,
+                    "retries": redfishobj.systems_retries,
+                    "delay": redfishobj.systems_retry_delay,
+                },
             )
             time.sleep(redfishobj.systems_retry_delay)
         systems_col = fetch_data(redfishobj.redfish_connection, systems_url, "System")

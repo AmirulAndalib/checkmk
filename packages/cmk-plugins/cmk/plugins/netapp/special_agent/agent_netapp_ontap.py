@@ -93,7 +93,7 @@ def write_section(
     sys.stdout.write(f"<<<netapp_ontap_{section_name}:sep(0)>>>\n")
     for element in generator:
         json_dict = element.model_dump_json(exclude_unset=True, exclude_none=False)
-        logger.debug("Element data: %r", json_dict)
+        logger.debug("Element data: %(json_dict)r", {"json_dict": json_dict})
         sys.stdout.write(json_dict + "\n")
 
 
@@ -115,10 +115,10 @@ def safe_write_section(
     except NetAppRestError as exc:
         if exc.status_code == 401:
             raise
-        logger.exception("Section '%s' failed", section_name)
+        logger.exception("Section '%(section_name)s' failed", {"section_name": section_name})
         _write_error(section_name, str(exc))
     except Exception as exc:
-        logger.exception("Section '%s' failed", section_name)
+        logger.exception("Section '%(section_name)s' failed", {"section_name": section_name})
         _write_error(section_name, str(exc))
 
 

@@ -178,7 +178,10 @@ def create_cpu_rate_metrics(
 
 
 def _load_containers_store(storage: Storage, container_store_key: str) -> ContainersStore:
-    common.LOGGER.debug("Load previous cycle containers store from %s", container_store_key)
+    common.LOGGER.debug(
+        "Load previous cycle containers store from %(container_store_key)s",
+        {"container_store_key": container_store_key},
+    )
     if (content := storage.read(container_store_key, None)) is None:
         common.LOGGER.info("Could not find stored metrics. This is expected if the first run.")
         return ContainersStore(cpu=[])
@@ -193,7 +196,10 @@ def _load_containers_store(storage: Storage, container_store_key: str) -> Contai
 def _persist_containers_store(
     storage: Storage, container_store_key: str, containers_store: ContainersStore
 ) -> None:
-    common.LOGGER.debug("Persisting current containers store under %s", container_store_key)
+    common.LOGGER.debug(
+        "Persisting current containers store under %(container_store_key)s",
+        {"container_store_key": container_store_key},
+    )
     storage.write(
         container_store_key,
         containers_store.model_dump_json(by_alias=True),

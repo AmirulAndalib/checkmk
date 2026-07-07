@@ -156,8 +156,8 @@ class BackupTask:
                 ),
             )
             LOGGER.error(
-                "Parsing the log for UPID=%r resulted in a error(s) - stored log content",
-                task["upid"],
+                "Parsing the log for UPID=%(upid)r resulted in a error(s) - stored log content",
+                {"upid": task["upid"]},
             )
 
     @staticmethod
@@ -314,7 +314,10 @@ class BackupTask:
                             linenr,
                             f"Error for VM {error_vmid!r} while another VM {current_vmid!r} was active",
                         )
-                    LOGGER.warning("Found error for VM %r: %r", error_vmid, error_msg)
+                    LOGGER.warning(
+                        "Found error for VM %(vmid)r: %(error_msg)r",
+                        {"vmid": error_vmid, "error_msg": error_msg},
+                    )
                     result[error_vmid] = {**current_dataset, "error": error_msg}
                     current_vmid, current_dataset = "", {}
 
@@ -387,7 +390,7 @@ class BackupTask:
             except BackupTask.LogParseWarning as exc:
                 if strict:
                     raise
-                LOGGER.exception("Error in log at line %d", linenr)
+                LOGGER.exception("Error in log at line %(linenr)d", {"linenr": linenr})
                 current_vmid, current_dataset = "", {}
                 errors.append((linenr, str(exc)))
 
@@ -400,8 +403,8 @@ class BackupTask:
 def collect_vm_backup_info(backup_tasks: Iterable[BackupTask]) -> Mapping[str, BackupInfo]:
     backup_data: dict[str, BackupInfo] = {}
     for task in backup_tasks:
-        LOGGER.info("%s", task)
-        LOGGER.debug("%r", task.backup_data)
+        LOGGER.info("%(task)s", {"task": task})
+        LOGGER.debug("%(backup_data)r", {"backup_data": task.backup_data})
         # Look for the latest backup for a given VMID in all backup task logs.
         for vmid, bdata in task.backup_data.items():
             # skip if we have a already newer backup
@@ -470,13 +473,13 @@ def JsonCachedData(
     """Store JSON-serializable data on filesystem and provide it if available"""
 
     cache = json.loads(storage.read(key=storage_key, default="{}") or "{}")
-    LOGGER.debug("Cache: loaded %d elements", len(cache))
+    LOGGER.debug("Cache: loaded %(element_count)d elements", {"element_count": len(cache)})
 
     dirty = False
     # note: this must not be a generator - otherwise we modify a dict while iterating it
     for key in [k for k, data in cache.items() if cutoff_condition(k, data)]:
         dirty = True
-        LOGGER.debug("Cache: erase log cache for %r", key)
+        LOGGER.debug("Cache: erase log cache for %(key)r", {"key": key})
         del cache[key]
 
     def setdefault(key: str, value_fn: Callable[[], Any]) -> Any:
@@ -484,12 +487,12 @@ def JsonCachedData(
         if key in cache:
             return cache[key]
         dirty = True
-        LOGGER.debug("Cache: %r not found - fetch it", key)
+        LOGGER.debug("Cache: %(key)r not found - fetch it", {"key": key})
         return cache.setdefault(key, value_fn())
 
     try:
         yield setdefault
     finally:
         if dirty:
-            LOGGER.debug("Cache: write file: %r", storage_key)
+            LOGGER.debug("Cache: write file: %(storage_key)r", {"storage_key": storage_key})
             storage.write(storage_key, json.dumps(cache, indent=2))

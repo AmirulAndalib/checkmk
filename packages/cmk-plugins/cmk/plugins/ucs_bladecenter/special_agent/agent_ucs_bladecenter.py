@@ -434,10 +434,12 @@ class Server:
         for header, model_pattern, entries in entities:
             for class_id, attributes in entries:
                 LOGGER.debug(
-                    "Server.get_data_from_entities: header: '%s', class_id: '%s' - attributes: '%s'",
-                    header,
-                    class_id,
-                    ",".join(attributes),
+                    "Server.get_data_from_entities: header: '%(header)s', class_id: '%(class_id)s' - attributes: '%(attributes)s'",
+                    {
+                        "header": header,
+                        "class_id": class_id,
+                        "attributes": ",".join(attributes),
+                    },
                 )
 
                 try:
@@ -464,7 +466,9 @@ class Server:
                         if attribute_data is None and attribute == "affectedDN":
                             attribute_data = self._get_attribute_data(xml_object, "dn")
                         if attribute_data is None:
-                            LOGGER.debug("No such attribute '%s'", attribute)
+                            LOGGER.debug(
+                                "No such attribute '%(attribute)s'", {"attribute": attribute}
+                            )
                             # ensure order of entries in related check plug-ins is consistent
                             attribute_data = ""
                         xml_data.append((attribute, attribute_data))
@@ -472,7 +476,10 @@ class Server:
         return data
 
     def _get_attribute_data(self, xml_object: ET.Element, attribute: str) -> str | None:
-        LOGGER.debug("Server._get_attribute_data: Try getting attribute '%s'", attribute)
+        LOGGER.debug(
+            "Server._get_attribute_data: Try getting attribute '%(attribute)s'",
+            {"attribute": attribute},
+        )
         attribute_data = xml_object.attrib.get(attribute)
         if attribute_data:
             return attribute_data
@@ -482,9 +489,13 @@ class Server:
         # 'AmbientTemp' -> 'ambientTemp'
         attribute_lower = attribute[0].lower() + attribute[1:]
         LOGGER.debug(
-            "Server._get_attribute_data: Try getting attribute '%s' (lower)", attribute_lower
+            "Server._get_attribute_data: Try getting attribute '%(attribute_lower)s' (lower)",
+            {"attribute_lower": attribute_lower},
         )
-        LOGGER.debug("Server._get_attribute_data: Try getting attribute '%s'", attribute)
+        LOGGER.debug(
+            "Server._get_attribute_data: Try getting attribute '%(attribute)s'",
+            {"attribute": attribute},
+        )
         attribute_data = xml_object.attrib.get(attribute_lower)
         if attribute_data:
             return attribute_data
@@ -505,7 +516,9 @@ class Server:
 
         # find all entries recursivelly
         xml_objects = root.findall(".//%s" % class_id)
-        LOGGER.debug("Server._get_class_data: Entries found: '%s'", xml_objects)
+        LOGGER.debug(
+            "Server._get_class_data: Entries found: '%(xml_objects)s'", {"xml_objects": xml_objects}
+        )
         return xml_objects
 
     def _communicate(self, xml_obj: ET.Element) -> ET.Element:
@@ -523,7 +536,9 @@ class Server:
             "Content-Length": str(len(xml_string)),
             "Content-Type": 'text/xml; charset="utf-8"',
         }
-        LOGGER.debug("Server._communicate: Sending XML string: '%s'", xml_string)
+        LOGGER.debug(
+            "Server._communicate: Sending XML string: '%(xml_string)s'", {"xml_string": xml_string}
+        )
 
         try:
             if self._verify_ssl is False:
@@ -532,12 +547,13 @@ class Server:
                 self._url, headers=headers, data=xml_string, verify=self._verify_ssl
             )
         except Exception as e:
-            LOGGER.debug("Server._communicate: PostError: '%r'", e)
+            LOGGER.debug("Server._communicate: PostError: '%(error)r'", {"error": e})
             raise
 
         content = response.content
         LOGGER.debug(
-            "Server._communicate: Got response content: '%s' (%s)", content, response.status_code
+            "Server._communicate: Got response content: '%(content)s' (%(status_code)s)",
+            {"content": content, "status_code": response.status_code},
         )
 
         root = DET.fromstring(content)
@@ -545,7 +561,7 @@ class Server:
 
         errors = root.attrib.get("errorDescr")
         if errors:
-            LOGGER.debug("Server._communicate: Errors found: '%s'", errors)
+            LOGGER.debug("Server._communicate: Errors found: '%(errors)s'", {"errors": errors})
             if self.debug:
                 raise CommunicationException(errors)
         return root

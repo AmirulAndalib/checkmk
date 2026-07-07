@@ -844,7 +844,7 @@ def create_metric_dict(
 
         data_point_discard = metric_definition.data_point_discard
         for data in reversed(dataset):
-            LOGGER.debug("data: %s", data)
+            LOGGER.debug("data: %(data)s", {"data": data})
             metric_dict["value"] = data.get(aggregation)
             if metric_dict["value"] is not None:
                 if data_point_discard > 0:
@@ -1039,8 +1039,8 @@ async def _collect_app_gateways_resources(
             # this can happen because the resource has been filtered out
             # (for example because it is not in the monitored group configured via --explicit-config)
             LOGGER.info(
-                "Application gateway not found in monitored resources: %s",
-                app_gateway["id"],
+                "Application gateway not found in monitored resources: %(gateway_id)s",
+                {"gateway_id": app_gateway["id"]},
             )
             continue
 
@@ -1103,7 +1103,10 @@ async def _collect_load_balancers_resources(
         except KeyError:
             # this can happen because the resource has been filtered out
             # (for example because it is not in the monitored group configured via --explicit-config)
-            LOGGER.info("Load balancer not found in monitored resources: %s", load_balancer["id"])
+            LOGGER.info(
+                "Load balancer not found in monitored resources: %(balancer_id)s",
+                {"balancer_id": load_balancer["id"]},
+            )
             continue
 
         try:
@@ -1151,7 +1154,10 @@ async def _collect_firewalls_resources(
         except KeyError:
             # this can happen because the resource has been filtered out
             # (for example because it is not in the monitored group configured via --explicit-config)
-            LOGGER.info("Azure Firewall not found in monitored resources: %s", firewall["id"])
+            LOGGER.info(
+                "Azure Firewall not found in monitored resources: %(firewall_id)s",
+                {"firewall_id": firewall["id"]},
+            )
             continue
 
         firewalls_resources.append(resource)
@@ -1460,7 +1466,7 @@ async def process_cosmosdb(
             for metric in metrics:
                 if not (metadata := metric.get("metadata_mapping")):
                     # this should never happen because of the dimension filter we use '<SomeDimension> = *'
-                    LOGGER.error("Skipping metric without metadata: %s", metric)
+                    LOGGER.error("Skipping metric without metadata: %(metric)s", {"metric": metric})
                     continue
 
                 if any(value == "<empty>" for value in metadata.values()):
@@ -1472,14 +1478,16 @@ async def process_cosmosdb(
                 if not (database_name := metadata.get("databasename")):
                     # this should never happen because of the dimension filter,
                     # right now we should always have the database name in the metadata
-                    LOGGER.error("Skipping metric without database name in metadata: %s", metric)
+                    LOGGER.error(
+                        "Skipping metric without database name in metadata: %(metric)s",
+                        {"metric": metric},
+                    )
                     continue
 
                 if (db_resource := cosmosdb_databases.get(database_name)) is not None:
                     LOGGER.info(
-                        "\n\n\nFound metric for existing database: %s, metric: %s",
-                        database_name,
-                        metric,
+                        "\n\n\nFound metric for existing database: %(database_name)s, metric: %(metric)s",
+                        {"database_name": database_name, "metric": metric},
                     )
                     # db already present, just append the metric
                     db_resource.metrics.append(metric)
@@ -1511,7 +1519,10 @@ async def process_cosmosdb(
                 resources.append(db_resource)
 
     if err:
-        LOGGER.error("Errors occurred during cosmosdb metrics collection.\n %s", err.dumpinfo())
+        LOGGER.error(
+            "Errors occurred during cosmosdb metrics collection.\n %(errors)s",
+            {"errors": err.dumpinfo()},
+        )
         agent_info_section = AzureSection("agent_info")
         agent_info_section.add(err.dumpinfo())
         agent_info_section.write()
@@ -1541,11 +1552,13 @@ class AzureAsyncCache(DataCache):
         use_cache = kwargs.pop("use_cache", True)
         if use_cache and self.get_validity_from_args(*args) and self._cache_is_valid():
             try:
-                LOGGER.debug("Reading data from cache: %s", self._key)
+                LOGGER.debug("Reading data from cache: %(key)s", {"key": self._key})
                 if cached_data := await self.get_cached_data():
                     # if not empty
                     return cached_data
-                LOGGER.debug("Cache file is empty, getting live data from cache: %s", self._key)
+                LOGGER.debug(
+                    "Cache file is empty, getting live data from cache: %(key)s", {"key": self._key}
+                )
             except (OSError, ValueError):
                 LOGGER.exception("Getting live data (failed to read from cache).")
                 if self.debug:
@@ -1614,7 +1627,10 @@ class UsageDetailsCache(AzureAsyncCache):
             },
         }
 
-        LOGGER.debug("Getting live data for usage details. - sub: %s", self._subscription)
+        LOGGER.debug(
+            "Getting live data for usage details. - sub: %(subscription)s",
+            {"subscription": self._subscription},
+        )
         json_data = await mgmt_client.request_async(
             "POST",
             "/providers/Microsoft.CostManagement/query",
@@ -1667,18 +1683,24 @@ class UsageDetailsCache(AzureAsyncCache):
                     if remaining_tenant_requests <= 0 or retry_after > 10:
                         LOGGER.warning(
                             "Rate limit exceeded for Microsoft.CostManagement API. "
-                            "Received a 'retry after' of %d seconds. Remaining requests: %s - Sub: %s",
-                            retry_after,
-                            remaining_tenant_requests,
-                            self._subscription,
+                            "Received a 'retry after' of %(retry_after)d seconds. "
+                            "Remaining requests: %(remaining_requests)s - Sub: %(subscription)s",
+                            {
+                                "retry_after": retry_after,
+                                "remaining_requests": remaining_tenant_requests,
+                                "subscription": self._subscription,
+                            },
                         )
                         raise ApiError("Rate limit exceeded for Microsoft.CostManagement API.")
                     LOGGER.warning(
                         "Rate limit exceeded for Microsoft.CostManagement API. "
-                        "Received a 'retry after' of %d seconds. Remaining requests: %s - Sub: %s",
-                        retry_after,
-                        remaining_tenant_requests,
-                        self._subscription,
+                        "Received a 'retry after' of %(retry_after)d seconds. "
+                        "Remaining requests: %(remaining_requests)s - Sub: %(subscription)s",
+                        {
+                            "retry_after": retry_after,
+                            "remaining_requests": remaining_tenant_requests,
+                            "subscription": self._subscription,
+                        },
                     )
                     await asyncio.sleep(retry_after + 1)
 
@@ -1770,7 +1792,10 @@ class MetricCache(AzureAsyncCache):
         available_names = match.groups()[0]
         retry_names = set(desired_names.split(",")) & set(available_names.split(","))
         if not retry_names:
-            LOGGER.debug("None of the expected metrics are available for %s", resource_type)
+            LOGGER.debug(
+                "None of the expected metrics are available for %(resource_type)s",
+                {"resource_type": resource_type},
+            )
             return None
 
         return ",".join(sorted(retry_names))
@@ -1837,9 +1862,11 @@ class MetricCache(AzureAsyncCache):
                     metric_definition := self.metrics_definitions.get(raw_metric["name"]["value"])
                 ):
                     LOGGER.error(
-                        "Skipping unexpected metric %s for resource %s",
-                        raw_metric["name"]["value"],
-                        resource_id,
+                        "Skipping unexpected metric %(metric_name)s for resource %(resource_id)s",
+                        {
+                            "metric_name": raw_metric["name"]["value"],
+                            "resource_id": resource_id,
+                        },
                     )
                     continue
 
@@ -1969,8 +1996,8 @@ async def _gather_metrics(
                 resource_metric.metrics += metrics
             else:
                 LOGGER.info(
-                    "Resource %s found in metrics cache no longer monitored",
-                    resource_id,
+                    "Resource %(resource_id)s found in metrics cache no longer monitored",
+                    {"resource_id": resource_id},
                 )
 
     return err
@@ -2111,7 +2138,10 @@ def write_to_agent_info_section(message: str, component: str, status: int) -> No
 
 
 def write_exception_to_agent_info_section(exception: BaseException, component: str) -> None:
-    LOGGER.warning("Writing exception for component %s:\n %s", component, exception)
+    LOGGER.warning(
+        "Writing exception for component %(component)s:\n %(exception)s",
+        {"component": component, "exception": exception},
+    )
 
     # those exceptions are quite noisy. try to make them more concise:
     msg = str(exception).split("Trace ID", 1)[0]
@@ -2209,7 +2239,7 @@ async def get_usage_data(
             raise NoConsumptionAPIError
         raise
 
-    LOGGER.debug("yesterdays usage details: %d", len(usage_data))
+    LOGGER.debug("yesterdays usage details: %(count)d", {"count": len(usage_data)})
     return usage_data
 
 
@@ -2348,7 +2378,9 @@ async def _collect_virtual_machines_resources(
         except KeyError:
             # this can happen because the resource has been filtered out
             # (for example because it is not in the monitored group configured via --explicit-config)
-            LOGGER.info("Virtual machine not found in monitored resources: %s", vm["id"])
+            LOGGER.info(
+                "Virtual machine not found in monitored resources: %(vm_id)s", {"vm_id": vm["id"]}
+            )
             continue
 
         try:
@@ -2396,7 +2428,8 @@ async def process_vault(
         resource.info["properties"]["backup_containers"].extend(properties)
     except IndexError:
         LOGGER.info(
-            "No backup items found for vault %s, writing empty properties", resource.info["name"]
+            "No backup items found for vault %(vault_name)s, writing empty properties",
+            {"vault_name": resource.info["name"]},
         )
     except KeyError:
         write_exception_to_agent_info_section(
@@ -2798,7 +2831,10 @@ async def _get_subscriptions(args: argparse.Namespace) -> set[AzureSubscription]
         return set()
 
     if args.all_subscriptions:
-        LOGGER.info("Using all subscriptions from API: %s", ",".join(subscriptions.keys()))
+        LOGGER.info(
+            "Using all subscriptions from API: %(subscriptions)s",
+            {"subscriptions": ",".join(subscriptions.keys())},
+        )
         return set(subscriptions.values())
 
     if args.subscriptions_require_tag or args.subscriptions_require_tag_value:
@@ -2811,8 +2847,12 @@ async def _get_subscriptions(args: argparse.Namespace) -> set[AzureSubscription]
             if tag_based_config.is_configured(subscription)
         }
         LOGGER.info(
-            "Using tag matching subscriptions: %s",
-            ",".join(subscription.id for subscription in monitored_subscriptions),
+            "Using tag matching subscriptions: %(subscriptions)s",
+            {
+                "subscriptions": ",".join(
+                    subscription.id for subscription in monitored_subscriptions
+                )
+            },
         )
         return monitored_subscriptions
 
@@ -2826,8 +2866,8 @@ async def _get_subscriptions(args: argparse.Namespace) -> set[AzureSubscription]
         monitored_subscriptions.add(subscriptions[subscription])
 
     LOGGER.info(
-        "Using requested subscriptions %s",
-        ",".join(subscription.id for subscription in monitored_subscriptions),
+        "Using requested subscriptions %(subscriptions)s",
+        {"subscriptions": ",".join(subscription.id for subscription in monitored_subscriptions)},
     )
 
     return monitored_subscriptions
@@ -2863,7 +2903,7 @@ async def main_async(args: argparse.Namespace, selector: Selector) -> int:
 
     subscriptions = await _get_subscriptions(args)
     await collect_info(args, selector, subscriptions)
-    LOGGER.debug("%s", selector)
+    LOGGER.debug("%(selector)s", {"selector": selector})
     return 0
 
 
@@ -2886,7 +2926,7 @@ def _setup_logging(verbose: int) -> None:
 def _debug_args(args: argparse.Namespace) -> None:
     # secret is looking after itself.
     for key, value in vars(args).items():
-        LOGGER.debug("argparse: %s = %r", key, value)
+        LOGGER.debug("argparse: %(key)s = %(value)r", {"key": key, "value": value})
 
 
 def agent_azure_main(args: argparse.Namespace) -> int:

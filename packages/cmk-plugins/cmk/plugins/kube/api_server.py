@@ -257,9 +257,9 @@ def decompose_git_version(
     identifier = _extract_sequence_based_identifier(git_version)
     if identifier is None:
         LOGGER.error(
-            "Could not parse version string '%s', using regex from kubectl '%s'.",
-            git_version,
-            VERSION_MATCH_RE.pattern,
+            "Could not parse version string '%(git_version)s', using regex from kubectl "
+            "'%(pattern)s'.",
+            {"git_version": git_version, "pattern": VERSION_MATCH_RE.pattern},
         )
         return api.UnknownKubernetesVersion(git_version=git_version)
     # Unlike kubectl, we do not explicitly handle cases where a component is non-numeric, since
@@ -267,16 +267,17 @@ def decompose_git_version(
     components = identifier.split(".")
     if len(components) < 2:
         LOGGER.error(
-            "Could not parse version string '%s', version '%s' has no minor.",
-            git_version,
-            identifier,
+            "Could not parse version string '%(git_version)s', version '%(identifier)s' has "
+            "no minor.",
+            {"git_version": git_version, "identifier": identifier},
         )
         return api.UnknownKubernetesVersion(git_version=git_version)
     for component in components:
         if component.startswith("0") and component != "0":
             LOGGER.error(
-                "Could not parse version string '%s', a version component is zero-prefixed.",
-                git_version,
+                "Could not parse version string '%(git_version)s', a version component is "
+                "zero-prefixed.",
+                {"git_version": git_version},
             )
             return api.UnknownKubernetesVersion(git_version=git_version)
 
@@ -301,7 +302,10 @@ def version_from_json(
     try:
         version_json = json.loads(raw_version)
     except Exception as e:
-        LOGGER.exception("Failed to parse /version endpoint response as JSON: %s", raw_version)
+        LOGGER.exception(
+            "Failed to parse /version endpoint response as JSON: %(raw_version)s",
+            {"raw_version": raw_version},
+        )
         raise UnsupportedEndpointData(
             "Unknown endpoint information at endpoint /version, HTTP(S) response was "
             f"'{raw_version.replace('\n', '')}'."
@@ -309,8 +313,8 @@ def version_from_json(
     if "gitVersion" not in version_json:
         LOGGER.error(
             "Data from endpoint /version did not have mandatory field 'gitVersion', HTTP(S) "
-            "response was: %s",
-            raw_version,
+            "response was: %(raw_version)s",
+            {"raw_version": raw_version},
         )
         raise UnsupportedEndpointData(
             "Data from endpoint /version did not have mandatory field 'gitVersion', HTTP(S) "
@@ -327,9 +331,12 @@ def _verify_version_support(version: api.KubernetesVersion | api.UnknownKubernet
     ):
         return
     LOGGER.warning(
-        "Unsupported Kubernetes version '%s'. Supported versions are %s.",
-        version.git_version,
-        SUPPORTED_VERSIONS_DISPLAY,
+        "Unsupported Kubernetes version '%(git_version)s'. Supported versions are "
+        "%(supported_versions)s.",
+        {
+            "git_version": version.git_version,
+            "supported_versions": SUPPORTED_VERSIONS_DISPLAY,
+        },
     )
     if (
         isinstance(version, api.KubernetesVersion)

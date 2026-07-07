@@ -67,7 +67,6 @@ _EXCLUDED_PREFIXES = (
     "cmk",
     "non-free",
     "tests",
-    "packages/cmk-plugins",
 )
 
 #: Repo-relative paths force-checked even when they sit below an ``_EXCLUDED_PREFIXES``

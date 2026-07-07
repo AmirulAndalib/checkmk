@@ -397,11 +397,14 @@ class ComposedEntities:
         agent_cluster = Cluster.from_api_resources(excluded_node_roles, api_data)
 
         LOGGER.debug(
-            "Cluster composition: Nodes (%s), Deployments (%s), DaemonSets (%s), StatefulSets (%s)",
-            len(agent_nodes),
-            len(agent_deployments),
-            len(agent_daemonsets),
-            len(agent_statefulsets),
+            "Cluster composition: Nodes (%(nodes)s), Deployments (%(deployments)s), "
+            "DaemonSets (%(daemonsets)s), StatefulSets (%(statefulsets)s)",
+            {
+                "nodes": len(agent_nodes),
+                "deployments": len(agent_deployments),
+                "daemonsets": len(agent_daemonsets),
+                "statefulsets": len(agent_statefulsets),
+            },
         )
 
         return cls(
@@ -1364,7 +1367,7 @@ def _main_with_setup(
     arguments: argparse.Namespace, checkmk_host_settings: CheckmkHostSettings
 ) -> int:
     setup_logging(arguments.verbose)
-    LOGGER.debug("parsed arguments: %s\n", arguments)
+    LOGGER.debug("parsed arguments: %(arguments)s\n", {"arguments": arguments})
 
     with Profile(profile_file=arguments.profile) if arguments.profile else nullcontext():
         return _main(arguments, checkmk_host_settings)

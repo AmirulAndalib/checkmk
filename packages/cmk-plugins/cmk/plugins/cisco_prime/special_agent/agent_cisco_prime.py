@@ -83,7 +83,7 @@ def write_section_from_get_request(argv: Sequence[str]) -> None:
             * https://developer.cisco.com/site/prime-infrastructure/documents/api-reference/rest-api-v3-9/v4/@id=rate-limiting-doc/#rate-limiting-config-doc
             * https://developer.cisco.com/site/prime-infrastructure/documents/api-reference/rest-api-v3-9/v4/@id=tutorials/ (see Paging section)
         """
-        LOGGER.info("fetch data from url=%r", url)
+        LOGGER.info("fetch data from url=%(url)r", {"url": url})
 
         auth = (
             (args.user, resolve_secret_option(args, PASSWORD_OPTION).reveal())
@@ -113,7 +113,10 @@ def write_section_from_get_request(argv: Sequence[str]) -> None:
 
     args = parse_arguments(argv)
     setup_logging(args.verbose)
-    LOGGER.debug("cmd: argv=%r, turned into: %r", argv, args.__dict__)
+    LOGGER.debug(
+        "cmd: argv=%(argv)r, turned into: %(args)r",
+        {"argv": argv, "args": args.__dict__},
+    )
     try:
         url_prefix = "{}://{}{}/{}".format(
             "http" if args.no_tls else "https",

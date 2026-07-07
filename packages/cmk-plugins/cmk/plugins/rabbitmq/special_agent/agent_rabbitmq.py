@@ -141,7 +141,9 @@ def _handle_rabbitmq_connection(args, sections):
 
     for section in sections:
         if section.name not in args.sections:
-            LOGGER.warning('Ignoring unknown section "%s"', section.name)
+            LOGGER.warning(
+                'Ignoring unknown section "%(section_name)s"', {"section_name": section.name}
+            )
             continue
 
         section_data = _handle_request(f"{url_base}/{section.uri}", args.user, password)

@@ -230,9 +230,11 @@ class PureStorageFlashArray:
 
         if login_response.status_code != 200:
             _LOGGER.error(
-                "Login failed: %s (%s)",
-                login_response.reason,
-                login_response.status_code,
+                "Login failed: %(reason)s (%(status_code)s)",
+                {
+                    "reason": login_response.reason,
+                    "status_code": login_response.status_code,
+                },
             )
             raise AuthError
 
@@ -247,9 +249,11 @@ class PureStorageFlashArray:
 
         if api_version_response.status_code != 200:
             _LOGGER.error(
-                "Getting API version failed: %s (%s)",
-                api_version_response.reason,
-                api_version_response.status_code,
+                "Getting API version failed: %(reason)s (%(status_code)s)",
+                {
+                    "reason": api_version_response.reason,
+                    "status_code": api_version_response.status_code,
+                },
             )
             raise APIVersionError
 
@@ -273,15 +277,17 @@ class PureStorageFlashArray:
                 params=spec.params,
             )
         except requests.exceptions.ConnectionError:
-            _LOGGER.exception("Collecting '%s' failed", spec.name)
+            _LOGGER.exception("Collecting '%(section_name)s' failed", {"section_name": spec.name})
             raise SectionError
 
         if section_response.status_code != 200:
             _LOGGER.error(
-                "Collecting '%s' failed: %s (%s)",
-                spec.name,
-                section_response.reason,
-                section_response.status_code,
+                "Collecting '%(section_name)s' failed: %(reason)s (%(status_code)s)",
+                {
+                    "section_name": spec.name,
+                    "reason": section_response.reason,
+                    "status_code": section_response.status_code,
+                },
             )
             raise SectionError
 
@@ -294,10 +300,12 @@ def _filter_applicable_sections(
     for spec in sections:
         if spec.min_version > latest_version:
             _LOGGER.error(
-                "Collecting '%s' failed: '%s' > '%s'",
-                spec.name,
-                spec.min_version,
-                latest_version,
+                "Collecting '%(section_name)s' failed: '%(min_version)s' > '%(latest_version)s'",
+                {
+                    "section_name": spec.name,
+                    "min_version": spec.min_version,
+                    "latest_version": latest_version,
+                },
             )
             continue
 

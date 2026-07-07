@@ -320,10 +320,16 @@ def agent_proxmox_ve_main(args: argparse.Namespace) -> int:
             logged_backup_data[vmid]["started_time"], tz
         )
 
-    LOGGER.info("all VMs:          %r", backup_data["vmids"])
-    LOGGER.info("expected backups: %r", backup_data["scheduled_vmids"])
-    LOGGER.info("actual backups:   %r", sorted(logged_backup_data.keys()))
-    LOGGER.info("snaptimes:        %r", snapshot_data)
+    LOGGER.info("all VMs:          %(all_vms)r", {"all_vms": backup_data["vmids"]})
+    LOGGER.info(
+        "expected backups: %(expected_backups)r",
+        {"expected_backups": backup_data["scheduled_vmids"]},
+    )
+    LOGGER.info(
+        "actual backups:   %(actual_backups)r",
+        {"actual_backups": sorted(logged_backup_data.keys())},
+    )
+    LOGGER.info("snaptimes:        %(snaptimes)r", {"snaptimes": snapshot_data})
 
     LOGGER.info("Write agent output..")
     for node in data["nodes"]:

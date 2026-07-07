@@ -188,10 +188,14 @@ def fetch_from_gateway(
             }
         )
 
-    LOGGING.debug("got %d containers", len(prism_objects["containers"]["entities"]))
-    LOGGING.debug("got %d alerts", len(prism_objects["alerts"]["entities"]))
-    LOGGING.debug("got %d keys", len(prism_objects["cluster"].keys()))
-    LOGGING.debug("got %d entities", len(prism_objects["storage_pools"]["entities"]))
+    LOGGING.debug(
+        "got %(count)d containers", {"count": len(prism_objects["containers"]["entities"])}
+    )
+    LOGGING.debug("got %(count)d alerts", {"count": len(prism_objects["alerts"]["entities"])})
+    LOGGING.debug("got %(count)d keys", {"count": len(prism_objects["cluster"].keys())})
+    LOGGING.debug(
+        "got %(count)d entities", {"count": len(prism_objects["storage_pools"]["entities"])}
+    )
 
     return prism_objects
 
