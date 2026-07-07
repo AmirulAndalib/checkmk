@@ -387,6 +387,7 @@ py_wheel(
         ":helper-interface",
         ":snmp-backends",
         ":snmplib",
+        ":subclass-discovery",
     ],
 )
 
