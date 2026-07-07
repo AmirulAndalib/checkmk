@@ -22,6 +22,7 @@ select = [
   "B005",   # flake8-bugbear: strip-with-multi-characters
   "B006",   # flake8-bugbear: mutable-argument-default
   "B012",   # flake8-bugbear: jump-statement-in-finally
+  "B014",   # flake8-bugbear: duplicate-handler-exception
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)
