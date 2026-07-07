@@ -145,6 +145,14 @@ const columns: ColumnDef<HostEntry>[] = [
     meta: { filter: stateFilter }
   },
   {
+    id: 'modes',
+    header: _t('Modes'),
+    enableSorting: false,
+    minSize: 80,
+    maxSize: 120,
+    meta: { justify: 'left' }
+  },
+  {
     accessorKey: 'name',
     header: _t('Host'),
     sortDescFirst: false,
@@ -245,7 +253,7 @@ const columns: ColumnDef<HostEntry>[] = [
 ]
 
 const columnPinning: ColumnPinningState = {
-  left: ['select', 'state', 'name'],
+  left: ['select', 'state', 'modes', 'name'],
   ...(hostActions.length > 0 ? { right: ['actions'] } : {})
 }
 

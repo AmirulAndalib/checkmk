@@ -13,6 +13,7 @@ import type { HostEntry } from '@/monitoring/shared/api/types'
 import { COLUMN_LAYOUT_KEY } from '@/monitoring/shared/components/MonitoringTableContext'
 import ActionsCell, { type CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'
 import CheckboxCell from '@/monitoring/shared/components/cell/CheckboxCell.vue'
+import ModesCell from '@/monitoring/shared/components/cell/ModesCell.vue'
 import NumberCell from '@/monitoring/shared/components/cell/NumberCell.vue'
 import StateCell from '@/monitoring/shared/components/cell/StateCell.vue'
 import StringCell from '@/monitoring/shared/components/cell/StringCell.vue'
@@ -58,6 +59,7 @@ function toggleSelected(selected: boolean): void {
     @update:model-value="toggleSelected"
   />
   <StateCell v-if="hasColumn('state')" column-id="state" :state="row.state" />
+  <ModesCell v-if="hasColumn('modes')" column-id="modes" :modes="row.modes ?? []" />
   <StringCell v-if="hasColumn('name')" column-id="name" :value="row.name" />
   <StringCell v-if="hasColumn('address')" column-id="address" :value="row.address" />
   <NumberCell
@@ -192,6 +194,7 @@ function toggleSelected(selected: boolean): void {
           }
     "
   />
+
   <ActionsCell
     v-if="actions.length > 0 && hasColumn('actions')"
     column-id="actions"
