@@ -8,6 +8,7 @@ import {
   type Column,
   type ColumnDef,
   FlexRender,
+  type Header,
   type HeaderGroup,
   type Table
 } from '@tanstack/vue-table'
@@ -15,6 +16,7 @@ import { type CSSProperties, inject } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
@@ -125,6 +127,20 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
   const justify = columnDef.meta?.justify
   return justify !== undefined ? { textAlign: justify } : {}
 }
+
+function hasFilterButton(header: Header<T, unknown>): boolean {
+  return (
+    !header.isPlaceholder &&
+    header.column.getCanFilter() &&
+    header.column.columnDef.meta?.filter !== undefined
+  )
+}
+
+function reservesFilterSpace(header: Header<T, unknown>): boolean {
+  return (
+    !header.isPlaceholder && !header.column.columnDef.meta?.selectColumn && !hasFilterButton(header)
+  )
+}
 </script>
 
 <template>
@@ -146,7 +162,12 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
         :style="[columnStyle(header.column.columnDef), stickyStyle(header.column.id)]"
         :aria-sort="ariaSortFor(header.column.getIsSorted())"
       >
-        <div class="monitoring-table-header__cell-content">
+        <div
+          class="monitoring-table-header__cell-content"
+          :class="{
+            'monitoring-table-header__cell-content--reserve-filter': reservesFilterSpace(header)
+          }"
+        >
           <div
             v-if="!header.isPlaceholder && header.column.columnDef.meta?.selectColumn"
             class="monitoring-table-header__select"
@@ -239,11 +260,13 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
                 :aria-expanded="isOpen"
                 @click="toggle"
               >
-                <CmkMultitoneIcon
-                  name="filter"
-                  :primary-color="isActive ? { custom: 'var(--success)' } : 'font'"
-                  aria-hidden="true"
-                />
+                <CmkIconEmblem :emblem="isActive ? 'warning' : undefined">
+                  <CmkMultitoneIcon
+                    name="filter"
+                    :primary-color="{ custom: 'var(--success)' }"
+                    aria-hidden="true"
+                  />
+                </CmkIconEmblem>
               </button>
             </template>
           </FilterDropdown>
@@ -293,6 +316,10 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
   display: flex;
   align-items: center;
   height: 100%;
+}
+
+.monitoring-table-header__cell-content--reserve-filter {
+  margin-right: var(--dimension-4);
 }
 
 .monitoring-table-header__select {
@@ -381,6 +408,14 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
 
 .monitoring-table-header__filter-button--active {
   opacity: 1;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown, checkmk/vue-bem-naming-convention */
+.monitoring-table-header__filter-button :deep(.cmk-icon-emblem__emblem) {
+  width: 50%;
+  height: 50%;
+  right: -10%;
+  bottom: -10%;
 }
 
 .monitoring-table-header__sort-icon-wrapper {
