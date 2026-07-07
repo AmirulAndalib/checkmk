@@ -924,7 +924,7 @@ _SYNTHETIC_GRAPH_TEMPLATE_TRANSLATIONS = {
         "wait": {"name": "io_wait"},
     },
     "check_mk-df": {
-        "growth": {"name": "fs_growth", "scale": 1024**2 / 86400.0},
+        "growth": {"name": "fs_growth", "scale": 1024**2},
     },
 }
 
