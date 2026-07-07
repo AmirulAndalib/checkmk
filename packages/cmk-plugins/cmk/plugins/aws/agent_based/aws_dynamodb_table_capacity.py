@@ -6,6 +6,7 @@
 # mypy: disable-error-code="type-arg"
 
 from collections.abc import Mapping
+from functools import partial
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -45,7 +46,7 @@ def _check_capacity_minmax_metrics(
                 levels_upper=levels_upper,
                 levels_lower=levels_lower,
                 label=label,
-                render_func=lambda f: aws_get_float_human_readable(f, unit=unit),
+                render_func=partial(aws_get_float_human_readable, unit=unit),
             )
 
 

@@ -9,6 +9,7 @@ Please use the new special agent configured via the "Microsoft Azure" ruleset.
 
 import collections
 from collections.abc import Mapping
+from functools import partial
 from typing import Any
 
 from cmk.agent_based.v2 import (
@@ -67,10 +68,14 @@ def check_azure_usagedetails(item: str, params: Mapping[str, Any], section: Sect
             value=amount,
             levels_upper=levels,
             metric_name="service_costs_%s" % currency.lower(),
-            render_func=lambda v: f"{v:.2f} {currency}",
+            render_func=partial(_render_costs, currency=currency),
         )
 
     yield Result(state=State.OK, summary=f"Subscription: {data['subscription_id']}")
+
+
+def _render_costs(value: float, currency: str) -> str:
+    return f"{value:.2f} {currency}"
 
 
 agent_section_azure_usagedetails = AgentSection(

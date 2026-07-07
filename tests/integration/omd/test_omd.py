@@ -9,6 +9,7 @@
 import shutil
 import tempfile
 from collections.abc import Iterator
+from functools import partial
 from pathlib import Path
 
 import pytest
@@ -194,11 +195,14 @@ def test_run_omd_reload_service(site: Site) -> None:
     Verifies that each service can be reloaded successfully.
     """
 
+    def _service_status_is_ok(service: str) -> bool:
+        return site.get_omd_service_names_and_statuses(service)[service] == 0
+
     expected: dict[str, int] = site.get_omd_service_names_and_statuses()
     for service in expected:
         _ = site.omd("reload", service)
         wait_until(
-            lambda: site.get_omd_service_names_and_statuses(service)[service] == 0,
+            partial(_service_status_is_ok, service),
             timeout=10,
             interval=1,
             condition_name=f"Validate '{service}' state is OK",

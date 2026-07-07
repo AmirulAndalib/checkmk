@@ -5,6 +5,7 @@
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from functools import partial
 
 from cmk.agent_based.v1 import check_levels as check_levels_v1
 from cmk.agent_based.v2 import (
@@ -188,9 +189,13 @@ def check_pdu_gude(
             levels_upper=levels_upper,
             levels_lower=levels_lower,
             metric_name=pdu_property.unit,
-            render_func=lambda v: f"{v:.2f} {pdu_property.unit}",
+            render_func=partial(_render_with_unit, unit=pdu_property.unit),
             label=pdu_property.label,
         )
+
+
+def _render_with_unit(value: float, unit: str) -> str:
+    return f"{value:.2f} {unit}"
 
 
 check_plugin_pdu_gude = CheckPlugin(

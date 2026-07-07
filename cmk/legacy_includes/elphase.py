@@ -5,6 +5,7 @@
 
 
 from collections.abc import Callable, Mapping
+from functools import partial
 from typing import Any
 
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckResult
@@ -14,6 +15,10 @@ _RENDER_FUNCTION: Mapping[str, Callable[[float], str]] = {
     "%": render.percent,
     "mA": lambda current: f"{(current * 1000):.1f} mA",
 }
+
+
+def _render_with_unit(value: float, unit: str) -> str:
+    return f"{value:.1f} {unit}"
 
 
 # Parsed has the following form:
@@ -88,7 +93,9 @@ def check_elphase(
                 value * factor,
                 what,
                 tuple(None if level is None else level * factor for level in levels),
-                human_readable_func=_RENDER_FUNCTION.get(unit, lambda v: f"{v:.1f} {unit}"),
+                human_readable_func=_RENDER_FUNCTION.get(
+                    unit, partial(_render_with_unit, unit=unit)
+                ),
                 infoname=title,
             )
 

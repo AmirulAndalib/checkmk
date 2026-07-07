@@ -442,17 +442,20 @@ REDACT_PATTERNS: list[RedactPattern] = [
 def redact_passwords_in_content(content: str, rel_filepath: Path) -> str:
     for rp in REDACT_PATTERNS:
         if not rp.affected_files or any(a in str(rel_filepath) for a in rp.affected_files):
-            if rp.outer_regex:
-
-                def _inner_regex_processor(match: re.Match[str]) -> str:
-                    p, c, s = match.groups()
-                    return p + rp.replace_regex.sub(rp.replacement, c) + s
-
-                content = rp.outer_regex.sub(_inner_regex_processor, content)
-            else:
-                content = rp.replace_regex.sub(rp.replacement, content)
+            content = _apply_redact_pattern(rp, content)
 
     return content
+
+
+def _apply_redact_pattern(rp: RedactPattern, content: str) -> str:
+    if rp.outer_regex is None:
+        return rp.replace_regex.sub(rp.replacement, content)
+
+    def _inner_regex_processor(match: re.Match[str]) -> str:
+        p, c, s = match.groups()
+        return p + rp.replace_regex.sub(rp.replacement, c) + s
+
+    return rp.outer_regex.sub(_inner_regex_processor, content)
 
 
 def redact_passwords_in_file(filepath: Path, rel_filepath: Path) -> int:

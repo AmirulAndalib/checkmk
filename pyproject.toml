@@ -26,6 +26,7 @@ select = [
   "B017",   # flake8-bugbear: assert-raises-exception
   "B019",   # flake8-bugbear: cached-instance-method
   "B020",   # flake8-bugbear: loop-variable-overrides-iterator
+  "B023",   # flake8-bugbear: function-uses-loop-variable
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)

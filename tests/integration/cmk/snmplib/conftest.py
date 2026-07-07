@@ -15,6 +15,7 @@ import os
 import shutil
 import subprocess
 from collections.abc import Iterator
+from functools import partial
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import NamedTuple
@@ -76,7 +77,7 @@ def snmpsim_fixture(site: Site, snmp_data_dir: Path) -> Iterator[None]:
 
         try:
             for process_def in process_definitions:
-                wait_until(lambda: _is_listening(process_def), timeout=TIMEOUT_AFTER, interval=1)
+                wait_until(partial(_is_listening, process_def), timeout=TIMEOUT_AFTER, interval=1)
 
             yield
         finally:
