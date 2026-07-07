@@ -311,6 +311,7 @@ def _get_parameters(location: LocationType, schema: type | None) -> Sequence[Ope
             by_alias=True,
             mode="validation",
             schema_generator=CheckmkGenerateJsonSchema,
+            union_format="primitive_type_array",
         )
 
         if defs := json_schema.pop("$defs", None):

@@ -84,6 +84,7 @@ def _get_json_schema(
                 ref_template="#/components/schemas/{model}",
                 schema_generator=CheckmkGenerateJsonSchema,
                 mode="serialization" if direction == "outbound" else "validation",
+                union_format="primitive_type_array",
             )
     except PydanticJsonSchemaWarning as e:
         title = _try_get_title(adapter.core_schema) or "<unknown>"
