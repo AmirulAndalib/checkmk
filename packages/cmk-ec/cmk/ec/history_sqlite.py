@@ -172,7 +172,11 @@ def _unix_temp_file_dir(logger: Logger) -> Path | None:
                 and stat.S_ISDIR(os.stat(path_candidate).st_mode)
                 and os.access(path_candidate, os.W_OK | os.X_OK)
             ):
-                logger.log(VERBOSE, "assuming %s for SQLite's temporary directory", path_candidate)
+                logger.log(
+                    VERBOSE,
+                    "assuming %(temp_dir)s for SQLite's temporary directory",
+                    {"temp_dir": path_candidate},
+                )
                 return Path(path_candidate)
         except OSError:
             pass
@@ -322,8 +326,8 @@ class SQLiteHistory(History):
         delta = now - timedelta(days=self._config["history_lifetime"]).total_seconds()
         self._logger.log(
             VERBOSE,
-            "SQLite history housekeeping: deleting events before %s",
-            datetime.fromtimestamp(delta).isoformat(),
+            "SQLite history housekeeping: deleting events before %(cutoff)s",
+            {"cutoff": datetime.fromtimestamp(delta).isoformat()},
         )
         with self.conn as connection:
             cur = connection.cursor()
@@ -349,9 +353,11 @@ class SQLiteHistory(History):
             f"configured limit is {_fmt_bytes(max_freelist_size)}"
         )
         if freelist_size <= max_freelist_size:
-            self._logger.log(VERBOSE, "%s, no VACUUM needed", freelist_msg)
+            self._logger.log(
+                VERBOSE, "%(freelist_msg)s, no VACUUM needed", {"freelist_msg": freelist_msg}
+            )
             return
-        self._logger.log(VERBOSE, "%s, VACUUM needed", freelist_msg)
+        self._logger.log(VERBOSE, "%(freelist_msg)s, VACUUM needed", {"freelist_msg": freelist_msg})
 
         if self._sqlite_temp_file_dir is not None:
             db_size = self._settings.database.stat().st_size
@@ -361,13 +367,18 @@ class SQLiteHistory(History):
                 f"estimated size for VACUUM is {_fmt_bytes(db_size)}"
             )
             if db_size * 1.1 > disk_free:  # Overestimate by 10%, just to be sure
-                self._logger.warning("%s, not running it due to insufficient space", disk_free_msg)
+                self._logger.warning(
+                    "%(disk_free_msg)s, not running it due to insufficient space",
+                    {"disk_free_msg": disk_free_msg},
+                )
                 return
-            self._logger.log(VERBOSE, "%s, which is sufficient", disk_free_msg)
+            self._logger.log(
+                VERBOSE, "%(disk_free_msg)s, which is sufficient", {"disk_free_msg": disk_free_msg}
+            )
 
-        self._logger.info("running VACUUM on %s", self._settings.database)
+        self._logger.info("running VACUUM on %(database)s", {"database": self._settings.database})
         self.conn.execute("VACUUM;")
-        self._logger.info("VACUUM on %s done", self._settings.database)
+        self._logger.info("VACUUM on %(database)s done", {"database": self._settings.database})
 
     def close(self) -> None:
         """Explicitly close the connection to the sqlite database.

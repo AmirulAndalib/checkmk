@@ -35,6 +35,9 @@ class TimePeriods:
     def active(self, name: TimeperiodName) -> bool:
         self._update()
         if (is_active := self._active.get(name)) is None:
-            self._logger.warning("unknown time period '%s', assuming it is active", name)
+            self._logger.warning(
+                "unknown time period '%(timeperiod_name)s', assuming it is active",
+                {"timeperiod_name": name},
+            )
             is_active = True
         return is_active

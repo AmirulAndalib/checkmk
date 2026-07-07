@@ -203,7 +203,7 @@ class QueryGET(Query):
         elif header == "Limit":
             self.limit = int(argument)
         else:
-            logger.info("Ignoring not-implemented header %s", header)
+            logger.info("Ignoring not-implemented header %(header)s", {"header": header})
 
     def _parse_filter(self, textspec: str) -> QueryFilter:
         """Examples:

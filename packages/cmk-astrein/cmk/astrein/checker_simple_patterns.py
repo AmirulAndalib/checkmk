@@ -67,7 +67,6 @@ _EXCLUDED_PREFIXES = (
     "cmk",
     "non-free",
     "tests",
-    "packages/cmk-ec",
     "packages/cmk-plugins",
 )
 
@@ -76,7 +75,6 @@ _EXCLUDED_PREFIXES = (
 _INCLUDED_PATHS = (
     "cmk/update_config/plugins/actions/validate_mk_files.py",
     "cmk/base/notify.py",
-    "packages/cmk-ec/cmk/ec/main.py",
     "non-free/packages/cmk-update-agent",
     "tests/testlib/site.py",
     "non-free/packages/cmk-dcd/cmk/dcd",

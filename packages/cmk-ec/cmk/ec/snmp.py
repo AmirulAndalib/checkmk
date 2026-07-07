@@ -123,7 +123,10 @@ class SNMPTrapParser:
             # SNMPv1/v2
             if not isinstance(credentials, tuple):
                 community_index = f"snmpv2-{user_num}"
-                self._logger.info("adding SNMPv1 system: communityIndex=%s", community_index)
+                self._logger.info(
+                    "adding SNMPv1 system: communityIndex=%(community_index)s",
+                    {"community_index": community_index},
+                )
                 pysnmp.entity.config.add_v1_system(self.snmp_engine, community_index, credentials)
                 continue
 
@@ -151,11 +154,14 @@ class SNMPTrapParser:
 
             for engine_id in spec.get("engine_ids", []):
                 self._logger.info(
-                    "adding SNMPv3 user: userName=%s, authProtocol=%s, privProtocol=%s, securityEngineId=%s",
-                    user_id,
-                    ".".join(str(i) for i in auth_proto),
-                    ".".join(str(i) for i in priv_proto),
-                    engine_id,
+                    "adding SNMPv3 user: userName=%(user_id)s, authProtocol=%(auth_proto)s, "
+                    "privProtocol=%(priv_proto)s, securityEngineId=%(engine_id)s",
+                    {
+                        "user_id": user_id,
+                        "auth_proto": ".".join(str(i) for i in auth_proto),
+                        "priv_proto": ".".join(str(i) for i in priv_proto),
+                        "engine_id": engine_id,
+                    },
                 )
                 pysnmp.entity.config.add_v3_user(
                     self.snmp_engine,
@@ -172,7 +178,9 @@ class SNMPTrapParser:
     ) -> tuple[Iterable[tuple[str, str]], str] | None:
         """Let PySNMP parse the given trap data. The _handle_snmptrap() callback below collects the result."""
         self._logger.log(
-            VERBOSE, "Trap received from %s:%d. Checking for acceptance now.", sender_address
+            VERBOSE,
+            "Trap received from %(host)s:%(port)d. Checking for acceptance now.",
+            {"host": sender_address[0], "port": sender_address[1]},
         )
         self._varbinds_and_ipaddress = None
         self.snmp_engine.set_user_context(sender_address=sender_address)
@@ -210,14 +218,21 @@ class SNMPTrapParser:
         if self._logger.isEnabledFor(VERBOSE):
             self._logger.log(
                 VERBOSE,
-                'Trap accepted from %s (ContextEngineId "%s", SNMPContext "%s")',
-                ipaddress,
-                context_engine_id.prettyPrint(),
-                context_name.prettyPrint(),
+                'Trap accepted from %(ipaddress)s (ContextEngineId "%(context_engine_id)s", '
+                'SNMPContext "%(context_name)s")',
+                {
+                    "ipaddress": ipaddress,
+                    "context_engine_id": context_engine_id.prettyPrint(),
+                    "context_name": context_name.prettyPrint(),
+                },
             )
 
             for name, val in var_binds:
-                self._logger.log(VERBOSE, "%-40s = %s", name.prettyPrint(), val.prettyPrint())
+                self._logger.log(
+                    VERBOSE,
+                    "%(name)-40s = %(value)s",
+                    {"name": name.prettyPrint(), "value": val.prettyPrint()},
+                )
 
     def _handle_unauthenticated_snmptrap(
         self,
@@ -243,10 +258,12 @@ class SNMPTrapParser:
 
         self._logger.log(
             VERBOSE,
-            "Trap (v%d) dropped from %s: %s",
-            variables["securityLevel"],
-            variables["transportAddress"][0],
-            msg,
+            "Trap (v%(security_level)d) dropped from %(transport_address)s: %(msg)s",
+            {
+                "security_level": variables["securityLevel"],
+                "transport_address": variables["transportAddress"][0],
+                "msg": msg,
+            },
         )
 
 
@@ -299,14 +316,25 @@ class SNMPTrapTranslator:
                         builder.load_module(module_name)
                     except pysnmp.smi.error.MibNotFoundError as e:
                         logger.warning(
-                            "Skipping MIB module %s: missing dependency (%s)", module_name, e
+                            "Skipping MIB module %(module_name)s: missing dependency (%(error)s)",
+                            {"module_name": module_name, "error": e},
                         )
                     except pysnmp.smi.error.SmiError:
-                        logger.warning("Failed to load MIB module %s", module_name, exc_info=True)
+                        logger.warning(
+                            "Failed to load MIB module %(module_name)s",
+                            {"module_name": module_name},
+                            exc_info=True,
+                        )
 
             loaded_mib_module_names = list(builder.mibSymbols.keys())
-            logger.info("Loaded %d SNMP MIB modules", len(loaded_mib_module_names))
-            logger.log(VERBOSE, "Found modules: %s", ", ".join(loaded_mib_module_names))
+            logger.info(
+                "Loaded %(count)d SNMP MIB modules", {"count": len(loaded_mib_module_names)}
+            )
+            logger.log(
+                VERBOSE,
+                "Found modules: %(modules)s",
+                {"modules": ", ".join(loaded_mib_module_names)},
+            )
 
             # This object maintains various indices built from MIBs data
             return pysnmp.smi.view.MibViewController(builder)
@@ -342,13 +370,13 @@ class SNMPTrapTranslator:
                 translated_oid, translated_value = self._translate_binding_via_mibs(oid, value)
             except (pysnmp.smi.error.SmiError, pyasn1.error.ValueConstraintError):
                 self._logger.warning(
-                    "Failed to translate OID %s (in trap from %s): (enable debug logging for details)",
-                    oid.prettyPrint(),
-                    ipaddress,
+                    "Failed to translate OID %(oid)s (in trap from %(ipaddress)s): "
+                    "(enable debug logging for details)",
+                    {"oid": oid.prettyPrint(), "ipaddress": ipaddress},
                 )
                 self._logger.debug(
-                    "Failed trap var binds:\n%s",
-                    "\n".join(f"{i}: {repr(i)}" for i in var_bind_list),
+                    "Failed trap var binds:\n%(var_binds)s",
+                    {"var_binds": "\n".join(f"{i}: {repr(i)}" for i in var_bind_list)},
                 )
                 self._logger.debug(traceback.format_exc())
                 translated_oid = str(oid)

@@ -75,9 +75,9 @@ class FileHistory(History):
             return []
 
         filters = query.filters
-        self._logger.debug("Filters: %r", filters)
+        self._logger.debug("Filters: %(filters)r", {"filters": filters})
         limit = query.limit
-        self._logger.debug("Limit: %r", limit)
+        self._logger.debug("Limit: %(limit)r", {"limit": limit})
 
         grep_pipeline = _grep_pipeline(filters)
 
@@ -88,7 +88,7 @@ class FileHistory(History):
             _greatest_lower_bound_for_filters(time_filters),
             _least_upper_bound_for_filters(time_filters),
         )
-        self._logger.debug("time range: %r", time_range)
+        self._logger.debug("time range: %(time_range)r", {"time_range": time_range})
 
         # We do not want to open all files. So our strategy is:
         # look for "time" filters and first apply the filter to
@@ -109,11 +109,13 @@ class FileHistory(History):
                 self._logger.debug("query limit reached")
                 break
             if not _intersects(time_range, _get_logfile_timespan(path)):
-                self._logger.debug("skipping history file %s because of time filters", path)
+                self._logger.debug(
+                    "skipping history file %(path)s because of time filters", {"path": path}
+                )
                 continue
             tac = f"nl -b a {shlex.quote(str(path))} | tac"  # Process younger lines first
             cmd = " | ".join([tac] + grep_pipeline)
-            self._logger.debug("preprocessing history file with command [%s]", cmd)
+            self._logger.debug("preprocessing history file with command [%(cmd)s]", {"cmd": cmd})
             new_entries = parse_history_file(
                 self._history_columns, path, query.filter_row, cmd, limit, self._logger
             )
@@ -139,20 +141,20 @@ def _expire_logfiles(
             min_mtime = time.time() - days * 86400
             logger.log(
                 VERBOSE,
-                "Expiring logfiles (Horizon: %d days -> %s)",
-                days,
-                _date_and_time(min_mtime),
+                "Expiring logfiles (Horizon: %(days)d days -> %(cutoff)s)",
+                {"days": days, "cutoff": _date_and_time(min_mtime)},
             )
             for path in settings.paths.history_dir.value.glob("*.log"):
                 if flush or path.stat().st_mtime < min_mtime:
                     logger.info(
-                        "Deleting log file %s (age %s)", path, _date_and_time(path.stat().st_mtime)
+                        "Deleting log file %(path)s (age %(age)s)",
+                        {"path": path, "age": _date_and_time(path.stat().st_mtime)},
                     )
                     path.unlink()
         except Exception as e:
             if settings.options.debug:
                 raise
-            logger.warning("Error expiring log files: %s", e)
+            logger.warning("Error expiring log files: %(error)s", {"error": e})
 
 
 def _date_and_time(timestamp: float) -> str:
@@ -288,7 +290,10 @@ def parse_history_file(
                 if filter_row(parts):
                     entries.append(parts)
             except Exception:
-                logger.exception("Invalid line '%s' in history file %s", line, path)
+                logger.exception(
+                    "Invalid line '%(line)s' in history file %(path)s",
+                    {"line": line, "path": path},
+                )
 
     return entries
 

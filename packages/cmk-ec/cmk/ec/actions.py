@@ -91,7 +91,10 @@ def event_has_opened(
         event["live_until_phases"] = phases
 
     if rule.get("actions_in_downtime", True) is False and event["host_in_downtime"]:
-        logger.info("Skip actions for event %d: Host is in downtime", event["id"])
+        logger.info(
+            "Skip actions for event %(event_id)d: Host is in downtime",
+            {"event_id": event["id"]},
+        )
         return
 
     do_event_actions(
@@ -126,13 +129,15 @@ def do_event_actions(
         if aname == "@NOTIFY":
             do_notify(host_config, logger, connection, event, is_cancelling=is_cancelling)
         elif action := table.get(aname):
-            logger.info('executing action "%s" on event %s', action["title"], event["id"])
+            logger.info(
+                'executing action "%(title)s" on event %(event_id)s',
+                {"title": action["title"], "event_id": event["id"]},
+            )
             do_event_action(history, settings, config, logger, event_columns, action, event, "")
         else:
             logger.info(
-                'undefined action "%s", must be one of %s',
-                aname,
-                ", ".join(table.keys()),
+                'undefined action "%(action_name)s", must be one of %(known_actions)s',
+                {"action_name": aname, "known_actions": ", ".join(table.keys())},
             )
 
 
@@ -152,7 +157,7 @@ def do_event_action(
 ) -> None:
     action_id = action["id"]
     if action["disabled"]:
-        logger.info("Skipping disabled action %s.", action_id)
+        logger.info("Skipping disabled action %(action_id)s.", {"action_id": action_id})
         return
     try:
         act = action["action"]
@@ -162,12 +167,15 @@ def do_event_action(
             _do_script_action(history, logger, event_columns, act[1], action_id, event, user)
         else:
             # TODO: Really parse the config, then this can't happen
-            logger.error("Cannot execute action %s: invalid action type %s", action_id, act[0])  # type: ignore[unreachable]
+            logger.error(  # type: ignore[unreachable]
+                "Cannot execute action %(action_id)s: invalid action type %(action_type)s",
+                {"action_id": action_id, "action_type": act[0]},
+            )
 
     except Exception:
         if settings.options.debug:
             raise
-        logger.exception("Error during execution of action %s", action_id)
+        logger.exception("Error during execution of action %(action_id)s", {"action_id": action_id})
 
 
 def _do_email_action(
@@ -231,7 +239,10 @@ def _send_email(config: Config, to: str, subject: str, body: str, logger: Logger
     ]
 
     if config["debug_rules"]:
-        logger.info("  Executing: %s", " ".join(x.decode("utf-8") for x in command_utf8))
+        logger.info(
+            "  Executing: %(command)s",
+            {"command": " ".join(x.decode("utf-8") for x in command_utf8)},
+        )
 
     # FIXME: This may lock on too large buffer. We should move all "mail sending" code
     # to a general place and fix this for all our components (notification plugins,
@@ -245,11 +256,11 @@ def _send_email(config: Config, to: str, subject: str, body: str, logger: Logger
         check=False,
     )
 
-    logger.info("  Exitcode: %d", completed_process.returncode)
+    logger.info("  Exitcode: %(exit_code)d", {"exit_code": completed_process.returncode})
     if completed_process.returncode:
         logger.info("  Error: Failed to send the mail.")
         for line in (completed_process.stdout + completed_process.stderr).splitlines():
-            logger.info("  Output: %s", line.rstrip())
+            logger.info("  Output: %(line)s", {"line": line.rstrip()})
         return False
 
     return True
@@ -274,9 +285,9 @@ def _execute_script(
         input=body,
         check=False,
     )
-    logger.info("  Exit code: %d", completed_process.returncode)
+    logger.info("  Exit code: %(exit_code)d", {"exit_code": completed_process.returncode})
     if completed_process.stdout:
-        logger.info("  Output: '%s'", completed_process.stdout)
+        logger.info("  Output: '%(output)s'", {"output": completed_process.stdout})
 
 
 def _get_event_tags(
@@ -338,7 +349,8 @@ def do_notify(
     """
     if not _core_has_notifications_enabled(logger, connection):
         logger.info(
-            "Notifications are currently disabled. Skipped notification for event %d", event["id"]
+            "Notifications are currently disabled. Skipped notification for event %(event_id)d",
+            {"event_id": event["id"]},
         )
         return
 
@@ -349,13 +361,13 @@ def do_notify(
     if logger.isEnabledFor(VERBOSE):
         logger.log(VERBOSE, "Sending notification via Check_MK with the following context:")
         for varname, value in sorted(context.items()):
-            logger.log(VERBOSE, "  %-25s: %s", varname, value)
+            logger.log(VERBOSE, "  %(varname)-25s: %(value)s", {"varname": varname, "value": value})
 
     if context["HOSTDOWNTIME"] != "0":
         logger.info(
-            "Host %s is currently in scheduled downtime. Skipping notification of event %s.",
-            context["HOSTNAME"],
-            event["id"],
+            "Host %(hostname)s is currently in scheduled downtime. "
+            "Skipping notification of event %(event_id)s.",
+            {"hostname": context["HOSTNAME"], "event_id": event["id"]},
         )
         return
 
@@ -378,9 +390,15 @@ def do_notify(
         check=False,
     )
     if completed_process.returncode:
-        logger.error("Error notifying via Check_MK: %s", completed_process.stdout.strip())
+        logger.error(
+            "Error notifying via Check_MK: %(output)s",
+            {"output": completed_process.stdout.strip()},
+        )
     else:
-        logger.info("Successfully forwarded notification for event %d to Check_MK", event["id"])
+        logger.info(
+            "Successfully forwarded notification for event %(event_id)d to Check_MK",
+            {"event_id": event["id"]},
+        )
 
 
 def _create_notification_context(
@@ -539,10 +557,13 @@ def _add_contact_information_to_context(
     context["SERVICECONTACTGROUPNAMES"] = ",".join(contact_groups)
     logger.log(
         VERBOSE,
-        "Setting %d contacts %s resulting from rule contact groups %s",
-        len(contact_names),
-        ",".join(contact_names),
-        ",".join(contact_groups),
+        "Setting %(contact_count)d contacts %(contacts)s "
+        "resulting from rule contact groups %(contact_groups)s",
+        {
+            "contact_count": len(contact_names),
+            "contacts": ",".join(contact_names),
+            "contact_groups": ",".join(contact_groups),
+        },
     )
 
 

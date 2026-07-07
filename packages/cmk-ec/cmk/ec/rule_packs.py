@@ -95,7 +95,9 @@ def _bind_to_rule_pack_proxies(
                 filtered_rule_packs.append(rule_pack)
             else:
                 # we have deleted that file. That's ok, we can drop the proxy.
-                logging.getLogger("cmk.mkeventd").info("Dropped obsolete proxy: %s", rule_pack.id_)
+                logging.getLogger("cmk.mkeventd").info(
+                    "Dropped obsolete proxy: %(rule_pack_id)s", {"rule_pack_id": rule_pack.id_}
+                )
         else:
             filtered_rule_packs.append(rule_pack)
     return filtered_rule_packs

@@ -89,20 +89,27 @@ def create_event_from_syslog_message(
 ) -> Event:
     if logger:
         adr = "" if address is None else f" from host {address[0]}, port {address[1]}:"
-        logger.info("processing message %s %s", adr, message)
+        logger.info(
+            "processing message %(address_prefix)s %(message)s",
+            {"address_prefix": adr, "message": message},
+        )
     # TODO: Is it really never a domain name?
     ipaddress = "" if address is None else address[0]
     try:
         event = parse_syslog_message_into_event(scrub_string(message.decode("utf-8")), ipaddress)
     except Exception:
         if logger:
-            logger.info("could not parse message %s", message)
+            logger.info("could not parse message %(message)s", {"message": message})
         event = _make_event(scrub_string(message.decode("utf-8", "replace")), ipaddress)
     if logger:
         width = max(len(k) for k in event) + 1
         logger.info(
-            "parsed message: %s",
-            "".join(f"\n {k + ':':{width}} {v}" for k, v in sorted(event.items())),
+            "parsed message: %(parsed_event)s",
+            {
+                "parsed_event": "".join(
+                    f"\n {k + ':':{width}} {v}" for k, v in sorted(event.items())
+                )
+            },
         )
     return event
 

@@ -66,7 +66,8 @@ class TimedHistory(History):
             yield
         finally:
             self._logger.debug(
-                "history method call '%s' took %.3f ms", method_name, (time.time() - tic) * 1000
+                "history method call '%(method_name)s' took %(duration_ms).3f ms",
+                {"method_name": method_name, "duration_ms": (time.time() - tic) * 1000},
             )
 
     def flush(self) -> None:
@@ -94,7 +95,16 @@ def _log_event(
     config: Config, logger: Logger, event: Event, what: HistoryWhat, who: str, addinfo: str
 ) -> None:
     if config["debug_rules"]:
-        logger.info("Event %d: %s/%s/%s - %s", event["id"], what, who, addinfo, event["text"])
+        logger.info(
+            "Event %(event_id)d: %(what)s/%(who)s/%(addinfo)s - %(text)s",
+            {
+                "event_id": event["id"],
+                "what": what,
+                "who": who,
+                "addinfo": addinfo,
+                "text": event["text"],
+            },
+        )
 
 
 def quote_tab(col: object) -> bytes:
