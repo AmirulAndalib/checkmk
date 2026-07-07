@@ -7,6 +7,7 @@ from typing import override
 
 from cmk.ccc.user import UserId
 from cmk.gui.breadcrumb import Breadcrumb, BreadcrumbItem, make_topic_breadcrumb
+from cmk.gui.config import Config
 from cmk.gui.header import make_header
 from cmk.gui.htmllib.html import html
 from cmk.gui.http import request
@@ -27,11 +28,50 @@ from cmk.gui.type_defs import DynamicIconName, IconNames, StaticIcon, Visual
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.urls import makeuri_contextless
 from cmk.gui.views.command.registry import CommandRegistry
-from cmk.shared_typing.monitoring.all_hosts import MonitoringAllHostsApp, MonitoringPageLinkButton
+from cmk.shared_typing.monitoring.all_hosts import (
+    MonitoringAllHostsApp,
+    MonitoringPageLinkButton,
+    RowAction,
+)
 
 from ._actions import PermittedHostActions
 
 _PAGE_TITLE = _("All hosts (experimental)")
+
+
+def _row_actions(config: Config) -> list[RowAction]:
+    if not config.wato_enabled:
+        return []
+    actions: list[RowAction] = []
+    if user.may("wato.use") and (user.may("wato.seeall") or user.may("wato.hosts")):
+        actions.append(
+            RowAction(
+                ident="edit",
+                title=_("Edit host"),
+                icon="edit",
+                url="wato.py?mode=edit_host&host={host}",
+            )
+        )
+    if user.may("wato.rulesets"):
+        actions.append(
+            RowAction(
+                ident="parameters",
+                title=_("Parameters"),
+                icon="rulesets",
+                url="wato.py?mode=object_parameters&host={host}",
+            )
+        )
+    if user.may("wato.download_agent_output"):
+        actions.append(
+            RowAction(
+                ident="download_agent_output",
+                title=_("Download agent output"),
+                icon="download",
+                url="fetch_agent_output.py?host={host}&type=agent&_start=1",
+            )
+        )
+    return actions
+
 
 _SUPPORTED_ACTIONS: tuple[str, ...] = (
     "acknowledge",
@@ -95,6 +135,7 @@ class MonitorAllHostsPage(Page):
                     actions=PermittedHostActions(
                         self._commands, user, _SUPPORTED_ACTIONS
                     ).as_models(),
+                    row_actions=_row_actions(ctx.config),
                     legacy_view_button=MonitoringPageLinkButton(
                         url=makeuri_contextless(
                             ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"

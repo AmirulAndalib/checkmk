@@ -78,6 +78,14 @@ const hostActions: CellAction[] = (props.actions ?? []).map((action) => ({
   icon: ACTION_ICONS[action.ident] ?? 'action'
 }))
 
+const rowActions: CellAction[] = (props.row_actions ?? []).map((action) => ({
+  id: action.ident,
+  label: action.title as TranslatedString,
+  icon: action.icon as SimpleIcons
+}))
+
+const rowActionUrls = new Map((props.row_actions ?? []).map((action) => [action.ident, action.url]))
+
 const stateFilter: CheckboxListFilter<'state'> = {
   type: 'checkbox-list',
   field: 'state',
@@ -247,7 +255,7 @@ const columns: ColumnDef<HostEntry>[] = [
     minSize: 64,
     maxSize: 90
   },
-  ...(hostActions.length > 0
+  ...(rowActions.length > 0
     ? [
         {
           id: 'actions',
@@ -263,7 +271,7 @@ const columns: ColumnDef<HostEntry>[] = [
 
 const columnPinning: ColumnPinningState = {
   left: ['select', 'state', 'modes', 'name'],
-  ...(hostActions.length > 0 ? { right: ['actions'] } : {})
+  ...(rowActions.length > 0 ? { right: ['actions'] } : {})
 }
 
 const hostService = new HostService(new HostApi(), getKeyShortcutServiceInstance(), {
@@ -329,7 +337,10 @@ function rowKey(row: HostEntry): string {
 }
 
 function onHostAction(payload: { action: CellAction; host: HostEntry }): void {
-  void payload
+  const urlTemplate = rowActionUrls.get(payload.action.id)
+  if (urlTemplate) {
+    window.location.href = urlTemplate.replace('{host}', encodeURIComponent(payload.host.name))
+  }
 }
 
 const slideInHost = ref<HostEntry | null>(null)
@@ -468,7 +479,7 @@ function navigateToLegacy() {
               <HostRow
                 :row="row"
                 :table-row="tableRow"
-                :actions="hostActions"
+                :actions="rowActions"
                 @action="onHostAction"
               />
             </template>
