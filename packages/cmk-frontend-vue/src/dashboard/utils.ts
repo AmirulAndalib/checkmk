@@ -29,9 +29,11 @@ import type {
 import { DashboardLayout, DashboardOwnerType } from '@/dashboard/types/dashboard.ts'
 import type { ContextFilter, ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type {
+  ComputedNetworkFlowTopTableResponse,
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
   EffectiveWidgetFilterContext,
+  NetworkFlowTopTableContent,
   TopListContent,
   VisualContext,
   WidgetAvailableInventory,
@@ -258,6 +260,17 @@ export const dashboardAPI = {
   ): Promise<ComputedTopListResponse> => {
     return unwrap(
       await client.POST('/domain-types/dashboard/actions/compute-top-list/invoke', {
+        ...CONTENT_TYPE_HEADER,
+        body: { content, context }
+      })
+    )
+  },
+  computeNetworkFlowTopTableData: async (
+    content: NetworkFlowTopTableContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowTopTableResponse> => {
+    return unwrap(
+      await client.POST('/domain-types/dashboard/actions/compute-network-flow-top-table/invoke', {
         ...CONTENT_TYPE_HEADER,
         body: { content, context }
       })
