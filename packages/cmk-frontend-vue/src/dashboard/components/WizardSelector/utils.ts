@@ -71,6 +71,10 @@ export function widgetTypeToSelectorMatcher(
       return 'ntop'
     }
 
+    case 'network_flow_top_table': {
+      return 'network_flow'
+    }
+
     default: {
       throw new Error(
         `No selector defined widget content type: ${widgetContentType}. Please add it.`

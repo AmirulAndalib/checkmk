@@ -99,6 +99,7 @@ export type WidgetContentType =
   | NtopAlertsContent
   | NtopFlowsContent
   | NtopTopTalkersContent
+  | NetworkFlowTopTableContent
 
 export type InventoryContent = components['schemas']['InventoryContent']
 
@@ -110,6 +111,7 @@ export type GraphContent = components['schemas']['SingleTimeseriesContent']
 export type SingleMetricContent = components['schemas']['SingleMetricContent']
 export type ScatterplotContent = components['schemas']['AverageScatterplotContent']
 export type TopListContent = components['schemas']['TopListContent']
+export type NetworkFlowTopTableContent = components['schemas']['NetworkFlowTopTableContent']
 export type HostStateContent = components['schemas']['HostStateContent']
 export type HostStateSummaryContent = components['schemas']['HostStateSummaryContent']
 export type HostStatisticsContent = components['schemas']['HostStatsContent']

@@ -193,6 +193,7 @@ const handleAddEditWidget = (
 
       <NetworkFlowWizard
         v-if="selectedWizard === 'network_flow'"
+        :dashboard-key="dashboardKey"
         :edit-widget-spec="editWidgetSpec"
         @go-back="handleGoBack"
         @close="handleClose"

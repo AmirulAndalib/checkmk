@@ -4,6 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type {
   WidgetContent,
   WidgetFilterContext,
@@ -17,6 +18,7 @@ import WizardStageContainer from '../../components/WizardStageContainer.vue'
 import Stage1 from './stage1/StageContents.vue'
 
 interface NetworkFlowWizardProps {
+  dashboardKey: DashboardKey
   editWidgetSpec?: WidgetSpec | null
 }
 
@@ -38,6 +40,7 @@ defineEmits<{
     <WizardStageContainer>
       <CloseButton @close="$emit('close')" />
       <Stage1
+        :dashboard-key="dashboardKey"
         :edit-widget-spec="editWidgetSpec ?? null"
         @add-widget="
           (content, generalSettings, filterContext) =>
