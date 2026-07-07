@@ -1,3 +1,7 @@
 # Exclude symlinked agent files from formatting
 .claude/agents/*.agent.md rules-lint-ignored=true
 CLAUDE.md rules-lint-ignored=true
+
+# Use git's built-in Rust funcname pattern so diff hunk headers report the
+# enclosing fn/impl/mod instead of git's generic fallback context.
+*.rs diff=rust

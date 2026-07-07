@@ -8,6 +8,7 @@ py_library(
         "__init__.py",
         "components.py",
         "detect_test.py",
+        "detect_test_rust.py",
         "repo.py",
         "rows.py",
         "state.py",

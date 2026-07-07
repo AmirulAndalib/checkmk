@@ -16,6 +16,7 @@ py_cmk_test(
     srcs = [
         "test_components.py",
         "test_detect_test.py",
+        "test_detect_test_rust.py",
         "test_repo.py",
         "test_rows.py",
         "test_state.py",

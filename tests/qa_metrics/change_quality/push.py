@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import dataclasses
 import json
 import logging
 import sys
@@ -30,7 +31,7 @@ from typing import Final, TextIO
 
 from cmk.werks.models import Class, WerkV3
 from cmk.werks.utils import load_raw_files
-from tests.qa_metrics.change_quality import components, detect_test, walk
+from tests.qa_metrics.change_quality import components, detect_test, detect_test_rust, walk
 from tests.qa_metrics.change_quality.repo import read_branch_version
 from tests.qa_metrics.change_quality.rows import CHANGE_TESTED, ChangeTestedRow
 from tests.qa_metrics.change_quality.state import read_watermark
@@ -272,6 +273,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     for i, werk_add in enumerate(events, start=1):
         row = build_row(branch, werk_add, werks_index, allowed_classes, component_map)
         if row is not None:
+            if row.has_test is False and detect_test_rust.attribute_rust_test_touch(
+                args.repo, werk_add.commit.sha, werk_add.commit.files_changed
+            ):
+                row = dataclasses.replace(row, has_test=True)
             rows.append(row)
         _heartbeat(i, total)
     if total > _HEARTBEAT_EVERY:
