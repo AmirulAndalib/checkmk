@@ -182,7 +182,7 @@ class LookupStore:
         aggregation_lookup_map: dict[str, list[str]] = {}
         for aggr_id, compiled_aggregation in compiled_aggregations.items():
             for branch in compiled_aggregation.branches:
-                for _, host_name, service_description in branch.required_elements():
+                for _, host_name, service_description in branch.required_elements:
                     # This information can be used to selectively load the relevant compiled
                     # aggregation for any host/service. Right now it is only an indicator if this
                     # host/service is part of an aggregation

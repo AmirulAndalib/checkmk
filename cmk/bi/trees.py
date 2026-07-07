@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from functools import cached_property
 from typing import Any, Literal, NamedTuple, NotRequired, override, TypedDict
 
 from marshmallow import pre_dump
@@ -50,7 +51,6 @@ from cmk.bi.type_defs import HostState, ServiceState
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
-from cmk.utils.caching import instance_method_lru_cache
 from cmk.utils.servicename import ServiceName
 from cmk.utils.statename import host_state_name, service_state_name
 
@@ -156,8 +156,8 @@ class BICompiledLeaf(ABCBICompiledNode):
     ) -> list[ABCBICompiledNode]:
         return [self]
 
+    @cached_property
     @override
-    @instance_method_lru_cache()
     def required_elements(self) -> set[RequiredBIElement]:
         return {
             RequiredBIElement(
@@ -400,15 +400,16 @@ class BICompiledRule(ABCBICompiledNode):
             for node in self.nodes
             for res in node.compile_postprocess(bi_branch_root, services_of_host, bi_searcher)
         ]
-        # Clear required elements cache, since the number of nodes might have changed
-        # NOTE: We need this suppression because of the instance_method_lru_cache hack, which magically adds things to its wrapped method. :-/
-        self.required_elements.cache_clear()  # type: ignore[attr-defined]
+        # Clear required elements cache, since the number of nodes might have changed.
+        # This raises AttributeError if required_elements was never accessed on this
+        # instance, i.e. we rely on it having been accessed before postprocessing.
+        del self.required_elements
         return [self]
 
+    @cached_property
     @override
-    @instance_method_lru_cache()
     def required_elements(self) -> set[RequiredBIElement]:
-        return {result for node in self.nodes for result in node.required_elements()}
+        return {result for node in self.nodes for result in node.required_elements}
 
     @override
     def services_of_host(self, host_name: HostName) -> set[ServiceName]:
@@ -417,7 +418,7 @@ class BICompiledRule(ABCBICompiledNode):
     def get_required_hosts(self) -> set[BIHostSpec]:
         return {
             BIHostSpec(site_id=element.site_id, host_name=element.host_name)
-            for element in self.required_elements()
+            for element in self.required_elements
         }
 
     @override
@@ -596,8 +597,8 @@ class BIRemainingResult(ABCBICompiledNode):
         postprocessed_nodes.sort()
         return postprocessed_nodes
 
+    @cached_property
     @override
-    @instance_method_lru_cache()
     def required_elements(self) -> set[RequiredBIElement]:
         return set()
 
@@ -658,7 +659,7 @@ class BICompiledAggregation:
         assumed_state_ids = set(bi_status_fetcher.assumed_states)
         aggregation_results = []
         for bi_compiled_branch in branches:
-            required_elements = bi_compiled_branch.required_elements()
+            required_elements = bi_compiled_branch.required_elements
             compute_assumed_state = any(assumed_state_ids.intersection(required_elements))
             result = bi_compiled_branch.compute(
                 self.computation_options, bi_status_fetcher, use_assumed=compute_assumed_state

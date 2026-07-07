@@ -548,6 +548,7 @@ class ABCBICompiledNode(ABC):
     ) -> NodeResultBundle | None:
         raise NotImplementedError
 
+    @property
     @abstractmethod
     def required_elements(self) -> set[RequiredBIElement]:
         raise NotImplementedError

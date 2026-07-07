@@ -391,8 +391,8 @@ class PainterAggrIcons(Painter):
                 compiled_branch = load_compiled_branch(
                     frozen_info.based_on_aggregation_id, frozen_info.based_on_branch_title
                 )
-                frozen_elements = row["aggr_compiled_aggregation"].branches[0].required_elements()
-                live_elements = compiled_branch.required_elements()
+                frozen_elements = row["aggr_compiled_aggregation"].branches[0].required_elements
+                live_elements = compiled_branch.required_elements
                 if frozen_elements.symmetric_difference(live_elements):
                     html.icon_button(
                         bi_frozen_diff_url,

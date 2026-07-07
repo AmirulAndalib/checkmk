@@ -208,7 +208,7 @@ def get_bi_leaf_history(
     for row in aggr_rows:
         timeline_container = TimelineContainer(row)
 
-        for _site, host, service in timeline_container.aggr_compiled_branch.required_elements():
+        for _site, host, service in timeline_container.aggr_compiled_branch.required_elements:
             this_service = service or ""
             by_host.setdefault(host, {""}).add(this_service)
             timeline_container.host_service_info.add((host, this_service))

@@ -107,7 +107,7 @@ class BIComputer:
         required_elements = set()
         for _compiled_aggregation, branches in required_aggregations:
             for branch in branches:
-                required_elements.update(branch.required_elements())
+                required_elements.update(branch.required_elements)
         return required_elements
 
     def compute_results(
@@ -179,7 +179,7 @@ class BIComputer:
     def _use_aggregation_branch(
         self, compiled_branch: BICompiledRule, bi_aggregation_filter: BIAggregationFilter
     ) -> bool:
-        branch_elements = compiled_branch.required_elements()
+        branch_elements = compiled_branch.required_elements
         branch_hosts = {branch_element[1] for branch_element in branch_elements}
         branch_services = {
             (branch_element[1], branch_element[2])

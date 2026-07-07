@@ -414,7 +414,7 @@ def _aggregation_state(
     required_aggregations = bi_manager.computer.get_required_aggregations(bi_aggregation_filter)
     for _bi_aggregation, branches in required_aggregations:
         for branch in branches:
-            branch_sites = {required_element[0] for required_element in branch.required_elements()}
+            branch_sites = {required_element[0] for required_element in branch.required_elements}
             required_sites.update(branch_sites)
             if branch.properties.title not in aggregations:
                 missing_aggregations.append(branch.properties.title)

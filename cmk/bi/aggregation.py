@@ -89,7 +89,7 @@ class BIAggregation:
             # The postprocessing phase takes care of the "remaining services" action
             for branch in branches:
                 services_of_host: dict[HostName, set[ServiceName]] = {}
-                for _site, host_name, service_description in branch.required_elements():
+                for _site, host_name, service_description in branch.required_elements:
                     if service_description is None:
                         continue
                     services_of_host.setdefault(host_name, set()).add(service_description)

@@ -46,7 +46,7 @@ def test_sample_config_networking_rule(
     results = applications_rule.compile(("heute",), bi_searcher_with_sample_config)
     assert len(results) == 1
     compiled_rule = results[0]
-    assert compiled_rule.required_elements() == {
+    assert compiled_rule.required_elements == {
         ("heute", "heute", "Interface 2"),
         ("heute", "heute", "Interface 3"),
         ("heute", "heute", "Interface 4"),
