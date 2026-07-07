@@ -64,12 +64,12 @@ def _fetched(value: float | None, series: TimeSeries | None) -> Sequence[Fetched
     return [FetchedData(performance_data=_perf(value), time_series=series)]
 
 
-class _FakeRRDSource:
+class _FakeRRDFetchData:
     # The source already delivers translated, per-Metric FetchedData; the engine only orchestrates.
     def __init__(self, fetched: Mapping[Metric, Sequence[FetchedData]] | None = None) -> None:
         self._fetched = fetched or {}
 
-    def fetch(
+    def __call__(
         self,
         metrics: Sequence[Metric],
         *,
@@ -81,28 +81,28 @@ class _FakeRRDSource:
 
 def _update(
     *graphs: Graph,
-    rrd: _FakeRRDSource,
+    fetch_data: _FakeRRDFetchData,
     consolidation_function: ConsolidationFunction = ConsolidationFunction.AVERAGE,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
         consolidation_function=consolidation_function,
         time_range=_time_range(),
         graphs=graphs,
-        rrd=rrd,
+        fetch_data=fetch_data,
     )
 
 
 def test_empty_graphs_returns_empty_list() -> None:
-    assert _update(rrd=_FakeRRDSource()) == []
+    assert _update(fetch_data=_FakeRRDFetchData()) == []
 
 
 def test_fetches_performance_data_and_time_series() -> None:
     cpu_user = _rrd("cpu_user")
     graph = Graph(name="cpu", title="CPU", graph_type="test", lines=[_line(cpu_user)])
     series = _ts(1.0, 2.0, 3.0)
-    rrd = _FakeRRDSource({cpu_user: _fetched(42.0, series)})
+    fetch_data = _FakeRRDFetchData({cpu_user: _fetched(42.0, series)})
 
-    [evaluated] = _update(graph, rrd=rrd)
+    [evaluated] = _update(graph, fetch_data=fetch_data)
 
     [line] = evaluated.lines
     assert line.curve.value == 42.0
@@ -113,9 +113,9 @@ def test_returns_one_evaluated_graph_per_graph_in_order() -> None:
     x, y = _rrd("x"), _rrd("y")
     graph_x = Graph(name="x", title="x", graph_type="test", lines=[_line(x)])
     graph_y = Graph(name="y", title="y", graph_type="test", lines=[_line(y)])
-    rrd = _FakeRRDSource({x: _fetched(1.0, _ts(1.0)), y: _fetched(2.0, _ts(2.0))})
+    fetch_data = _FakeRRDFetchData({x: _fetched(1.0, _ts(1.0)), y: _fetched(2.0, _ts(2.0))})
 
-    results = _update(graph_x, graph_y, rrd=rrd)
+    results = _update(graph_x, graph_y, fetch_data=fetch_data)
 
     assert [[line.curve.value for line in graph.lines] for graph in results] == [[1.0], [2.0]]
 
@@ -128,9 +128,9 @@ def test_evaluates_lines_in_both_directions() -> None:
         graph_type="test",
         lines=[_line(out), _line(in_, inverse=True)],
     )
-    rrd = _FakeRRDSource({in_: _fetched(1.0, _ts(1.0)), out: _fetched(2.0, _ts(2.0))})
+    fetch_data = _FakeRRDFetchData({in_: _fetched(1.0, _ts(1.0)), out: _fetched(2.0, _ts(2.0))})
 
-    [evaluated] = _update(graph, rrd=rrd)
+    [evaluated] = _update(graph, fetch_data=fetch_data)
 
     assert [(line.curve.time_series, line.inverse) for line in evaluated.lines] == [
         (_ts(2.0), False),
@@ -151,13 +151,13 @@ def test_resolves_a_title_expression_against_a_non_drawn_metric() -> None:
         graph_type="test",
         lines=[_line(load)],
     )
-    rrd = _FakeRRDSource(
+    fetch_data = _FakeRRDFetchData(
         {
             load: _fetched(1.0, _ts(1.0)),
             cores: [FetchedData(performance_data=_perf(4.0, maximum=8.0), time_series=None)],
         }
     )
 
-    [evaluated] = _update(graph, rrd=rrd)
+    [evaluated] = _update(graph, fetch_data=fetch_data)
 
     assert evaluated.title == "Load - 8 cores"

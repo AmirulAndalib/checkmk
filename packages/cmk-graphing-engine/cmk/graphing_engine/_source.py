@@ -22,8 +22,8 @@ class RRDFetchMetricNames(Protocol):
     def __call__(self, services: Sequence[Service]) -> Mapping[Service, frozenset[MetricName]]: ...
 
 
-class RRDDataSource(Protocol):
-    def fetch(
+class RRDFetchData(Protocol):
+    def __call__(
         self,
         metrics: Sequence[Metric],
         *,
@@ -37,10 +37,10 @@ def fetch_evaluation_context(
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
     graphs: Sequence[Graph],
-    rrd: RRDDataSource,
+    fetch_data: RRDFetchData,
 ) -> EvaluationContext:
     metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
-    fetched = rrd.fetch(
+    fetched = fetch_data(
         metrics, consolidation_function=consolidation_function, time_range=time_range
     )
     performance_data: dict[RRDMetric, PerformanceData] = {}

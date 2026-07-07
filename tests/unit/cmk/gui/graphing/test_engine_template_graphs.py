@@ -50,13 +50,13 @@ class _FakeRRDFetchMetricNames:
 
 
 @dataclass
-class _FakeRRDDataSource:
+class _FakeRRDFetchData:
     values: Mapping[str, RawPerformanceValue] = field(
         default_factory=lambda: {_METRIC: RawPerformanceValue(value=1.0)}
     )
     requested_ranges: list[TimeRange] = field(default_factory=list)
 
-    def fetch(
+    def __call__(
         self,
         metrics: Sequence[Metric],
         *,
@@ -84,7 +84,7 @@ def test_template_lifecycle_discover_and_update() -> None:
     # render parameters); the per-type update evaluates them over freshly fetched data for the range it is
     # given. The unclaimed metric becomes a fallback single-metric graph that carries the four threshold
     # rules the engine builds itself.
-    rrd = _FakeRRDDataSource()
+    fetch_data = _FakeRRDFetchData()
     graphs = build_template_graphs(
         service=_SERVICE,
         registered_graphs=[],
@@ -103,19 +103,19 @@ def test_template_lifecycle_discover_and_update() -> None:
         ScalarType.LOWER_CRITICAL,
     ]
     # Discovery fetches performance data only, never the time series.
-    assert rrd.requested_ranges == []
+    assert fetch_data.requested_ranges == []
 
     evaluated = evaluate_template_graphs(
         graphs=graphs,
         consolidation_function=ConsolidationFunction.MAX,
         time_range=_DISCOVERY_RANGE,
-        rrd=rrd,
+        fetch_data=fetch_data,
     )
 
     assert len(evaluated) == len(graphs)
     # The update fetches the series for the range it is given.
-    assert rrd.requested_ranges
-    assert all(time_range == _DISCOVERY_RANGE for time_range in rrd.requested_ranges)
+    assert fetch_data.requested_ranges
+    assert all(time_range == _DISCOVERY_RANGE for time_range in fetch_data.requested_ranges)
 
     # A template graph has a single value axis, so a plugin drawing curves of different units cannot
     # share it — discovery rejects it (legacy parity).

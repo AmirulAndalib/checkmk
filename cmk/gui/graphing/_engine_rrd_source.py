@@ -210,12 +210,12 @@ class EngineRRDFetchMetricNames:
 
 
 @dataclass(frozen=True)
-class EngineRRDDataSource:
+class EngineRRDFetchData:
     site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
 
-    def fetch(
+    def __call__(
         self,
         metrics: Sequence[Metric],
         *,

@@ -16,7 +16,7 @@ from cmk.graphing_engine import (
     evaluate_graphs,
     EvaluatedGraph,
     Graph,
-    RRDDataSource,
+    RRDFetchData,
     RRDFetchMetricNames,
     Service,
     TimeRange,
@@ -29,7 +29,7 @@ from ._engine_dispatch import (
     GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
-from ._engine_rrd_source import EngineRRDDataSource
+from ._engine_rrd_source import EngineRRDFetchData
 from ._engine_serialization import (
     consolidation_function_of,
     deserialize_graph,
@@ -92,13 +92,13 @@ def evaluate_template_graphs(
     graphs: Sequence[Graph],
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
-    rrd: RRDDataSource,
+    fetch_data: RRDFetchData,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
         consolidation_function=consolidation_function,
         time_range=time_range,
         graphs=graphs,
-        rrd=rrd,
+        fetch_data=fetch_data,
     )
 
 
@@ -107,7 +107,7 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Sequence[
         graphs=_deserialize_template_graphs(request.definition),
         consolidation_function=consolidation_function_of(request.options),
         time_range=time_range_of(request.options),
-        rrd=EngineRRDDataSource(
+        fetch_data=EngineRRDFetchData(
             site_id=None,
             debug=active_config.debug,
             registered_translations=registered_translations(),

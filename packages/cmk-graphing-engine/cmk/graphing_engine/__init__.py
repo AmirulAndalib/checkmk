@@ -59,7 +59,7 @@ from ._quantities import (
     Sum,
 )
 from ._source import (
-    RRDDataSource,
+    RRDFetchData,
     RRDFetchMetricNames,
 )
 from ._units import (
@@ -109,7 +109,7 @@ __all__ = [
     "Quantity",
     "RRDMetric",
     "PerformanceData",
-    "RRDDataSource",
+    "RRDFetchData",
     "Rule",
     "EngineeringScientificNotation",
     "SINotation",
