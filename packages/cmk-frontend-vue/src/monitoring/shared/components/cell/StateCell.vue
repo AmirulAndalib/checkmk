@@ -53,5 +53,11 @@ defineProps<StateCellProps>()
 
 .monitoring-state-cell__tag {
   margin: 0;
+  display: flex;
+  box-sizing: border-box;
+  height: 21px;
+  align-items: center;
+  min-width: 60px;
+  justify-content: center;
 }
 </style>
