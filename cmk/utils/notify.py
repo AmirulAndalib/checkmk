@@ -78,9 +78,8 @@ def build_descendants_map(
             queue.extend(children.get(current, ()))
         if truncated:
             logger.warning(
-                "Host %s has more than %d descendants; truncating HOSTCHILDREN list",
-                host,
-                MAX_HOST_DESCENDANTS,
+                "Host %(host_name)s has more than %(count)d descendants; truncating HOSTCHILDREN list",
+                {"host_name": host, "count": MAX_HOST_DESCENDANTS},
             )
         descendants[host] = tuple(order)
 
@@ -121,7 +120,7 @@ def ensure_utf8(logger_: Logger | None = None) -> None:
         if exit_code != 0:
             if not logger_:
                 raise MKGeneralException(f"{error_msg}: {exit_code!r}. {not_found_msg}")
-            logger_.info("%s: %r", error_msg, exit_code)
+            logger_.info("%(error)s: %(exit_code)r", {"error": error_msg, "exit_code": exit_code})
             logger_.info(not_found_msg)
             return
 
@@ -132,7 +131,9 @@ def ensure_utf8(logger_: Logger | None = None) -> None:
                 encoding = encoding.strip()
                 os.putenv("LANG", encoding)
                 if logger_:
-                    logger_.debug("Setting locale for mail to %s.", encoding)
+                    logger_.debug(
+                        "Setting locale for mail to %(encoding)s.", {"encoding": encoding}
+                    )
                 break
         else:
             if not logger_:
