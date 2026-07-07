@@ -346,11 +346,6 @@ def piggy_back_sections_fixture(
     return [s for s in asset_and_piggy_back_sections if isinstance(s, agent_gcp.PiggyBackSection)]
 
 
-def test_can_hash_client() -> None:
-    client = agent_gcp.Client({}, "test", date=datetime.date.today())
-    assert hash(client)
-
-
 def test_piggyback_identify_hosts(
     piggy_back_sections: Sequence[agent_gcp.PiggyBackSection],
 ) -> None:

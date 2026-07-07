@@ -17,7 +17,7 @@ import sys
 import time
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
-from functools import cache
+from functools import cached_property
 from types import TracebackType
 from typing import Any, assert_never, Protocol, Self
 
@@ -79,7 +79,9 @@ Pages = Sequence[Page]
 
 
 class ClientProtocol(Protocol):
-    date: datetime.date  # date when client is executed
+    @property
+    def date(self) -> datetime.date:
+        """Date when client is executed"""
 
     @property
     def project(self) -> str: ...
@@ -91,21 +93,21 @@ class ClientProtocol(Protocol):
     def list_costs(self, tableid: str) -> tuple[Schema, Pages]: ...
 
 
-@dataclass(unsafe_hash=True)
+@dataclass(frozen=True)
 class Client:
-    account_info: dict[str, str] = field(compare=False)
+    account_info: Mapping[str, str]
     project: str
     date: datetime.date
 
-    @cache
+    @cached_property
     def monitoring(self) -> monitoring_v3.MetricServiceClient:
-        return monitoring_v3.MetricServiceClient.from_service_account_info(self.account_info)
+        return monitoring_v3.MetricServiceClient.from_service_account_info(dict(self.account_info))
 
-    @cache
+    @cached_property
     def asset(self) -> asset_v1.AssetServiceClient:
-        return asset_v1.AssetServiceClient.from_service_account_info(self.account_info)
+        return asset_v1.AssetServiceClient.from_service_account_info(dict(self.account_info))
 
-    @cache
+    @cached_property
     def bigquery(self) -> Resource:
         credentials = service_account.Credentials.from_service_account_info(self.account_info)
         scopes = ["https://www.googleapis.com/auth/bigquery.readonly"]
@@ -114,10 +116,10 @@ class Client:
         return service.jobs()
 
     def list_time_series(self, request: Any) -> Iterable[TimeSeries]:
-        return self.monitoring().list_time_series(request)
+        return self.monitoring.list_time_series(request)
 
     def list_assets(self, request: Any) -> Iterable[asset_v1.Asset]:
-        return self.asset().list_assets(request)
+        return self.asset.list_assets(request)
 
     def list_costs(self, tableid: str) -> tuple[Schema, Pages]:
         first_of_month = self.date.replace(day=1)
@@ -143,14 +145,14 @@ class Client:
         )
 
         body = {"query": query, "useLegacySql": False}
-        request: HttpRequest = self.bigquery().query(projectId=self.project, body=body)  # type: ignore[attr-defined]
+        request: HttpRequest = self.bigquery.query(projectId=self.project, body=body)  # type: ignore[attr-defined]
         response = request.execute()
         schema: Schema = response["schema"]["fields"]
 
         pages: list[Page] = [response["rows"]]
         # collect all rows, even if we use pagination
         if "pageToken" in response:
-            request = self.bigquery().getQueryResults(  # type: ignore[attr-defined]
+            request = self.bigquery.getQueryResults(  # type: ignore[attr-defined]
                 projectId=self.project,
                 jobId=response["jobReference"]["jobId"],
                 location=response["jobReference"]["location"],
@@ -159,7 +161,7 @@ class Client:
             response = request.execute()
             pages.append(response["rows"])
 
-            while next_request := self.bigquery().getQueryResults_next(request, response):  # type: ignore[attr-defined]
+            while next_request := self.bigquery.getQueryResults_next(request, response):  # type: ignore[attr-defined]
                 next_response = next_request.execute()
                 request = next_request
                 response = next_response
