@@ -123,6 +123,18 @@ allows = [
   "cmk.telemetry.metric_backend_section",
 ]
 
+
+[plugin_families.violations.bakery]
+# One of the first modes to go into the expected namespace
+allows = [
+  "@ccc",
+  "cmk.base.modes.modes",
+  "cmk.utils.log.console",
+  "cmk.utils.render",
+  "cmk.bakery",
+]
+
+
 # These plugins are tightly coupled to Checkmk.
 # We cannot expect them to not depend on the core product.
 [plugin_families.violations.checkmk]

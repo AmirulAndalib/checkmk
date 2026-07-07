@@ -50,13 +50,13 @@ def discover_modes() -> Sequence[Mode]:
             "cmk.base.diagnostics",
             "cmk.base.localize",
             "cmk.base.notify",
-            "cmk.bakery.base.cap",
             "cmk.base.nonfree.alert_handling",
             "cmk.base.nonfree.dump_protobufs",
             "cmk.base.nonfree.cmc_helpers",
             "cmk.base.nonfree.convert_rrds",
             "cmk.base.nonfree.compress_history",
             "cmk.bakery.base.mode",  # non-free, optional
+            "cmk.plugins.bakery.modes.cap",  # non-free, optional
         ],
         skip_wrong_types=True,
         raise_errors=True,
