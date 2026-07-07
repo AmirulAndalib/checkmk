@@ -18,6 +18,8 @@ import CmkSpace from '@/components/CmkSpace.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 import CmkInput from '@/components/user-input/CmkInput.vue'
 
+import { resolveSiteId } from '@/mode-host/lib/site'
+
 defineOptions({
   inheritAttrs: false
 })
@@ -54,9 +56,13 @@ const showTest = ref(false)
 const hostname = ref(props.hostnameInputElement.value || '')
 const ipV4 = ref(props.ipv4InputElement.value || '')
 const ipV6 = ref(props.ipv6InputElement.value || '')
-const selectedSiteIdHash = ref(props.siteSelectElement.value)
 const siteId = ref(
-  props.sites.find((site) => site.id_hash === selectedSiteIdHash.value)?.site_id ?? ''
+  resolveSiteId(
+    props.siteInputElement,
+    props.siteSelectElement,
+    props.siteDefaultElement,
+    props.sites
+  )
 )
 
 const targetElement = ref<HTMLElement>(
@@ -111,19 +117,21 @@ onMounted(() => {
         isSuccess.value = false
         isError.value = false
 
-        selectedSiteIdHash.value = props.siteSelectElement.value
-        siteId.value =
-          props.sites.find((site) => site.id_hash === selectedSiteIdHash.value)?.site_id ?? ''
+        siteId.value = resolveSiteId(
+          props.siteInputElement,
+          props.siteSelectElement,
+          props.siteDefaultElement,
+          props.sites
+        )
         break
       }
       case props.siteInputElement: {
-        if (props.siteInputElement.checked) {
-          selectedSiteIdHash.value = props.siteSelectElement.value
-          siteId.value =
-            props.sites.find((site) => site.id_hash === selectedSiteIdHash.value)?.site_id ?? ''
-        } else {
-          siteId.value = props.siteDefaultElement.textContent?.split(' - ')[0] ?? ''
-        }
+        siteId.value = resolveSiteId(
+          props.siteInputElement,
+          props.siteSelectElement,
+          props.siteDefaultElement,
+          props.sites
+        )
         break
       }
       case props.ipv4InputButtonElement:
