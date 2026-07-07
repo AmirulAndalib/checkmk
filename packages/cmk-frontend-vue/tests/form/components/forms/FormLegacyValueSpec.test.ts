@@ -78,5 +78,5 @@ test('FormLegacyValueSpec toggling works', async () => {
   expect(legacyInputs(container)).toHaveLength(0)
 
   await selectChoice('Use custom certificate')
-  expect(legacyInputs(container)).toHaveLength(0) // BUG: nothing is rendered anymore.
+  expect(legacyInputs(container)).toHaveLength(1)
 })
