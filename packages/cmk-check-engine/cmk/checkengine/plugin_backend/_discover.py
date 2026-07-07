@@ -25,7 +25,11 @@ from cmk.discover_plugins import (
 
 from .check_plugins import create_check_plugin
 from .inventory_plugins import create_inventory_plugin
-from .section_plugins import create_agent_section_plugin, create_snmp_section_plugin
+from .section_plugins import (
+    create_agent_section_plugin,
+    create_metrics_section_plugin,
+    create_snmp_section_plugin,
+)
 
 _ABPlugins = (
     v2.SimpleSNMPSection
@@ -34,6 +38,7 @@ _ABPlugins = (
     | v2.CheckPlugin
     | v2.InventoryPlugin
     | v3_unstable.CheckPlugin
+    | v3_unstable.MetricsSection
 )
 
 ENTRY_POINT_PREFIXES = dict(v2.entry_point_prefixes()) | dict(v3_unstable.entry_point_prefixes())
@@ -151,6 +156,7 @@ def _register_plugin_by_type(
     | v2.SNMPSection
     | v2.CheckPlugin
     | v3_unstable.CheckPlugin
+    | v3_unstable.MetricsSection
     | v2.InventoryPlugin,
     registered_agent_sections: dict[SectionName, plugins.AgentSectionPlugin],
     registered_snmp_sections: dict[SectionName, plugins.SNMPSectionPlugin],
@@ -162,6 +168,14 @@ def _register_plugin_by_type(
     match plugin:
         case v2.AgentSection():
             _register_agent_section(
+                plugin,
+                location,
+                registered_agent_sections,
+                registered_snmp_sections,
+                validate=validate,
+            )
+        case v3_unstable.MetricsSection():
+            _register_metrics_section(
                 plugin,
                 location,
                 registered_agent_sections,
@@ -193,6 +207,22 @@ def _register_agent_section(
     validate: bool,
 ) -> None:
     section_plugin = create_agent_section_plugin(section, location, validate=validate)
+
+    if section_plugin.name in registered_agent_sections | registered_snmp_sections:
+        raise ValueError(f"duplicate section definition: {section_plugin.name}")
+
+    registered_agent_sections[section_plugin.name] = section_plugin
+
+
+def _register_metrics_section(
+    section: v3_unstable.MetricsSection,
+    location: PluginLocation,
+    registered_agent_sections: dict[SectionName, plugins.AgentSectionPlugin],
+    registered_snmp_sections: dict[SectionName, plugins.SNMPSectionPlugin],
+    *,
+    validate: bool,
+) -> None:
+    section_plugin = create_metrics_section_plugin(section, location, validate=validate)
 
     if section_plugin.name in registered_agent_sections | registered_snmp_sections:
         raise ValueError(f"duplicate section definition: {section_plugin.name}")

@@ -23,6 +23,7 @@ from cmk.agent_based.v2 import (
     StringByteTable,
     StringTable,
 )
+from cmk.agent_based.v3_unstable import MetricSelector, MetricsSection
 from cmk.checkengine.plugin_backend import section_plugins
 from cmk.checkengine.plugins import (
     AgentSectionPlugin,
@@ -31,6 +32,7 @@ from cmk.checkengine.plugins import (
     SNMPSectionPlugin,
 )
 from cmk.discover_plugins import PluginLocation
+from cmk.utils.rulesets import RuleSetName
 
 
 def _generator_function():
@@ -131,6 +133,68 @@ def test_create_agent_section_plugin() -> None:
     assert plugin.host_label_ruleset_name is None
     assert plugin.host_label_ruleset_type == "merged"
     assert plugin.supersedes == {SectionName("bar"), SectionName("foo")}
+
+
+def test_create_metrics_section_plugin() -> None:
+    plugin = section_plugins.create_metrics_section_plugin(
+        MetricsSection(
+            name="norris",
+            selectors=[MetricSelector(metric_name="cpu.load")],
+            parsed_section_name="chuck",
+            parse_function=parse_dummy,
+            supersedes=["foo", "bar"],
+        ),
+        location=PluginLocation(module="norris", name="metrics_section_norris"),
+        validate=True,
+    )
+
+    assert isinstance(plugin, AgentSectionPlugin)
+    assert len(plugin) == 9
+    assert plugin.name == SectionName("norris")
+    assert plugin.parsed_section_name == ParsedSectionName("chuck")
+    assert plugin.parse_function is parse_dummy
+    assert plugin.host_label_function is section_plugins._noop_host_label_function
+    assert plugin.host_label_default_parameters is None
+    assert plugin.host_label_ruleset_name is None
+    assert plugin.host_label_ruleset_type == "merged"
+    assert plugin.supersedes == {SectionName("bar"), SectionName("foo")}
+
+
+def test_create_metrics_section_plugin_defaults() -> None:
+    plugin = section_plugins.create_metrics_section_plugin(
+        MetricsSection(
+            name="norris",
+            selectors=[MetricSelector(metric_name="cpu.load")],
+            parse_function=parse_dummy,
+        ),
+        location=PluginLocation(module="norris", name="metrics_section_norris"),
+        validate=True,
+    )
+
+    assert plugin.parsed_section_name == ParsedSectionName("norris")
+    assert plugin.supersedes == set()
+
+
+def test_create_metrics_section_plugin_host_label_ruleset() -> None:
+    def host_labels(params, section):
+        yield from ()
+
+    plugin = section_plugins.create_metrics_section_plugin(
+        MetricsSection(
+            name="norris",
+            selectors=[MetricSelector(metric_name="cpu.load")],
+            parse_function=parse_dummy,
+            host_label_function=host_labels,
+            host_label_default_parameters={"levels": ("fixed", (1, 2))},
+            host_label_ruleset_name="norris_rules",
+        ),
+        location=PluginLocation(module="norris", name="metrics_section_norris"),
+        validate=True,
+    )
+
+    assert plugin.host_label_default_parameters == {"levels": ("fixed", (1, 2))}
+    assert plugin.host_label_ruleset_name == RuleSetName("norris_rules")
+    assert plugin.host_label_ruleset_type == "merged"
 
 
 def test_create_snmp_section_plugin() -> None:

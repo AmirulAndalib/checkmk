@@ -136,6 +136,7 @@ def entry_point_prefixes() -> _Mapping[
         AgentSection[_Any]
         | CheckPlugin
         | InventoryPlugin
+        | MetricsSection[_Any]
         | SimpleSNMPSection[_Any, _Any]
         | SNMPSection[_Any, _Any]
     ],
@@ -157,6 +158,7 @@ def entry_point_prefixes() -> _Mapping[
     agent_section_... = AgentSection(...)
     check_plugin_... = CheckPlugin(...)
     inventory_plugin_... = InventoryPlugin(...)
+    metrics_section_... = MetricsSection(...)
     """
     return {
         SimpleSNMPSection: "snmp_section_",
@@ -164,6 +166,7 @@ def entry_point_prefixes() -> _Mapping[
         AgentSection: "agent_section_",
         CheckPlugin: "check_plugin_",
         InventoryPlugin: "inventory_plugin_",
+        MetricsSection: "metrics_section_",
     }
 
 

@@ -4,22 +4,14 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal, overload, TypeVar
 
-from cmk.agent_based.v2 import (
-    AgentParseFunction,
-    AgentSection,
-    HostLabelGenerator,
-    RuleSetType,
-    StringTable,
-)
+from cmk.agent_based.v2 import AgentParseFunction, HostLabelGenerator
 
-_Section = TypeVar("_Section")
-_HostLabelFunctionNoParams = Callable[[_Section], HostLabelGenerator]
-_HostLabelFunctionMergedParams = Callable[[Mapping[str, object], _Section], HostLabelGenerator]
-_HostLabelFunctionAllParams = Callable[
-    [Sequence[Mapping[str, object]], _Section], HostLabelGenerator
-]
+from ._naming import validate_name
+
+# The host label function's signature depends on whether a ruleset is used:
+# (section) without one, (params, section) with one.
+type _HostLabelFunction = Callable[..., HostLabelGenerator]
 
 
 # NOTE: The dataclasses below duplicate quite a few things from
@@ -123,20 +115,42 @@ class MetricSelector:
     aggregation: Aggregation = InstantAggregation()
 
 
-@dataclass(kw_only=True)
-class MetricsSection(AgentSection[Mapping[str, object]]):
+@dataclass(kw_only=True, frozen=True)
+class MetricsSection[Section]:
     """
-    A specialized AgentSection that pre-filters raw agent data
-    fom the metric backend as a data source.
+    An agent section that pre-filters raw agent data
+    from the metric backend as a data source.
+
+    Instances will only be picked up by Checkmk if their names start
+    with ``metrics_section_``.
 
     Args:
-        filters:            An list of filters to apply to the metric backend
-                            to filter for data.
+        name:                 The unique name of the section to be registered.
+        selectors:            A list of selectors to apply to the metric backend
+                              to filter for data.
+        parse_function:       The function to parse the raw agent data into the
+                              section's data format.
+        host_label_function:  The function responsible for extracting host labels from
+                              the parsed data. For unparameterized host label functions,
+                              it must accept exactly one argument by the name 'section'.
+                              When used in conjunction with a ruleset, it must accept two
+                              arguments: 'params' and 'section'.
+                              'params' will be a single mapping: the merged result of the
+                              effective rules of the host label ruleset.
+                              'section' will be the parsed data as returned by the parse
+                              function.
+                              It is expected to yield objects of type :class:`HostLabel`.
+        host_label_default_parameters: Default parameters for the host label function.
+                              Must match the ValueSpec of the corresponding WATO ruleset,
+                              if it exists.
+        host_label_ruleset_name: The name of the host label ruleset.
+        parsed_section_name:  The name of the parsed section (defaults to the section name).
+        supersedes:           A list of section names this section supersedes.
 
     Example:
         Get all data points for the cpu.aggregated metric. If the data points returned are
         of metric type Gauge, only the latest value will be returned
-        >>> agent_section_metric_backend_example = MetricsSection(
+        >>> metrics_section_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_gauge",
@@ -147,7 +161,7 @@ class MetricsSection(AgentSection[Mapping[str, object]]):
 
         Get all aggregated data points for the http.server.requests.duration metric
         produced by a (made-up) http-collector exporter for the last minute
-        >>> agent_section_metric_backend_example = MetricsSection(
+        >>> metrics_section_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_1",
@@ -165,7 +179,7 @@ class MetricsSection(AgentSection[Mapping[str, object]]):
         Get all aggregated data points for the http.server.requests.duration metric
         (which is a histogram metric), aggregated over the last 60 minutes with
         precalculated percentiles for the 50th (mean) and 99th percentile
-        >>> agent_section_metric_backend_example = MetricsSection(
+        >>> metrics_section_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_60",
@@ -183,7 +197,7 @@ class MetricsSection(AgentSection[Mapping[str, object]]):
         precalculated percentiles for the 50th (mean) and 99th percentile
         as well as all aggregated data points over the last 60 minutes with
         precalculated percentiles for the 75th and 99th percentile
-        >>> agent_section_metric_backend_example = MetricsSection(
+        >>> metrics_section_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_15",
@@ -205,58 +219,16 @@ class MetricsSection(AgentSection[Mapping[str, object]]):
         ... )
     """
 
+    name: str
     selectors: Sequence[MetricSelector]
+    parse_function: AgentParseFunction[Section]
+    host_label_function: _HostLabelFunction | None = None
+    host_label_default_parameters: Mapping[str, object] | None = None
+    host_label_ruleset_name: str | None = None
+    parsed_section_name: str | None = None
+    supersedes: Sequence[str] | None = None
 
-    @overload
-    def __init__(
-        self,
-        *,
-        name: str,
-        selectors: Sequence[MetricSelector],
-        parse_function: AgentParseFunction[_Section],
-        host_label_function: _HostLabelFunctionNoParams[_Section] | None = None,
-        host_label_default_parameters: None = None,
-        host_label_ruleset_name: None = None,
-        host_label_ruleset_type: RuleSetType = RuleSetType.MERGED,
-        parsed_section_name: str | None = None,
-        supersedes: list[str] | None = None,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        *,
-        name: str,
-        selectors: Sequence[MetricSelector],
-        parse_function: AgentParseFunction[_Section],
-        host_label_function: _HostLabelFunctionMergedParams[_Section],
-        host_label_default_parameters: Mapping[str, object],
-        host_label_ruleset_name: str,
-        host_label_ruleset_type: Literal[RuleSetType.MERGED] = RuleSetType.MERGED,
-        parsed_section_name: str | None = None,
-        supersedes: list[str] | None = None,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        *,
-        name: str,
-        selectors: Sequence[MetricSelector],
-        parse_function: Callable[[StringTable], _Section | None],
-        host_label_function: _HostLabelFunctionAllParams[_Section],
-        host_label_default_parameters: Mapping[str, object],
-        host_label_ruleset_name: str,
-        host_label_ruleset_type: Literal[RuleSetType.ALL],
-        parsed_section_name: str | None = None,
-        supersedes: list[str] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        *,
-        selectors: Sequence[MetricSelector],
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
-        self.selectors = selectors
+    def __post_init__(self) -> None:
+        _ = validate_name(self.name)
+        if self.parsed_section_name is not None:
+            _ = validate_name(self.parsed_section_name)

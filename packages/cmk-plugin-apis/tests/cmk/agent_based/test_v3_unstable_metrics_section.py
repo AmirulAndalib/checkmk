@@ -4,9 +4,12 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import dataclasses
+from collections.abc import Mapping
+
 import pytest
 
-from cmk.agent_based.v2 import AgentSection, RuleSetType, StringTable
+from cmk.agent_based.v2 import HostLabelGenerator, StringTable
 from cmk.agent_based.v3_unstable import (
     GaugeAggregation,
     MetricSelector,
@@ -16,37 +19,35 @@ from cmk.agent_based.v3_unstable import (
 HOST_LABEL_PARAMS = {"level": "all"}
 
 
-# --- Tests ---
-
-
 def parse_func(_string_table: StringTable) -> dict[str, object]:
     return {"": ""}
 
 
-def test_metric_backend_section_instantiation() -> None:
+def host_label_func(
+    _params: Mapping[str, object], _section: dict[str, object]
+) -> HostLabelGenerator:
+    yield from ()
+
+
+def test_metrics_section_instantiation() -> None:
     """
     Test that the class can be instantiated correctly and all
-    attributes, including those from the base class (via **kwargs), are set.
+    attributes are set.
     """
-    # 1. Define the filter configuration
     my_filter = MetricSelector(metric_name="cpu.load", aggregation=GaugeAggregation())
     my_filter2 = MetricSelector(metric_name="cpu.temperature", aggregation=GaugeAggregation())
 
-    # 2. Create the section with *all* possible arguments
-    section = MetricsSection(  # type: ignore[call-overload]
-        # MetricsSection specific args
+    section = MetricsSection(
         name="test_section",
         selectors=[my_filter, my_filter2],
-        # AgentSection args passed via **kwargs
         parse_function=parse_func,
         supersedes=["old_section"],
         parsed_section_name="my_parsed_name",
+        host_label_function=host_label_func,
         host_label_default_parameters=HOST_LABEL_PARAMS,
         host_label_ruleset_name="my_ruleset",
-        host_label_ruleset_type=RuleSetType.ALL,
     )
 
-    # --- Assertions ---
     assert section.selectors[0] is my_filter
     assert section.selectors[0].metric_name == "cpu.load"
     assert section.selectors[1] is my_filter2
@@ -55,18 +56,52 @@ def test_metric_backend_section_instantiation() -> None:
     assert section.name == "test_section"
     assert section.supersedes == ["old_section"]
     assert section.parsed_section_name == "my_parsed_name"
-    assert isinstance(section, AgentSection)
+    assert section.host_label_function is host_label_func
     assert section.host_label_default_parameters is HOST_LABEL_PARAMS
     assert section.host_label_ruleset_name == "my_ruleset"
-    assert section.host_label_ruleset_type == RuleSetType.ALL
+
+
+def test_metrics_section_host_label_defaults() -> None:
+    section = MetricsSection(
+        name="test_section",
+        selectors=[MetricSelector(metric_name="cpu.load", aggregation=GaugeAggregation())],
+        parse_function=parse_func,
+    )
+
+    assert section.host_label_function is None
+    assert section.host_label_default_parameters is None
+    assert section.host_label_ruleset_name is None
+
+
+def test_metrics_section_is_immutable() -> None:
+    section = MetricsSection(
+        name="test_section",
+        selectors=[MetricSelector(metric_name="cpu.load", aggregation=GaugeAggregation())],
+        parse_function=parse_func,
+    )
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        section.name = "other_name"  # type: ignore[misc]
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["", "contains-hyphen", "contains space"],
+)
+def test_invalid_name(name: str) -> None:
+    with pytest.raises(ValueError):
+        MetricsSection(
+            name=name,
+            selectors=[MetricSelector(metric_name="cpu.load", aggregation=GaugeAggregation())],
+            parse_function=parse_func,
+        )
 
 
 @pytest.mark.parametrize(
     "kwargs",
     [
-        {"name": "cpu.load", "parse_function": dict},
+        {"name": "cpu_load", "parse_function": dict},
         {
-            "name": "cpu.temperature",
+            "name": "cpu_temperature",
             "selectors": [MetricSelector(metric_name="cpu.load", aggregation=GaugeAggregation())],
         },
         {
@@ -79,6 +114,5 @@ def test_missing_required_arguments(kwargs: dict[str, object]) -> None:
     """
     Test that instantiating without required arguments raises a TypeError.
     """
-    # Test missing metric_filter
     with pytest.raises(TypeError):
-        MetricsSection(**kwargs)  # type: ignore[call-overload]
+        MetricsSection(**kwargs)  # type: ignore[arg-type]

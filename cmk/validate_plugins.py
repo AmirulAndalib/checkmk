@@ -77,6 +77,7 @@ _AgentBasedPlugins = (
     | agent_based_v2.AgentSection
     | agent_based_v2.CheckPlugin
     | agent_based_v3_unstable.CheckPlugin
+    | agent_based_v3_unstable.MetricsSection
     | agent_based_v2.InventoryPlugin
 )
 
@@ -268,6 +269,7 @@ def _validate_referenced_rule_spec() -> ActiveCheckResult:
                     agent_based_v2.SimpleSNMPSection()
                     | agent_based_v2.SNMPSection()
                     | agent_based_v2.AgentSection()
+                    | agent_based_v3_unstable.MetricsSection()
                 ):
                     if (
                         error := _validate_agent_based_plugin_v2_ruleset_ref(

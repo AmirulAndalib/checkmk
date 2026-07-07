@@ -25,6 +25,7 @@ from cmk.agent_based.v2 import (
     StringByteTable,
     StringTable,
 )
+from cmk.agent_based.v3_unstable import MetricsSection
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.regex import regex
 from cmk.checkengine.plugins import (
@@ -274,6 +275,50 @@ def create_agent_section_plugin(
             "merged" if agent_section_spec.host_label_ruleset_type is RuleSetType.MERGED else "all"
         ),
         supersedes=_create_supersedes(section_name, agent_section_spec.supersedes),
+        location=location,
+    )
+
+
+def create_metrics_section_plugin(
+    section_spec: MetricsSection,
+    location: PluginLocation | LegacyPluginLocation,
+    *,
+    validate: bool,
+) -> AgentSectionPlugin:
+    """Return an AgentSectionPlugin object after validating and converting the arguments one by one
+
+    Metric backend sections are agent sections from the check engine's point of
+    view: their data arrives as agent output, the additional selectors only
+    matter to the metric backend fetcher.
+    """
+    section_name = SectionName(section_spec.name)
+
+    if validate and section_spec.host_label_function is not None:
+        _validate_host_label_kwargs(
+            host_label_function=section_spec.host_label_function,
+            host_label_default_parameters=section_spec.host_label_default_parameters,
+            host_label_ruleset_name=section_spec.host_label_ruleset_name,
+            host_label_ruleset_type=RuleSetType.MERGED,
+        )
+
+    return AgentSectionPlugin(
+        name=section_name,
+        parsed_section_name=ParsedSectionName(
+            section_spec.parsed_section_name or str(section_name)
+        ),
+        parse_function=section_spec.parse_function,
+        host_label_function=_create_host_label_function(section_spec.host_label_function),
+        host_label_default_parameters=section_spec.host_label_default_parameters,
+        host_label_ruleset_name=(
+            None
+            if section_spec.host_label_ruleset_name is None
+            else RuleSetName(section_spec.host_label_ruleset_name)
+        ),
+        host_label_ruleset_type="merged",
+        supersedes=_create_supersedes(
+            section_name,
+            None if section_spec.supersedes is None else list(section_spec.supersedes),
+        ),
         location=location,
     )
 

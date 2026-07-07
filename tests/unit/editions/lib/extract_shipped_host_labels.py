@@ -14,6 +14,8 @@ from collections.abc import Mapping, Sequence
 from typing import Final
 
 from cmk.agent_based.v2 import AgentSection, entry_point_prefixes, SimpleSNMPSection, SNMPSection
+from cmk.agent_based.v3_unstable import entry_point_prefixes as entry_point_prefixes_v3_unstable
+from cmk.agent_based.v3_unstable import MetricsSection
 from cmk.discover_plugins import discover_all_plugins, DiscoveredPlugins, PluginGroup
 
 _KNOWN_NON_BUILTIN_LABEL_PRODUCERS: Final = {
@@ -24,18 +26,23 @@ _KNOWN_NON_BUILTIN_LABEL_PRODUCERS: Final = {
 
 
 type Section = (
-    AgentSection[object] | SNMPSection[object, object] | SimpleSNMPSection[object, object]
+    AgentSection[object]
+    | SNMPSection[object, object]
+    | SimpleSNMPSection[object, object]
+    | MetricsSection[object]
 )
 
 
 def extract_shipped_host_labels() -> Mapping[str, str]:
     ep = entry_point_prefixes()
+    ep_v3_unstable = entry_point_prefixes_v3_unstable()
     discovered_plugins: DiscoveredPlugins[Section] = discover_all_plugins(
         PluginGroup.AGENT_BASED,
         {
             AgentSection: ep[AgentSection],
             SimpleSNMPSection: ep[SimpleSNMPSection],
             SNMPSection: ep[SNMPSection],
+            MetricsSection: ep_v3_unstable[MetricsSection],
         },
         skip_wrong_types=False,
         raise_errors=True,
