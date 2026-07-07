@@ -12,7 +12,7 @@
       "items": { "$ref": "#/$defs/monitoring_action" },
       "default": []
     },
-    "legacy_url": { "type": "string" }
+    "legacy_view_button": { "$ref": "page_link_button.json" }
   },
   "$defs": {
     "monitoring_action": {

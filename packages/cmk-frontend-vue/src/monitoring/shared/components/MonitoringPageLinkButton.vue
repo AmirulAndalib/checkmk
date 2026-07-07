@@ -7,12 +7,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { type MonitoringPageLinkButton } from 'cmk-shared-typing/typescript/monitoring/page_link_button'
 
-import usei18n from '@/lib/i18n'
-
 import CmkButton from '@/components/CmkButton/CmkButton.vue'
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
-const { _t } = usei18n()
 const props = defineProps<MonitoringPageLinkButton>()
 
 function navigate(): void {
@@ -30,7 +27,7 @@ function navigate(): void {
         size="large"
         class="monitoring-page-link-button__icon"
       />
-      {{ _t('Try the new view') }}
+      {{ title }}
     </CmkButton>
   </Teleport>
 </template>

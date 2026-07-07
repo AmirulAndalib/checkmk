@@ -3,7 +3,8 @@
   "type": "object",
   "title": "Monitoring Page Link Button",
   "properties": {
-    "url": { "type": "string" }
+    "url": { "type": "string" },
+    "title": { "type": "string" }
   },
-  "required": ["url"]
+  "required": ["url", "title"]
 }

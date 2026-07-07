@@ -27,7 +27,7 @@ from cmk.gui.type_defs import DynamicIconName, IconNames, StaticIcon, Visual
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.urls import makeuri_contextless
 from cmk.gui.views.command.registry import CommandRegistry
-from cmk.shared_typing.monitoring.all_hosts import MonitoringAllHostsApp
+from cmk.shared_typing.monitoring.all_hosts import MonitoringAllHostsApp, MonitoringPageLinkButton
 
 from ._actions import PermittedHostActions
 
@@ -95,8 +95,11 @@ class MonitorAllHostsPage(Page):
                     actions=PermittedHostActions(
                         self._commands, user, _SUPPORTED_ACTIONS
                     ).as_models(),
-                    legacy_url=makeuri_contextless(
-                        ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"
+                    legacy_view_button=MonitoringPageLinkButton(
+                        url=makeuri_contextless(
+                            ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"
+                        ),
+                        title=_("Return to standard view"),
                     ),
                 )
             ),

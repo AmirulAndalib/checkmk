@@ -352,8 +352,8 @@ function onRightPaneCollapse(collapsed: boolean): void {
 }
 
 function navigateToLegacy() {
-  if (props.legacy_url) {
-    window.location.href = props.legacy_url
+  if (props.legacy_view_button) {
+    window.location.href = props.legacy_view_button.url
   }
 }
 </script>
@@ -366,13 +366,13 @@ function navigateToLegacy() {
       class="monitoring-all-hosts-app__survey-link"
     >
       <CmkIcon name="comment" class="monitoring-all-hosts-app__legacy-view-button-icon" />
-      {{ _t('Give feedback') }}
+      {{ _t('Give feedback on the new view') }}
     </CmkLink>
   </Teleport>
-  <Teleport v-if="legacy_url" defer to=".titlebar">
+  <Teleport v-if="legacy_view_button" defer to=".titlebar">
     <CmkButton class="monitoring-all-hosts-app__legacy-view-button" @click="navigateToLegacy">
       <CmkIcon name="back" class="monitoring-all-hosts-app__legacy-view-button-icon" />
-      {{ _t('Back to classic view') }}
+      {{ legacy_view_button.title }}
     </CmkButton>
   </Teleport>
   <div class="monitoring-all-hosts-app">
