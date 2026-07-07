@@ -25,6 +25,7 @@ select = [
   "B014",   # flake8-bugbear: duplicate-handler-exception
   "B017",   # flake8-bugbear: assert-raises-exception
   "B019",   # flake8-bugbear: cached-instance-method
+  "B020",   # flake8-bugbear: loop-variable-overrides-iterator
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)

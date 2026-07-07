@@ -251,7 +251,7 @@ class ModePatternEditor(WatoMode):
         # Loop all rules for this ruleset
         already_matched = False
         abs_rulenr = 0
-        folder = folder_from_request(
+        target_folder = folder_from_request(
             self._tree, request.var("folder"), request.get_ascii_input("host")
         )
 
@@ -268,7 +268,7 @@ class ModePatternEditor(WatoMode):
             else {}
         )
 
-        for folder, folder_rules in rules_grouped_by_folder(rules, folder):
+        for folder, folder_rules in rules_grouped_by_folder(rules, target_folder):
             with table_element(
                 f"logfile_patterns_{folder.ident()}",
                 title="%s %s (%d)"

@@ -4292,11 +4292,11 @@ class DualListChoice(ListChoice):
         html.close_tr()
 
         html.open_tr()
-        for suffix, choices, select_func in [
+        for suffix, choices, select_function in [
             ("unselected", unselected, select_func),
             ("selected", selected, unselect_func),
         ]:
-            onchange_func = select_func if self._instant_add else ""
+            onchange_func = select_function if self._instant_add else ""
             if self._enlarge_active:
                 onchange_func = f"cmk.valuespecs.duallist_enlarge({json.dumps(suffix)}, {json.dumps(varprefix)});"
 
@@ -4308,7 +4308,7 @@ class DualListChoice(ListChoice):
                 ordered=self._custom_order,
                 multiple=True,
                 style=("height:auto" if self._autoheight else "height: %dpx" % (self._rows * 16)),
-                ondblclick=select_func if not self._instant_add else "",
+                ondblclick=select_function if not self._instant_add else "",
                 onchange=onchange_func,
                 locked_choice=(self._locked_choice_text(value) if suffix == "selected" else None),
             )
