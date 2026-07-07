@@ -422,20 +422,20 @@ class SiteManagement:
             help_text = Help(
                 "Select the connections that are available for login on this site. "
                 "Choose <i>Use same connections as the central site</i> to inherit "
-                "the central site's selection (changes made on the central site take "
-                "effect after the next configuration sync), or <i>Use the following "
-                "connections</i> to pick specific LDAP and SAML connections. Each "
-                "SAML entry may optionally override the SP entity ID, which is useful "
-                "when multiple sites share the same SAML connection but need to be "
-                "registered separately at the IdP."
+                "the central site's selection (changes made on the central site take effect "
+                "after the next configuration sync), or <i>Use the following connections</i> to "
+                "pick specific LDAP and SAML connections. <br>Authentication connections are responsible "
+                "of creating the user and the initial user setup.<br>SAML connection are only authorized "
+                "to overwrite user attributes if no other Attribute Sync Connection is configured for that user."
             )
         else:
             help_text = Help(
                 "Select the connections that are available for login on this site. "
                 "Choose <i>Use same connections as the central site</i> to inherit "
-                "the central site's selection (changes made on the central site take "
-                "effect after the next configuration sync), or <i>Use the following "
-                "connections</i> to pick specific LDAP connections."
+                "the central site's selection (changes made on the central site take effect "
+                "after the next configuration sync), or <i>Use the following connections</i> to "
+                "pick specific LDAP connections.<br>Authentication connections are responsible "
+                "of creating the user and the initial user setup."
             )
 
         return TransformDataForLegacyFormatOrRecomposeFunction(
@@ -615,7 +615,7 @@ class SiteManagement:
     def user_attribute_sync_connections_form_spec(cls) -> FormSpec[Any]:
         return TransformDataForLegacyFormatOrRecomposeFunction(
             wrapped_form_spec=CascadingSingleChoiceExtended(
-                title=Title("User attribute synchronization"),
+                title=Title("Attribute Sync Connections"),
                 elements=[
                     CascadingSingleChoiceElement(
                         name="disabled",
@@ -629,7 +629,7 @@ class SiteManagement:
                     ),
                     CascadingSingleChoiceElement(
                         name="list",
-                        title=Title("Sync attributes only for the following connections"),
+                        title=Title("Sync attributes only for the following LDAP connections"),
                         parameter_form=MultipleChoice(
                             custom_validate=[
                                 not_empty(
@@ -650,11 +650,8 @@ class SiteManagement:
                 ],
                 prefill=DefaultValue("all"),
                 help_text=Help(
-                    "Periodic user attribute synchronization keeps user attributes "
-                    "(alias, email, roles, contact groups) up to date on this site. "
-                    "This is primarily relevant for LDAP connections. SAML connections "
-                    "update attributes only when a user logs in, so they do not need "
-                    "to be listed here."
+                    "Periodic user attribute synchronization keeps existing user attributes "
+                    "(alias, email, roles, contact groups) up to date on this site."
                 ),
                 layout=CascadingSingleChoiceLayout.horizontal,
             ),
