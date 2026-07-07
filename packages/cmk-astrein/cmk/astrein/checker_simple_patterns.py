@@ -77,6 +77,7 @@ _INCLUDED_PATHS = (
     "non-free/packages/cmk-update-agent",
     "tests/testlib/site.py",
     "non-free/packages/cmk-dcd/cmk/dcd",
+    "non-free/packages/cmk-relay-engine",
 )
 
 
