@@ -11,10 +11,10 @@ ship with Checkmk.
 """
 
 from ._artifacts import ABCBakeryFile as ABCBakeryFile
-from ._artifacts import ABCFileContainer as ABCFileContainer
 from ._artifacts import ABCYamlConfig as ABCYamlConfig
 from ._artifacts import AgentFileLocator as AgentFileLocator
 from ._artifacts import AgentInternalFileContainer as AgentInternalFileContainer
+from ._artifacts import BaseFileContainer as BaseFileContainer
 from ._artifacts import CustomFileContainer as CustomFileContainer
 from ._artifacts import FileFromSite as FileFromSite
 from ._artifacts import GeneratedBinaryFile as GeneratedBinaryFile
@@ -64,7 +64,6 @@ from ._types import AgentHash as AgentHash
 
 __all__ = [
     "ABCBakeryFile",
-    "ABCFileContainer",
     "ABCYamlConfig",
     "AGENT_FILE_HEADER",
     "ALL_OPSYSES",
@@ -74,6 +73,7 @@ __all__ = [
     "AgentHash",
     "AgentInternalFileContainer",
     "AgentPathsConfig",
+    "BaseFileContainer",
     "CoreBakelet",
     "CoreFilesFunction",
     "CoreScriptletsFunction",

@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-import abc
 import contextlib
 import time
 from collections.abc import Iterable, Sequence
@@ -35,7 +34,7 @@ def register(painter_option_registry_: PainterOptionRegistry) -> None:
     painter_option_registry.register(PainterOptionNumColumns())
 
 
-class PainterOption(abc.ABC):
+class PainterOption:
     def __init__(self, ident: str, valuespec: ValueSpec | None = None) -> None:
         self.ident = ident
         self._valuespec = valuespec

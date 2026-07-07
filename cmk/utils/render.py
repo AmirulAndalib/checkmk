@@ -29,7 +29,7 @@ from cmk.ccc.i18n import _
 #   '----------------------------------------------------------------------'
 
 
-class Renderer(abc.ABC):
+class Renderer:
     """base class for renderers"""
 
 

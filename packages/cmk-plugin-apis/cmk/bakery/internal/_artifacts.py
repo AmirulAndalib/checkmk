@@ -39,14 +39,14 @@ class AgentFileLocator:
     local_agents_dir: Path
     agents_wellknown_path_segment: str
 
-    def get_source_path(self, container: ABCFileContainer) -> Path | None:
+    def get_source_path(self, container: BaseFileContainer) -> Path | None:
         return (
             self._get_v1_source_path(container)
             if container.plugin_module is None
             else self._get_v2_source_path(container.plugin_module, container.content.source)
         )
 
-    def _get_v1_source_path(self, container: ABCFileContainer) -> Path | None:
+    def _get_v1_source_path(self, container: BaseFileContainer) -> Path | None:
         if (rel_source := container.relative_source_path()) is None:
             return None
 
@@ -99,7 +99,7 @@ class AgentFileLocator:
 class ABCBakeryFile(ABC):
     """Represents a file that is managed by the bakery and will be added to the agents.
     This class and it's subclasses contain methods for operations on the files itself.
-    It is meant to be used as content for ABCFileContainer instances.
+    It is meant to be used as content for BaseFileContainer instances.
     """
 
     def __init__(self, base_os: OS, target: Path) -> None:
@@ -147,7 +147,7 @@ class ABCBakeryFile(ABC):
         target_path.chmod(permissions)
 
 
-class ABCFileContainer(ABC):
+class BaseFileContainer:
     """Represents the attributes of agent files managed by the bakery,
     including the file itself.
     Depending on the file category, different attributes need to be managed.
@@ -208,7 +208,7 @@ class IntervalConfig(TypedDict):
     interval: int
 
 
-class PluginContainer(ABCFileContainer):
+class PluginContainer(BaseFileContainer):
     def __init__(
         self,
         agconf: AgentConfig,
@@ -306,7 +306,7 @@ class PluginContainer(ABCFileContainer):
         return entry
 
 
-class SystemBinaryContainer(ABCFileContainer):
+class SystemBinaryContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None, **_kw: Any) -> None:
         super().__init__(content=content, plugin_module=plugin_module, logical_path=LogicalPath.BIN)
 
@@ -316,11 +316,11 @@ class SystemBinaryContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class PluginConfigContainer(ABCFileContainer):
+class PluginConfigContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None, **_kw: Any) -> None:
         super().__init__(
             content=content, plugin_module=plugin_module, logical_path=LogicalPath.CONFIG
@@ -332,11 +332,11 @@ class PluginConfigContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class SystemConfigContainer(ABCFileContainer):
+class SystemConfigContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None) -> None:
         super().__init__(content=content, plugin_module=plugin_module, logical_path=LogicalPath.ETC)
 
@@ -346,11 +346,11 @@ class SystemConfigContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class LibFileContainer(ABCFileContainer):
+class LibFileContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None) -> None:
         super().__init__(
             content=content,
@@ -365,11 +365,11 @@ class LibFileContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class AgentInternalFileContainer(ABCFileContainer):
+class AgentInternalFileContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None) -> None:
         super().__init__(
             content=content,
@@ -384,11 +384,11 @@ class AgentInternalFileContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class RootFileContainer(ABCFileContainer):
+class RootFileContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None, **_kw: Any) -> None:
         super().__init__(
             content=content, plugin_module=plugin_module, logical_path=LogicalPath.ROOT
@@ -400,11 +400,11 @@ class RootFileContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
-class HomeFileContainer(ABCFileContainer):
+class HomeFileContainer(BaseFileContainer):
     def __init__(self, content: ABCBakeryFile, plugin_module: str | None, **_kw: Any) -> None:
         super().__init__(
             content=content,
@@ -419,7 +419,7 @@ class HomeFileContainer(ABCFileContainer):
     def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[ABCFileContainer]:
+    def get_derived_containers(self, _locator: AgentFileLocator) -> Iterator[BaseFileContainer]:
         yield from ()
 
 
@@ -435,7 +435,7 @@ _SEARCH_PATHS: Final[Mapping[LogicalPath, str]] = {
 }
 
 
-class CustomFileContainer(ABCFileContainer):
+class CustomFileContainer(BaseFileContainer):
     def __init__(
         self,
         content: ABCBakeryFile,

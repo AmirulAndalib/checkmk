@@ -363,7 +363,7 @@ class FormSpecNotImplementedError(Exception):
     pass
 
 
-class Rulespec(abc.ABC):
+class Rulespec:
     NO_FACTORY_DEFAULT: list = []
     # This option has the same effect as `NO_FACTORY_DEFAULT`. It's often used in MKPs.
     FACTORY_DEFAULT_UNUSED: list = []

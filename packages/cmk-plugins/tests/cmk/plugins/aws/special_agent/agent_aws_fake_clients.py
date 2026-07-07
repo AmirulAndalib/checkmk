@@ -145,7 +145,7 @@ class Bytes(Str):
 #   .--abc------------------------------------------------------------------
 
 
-class InstanceBuilder(abc.ABC):
+class InstanceBuilder:
     def __init__(self, idx: int, amount: int, skip_entities: Collection[str] = ()) -> None:
         self._idx = idx
         self._amount = amount
@@ -166,7 +166,7 @@ class InstanceBuilder(abc.ABC):
         return [cls(idx, amount, skip_entities)._create_instance() for idx in range(amount)]  # noqa: SLF001
 
 
-class DictInstanceBuilder(abc.ABC):
+class DictInstanceBuilder:
     # This class was created in order to support the fake client for AWS Lambda.
     # The Lambda API responses contain dictionaries like:
     # {

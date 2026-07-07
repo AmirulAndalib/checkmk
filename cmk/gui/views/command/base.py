@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import abc
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -44,7 +43,7 @@ CommandActionResult = (
 CommandExecutor = Callable[[CommandSpec, SiteId | None], None]
 
 
-class Command(abc.ABC):
+class Command:
     def __init__(
         self,
         ident: str,

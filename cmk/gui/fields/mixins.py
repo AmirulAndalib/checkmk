@@ -17,9 +17,11 @@ from marshmallow import fields, post_load, pre_dump, ValidationError
 class Converter(abc.ABC):
     """A converter class to map values from and to Checkmk"""
 
+    @abc.abstractmethod
     def to_checkmk(self, data: Any) -> object:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def from_checkmk(self, data: Any) -> object:
         raise NotImplementedError
 

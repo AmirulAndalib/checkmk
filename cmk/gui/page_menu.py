@@ -9,12 +9,11 @@ page. It is meant to be used for page wide actions and navigation to other relat
 
 The hierarchy here is:
 
-    PageMenu > PageMenuDropdown > PageMenuTopic > PageMenuEntry > ABCPageMenuItem
+    PageMenu > PageMenuDropdown > PageMenuTopic > PageMenuEntry > BasePageMenuItem
 """
 
 # mypy: disable-error-code="type-arg"
 
-import abc
 import json
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field
@@ -67,14 +66,14 @@ class Link:
     transition: LoadingTransition | None = None
 
 
-class ABCPageMenuItem(abc.ABC):
+class BasePageMenuItem:
     """Base class for all page menu items of the page menu
     There can be different item types, like regular links, search fields, ...
     """
 
 
 @dataclass
-class PageMenuLink(ABCPageMenuItem):
+class PageMenuLink(BasePageMenuItem):
     """A generic hyper link to other pages"""
 
     link: Link
@@ -216,7 +215,7 @@ class PageMenuData: ...
 
 
 @dataclass
-class PageMenuVue(ABCPageMenuItem):
+class PageMenuVue(BasePageMenuItem):
     """A link opening rendering a VUE component"""
 
     component_name: str
@@ -225,7 +224,7 @@ class PageMenuVue(ABCPageMenuItem):
 
 
 @dataclass
-class PageMenuPopup(ABCPageMenuItem):
+class PageMenuPopup(BasePageMenuItem):
     """A link opening a pre-rendered hidden area (not necessarily a popup window)"""
 
     content: HTML
@@ -241,7 +240,7 @@ class PageMenuSidePopup(PageMenuPopup):
 
 
 @dataclass
-class PageMenuSearch(ABCPageMenuItem):
+class PageMenuSearch(BasePageMenuItem):
     """A text input box right in the menu, primarily for in page quick search"""
 
     target_mode: str | None = None
@@ -250,11 +249,11 @@ class PageMenuSearch(ABCPageMenuItem):
 
 @dataclass
 class PageMenuEntry:
-    """Representing an entry in the menu, holding the ABCPageMenuItem to be displayed"""
+    """Representing an entry in the menu, holding the BasePageMenuItem to be displayed"""
 
     title: str
     icon_name: StaticIcon | DynamicIcon
-    item: ABCPageMenuItem
+    item: BasePageMenuItem
     name: str | None = None
     description: str | None = None
     is_enabled: bool = True

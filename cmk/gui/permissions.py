@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-import abc
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import override
@@ -40,7 +39,7 @@ class PermissionSectionRegistry(cmk.ccc.plugin_registry.Registry[PermissionSecti
 permission_section_registry = PermissionSectionRegistry()
 
 
-class Permission(abc.ABC):
+class Permission:
     _sort_index = 0
 
     def __init__(

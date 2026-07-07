@@ -17,7 +17,6 @@ https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/freque
 
 from __future__ import annotations
 
-import abc
 import argparse
 import contextlib
 import datetime
@@ -492,7 +491,7 @@ def _get_mgmt_authority_urls(
     raise ValueError("Unknown authority %r" % authority)
 
 
-class BaseApiClient(abc.ABC):
+class BaseApiClient:
     def __init__(
         self,
         authority_urls: _AuthorityURLs,

@@ -3,12 +3,10 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from abc import ABC
-
 from cmk.ccc.site import SiteId
 
 
-class PseudoUserId(ABC):
+class PseudoUserId:
     """Alternative type for UserIds
 
     We have cases where we want something to authenticate to the UI/RestAPI that is not a real user.
