@@ -33,6 +33,7 @@ select = [
   "B033",   # flake8-bugbear: duplicate-value
   "B034",   # flake8-bugbear: re-sub-positional-args
   "B035",   # flake8-bugbear: static-key-dict-comprehension
+  "B039",   # flake8-bugbear: mutable-contextvar-default
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)
