@@ -71,7 +71,7 @@ py_library(
         "//cmk/gui/utils:roles",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         "//packages/cmk-ruleset-matcher",
         requirement("werkzeug"),
     ],

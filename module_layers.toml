@@ -10,9 +10,9 @@
 # Top-level namespaces that are considered first party: imports of these are
 # checked against the component rules below; everything else is ignored.
 #
-# "livestatus" is the deprecated alias of "cmk.livestatus_client". Components
-# that still use it have an explicit "livestatus" entry in their allows;
-# remove the entry once the component is migrated to prevent regressions.
+# "livestatus" is the deprecated alias of "cmk.livestatus_client" and is fully
+# migrated: no component allows it anymore. Keeping it first party makes the
+# checker reject any reintroduction; import cmk.livestatus_client instead.
 first_party = ["cmk", "livestatus"]
 
 [groups]

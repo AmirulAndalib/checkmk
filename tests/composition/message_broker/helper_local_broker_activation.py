@@ -13,8 +13,6 @@ untouched (otherwise the recompute would run ``rabbitmqctl delete_user``).
 
 from collections import defaultdict
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.version import edition
 from cmk.gui import main_modules
 from cmk.gui.watolib.activate_changes import (
@@ -23,6 +21,7 @@ from cmk.gui.watolib.activate_changes import (
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.wsgi.app import gui_context
+from cmk.livestatus_client import SiteConfigurations
 from cmk.messaging import rabbitmq
 from cmk.utils import paths
 

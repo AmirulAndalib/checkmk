@@ -39,7 +39,7 @@ py_library(
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:version",
         "//packages/cmk-ec:syslog",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:bakery",
         "//packages/cmk-plugin-apis:graphing",

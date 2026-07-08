@@ -42,13 +42,12 @@ import pytest
 import pytest_check
 import requests
 
-import livestatus
-
 from cmk import trace
 from cmk.crypto.certificate import Certificate
 from cmk.crypto.password import Password
 from cmk.crypto.secrets import Secret
 from cmk.licensing.basics.paths import get_licensing_dir
+from cmk.livestatus_client import MKLivestatusException, SingleSiteConnection
 from tests.testlib.common.repo import current_branch_name, repo_path
 from tests.testlib.common.utils import wait_until
 from tests.testlib.common.utils2 import (
@@ -220,12 +219,10 @@ class Site:
         return self._livestatus_port
 
     @property
-    def live(self) -> livestatus.SingleSiteConnection:
+    def live(self) -> SingleSiteConnection:
         # Note: If the site comes from a SiteFactory instance, the TCP connection
         # is insecure, i.e. no TLS.
-        live = livestatus.SingleSiteConnection(
-            "tcp:%s:%d" % (self.http_address, self.livestatus_port)
-        )
+        live = SingleSiteConnection("tcp:%s:%d" % (self.http_address, self.livestatus_port))
         live.set_timeout(2)
         return live
 
@@ -254,7 +251,7 @@ class Site:
         def config_reloaded() -> bool:
             try:
                 new_t: int = self.live.query_value("GET status\nColumns: program_start\n")
-            except livestatus.MKLivestatusException:
+            except MKLivestatusException:
                 # Seems like the socket may vanish for a short time. Keep waiting in case
                 # of livestatus (connection) issues...
                 return False
