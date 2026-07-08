@@ -55,15 +55,14 @@ class TemperatureUnitUserAttribute(UserAttribute):
         return Alternative(
             title=_("Temperature unit"),
             orientation="horizontal",
-            # astrein: disable=localization-named-placeholder
             help=_(
                 "Set the temperature unit used for graphs and Perf-O-Meters. The default unit can be "
-                "configured <a href='%s'>here</a>. Note that this setting does not affect the "
+                "configured <a href='%(configvar_url)s'>here</a>. Note that this setting does not affect the "
                 "temperature unit used in service outputs, which can however be configured in "
-                "<a href='%s'>this rule set</a>."
+                "<a href='%(ruleset_url)s'>this rule set</a>."
             )
-            % (
-                makeuri_contextless(
+            % {
+                "configvar_url": makeuri_contextless(
                     request,
                     [
                         ("mode", "edit_configvar"),
@@ -71,7 +70,7 @@ class TemperatureUnitUserAttribute(UserAttribute):
                     ],
                     filename="wato.py",
                 ),
-                makeuri_contextless(
+                "ruleset_url": makeuri_contextless(
                     request,
                     [
                         ("mode", "edit_ruleset"),
@@ -82,7 +81,7 @@ class TemperatureUnitUserAttribute(UserAttribute):
                     ],
                     filename="wato.py",
                 ),
-            ),
+            },
             elements=[
                 FixedValue(
                     value=None,

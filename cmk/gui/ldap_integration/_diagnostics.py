@@ -83,8 +83,10 @@ def _test_user_count(connection: LDAPUserConnector, address: str) -> tuple[bool,
             )
 
     if ldap_users and len(ldap_users) > 0:
-        # astrein: disable=localization-named-placeholder
-        return (True, _("Found %d users for synchronization.") % len(ldap_users))
+        return (
+            True,
+            _("Found %(count)d users for synchronization.") % {"count": len(ldap_users)},
+        )
     return (False, msg)
 
 
@@ -118,8 +120,10 @@ def _test_group_count(connection: LDAPUserConnector, address: str) -> tuple[bool
                 ),
             )
     if ldap_groups and len(ldap_groups) > 0:
-        # astrein: disable=localization-named-placeholder
-        return (True, _("Found %d groups for synchronization.") % len(ldap_groups))
+        return (
+            True,
+            _("Found %(count)d groups for synchronization.") % {"count": len(ldap_groups)},
+        )
     return (False, msg)
 
 
@@ -153,12 +157,12 @@ def _test_groups_to_roles(connection: LDAPUserConnector, address: str) -> tuple[
                 dn = group_spec[0]
 
             if dn.lower() not in ldap_groups:
-                # astrein: disable=localization-named-placeholder
-                return False, _('Could not find the group "%s" specified for role %s') % (
-                    strip_tags(dn),
-                    role_id,
-                )
+                return False, _(
+                    'Could not find the group "%(group)s" specified for role %(role_id)s'
+                ) % {
+                    "group": strip_tags(dn),
+                    "role_id": role_id,
+                }
 
             num_groups += 1
-    # astrein: disable=localization-named-placeholder
-    return True, _("Found all %d groups.") % num_groups
+    return True, _("Found all %(num_groups)d groups.") % {"num_groups": num_groups}

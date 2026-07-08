@@ -81,9 +81,10 @@ def check_credentials(
         user_id: UserId = result
         if not isinstance(user_id, str):
             raise MKInternalError(
-                # astrein: disable=localization-named-placeholder
-                _("The username returned by the %s connector is not of type string (%r).")
-                % (connection_id, user_id)
+                _(
+                    "The username returned by the %(connection_id)s connector is not of type string (%(user_id)r)."
+                )
+                % {"connection_id": connection_id, "user_id": user_id}
             )
 
         # Check whether or not the user exists (and maybe create it)
@@ -156,8 +157,10 @@ def _create_non_existing_user(
     connection = get_connection(connection_id)
     try:
         if connection is None:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(None, _("Invalid user connection: %s") % connection_id)
+            raise MKUserError(
+                None,
+                _("Invalid user connection: %(connection_id)s") % {"connection_id": connection_id},
+            )
 
         log_security_event(
             UserManagementEvent(

@@ -405,8 +405,7 @@ def _create_checkmk_user_for_this_ldap_connection(
     if new_user_id in existing_users:
         raise MKUserError(
             None,
-            # astrein: disable=localization-named-placeholder
-            _("The user ID '%s' already exists") % new_user_id,
+            _("The user ID '%(user_id)s' already exists") % {"user_id": new_user_id},
         )
     new_user_spec = new_user_template(ldap_connector_id, default_user_profile)
     customer_api().set_customer_for_user(new_user_spec, ldap_connector_customer_id)
@@ -475,8 +474,10 @@ def _identify_user_modifications(
             if key in {"ldap_pw_last_changed", "serial"}:
                 pw_changed = True
             else:
-                # astrein: disable=localization-named-placeholder
-                modifications.append(_("Changed %s from %s to %s") % (key, value, new_value))
+                modifications.append(
+                    _("Changed %(key)s from %(old_value)s to %(new_value)s")
+                    % {"key": key, "old_value": value, "new_value": new_value}
+                )
                 edited = True
 
     if pw_changed:
@@ -485,11 +486,9 @@ def _identify_user_modifications(
             sync_user_result.profiles_to_synchronize[checkmk_user_id] = modified_user
 
     if added := modified_user_keys - common_keys:
-        # astrein: disable=localization-named-placeholder
-        modifications.append(_("Added: %s") % ", ".join(added))
+        modifications.append(_("Added: %(added)s") % {"added": ", ".join(added)})
     if removed := existing_user_keys - common_keys:
-        # astrein: disable=localization-named-placeholder
-        modifications.append(_("Removed: %s") % ", ".join(removed))
+        modifications.append(_("Removed: %(removed)s") % {"removed": ", ".join(removed)})
 
     return modifications
 
@@ -534,9 +533,12 @@ def _sync_plugins_existing_user(
 
     if modifications:
         sync_user_result.changes.append(
-            # astrein: disable=localization-named-placeholder
-            _("LDAP [%s]: Modified user %s (%s)")
-            % (ldap_user_connector.id, checkmk_user_id, ", ".join(modifications))
+            _("LDAP [%(connection_id)s]: Modified user %(user_id)s (%(modifications)s)")
+            % {
+                "connection_id": ldap_user_connector.id,
+                "user_id": checkmk_user_id,
+                "modifications": ", ".join(modifications),
+            }
         )
         sync_user_result.security_events.append(
             UserManagementEvent(
@@ -568,8 +570,8 @@ def _reactivate_quarantined_user(
     del checkmk_user_copy["ldap_quarantine"]
     checkmk_user_copy["locked"] = False
     sync_user_result.changes.append(
-        # astrein: disable=localization-named-placeholder
-        _("LDAP [%s]: Reactivated quarantined user %s") % (ldap_user_connector.id, checkmk_user_id)
+        _("LDAP [%(connection_id)s]: Reactivated quarantined user %(user_id)s")
+        % {"connection_id": ldap_user_connector.id, "user_id": checkmk_user_id}
     )
     sync_user_result.security_events.append(
         UserManagementEvent(
@@ -602,8 +604,8 @@ def _sync_plugins_new_user(
     users[checkmk_user_id] = new_checkmk_user
 
     sync_user_result.changes.append(
-        # astrein: disable=localization-named-placeholder
-        _("LDAP [%s]: Created user %s") % (ldap_user_connector.id, checkmk_user_id)
+        _("LDAP [%(connection_id)s]: Created user %(user_id)s")
+        % {"connection_id": ldap_user_connector.id, "user_id": checkmk_user_id}
     )
     sync_user_result.security_events.append(
         UserManagementEvent(
@@ -648,9 +650,14 @@ def _sync_ldap_user(
             "connector"
         ):
             sync_users_result.changes.append(
-                # astrein: disable=localization-named-placeholder
-                _("LDAP [%s]: Took over user %s (was owned by %s)")
-                % (ldap_user_connector.id, existing_user_id, previous_connector)
+                _(
+                    "LDAP [%(connection_id)s]: Took over user %(user_id)s (was owned by %(previous_connector)s)"
+                )
+                % {
+                    "connection_id": ldap_user_connector.id,
+                    "user_id": existing_user_id,
+                    "previous_connector": previous_connector,
+                }
             )
             _reset_attributes_managed_by_connection(
                 user_spec=copied_user_spec,
@@ -891,8 +898,9 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
             # Got no connection to any server
             if self._ldap_obj is None:
-                # astrein: disable=localization-named-placeholder
-                raise MKLDAPException(_("LDAP connection failed:\n%s") % ("\n".join(errors)))
+                raise MKLDAPException(
+                    _("LDAP connection failed:\n%(errors)s") % {"errors": "\n".join(errors)}
+                )
 
             # on success, store the connection options the connection has been made with
             self._ldap_obj_config = copy.deepcopy(self._config)
@@ -1006,8 +1014,9 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         except LDAPError as e:
             self._logger.info("  FAILED (%s: %s)", e.__class__.__name__, e)
             if catch:
-                # astrein: disable=localization-named-placeholder
-                raise MKLDAPException(_("Unable to authenticate with LDAP (%s)") % e)
+                raise MKLDAPException(
+                    _("Unable to authenticate with LDAP (%(error)s)") % {"error": e}
+                )
             raise
 
     def servers(self) -> list[str]:
@@ -1048,12 +1057,11 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
                 params = {}
             if not isinstance(params, dict):
                 raise TypeError(
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        'The configuration of the LDAP attribute plug-in "%s" is invalid. '
+                        'The configuration of the LDAP attribute plug-in "%(key)s" is invalid. '
                         "Please check the configuration."
                     )
-                    % key
+                    % {"key": key}
                 )
             yield key, params, plugin
 
@@ -1102,13 +1110,16 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             ):
                 raise MKUserError(
                     None,
-                    # astrein: disable=localization-named-placeholder
                     _(
                         "Found duplicate LDAP connection suffix. "
-                        "The LDAP connections %s and %s both use "
-                        "the suffix %s which is not allowed."
+                        "The LDAP connections %(existing_connection)s and %(connection)s both use "
+                        "the suffix %(suffix)s which is not allowed."
                     )
-                    % (LDAPUserConnector.connection_suffixes[suffix], self.id, suffix),
+                    % {
+                        "existing_connection": LDAPUserConnector.connection_suffixes[suffix],
+                        "connection": self.id,
+                        "suffix": suffix,
+                    },
                 )
             LDAPUserConnector.connection_suffixes[suffix] = self.id
 
@@ -1212,14 +1223,14 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
                     success = True
                 except NO_SUCH_OBJECT as e:
                     raise MKLDAPException(
-                        # astrein: disable=localization-named-placeholder
-                        _('The given base object "%s" does not exist in LDAP (%s))') % (base, e)
+                        _('The given base object "%(base)s" does not exist in LDAP (%(error)s))')
+                        % {"base": base, "error": e}
                     )
 
                 except FILTER_ERROR as e:
                     raise MKLDAPException(
-                        # astrein: disable=localization-named-placeholder
-                        _('The given ldap filter "%s" is invalid (%s)') % (filt, e)
+                        _('The given ldap filter "%(filter)s" is invalid (%(error)s)')
+                        % {"filter": filt, "error": e}
                     )
 
                 except SIZELIMIT_EXCEEDED:
@@ -1249,21 +1260,20 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             self._logger.info("  FAILED")
             if active_config.debug:
                 raise MKLDAPException(
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "Unable to successfully perform the LDAP search (base: %s, scope: %s, filter: %s, columns: %s): %s"
+                        "Unable to successfully perform the LDAP search (base: %(base)s, scope: %(scope)s, filter: %(filter)s, columns: %(columns)s): %(error)s"
                     )
-                    % (
-                        escaping.escape_attribute(base),
-                        escaping.escape_attribute(scope),
-                        escaping.escape_attribute(filt),
-                        escaping.escape_attribute(",".join(columns)),
-                        last_exc,
-                    )
+                    % {
+                        "base": escaping.escape_attribute(base),
+                        "scope": escaping.escape_attribute(scope),
+                        "filter": escaping.escape_attribute(filt),
+                        "columns": escaping.escape_attribute(",".join(columns)),
+                        "error": last_exc,
+                    }
                 )
             raise MKLDAPException(
-                # astrein: disable=localization-named-placeholder
-                _("Unable to successfully perform the LDAP search (%s)") % last_exc
+                _("Unable to successfully perform the LDAP search (%(error)s)")
+                % {"error": last_exc}
             )
 
         self._logger.info("  RESULT length: %d, duration: %0.3f", len(result), duration)
@@ -1439,9 +1449,10 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         ):
             if user_id_attr not in ldap_user:
                 raise MKLDAPException(
-                    # astrein: disable=localization-named-placeholder
-                    _('The configured User-ID attribute "%s" does not exist for the user "%s"')
-                    % (user_id_attr, dn)
+                    _(
+                        'The configured User-ID attribute "%(user_id_attr)s" does not exist for the user "%(dn)s"'
+                    )
+                    % {"user_id_attr": user_id_attr, "dn": dn}
                 )
 
             try:
@@ -1489,12 +1500,11 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
         if not group:
             raise MKLDAPException(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "The configured LDAP user filter group could not be found. "
-                    'Please check <a href="%s">your configuration</a>.'
+                    'Please check <a href="%(url)s">your configuration</a>.'
                 )
-                % "wato.py?mode=ldap_config&varname=ldap_userspec"
+                % {"url": "wato.py?mode=ldap_config&varname=ldap_userspec"}
             )
 
         return [m.lower() for m in list(group[0][1].values())[0]]
@@ -1696,12 +1706,11 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
         if base_dn is None:
             raise MKLDAPException(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "Unable to synchronize nested groups (found no common base DN for user base "
-                    'DN "%s" and group base DN "%s")'
+                    'DN "%(user_dn)s" and group base DN "%(group_dn)s")'
                 )
-                % (self._get_user_dn(), self.get_group_dn())
+                % {"user_dn": self._get_user_dn(), "group_dn": self.get_group_dn()}
             )
 
         return ldap.dn.dn2str(base_dn)
@@ -1894,8 +1903,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             user["ldap_quarantine"] = QuarantineInfo(quarantined_on=now, connection_id=self.id)
             user["locked"] = True
             sync_users_result.changes.append(
-                # astrein: disable=localization-named-placeholder
-                _("LDAP [%s]: Quarantined user %s") % (self.id, user_id)
+                _("LDAP [%(connection_id)s]: Quarantined user %(user_id)s")
+                % {"connection_id": self.id, "user_id": user_id}
             )
             log_security_event(
                 UserManagementEvent(
@@ -1915,8 +1924,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
     ) -> None:
         del users[user_id]  # remove the user
         sync_users_result.changes.append(
-            # astrein: disable=localization-named-placeholder
-            _("LDAP [%s]: Removed user %s") % (self.id, user_id)
+            _("LDAP [%(connection_id)s]: Removed user %(user_id)s")
+            % {"connection_id": self.id, "user_id": user_id}
         )
         log_security_event(
             UserManagementEvent(
@@ -2696,12 +2705,11 @@ class LDAPAttributePluginAuthExpire(LDAPAttributePlugin):
         changed_attr = sync_attribute.get("attr", connection._ldap_attr("pw_changed")).lower()
         if changed_attr not in ldap_user:
             raise MKLDAPException(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    'The "authentication expiration" attribute (%s) could not be fetched '
-                    "from the LDAP server for user %s."
+                    'The "authentication expiration" attribute (%(changed_attr)s) could not be fetched '
+                    "from the LDAP server for user %(ldap_user)s."
                 )
-                % (changed_attr, ldap_user)
+                % {"changed_attr": changed_attr, "ldap_user": ldap_user}
             )
 
         # For keeping this thing simple, we don't parse the date here. We just store

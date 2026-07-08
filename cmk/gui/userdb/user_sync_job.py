@@ -220,8 +220,10 @@ class UserSyncBackgroundJob(BackgroundJob):
                 if not enforce_sync and not connection.sync_is_needed():
                     continue
 
-                # astrein: disable=localization-named-placeholder
-                logger.info(_("[%s] Starting sync for connection"), connection_id)
+                logger.info(
+                    _("[%(connection_id)s] Starting sync for connection"),
+                    {"connection_id": connection_id},
+                )
                 connection.do_sync(
                     add_to_changelog=add_to_changelog,
                     only_username=None,
@@ -230,11 +232,14 @@ class UserSyncBackgroundJob(BackgroundJob):
                     save_users_func=save_users_func,
                     default_user_profile=default_user_profile,
                 )
-                # astrein: disable=localization-named-placeholder
-                logger.info(_("[%s] Finished sync for connection"), connection_id)
+                logger.info(
+                    _("[%(connection_id)s] Finished sync for connection"),
+                    {"connection_id": connection_id},
+                )
             except Exception:
-                # astrein: disable=localization-named-placeholder
-                logger.exception(_("[%s] exception"), connection_id)
+                logger.exception(
+                    _("[%(connection_id)s] exception"), {"connection_id": connection_id}
+                )
                 gui_logger.error(
                     "Exception (%s, userdb_job): %s", connection_id, traceback.format_exc()
                 )

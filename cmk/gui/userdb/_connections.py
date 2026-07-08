@@ -383,8 +383,8 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"edit-{connection_type}-connection",
-                # astrein: disable=localization-named-placeholder
-                text=_("Changed %s connection %s") % (connection_type.upper(), connection_id),
+                text=_("Changed %(connection_type)s connection %(connection_id)s")
+                % {"connection_type": connection_type.upper(), "connection_id": connection_id},
                 domains=[d.ident() for d in domains],
             ),
             ChangeScope.sites(sites),
@@ -403,8 +403,8 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"new-{connection_type}-connection",
-                # astrein: disable=localization-named-placeholder
-                text=_("Created new %s connection") % connection_type.upper(),
+                text=_("Created new %(connection_type)s connection")
+                % {"connection_type": connection_type.upper()},
                 domains=[d.ident() for d in domains],
             ),
             ChangeScope.sites(sites),
@@ -424,8 +424,8 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"delete-{connection_type}-connection",
-                # astrein: disable=localization-named-placeholder
-                text=_("Deleted %s connection %s") % (connection_type.upper(), connection_id),
+                text=_("Deleted %(connection_type)s connection %(connection_id)s")
+                % {"connection_type": connection_type.upper(), "connection_id": connection_id},
                 domains=[d.ident() for d in domains],
             ),
             ChangeScope.sites(sites),
@@ -446,8 +446,8 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"move-{connection_type}-connection",
-                # astrein: disable=localization-named-placeholder
-                text=_("Changed position of connection %s to %d") % (connection_id, to_index),
+                text=_("Changed position of connection %(connection_id)s to %(to_index)d")
+                % {"connection_id": connection_id, "to_index": to_index},
                 domains=[d.ident() for d in domains],
             ),
             ChangeScope.sites(sites),

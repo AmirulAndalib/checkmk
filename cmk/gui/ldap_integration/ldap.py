@@ -693,9 +693,10 @@ class LDAPConnectionValuespec(Dictionary):
             if connection_id != self._connection_id and value == suffix:
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("This suffix is already used by connection %s. Please choose another one.")
-                    % connection_id,
+                    _(
+                        "This suffix is already used by connection %(connection_id)s. Please choose another one."
+                    )
+                    % {"connection_id": connection_id},
                 )
 
 
@@ -814,8 +815,7 @@ class ModeEditLDAPConnection(WatoMode):
         if self._new:
             return _("Add LDAP connection")
         assert self._connection_id is not None
-        # astrein: disable=localization-named-placeholder
-        return _("Edit LDAP connection: %s") % self._connection_id
+        return _("Edit LDAP connection: %(connection_id)s") % {"connection_id": self._connection_id}
 
     @override
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -878,9 +878,8 @@ class ModeEditLDAPConnection(WatoMode):
             if connection_cfg["id"] in _all_connections:
                 raise MKUserError(
                     "id",
-                    # astrein: disable=localization-named-placeholder
-                    _("The ID %s is already used by another connection.")
-                    % self._connection_cfg["id"],
+                    _("The ID %(connection_id)s is already used by another connection.")
+                    % {"connection_id": self._connection_cfg["id"]},
                 )
             _all_connections[connection_cfg["id"]] = connection_cfg
             self._connection_cfg = connection_cfg
@@ -966,8 +965,7 @@ class ModeEditLDAPConnection(WatoMode):
                             state, msg = test_func(connection, address)
                         except Exception as e:
                             state = False
-                            # astrein: disable=localization-named-placeholder
-                            msg = _("Exception: %s") % e
+                            msg = _("Exception: %(error)s") % {"error": e}
                             logger.exception("error testing LDAP %s for %s", title, address)
 
                         if state:
