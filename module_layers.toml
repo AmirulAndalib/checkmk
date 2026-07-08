@@ -912,6 +912,7 @@ excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 [components."cmk.gui.nonfree.ultimate"]
 allows = [
   "@ccc",
+  "@flags",
   "@livestatus_client",
   "@metric_backend",
   "@plugin_apis",
@@ -934,7 +935,6 @@ allows = [
   "cmk.utils.automation_config",
   "cmk.utils.certs",
   "cmk.utils.config_warnings",
-  "cmk.utils.experimental_config",
   "cmk.utils.global_ident_type",
   "cmk.ruleset_matcher",
   "cmk.utils.macros",
@@ -1050,7 +1050,6 @@ allows = [
   "cmk.utils.encryption",
   "cmk.utils.escaping",
   "cmk.utils.everythingtype",
-  "cmk.utils.experimental_config",
   "cmk.utils.global_ident_type",
   "cmk.utils.host_storage",
   "cmk.utils.html",
@@ -1496,9 +1495,6 @@ allows = ["@crypto", "cmk.ccc.exceptions"]
 allows = ["cmk.web.utils.escaping"]
 
 [components."cmk.utils.everythingtype"]
-allows = []
-
-[components."cmk.utils.experimental_config"]
 allows = []
 
 [components."cmk.utils.global_ident_type"]

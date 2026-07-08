@@ -103,6 +103,7 @@ def test_registered_configvars() -> None:
         "escape_plugin_output",
         "event_limit",
         "eventsocket_queue_len",
+        "exp_add_windows_relay",
         "failed_notification_horizon",
         "hard_query_limit",
         "history_lifetime",
@@ -232,6 +233,7 @@ def test_registered_configvar_groups() -> None:
         "Support",
         "Developer Tools",
         "Product usage analytics",
+        "Release flags",
     ]
 
     registered = sorted(config_variable_group_registry.keys())
