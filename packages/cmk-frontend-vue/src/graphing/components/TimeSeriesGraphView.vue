@@ -45,13 +45,15 @@ const props = defineProps<{
   consolidationFunction?: ConsolidationFn
   horizontalLines?: HorizontalLine[]
   curveInterpolator?: LineInterpolator
-  // Optional overview series for the navigator brush (coarse, wider, end-anchored context)
-  // and its domain. When omitted, the brush is not rendered.
   overview?: { metrics: Metric[]; timeRange: TimeRange }
   showBrush?: boolean
+  brushWindow?: { start: number; end: number }
 }>()
 
-const emit = defineEmits<{ 'update:requestedTimeRange': [RequestedTimeRange] }>()
+const emit = defineEmits<{
+  'update:requestedTimeRange': [RequestedTimeRange]
+  'update:view': [TimeRange]
+}>()
 
 const {
   timeRange: viewTimeRange,
@@ -59,6 +61,8 @@ const {
   inspectionActive,
   handleIntent
 } = useGraphView(() => props.timeRange)
+
+watch(viewTimeRange, (view) => emit('update:view', view), { immediate: true, deep: true })
 
 const zoomMode = ref<ZoomMode>('time')
 const peakZoomActive = computed({
@@ -116,7 +120,7 @@ watch(
       class="graphing-time-series-graph-view__brush"
       :metrics="overview.metrics"
       :domain="overview.timeRange"
-      :window="{ start: viewTimeRange.start, end: viewTimeRange.end }"
+      :window="brushWindow ?? { start: viewTimeRange.start, end: viewTimeRange.end }"
       :min-span="minTimeRange"
       :width="size.width + CANVAS_MARGIN_HORIZONTAL"
       :plot-left="CANVAS_MARGIN_LEFT"

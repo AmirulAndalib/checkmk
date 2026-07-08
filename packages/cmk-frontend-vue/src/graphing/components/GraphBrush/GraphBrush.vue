@@ -23,7 +23,7 @@ import { computeSparklineBands, formatOverviewExtent } from './utils'
 
 const props = defineProps<{
   metrics: Metric[] // coarse overview series
-  domain: TimeRange // strip extent; domain.end is "now"
+  domain: TimeRange // strip extent
   window: { start: number; end: number } // selection = renderer viewTimeRange
   minSpan: number | null
   width: number // figure width (px)

@@ -12,12 +12,14 @@ import type {
 
 export type { ConsolidationFn, HorizontalLine, Metric, TimeRange }
 
-// What the user has chosen (drives GraphDateTimeRangePicker).
-// Distinct from TimeRange, which is what the RRD actually returned.
-export interface RequestedTimeRange {
+export interface TimeInterval {
   start: number // unix seconds
   end: number // unix seconds
 }
+
+// What the user has chosen (drives GraphDateTimeRangePicker).
+// Distinct from TimeRange, which is what the RRD actually returned.
+export type RequestedTimeRange = TimeInterval
 
 interface BurgerMenuAction {
   label: string
