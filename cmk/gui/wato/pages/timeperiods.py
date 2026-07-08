@@ -551,7 +551,12 @@ class ModeEditTimeperiod(WatoMode):
         self._name = (
             None if (n := request.var("edit")) is None else TimeperiodName(n)
         )  # missing -> new group
-        if self._name is None:
+        # TODO: Nuke the field below? It effectively hides facts about _name for mypy.
+        self._new = self._name is None
+
+        if self._name is not None and is_builtin_timeperiod(self._name):
+            raise MKUserError("edit", _("Built-in time periods cannot be modified"))
+        if self._new:
             clone_name = None if (c := request.var("clone")) is None else TimeperiodName(c)
             if request.var("mode") == "import_ical":
                 self._timeperiod: TimeperiodSpec = {"alias": request.var("timeperiod_p_alias", "")}
@@ -561,8 +566,7 @@ class ModeEditTimeperiod(WatoMode):
             else:
                 self._timeperiod = {"alias": ""}
         else:
-            if is_builtin_timeperiod(self._name):
-                raise MKUserError("edit", _("Built-in time periods cannot be modified"))
+            assert self._name is not None
             self._timeperiod = self._get_timeperiod(self._name)
 
     def _get_timeperiod(self, name: TimeperiodName) -> TimeperiodSpec:
@@ -572,7 +576,9 @@ class ModeEditTimeperiod(WatoMode):
             raise MKUserError(None, _("This time period does not exist."))
 
     def title(self) -> str:
-        return _("Add time period") if self._name is None else _("Edit time period")
+        if self._new:
+            return _("Add time period")
+        return _("Edit time period")
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return make_simple_form_page_menu(
@@ -580,7 +586,7 @@ class ModeEditTimeperiod(WatoMode):
         )
 
     def _valuespec(self) -> Dictionary:
-        if self._name is None:
+        if self._new:
             # Cannot use ID() here because old versions of the GUI allowed time periods to start
             # with numbers and so on. The ID() valuespec does not allow it.
             name_element: ValueSpec = TextInput(
@@ -629,7 +635,7 @@ class ModeEditTimeperiod(WatoMode):
         self._validate_alias(value["name"], value["alias"], "%s_p_alias" % varprefix)
 
     def _validate_id(self, value: str, varprefix: str) -> None:
-        if self._name is None and value in self._timeperiods:
+        if self._new and value in self._timeperiods:
             raise MKUserError(
                 varprefix, _("This name is already being used by another time period.")
             )
@@ -772,8 +778,9 @@ class ModeEditTimeperiod(WatoMode):
         vs.validate_value(vs_spec, "timeperiod")
         self._timeperiod = self._from_valuespec(vs_spec)
 
-        if self._name is None:
+        if self._new:
             self._name = vs_spec["name"]
+            assert self._name is not None
             watolib.timeperiods.create_timeperiod(
                 self._name,
                 self._timeperiod,
@@ -786,6 +793,7 @@ class ModeEditTimeperiod(WatoMode):
                 ),
             )
         else:
+            assert self._name is not None
             watolib.timeperiods.modify_timeperiod(
                 self._name,
                 self._timeperiod,
