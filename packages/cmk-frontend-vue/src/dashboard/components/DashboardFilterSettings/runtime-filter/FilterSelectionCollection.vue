@@ -5,10 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import CmkLabel from '@/components/CmkLabel.vue'
-
-import AddFilterMessage from '@/dashboard/components/filter/shared/AddFilterMessage.vue'
-import RemoveFilterButton from '@/dashboard/components/filter/shared/RemoveFilterButton.vue'
-import type { FilterDefinition } from '@/dashboard/components/filter/types.ts'
+import {
+  CmkAddFilterMessage,
+  CmkRemoveFilterButton,
+  type FilterDefinition
+} from '@/components/filter'
 
 interface Props {
   title: string
@@ -34,12 +35,12 @@ const emit = defineEmits<{
       <span class="db-filter-selection-collection__item-title">
         {{ props.filterDefinitions[filterId]!.title }}
       </span>
-      <RemoveFilterButton
+      <CmkRemoveFilterButton
         :filter-name="props.filterDefinitions[filterId]!.title || ''"
         @remove="() => emit('remove-filter', filterId)"
       />
     </div>
-    <AddFilterMessage />
+    <CmkAddFilterMessage />
   </div>
 </template>
 

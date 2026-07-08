@@ -7,6 +7,8 @@ import { type Ref, ref, watch } from 'vue'
 
 import { useDebounceFn } from '@/lib/useDebounce'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import type { GraphTimerange } from '@/dashboard/components/TimeRange/GraphTimeRange.vue'
 import type { TimerangeModel } from '@/dashboard/components/TimeRange/types'
 import { useTimeRange } from '@/dashboard/components/TimeRange/useTimeRange'
@@ -22,7 +24,6 @@ import type {
   UseWidgetHandler,
   WidgetProps
 } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import { useInjectDashboardConstants } from '@/dashboard/composables/useProvideDashboardConstants'
 import { computePreviewWidgetTitle } from '@/dashboard/composables/useWidgetTitles'
 import type { WidgetSpec } from '@/dashboard/types/widget'

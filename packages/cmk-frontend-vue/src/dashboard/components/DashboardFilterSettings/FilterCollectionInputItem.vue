@@ -6,9 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { TranslatedString } from '@/lib/i18nString'
 
-import FilterInputItem from '@/dashboard/components/filter/FilterInputItem/FilterInputItem.vue'
-import RemoveFilterButton from '@/dashboard/components/filter/shared/RemoveFilterButton.vue'
-import type { ConfiguredValues, FilterDefinition } from '@/dashboard/components/filter/types.ts'
+import {
+  CmkFilterInputItem,
+  CmkRemoveFilterButton,
+  type ConfiguredValues,
+  type FilterDefinition
+} from '@/components/filter'
 
 interface Props {
   filterId: string
@@ -36,7 +39,7 @@ const handleUpdateFilterValues = (filterId: string, values: ConfiguredValues) =>
 
 <template>
   <div class="db-filter-collection-input-item__container">
-    <FilterInputItem
+    <CmkFilterInputItem
       :filter-id="filterId"
       :configured-filter-values="configuredFilterValues"
       :show-required-label="showRequiredLabel"
@@ -44,7 +47,7 @@ const handleUpdateFilterValues = (filterId: string, values: ConfiguredValues) =>
     />
     <div v-if="allowRemove || label" class="db-filter-collection-input-item__actions">
       <span v-if="label" class="db-filter-collection-input-item__label">{{ label }}</span>
-      <RemoveFilterButton
+      <CmkRemoveFilterButton
         v-if="allowRemove"
         :filter-name="props.filterDefinitions[filterId]!.title || ''"
         @remove="emit('remove-filter', props.filterId)"

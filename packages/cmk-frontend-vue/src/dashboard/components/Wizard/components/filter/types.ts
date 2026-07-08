@@ -3,7 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { ConfiguredValues } from '@/dashboard/components/filter/types'
+import type { ConfiguredValues } from '@/components/filter'
+
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
 export interface FilterEmits {

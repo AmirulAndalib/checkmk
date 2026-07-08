@@ -8,12 +8,14 @@ import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import {
+  CmkFilterDisplayItem,
+  type ConfiguredFilters,
+  useFilterDefinitions
+} from '@/components/filter'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import FilterDisplayItem from '@/dashboard/components/filter/FilterDisplayItem/FilterDisplayItem.vue'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils'
 
 import { type MetricSelection } from '../../wizards/metrics/composables/useSelectGraphTypes'
 import { splitFiltersByCategory, squashFilters } from './utils'
@@ -106,7 +108,7 @@ const logFiltersCount = computed((): number => {
   <div v-if="hostFiltersCount > 0">
     <CmkHeading type="h2">{{ _t('Hosts') }}</CmkHeading>
     <div class="filters-recap__category-container">
-      <FilterDisplayItem
+      <CmkFilterDisplayItem
         v-for="(configuredValues, flt) of hostFilters"
         :key="flt"
         :filter-id="flt"
@@ -125,7 +127,7 @@ const logFiltersCount = computed((): number => {
   <div v-if="serviceFiltersCount > 0">
     <CmkHeading type="h2">{{ _t('Services') }}</CmkHeading>
     <div class="filters-recap__category-container">
-      <FilterDisplayItem
+      <CmkFilterDisplayItem
         v-for="(configuredValues, flt) of serviceFilters"
         :key="flt"
         :filter-id="flt"
@@ -144,7 +146,7 @@ const logFiltersCount = computed((): number => {
   <div v-if="logFiltersCount > 0">
     <CmkHeading type="h2">{{ _t('Logs') }}</CmkHeading>
     <div class="filters-recap__category-container">
-      <FilterDisplayItem
+      <CmkFilterDisplayItem
         v-for="(configuredValues, flt) of logFilters"
         :key="flt"
         :filter-id="flt"

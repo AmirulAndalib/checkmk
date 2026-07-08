@@ -9,6 +9,8 @@ import { type Ref, computed, h, ref } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
+import type { ConfiguredFilters } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import AddFilters from '@/dashboard/components/Wizard/components/AddFilters/AddFilters.vue'
@@ -29,8 +31,6 @@ import {
   extractConfiguredFilters,
   getInitialElementSelection
 } from '@/dashboard/components/Wizard/utils'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import { useInjectDashboardConstants } from '@/dashboard/composables/useProvideDashboardConstants'
 import { useInjectVisualInfos } from '@/dashboard/composables/useProvideVisualInfos'
 import type { DashboardFeatures, DashboardKey } from '@/dashboard/types/dashboard'

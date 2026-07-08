@@ -8,11 +8,12 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters, ConfiguredValues } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
+
 import SingleMultiWidgetObjectFilterConfiguration from '@/dashboard/components/Wizard/components/filter/SingleMultiWidgetObjectFilterConfiguration.vue'
 import { parseFilters } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { ElementSelection } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters, ConfiguredValues } from '@/dashboard/components/filter/types'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import { DashboardFeatures } from '@/dashboard/types/dashboard'
 import type { ContextFilters } from '@/dashboard/types/filter.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'

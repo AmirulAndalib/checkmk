@@ -7,11 +7,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 import type { TranslatedString } from '@/lib/i18nString'
 
 import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
+import type { ConfiguredValues } from '@/components/filter'
 
 import CatalogPanelHeader from '@/dashboard/components/Wizard/components/CatalogPanelHeader.vue'
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
 import MultiFilter from './MultiFilter.vue'

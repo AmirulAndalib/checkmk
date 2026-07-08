@@ -9,11 +9,11 @@ import { ref, watch } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkIndent from '@/components/CmkIndent.vue'
+import type { ConfiguredFilters } from '@/components/filter'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import SingleInfosSpecifier from '@/dashboard/components/Wizard/wizards/view/stage1/components/SingleInfosSpecifier.vue'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types.ts'
 import SelectorView from '@/dashboard/components/selectors/SelectorView.vue'
 import { useInjectViews } from '@/dashboard/composables/useProvideViews'
 import type { DataSourceModel } from '@/dashboard/types/api'

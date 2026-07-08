@@ -9,6 +9,9 @@ import { computed, h, nextTick, ref, watchEffect } from 'vue'
 import usei18n from '@/lib/i18n'
 import { randomId } from '@/lib/randomId'
 
+import type { ConfiguredFilters } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
+
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import AddFilters from '@/dashboard/components/Wizard/components/AddFilters/AddFilters.vue'
 import {
@@ -17,8 +20,6 @@ import {
 } from '@/dashboard/components/Wizard/components/FiltersRecap/utils.ts'
 import { useWidgetVisualizationProps } from '@/dashboard/components/Wizard/components/WidgetVisualization/useWidgetVisualization'
 import { useWidgetFilterManager } from '@/dashboard/components/Wizard/components/filter/composables/useWidgetFilterManager.ts'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types.ts'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import type { DataSourceModel, ViewModel } from '@/dashboard/types/api'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type { ContextFilters } from '@/dashboard/types/filter.ts'

@@ -5,10 +5,11 @@
  */
 import { type Ref, computed, ref } from 'vue'
 
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
-import { configuredToContextFilters } from '@/dashboard/components/filter/utils'
+import type { ConfiguredFilters } from '@/components/filter'
+
 import type { DashboardFilterContextWithSingleInfos } from '@/dashboard/types/dashboard'
 import { type ContextFilters, FilterOrigin, RuntimeFilterMode } from '@/dashboard/types/filter.ts'
+import { configuredToContextFilters } from '@/dashboard/utils.ts'
 
 export function useDashboardFilters(
   dashboardFilterContextRef: Ref<DashboardFilterContextWithSingleInfos | undefined>

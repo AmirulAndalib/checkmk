@@ -9,11 +9,11 @@ import { type Ref, computed, h, ref } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
+import type { ConfiguredFilters } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import { useWidgetFilterManager } from '@/dashboard/components/Wizard/components/filter/composables/useWidgetFilterManager.ts'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import { useInjectDashboardConstants } from '@/dashboard/composables/useProvideDashboardConstants'
 import { useInjectVisualInfos } from '@/dashboard/composables/useProvideVisualInfos'
 // Local components

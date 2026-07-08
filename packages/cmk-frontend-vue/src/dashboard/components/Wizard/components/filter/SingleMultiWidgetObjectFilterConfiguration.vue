@@ -10,10 +10,10 @@ import usei18n from '@/lib/i18n'
 
 import CmkIndent from '@/components/CmkIndent.vue'
 import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
+import type { ConfiguredValues } from '@/components/filter'
 
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types.ts'
 import type { ContextFilters } from '@/dashboard/types/filter.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 

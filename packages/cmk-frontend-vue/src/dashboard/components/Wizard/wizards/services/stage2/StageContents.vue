@@ -8,8 +8,9 @@ import { ref, toValue } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import type { ElementSelection, UseWidgetHandler } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import { DashboardFeatures, type DashboardKey } from '@/dashboard/types/dashboard'
 import type {
   WidgetContent,

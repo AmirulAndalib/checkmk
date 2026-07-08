@@ -9,10 +9,10 @@ import { computed, onBeforeMount } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
+import { useFilterDefinitions } from '@/components/filter'
 
 import CatalogPanelHeader from '@/dashboard/components/Wizard/components/CatalogPanelHeader.vue'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import { useVisualInfoCollection } from '@/dashboard/composables/api/useVisualInfoCollection'
 import type { ContextFilters } from '@/dashboard/types/filter.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'

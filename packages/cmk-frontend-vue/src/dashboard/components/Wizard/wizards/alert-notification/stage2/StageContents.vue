@@ -8,9 +8,10 @@ import { computed, ref, toValue } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
+
 import type { ElementSelection, UseWidgetHandler } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type {
   WidgetContent,

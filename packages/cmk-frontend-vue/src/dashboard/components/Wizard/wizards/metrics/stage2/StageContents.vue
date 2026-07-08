@@ -8,13 +8,14 @@ import { ref, toValue } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import { ElementSelection, type UseWidgetHandler } from '@/dashboard/components/Wizard/types'
 import {
   Graph,
   MetricSelection,
   getAvailableGraphs
 } from '@/dashboard/components/Wizard/wizards/metrics/composables/useSelectGraphTypes'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type {
   WidgetContent,

@@ -12,11 +12,11 @@ import CmkDropdown from '@/components/CmkDropdown'
 import CmkIndent from '@/components/CmkIndent.vue'
 import CmkLabel from '@/components/CmkLabel.vue'
 import type { Suggestion } from '@/components/CmkSuggestions'
+import type { ConfiguredFilters, ConfiguredValues } from '@/components/filter'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import type { ConfiguredFilters, ConfiguredValues } from '@/dashboard/components/filter/types'
 import type { ContextFilters } from '@/dashboard/types/filter'
 import type { ObjectType } from '@/dashboard/types/shared'
 

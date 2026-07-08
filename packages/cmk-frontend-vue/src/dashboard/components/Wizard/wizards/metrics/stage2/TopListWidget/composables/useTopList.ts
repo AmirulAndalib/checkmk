@@ -8,6 +8,8 @@ import { type Ref, ref, watch } from 'vue'
 import usei18n from '@/lib/i18n'
 import { useDebounceFn } from '@/lib/useDebounce'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import {
   type DataRangeType,
   useDataRangeInput
@@ -21,7 +23,6 @@ import type {
   UseWidgetHandler,
   WidgetProps
 } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import { useInjectDashboardConstants } from '@/dashboard/composables/useProvideDashboardConstants'
 import { computePreviewWidgetTitle } from '@/dashboard/composables/useWidgetTitles'
 import type { WidgetSpec } from '@/dashboard/types/widget'

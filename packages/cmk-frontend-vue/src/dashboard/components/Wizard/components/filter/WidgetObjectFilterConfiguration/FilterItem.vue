@@ -10,10 +10,9 @@ import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import { CmkFilterDisplayItem, type ConfiguredValues } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import FilterDisplayItem from '@/dashboard/components/filter/FilterDisplayItem/FilterDisplayItem.vue'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types'
 import { FilterOrigin } from '@/dashboard/types/filter'
 
 const { _t } = usei18n()
@@ -58,7 +57,7 @@ const originLabel = computed<TranslatedString>(() => {
     </div>
 
     <div class="db-filter-item__component">
-      <FilterDisplayItem :filter-id="filterId" :configured-values="configuredValues" />
+      <CmkFilterDisplayItem :filter-id="filterId" :configured-values="configuredValues" />
     </div>
 
     <div class="db-filter-item__component">

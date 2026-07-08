@@ -11,6 +11,14 @@ import usei18n from '@/lib/i18n'
 import CmkButton from '@/components/CmkButton'
 import CmkIcon from '@/components/CmkIcon'
 import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
+import {
+  CATEGORY_DEFINITIONS,
+  CmkFilterSelection,
+  type ConfiguredFilters,
+  parseFilterTypes,
+  useFilterDefinitions,
+  useFilters
+} from '@/components/filter'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
@@ -18,11 +26,6 @@ import type {
   FilterSettingsEmits,
   FilterSettingsProps
 } from '@/dashboard/components/DashboardFilterSettings/types.ts'
-import FilterSelection from '@/dashboard/components/filter/FilterSelection/FilterSelection.vue'
-import { CATEGORY_DEFINITIONS } from '@/dashboard/components/filter/FilterSelection/utils.ts'
-import { useFilters } from '@/dashboard/components/filter/composables/useFilters.ts'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types.ts'
-import { parseFilterTypes, useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import type { RuntimeFilterMode } from '@/dashboard/types/filter.ts'
 
 import FilterCollection from './FilterCollection.vue'
@@ -217,13 +220,13 @@ const serviceMandatoryFilters = computed(() => {
       <CmkHeading class="db-filter-settings__selection-container-header" type="h1">{{
         _t('Add filter')
       }}</CmkHeading>
-      <FilterSelection
+      <CmkFilterSelection
         :category-filter="filterCategories.get('host')!"
         :category-definition="CATEGORY_DEFINITIONS.host!"
         :filters="targetFilters"
         class="db-filter-settings__selection-item"
       />
-      <FilterSelection
+      <CmkFilterSelection
         :category-filter="filterCategories.get('service')!"
         :category-definition="CATEGORY_DEFINITIONS.service!"
         :filters="targetFilters"

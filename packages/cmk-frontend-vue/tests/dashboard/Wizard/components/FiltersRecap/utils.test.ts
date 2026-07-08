@@ -5,12 +5,13 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import type { FilterDefinition } from '@/components/filter'
+
 import {
   parseContextConfiguredFilters,
   splitFiltersByCategory,
   squashFilters
 } from '@/dashboard/components/Wizard/components/FiltersRecap/utils'
-import type { FilterDefinition } from '@/dashboard/components/filter/types'
 import { FilterOrigin } from '@/dashboard/types/filter'
 
 describe('parseContextConfiguredFilters', () => {

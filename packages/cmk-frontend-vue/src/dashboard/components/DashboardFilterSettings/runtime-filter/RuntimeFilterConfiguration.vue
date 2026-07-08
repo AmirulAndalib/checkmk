@@ -11,15 +11,15 @@ import usei18n from '@/lib/i18n'
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
 import CmkButton from '@/components/CmkButton'
 import CmkLabel from '@/components/CmkLabel.vue'
+import {
+  type ConfiguredFilters,
+  type ConfiguredValues,
+  type FilterDefinition,
+  type Filters,
+  isFullyConfiguredFilter
+} from '@/components/filter'
 import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
-import type { useFilters } from '@/dashboard/components/filter/composables/useFilters.ts'
-import type {
-  ConfiguredFilters,
-  ConfiguredValues,
-  FilterDefinition
-} from '@/dashboard/components/filter/types.ts'
-import { isFullyConfiguredFilter } from '@/dashboard/components/filter/utils.ts'
 import { RuntimeFilterMode } from '@/dashboard/types/filter.ts'
 
 import FilterCollectionInputItem from '../FilterCollectionInputItem.vue'
@@ -28,7 +28,7 @@ import RuntimeFilterCollection from './RuntimeFilterCollection.vue'
 const { _t } = usei18n()
 const props = defineProps<{
   filterDefinitions: Record<string, FilterDefinition>
-  runtimeFilters: ReturnType<typeof useFilters>
+  runtimeFilters: Filters
   dashboardFilters: ConfiguredFilters
   hostDashboardFilters: string[]
   serviceDashboardFilters: string[]

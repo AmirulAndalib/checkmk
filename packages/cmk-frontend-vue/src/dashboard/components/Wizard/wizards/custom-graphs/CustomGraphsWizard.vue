@@ -9,9 +9,9 @@ import { computed } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
+import type { ConfiguredFilters } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 // Local components
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type { ContextFilters } from '@/dashboard/types/filter'

@@ -5,7 +5,8 @@
  */
 import { type ComputedRef, type Ref, computed } from 'vue'
 
-import type { FilterDefinition } from '@/dashboard/components/filter/types'
+import type { FilterDefinition } from '@/components/filter'
+
 import type { DashboardModel } from '@/dashboard/types/dashboard'
 
 /**

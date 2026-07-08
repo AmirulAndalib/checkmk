@@ -9,12 +9,15 @@ import { computed, onMounted, ref } from 'vue'
 import usei18n from '@/lib/i18n'
 import { capitalizeFirstLetter } from '@/lib/utils'
 
+import {
+  CmkFilterInputComponent,
+  CmkRemoveFilterButton,
+  type ComponentConfig,
+  type ConfiguredValues
+} from '@/components/filter'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
 
-import FilterInputComponentRenderer from '@/dashboard/components/filter/FilterInputItem/components/FilterInputComponent.vue'
-import RemoveFilterButton from '@/dashboard/components/filter/shared/RemoveFilterButton.vue'
-import type { ComponentConfig, ConfiguredValues } from '@/dashboard/components/filter/types.ts'
 import { useVisualInfoCollection } from '@/dashboard/composables/api/useVisualInfoCollection.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
@@ -86,7 +89,7 @@ onMounted(async () => {
         v-for="component in components"
         :key="`${'id' in component ? component.id : component.component_type}`"
       >
-        <RemoveFilterButton
+        <CmkRemoveFilterButton
           class="db-restricted-to-single-filter__remove-button"
           :filter-name="filterName"
           @remove="handleClear"
@@ -96,7 +99,7 @@ onMounted(async () => {
             capitalizeFirstLetter(filterName)
           }}</CmkParagraph>
         </div>
-        <FilterInputComponentRenderer
+        <CmkFilterInputComponent
           :component="component"
           :configured-filter-values="configuredFilterValues"
           @update-component-values="handleComponentChange"

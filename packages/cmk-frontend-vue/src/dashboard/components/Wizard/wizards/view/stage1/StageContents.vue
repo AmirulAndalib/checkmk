@@ -10,22 +10,20 @@ import usei18n, { untranslated } from '@/lib/i18n'
 
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
 import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
+import type { ConfiguredFilters, ConfiguredValues } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import WidgetObjectFilterConfiguration from '@/dashboard/components/Wizard/components/filter/WidgetObjectFilterConfiguration/WidgetObjectFilterConfiguration.vue'
 import { parseFilters } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'
-import type { ConfiguredFilters, ConfiguredValues } from '@/dashboard/components/filter/types.ts'
-import {
-  configuredToContextFilters,
-  useFilterDefinitions
-} from '@/dashboard/components/filter/utils.ts'
 import { useInjectViews } from '@/dashboard/composables/useProvideViews'
 import { useInjectVisualInfos } from '@/dashboard/composables/useProvideVisualInfos'
 import type { DataSourceModel } from '@/dashboard/types/api'
 import { type ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 import type { EmbeddedViewContent, LinkedViewContent } from '@/dashboard/types/widget'
+import { configuredToContextFilters } from '@/dashboard/utils.ts'
 
 import SectionBlock from '../../../components/SectionBlock.vue'
 import Stage1Header from '../../../components/Stage1Header.vue'

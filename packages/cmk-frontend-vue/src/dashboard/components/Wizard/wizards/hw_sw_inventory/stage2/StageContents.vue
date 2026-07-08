@@ -6,10 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { toRef } from 'vue'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import DashboardPreviewContent from '@/dashboard/components/DashboardPreviewContent.vue'
 import type { WidgetProps } from '@/dashboard/components/Wizard/types'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type { WidgetContent, WidgetGeneralSettings } from '@/dashboard/types/widget'
 

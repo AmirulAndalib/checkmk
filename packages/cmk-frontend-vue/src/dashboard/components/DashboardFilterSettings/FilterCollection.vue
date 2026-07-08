@@ -7,9 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import { untranslated } from '@/lib/i18n'
 
 import CmkLabel from '@/components/CmkLabel.vue'
-
-import AddFilterMessage from '@/dashboard/components/filter/shared/AddFilterMessage.vue'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types.ts'
+import { CmkAddFilterMessage, type ConfiguredValues } from '@/components/filter'
 
 interface Props {
   title: string
@@ -37,7 +35,7 @@ withDefaults(defineProps<Props>(), {
         :index="index"
       />
     </div>
-    <AddFilterMessage v-if="additionalItemLabel" :label="untranslated(additionalItemLabel)" />
+    <CmkAddFilterMessage v-if="additionalItemLabel" :label="untranslated(additionalItemLabel)" />
   </div>
 </template>
 

@@ -8,10 +8,10 @@ import { computed, toValue } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters } from '@/components/filter'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type {
   WidgetContent,

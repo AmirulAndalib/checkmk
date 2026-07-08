@@ -21,6 +21,7 @@ import { randomId } from '@/lib/randomId'
 import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 import CmkErrorAlert from '@/components/CmkErrorBoundary/CmkErrorAlert.vue'
 import CmkIcon from '@/components/CmkIcon'
+import { type ConfiguredFilters, useProvideFilterDefinitions } from '@/components/filter'
 
 import DashboardBreadcrumb from '@/dashboard/components/DashboardBreadcrumb/DashboardBreadcrumb.vue'
 import DashboardComponent from '@/dashboard/components/DashboardComponent.vue'
@@ -36,11 +37,6 @@ import CloneDashboardWizard from '@/dashboard/components/Wizard/CloneDashboardWi
 import CreateDashboardWizard from '@/dashboard/components/Wizard/CreateDashboardWizard.vue'
 import WizardSelector from '@/dashboard/components/WizardSelector/WizardSelector.vue'
 import { widgetTypeToSelectorMatcher } from '@/dashboard/components/WizardSelector/utils.ts'
-import type {
-  ConfiguredFilters,
-  FilterDefinition,
-  FilterGroups
-} from '@/dashboard/components/filter/types.ts'
 import { useDashboardFilters } from '@/dashboard/composables/useDashboardFilters.ts'
 import { useDashboardVisualTitle } from '@/dashboard/composables/useDashboardVisualTitle.ts'
 import { useDashboardWidgets } from '@/dashboard/composables/useDashboardWidgets.ts'
@@ -105,11 +101,7 @@ const dashboardFilterSettingsStartingWindow = ref<'runtime-filters' | 'filter-se
   'runtime-filters'
 )
 
-const filterCollection = ref<Record<string, FilterDefinition> | null>(null)
-provide('filterCollection', filterCollection)
-
-const filterGroups = ref<FilterGroups | null>(null)
-provide('filterGroups', filterGroups)
+const { filterDefinitions, loadFilterDefinitions } = useProvideFilterDefinitions()
 
 useProvideVisualInfos()
 
@@ -120,22 +112,7 @@ const dashboardsManager = useDashboardsManager()
 useProvideDashboardConstants(dashboardsManager.constants)
 
 onBeforeMount(async () => {
-  const [filterResp, filterGroupsResp] = await Promise.all([
-    dashboardAPI.listFilterCollection(),
-    dashboardAPI.listFilterGroups()
-  ])
-
-  const filterDefsRecord: Record<string, FilterDefinition> = {}
-  filterResp.value.forEach((filter) => {
-    filterDefsRecord[filter.id!] = filter
-  })
-  filterCollection.value = filterDefsRecord
-
-  const groups: FilterGroups = {}
-  filterGroupsResp.value.forEach((group) => {
-    groups[group.id!] = group
-  })
-  filterGroups.value = groups
+  await loadFilterDefinitions()
 
   if (props.dashboard) {
     const dashboard = props.dashboard
@@ -284,7 +261,7 @@ const selectedDashboard = computed(() => {
 
 const dashboardVisualTitle = useDashboardVisualTitle(
   computed(() => dashboardsManager.activeDashboard.value?.model ?? null),
-  filterCollection,
+  filterDefinitions,
   dashboardFilters.baseFilters
 )
 

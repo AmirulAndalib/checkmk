@@ -9,14 +9,14 @@ import { computed, h, onBeforeMount, reactive, ref, watch } from 'vue'
 import usei18n, { untranslated } from '@/lib/i18n'
 
 import type { Suggestion } from '@/components/CmkSuggestions'
+import type { ConfiguredFilters } from '@/components/filter'
+import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import QuickSetup from '@/quick-setup/components/quick-setup/QuickSetup.vue'
 import type { QuickSetupStageSpec } from '@/quick-setup/components/quick-setup/quick_setup_types'
 import useWizard from '@/quick-setup/components/quick-setup/useWizard'
 
-import type { ConfiguredFilters } from '../../../../components/filter/types'
-import { useFilterDefinitions } from '../../../../components/filter/utils'
 import type { DashboardKey } from '../../../../types/dashboard'
 import type { ContextFilters } from '../../../../types/filter'
 import type {

@@ -6,15 +6,17 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import usei18n from '@/lib/i18n'
 
+import {
+  CmkAddFilterMessage,
+  CmkFilterInputItem,
+  CmkRemoveFilterButton,
+  type ConfiguredValues,
+  useFilterDefinitions
+} from '@/components/filter'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
 
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
-import FilterInputItem from '@/dashboard/components/filter/FilterInputItem/FilterInputItem.vue'
-import AddFilterMessage from '@/dashboard/components/filter/shared/AddFilterMessage.vue'
-import RemoveFilterButton from '@/dashboard/components/filter/shared/RemoveFilterButton.vue'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types.ts'
-import { useFilterDefinitions } from '@/dashboard/components/filter/utils.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
 interface Props {
@@ -43,14 +45,14 @@ const filterDefinitions = useFilterDefinitions()
       :key="name as string"
       class="db-multi-filter__item-container"
     >
-      <FilterInputItem
+      <CmkFilterInputItem
         :filter-id="name as string"
         :configured-filter-values="configuredValues"
         @update-filter-values="
           (id: string, values: ConfiguredValues) => emit('update-filter-values', id, values)
         "
       />
-      <RemoveFilterButton
+      <CmkRemoveFilterButton
         class="db-multi-filter__remove-button"
         :filter-name="filterDefinitions[name]!.title || ''"
         @remove="emit('remove-filter', name as string)"
@@ -70,7 +72,7 @@ const filterDefinitions = useFilterDefinitions()
         >{{ _t('Add filter') }}</CmkInlineButton
       >
     </div>
-    <AddFilterMessage v-else />
+    <CmkAddFilterMessage v-else />
   </div>
 </template>
 <style scoped>

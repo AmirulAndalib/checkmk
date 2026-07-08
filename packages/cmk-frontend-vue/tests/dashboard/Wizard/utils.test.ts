@@ -5,8 +5,9 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import { extractConfiguredFilters, isUrl } from '@/dashboard/components/Wizard/utils'
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types'
 
 function mockFilterManager(
   selectedFilters: string[],

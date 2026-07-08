@@ -5,13 +5,14 @@
  */
 import { computed } from 'vue'
 
+import {
+  type ConfiguredFilters,
+  type ConfiguredValues,
+  type FilterDefinitions,
+  useFilters
+} from '@/components/filter'
+
 import { useAddFilter } from '@/dashboard/components/Wizard/components/AddFilters/composables/useAddFilters.ts'
-import { useFilters } from '@/dashboard/components/filter/composables/useFilters.ts'
-import type {
-  ConfiguredFilters,
-  ConfiguredValues,
-  FilterDefinitions
-} from '@/dashboard/components/filter/types.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
 export const useWidgetFilterManager = (

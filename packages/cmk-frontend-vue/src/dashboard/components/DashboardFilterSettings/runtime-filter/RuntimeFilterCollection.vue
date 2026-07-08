@@ -9,12 +9,11 @@ import { computed } from 'vue'
 import usei18n, { untranslated } from '@/lib/i18n'
 
 import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
+import { CmkAddFilterMessage, type ConfiguredValues } from '@/components/filter'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import FilterItem from '@/dashboard/components/Wizard/components/filter/WidgetObjectFilterConfiguration/FilterItem.vue'
-import AddFilterMessage from '@/dashboard/components/filter/shared/AddFilterMessage.vue'
-import type { ConfiguredValues } from '@/dashboard/components/filter/types.ts'
 import { FilterOrigin } from '@/dashboard/types/filter'
 
 const { _t } = usei18n()
@@ -99,7 +98,10 @@ const countDashboardFilters = computed(() => {
               :index="index"
             />
           </div>
-          <AddFilterMessage v-if="additionalItemLabel" :label="untranslated(additionalItemLabel)" />
+          <CmkAddFilterMessage
+            v-if="additionalItemLabel"
+            :label="untranslated(additionalItemLabel)"
+          />
         </div>
       </CmkCatalogPanel>
     </div>

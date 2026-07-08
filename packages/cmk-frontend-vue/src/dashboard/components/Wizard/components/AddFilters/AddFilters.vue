@@ -8,11 +8,15 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import {
+  CmkFilterSelection,
+  type Filters,
+  getCategoryDefinition,
+  parseFilterTypes,
+  useFilterDefinitions
+} from '@/components/filter'
+
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
-import FilterSelection from '@/dashboard/components/filter/FilterSelection/FilterSelection.vue'
-import { getCategoryDefinition } from '@/dashboard/components/filter/FilterSelection/utils'
-import { type Filters } from '@/dashboard/components/filter/composables/useFilters'
-import { parseFilterTypes, useFilterDefinitions } from '@/dashboard/components/filter/utils'
 import type { ObjectType } from '@/dashboard/types/shared.ts'
 
 import StepsHeader from '../StepsHeader.vue'
@@ -43,7 +47,7 @@ const filterCategory = computed(() => {
     <StepsHeader :title="_t('Add filter')" @back="props.close" />
     <ContentSpacer :height="40" class="db-add-filters__spacer" />
 
-    <FilterSelection
+    <CmkFilterSelection
       :key="`${filterSelectionTarget}`"
       :category-filter="filterCategory || []"
       :category-definition="getCategoryDefinition(filterSelectionTarget)"
@@ -74,7 +78,7 @@ const filterCategory = computed(() => {
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown,checkmk/vue-bem-naming-convention */
-.db-add-filters__selection :deep(.db-filter-selection__scroll-container) {
+.db-add-filters__selection :deep(.cmk-filter-selection__scroll-container) {
   border-bottom: none;
 }
 </style>

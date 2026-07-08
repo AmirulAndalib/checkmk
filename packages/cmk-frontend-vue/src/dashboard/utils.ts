@@ -6,7 +6,8 @@
 import client, { unwrap } from '@/lib/rest-api-client/client'
 import { copyToClipboard as copyToClipboardUtil } from '@/lib/utils'
 
-import type { ConfiguredFilters } from '@/dashboard/components/filter/types.ts'
+import type { ConfiguredFilters, ConfiguredValues } from '@/components/filter'
+
 import type {
   BadRequestBody,
   ContentRelativeGrid,
@@ -26,7 +27,7 @@ import type {
   SidebarElement
 } from '@/dashboard/types/dashboard.ts'
 import { DashboardLayout, DashboardOwnerType } from '@/dashboard/types/dashboard.ts'
-import type { FilterCollection } from '@/dashboard/types/filter.ts'
+import type { ContextFilter, ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type {
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
@@ -212,12 +213,6 @@ export const dashboardAPI = {
     )
     return data.extensions
   },
-  listFilterCollection: async (): Promise<FilterCollection> => {
-    return unwrap(await client.GET('/domain-types/visual_filter/collections/all'))
-  },
-  listFilterGroups: async () => {
-    return unwrap(await client.GET('/domain-types/visual_filter_group/collections/all'))
-  },
   listAvailableInventory: async (): Promise<WidgetAvailableInventory> => {
     return unwrap(await client.GET('/objects/constant/widget_available_inventory/collections/all'))
   },
@@ -312,6 +307,19 @@ export const determineWidgetEffectiveFilterContext = async (
     resp.value.filter_context.uses_infos,
     constants
   )
+}
+
+export function configuredToContextFilters(
+  filters: ConfiguredFilters,
+  source: FilterOrigin
+): ContextFilters {
+  const entries: [string, ContextFilter][] = Object.entries(filters).map(
+    ([name, configuredValues]) => [
+      name,
+      { configuredValues: configuredValues as ConfiguredValues, source }
+    ]
+  )
+  return Object.fromEntries(entries)
 }
 
 export const buildWidgetEffectiveFilterContext = (

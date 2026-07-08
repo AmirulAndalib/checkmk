@@ -9,16 +9,14 @@ import { computed } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkButton from '@/components/CmkButton'
-
-import type { useFilters } from '@/dashboard/components/filter/composables/useFilters.ts'
-import type { FilterDefinition } from '@/dashboard/components/filter/types.ts'
+import type { FilterDefinition, Filters } from '@/components/filter'
 
 import FilterSelectionCollection from './FilterSelectionCollection.vue'
 
 const { _t } = usei18n()
 const props = defineProps<{
   filterDefinitions: Record<string, FilterDefinition>
-  runtimeFilters: ReturnType<typeof useFilters>
+  runtimeFilters: Filters
 }>()
 
 const emit = defineEmits<{
