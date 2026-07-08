@@ -127,6 +127,8 @@ bazel_env(
     toolchains = {},
     tools = {
         "bandit": ":bandit",
+        "clang-format": "@multitool_hub//tools/clang-format",
+        "clang-tidy": "@multitool_hub//tools/clang-tidy",
         "clangd": "@clang-linux-x86_64//:bin/clangd",
         "genhtml": "@lcov//:genhtml",
         "lcov": "@lcov//:lcov",
