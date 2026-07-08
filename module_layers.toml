@@ -520,6 +520,7 @@ allows = ["cmk.bakery", "cmk.base.api.bakery", "cmk.utils"]
 [components."cmk.base"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "@relay_protocols",
   "@trace",
@@ -545,7 +546,6 @@ allows = [
   "cmk.checkengine.snmplib",
   "cmk.utils",
   "cmk.ruleset_matcher",
-  "livestatus",
 ]
 
 [components."cmk.bi"]
