@@ -1,7 +1,18 @@
-load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 
 exports_files(["generate_api_spec.py"])
+
+py_binary(
+    name = "merge_api_specs",
+    srcs = ["merge_api_specs.py"],
+    main = "merge_api_specs.py",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//packages/cmk-ccc:version",
+        requirement("pyyaml"),
+    ],
+)
 
 py_library(
     name = "spec_generator",
@@ -13,6 +24,7 @@ py_library(
         "_doc_utils.py",
         "_type_defs.py",
         "generate_api_spec.py",
+        "merge_api_specs.py",
     ],
     imports = ["../../../../.."],
     visibility = [
