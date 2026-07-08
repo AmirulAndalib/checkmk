@@ -25,6 +25,7 @@ import type {
   WidgetSpec
 } from '@/dashboard/types/widget'
 
+import Donut from '../Donut/Donut.vue'
 import TopTable from '../TopTable/TopTable.vue'
 import { type GetValidWidgetProps, NetworkFlowWidgetType } from '../types'
 
@@ -34,7 +35,7 @@ interface Stage1Props {
   dashboardKey: DashboardKey
   editWidgetSpec: WidgetSpec | null
 }
-defineProps<Stage1Props>()
+const props = defineProps<Stage1Props>()
 
 const emit = defineEmits<{
   goBack: []
@@ -46,20 +47,30 @@ const emit = defineEmits<{
 }>()
 
 const availableWidgets: WidgetItemList = [
-  { id: NetworkFlowWidgetType.TOP_TABLE, label: _t('Top-N table'), icon: 'networking' }
+  { id: NetworkFlowWidgetType.TOP_TABLE, label: _t('Top-N table'), icon: 'networking' },
+  { id: NetworkFlowWidgetType.DONUT, label: _t('Donut'), icon: 'pie-chart' }
 ]
 const enabledWidgets = computed(() => {
   return availableWidgets.map((item) => item.id)
 })
 
-const selectedWidget = ref<NetworkFlowWidgetType>(NetworkFlowWidgetType.TOP_TABLE)
+// When editing an existing widget, pre-select the type being edited; otherwise
+// (adding a new widget) fall back to the first tile.
+const editedType = props.editWidgetSpec?.content?.type
+const selectedWidget = ref<NetworkFlowWidgetType>(
+  availableWidgets.some((item) => item.id === editedType)
+    ? (editedType as NetworkFlowWidgetType)
+    : NetworkFlowWidgetType.TOP_TABLE
+)
 
 const topTableRef = useTemplateRef<InstanceType<typeof TopTable>>('topTableRef')
+const donutRef = useTemplateRef<InstanceType<typeof Donut>>('donutRef')
 const widgetRefs: Record<
   NetworkFlowWidgetType,
   Readonly<ShallowRef<GetValidWidgetProps | null>>
 > = {
-  [NetworkFlowWidgetType.TOP_TABLE]: topTableRef
+  [NetworkFlowWidgetType.TOP_TABLE]: topTableRef,
+  [NetworkFlowWidgetType.DONUT]: donutRef
 }
 
 function gotoNextStage() {
@@ -117,6 +128,13 @@ function gotoNextStage() {
   <TopTable
     v-show="selectedWidget === NetworkFlowWidgetType.TOP_TABLE"
     ref="topTableRef"
+    :dashboard-key="dashboardKey"
+    :edit-widget-spec="editWidgetSpec"
+  />
+
+  <Donut
+    v-show="selectedWidget === NetworkFlowWidgetType.DONUT"
+    ref="donutRef"
     :dashboard-key="dashboardKey"
     :edit-widget-spec="editWidgetSpec"
   />

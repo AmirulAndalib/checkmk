@@ -71,7 +71,8 @@ export function widgetTypeToSelectorMatcher(
       return 'ntop'
     }
 
-    case 'network_flow_top_table': {
+    case 'network_flow_top_table':
+    case 'network_flow_donut': {
       return 'network_flow'
     }
 

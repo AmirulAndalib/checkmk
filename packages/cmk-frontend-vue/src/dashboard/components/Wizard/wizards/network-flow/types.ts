@@ -6,7 +6,8 @@
 import type { WidgetProps } from '../../types'
 
 export enum NetworkFlowWidgetType {
-  TOP_TABLE = 'network_flow_top_table'
+  TOP_TABLE = 'network_flow_top_table',
+  DONUT = 'network_flow_donut'
 }
 
 export interface GetValidWidgetProps {
