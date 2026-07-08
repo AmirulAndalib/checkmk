@@ -320,7 +320,7 @@ class ModeUsers(WatoMode):
         # The SAML2 config mode is only registered under commercial (non cloud) editions
         if mode_registry.get("saml_config") is not None:
             yield PageMenuEntry(
-                title=_("SAML authentication"),
+                title=_("SAML connections"),
                 icon_name=StaticIcon(IconNames.saml),
                 item=make_simple_link(folder_preserving_link(request, [("mode", "saml_config")])),
             )
