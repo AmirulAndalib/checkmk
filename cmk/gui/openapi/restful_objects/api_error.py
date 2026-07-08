@@ -3,6 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import hashlib
+from functools import cache
 from http.client import responses
 
 from cmk import fields
@@ -76,8 +78,12 @@ def api_default_error_schema(status_code: ErrorStatusCodeInt, description: str) 
     )
 
 
+@cache
 def api_custom_error_schema(status_code: ErrorStatusCodeInt, description: str) -> type[ApiError]:
+    # The schema name must be unique and deterministic across editions; a new class with the
+    # same name would still count as a name collision in apispec.
+    desc_hash = hashlib.blake2b(description.encode(), digest_size=8).hexdigest().upper()
     return api_default_error_schema(status_code, description).from_dict(
         {},
-        name=f"Api{status_code}CustomError",
+        name=f"Api{status_code}CustomError{desc_hash}",
     )

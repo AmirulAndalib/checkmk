@@ -9,7 +9,7 @@ from cmk.gui.agent_registration import CONNECTION_MODE_FIELD
 from cmk.gui.fields.utils import BaseSchema
 
 
-class ConnectionMode(BaseSchema):
+class HostConnectionMode(BaseSchema):
     connection_mode = CONNECTION_MODE_FIELD
 
 

@@ -15,7 +15,7 @@ class LinkHostUUID(BaseSchema):
     )
 
 
-class RegisterHost(BaseSchema):
+class RegisterHostRequest(BaseSchema):
     uuid = fields.UUID(
         required=True,
         example="34e4c967-1591-4883-8cdf-0e335b09618d",

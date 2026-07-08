@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from cmk.fields import Float, Integer, List, Nested, String
 from cmk.gui.fields.base import BaseSchema
-from cmk.gui.openapi.endpoints.metric.common import TimeRange
+from cmk.gui.openapi.endpoints.metric.common import GraphTimeRange
 
 
 class MetricSchema(BaseSchema):
@@ -36,7 +36,7 @@ class MetricSchema(BaseSchema):
 
 class GraphCollectionSchema(BaseSchema):
     time_range = Nested(
-        TimeRange,
+        GraphTimeRange,
         description="The time range within the samples of the response lie.",
         required=True,
         example={"time_range": {"start": "1970-01-01T00:00:00Z", "end": "1970-01-01T00:00:30Z"}},

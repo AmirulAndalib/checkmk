@@ -21,10 +21,13 @@ from cmk.gui.fields import HostField
 from cmk.gui.http import Response
 from cmk.gui.i18n import _l
 from cmk.gui.logged_in import user
-from cmk.gui.openapi.endpoints.host_internal.request_schemas import LinkHostUUID, RegisterHost
+from cmk.gui.openapi.endpoints.host_internal.request_schemas import (
+    LinkHostUUID,
+    RegisterHostRequest,
+)
 from cmk.gui.openapi.endpoints.host_internal.response_schemas import (
-    ConnectionMode,
     HostConfigSchemaInternal,
+    HostConnectionMode,
 )
 from cmk.gui.openapi.restful_objects import constructors, Endpoint
 from cmk.gui.openapi.restful_objects.parameters import HOST_NAME
@@ -88,8 +91,8 @@ permission_registry.register(
             )
         }
     ],
-    request_schema=RegisterHost,
-    response_schema=ConnectionMode,
+    request_schema=RegisterHostRequest,
+    response_schema=HostConnectionMode,
     permissions_required=permissions.AnyPerm(
         [
             permissions.Perm("agent_registration.register_any_existing_host"),

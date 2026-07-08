@@ -64,7 +64,7 @@ class MetricIdField(String):
         )
 
 
-class TimeRange(BaseSchema):
+class GraphTimeRange(BaseSchema):
     start = Timestamp(
         description="The approximate time of the first sample.",
         example=str(datetime(2026, 6, 16, 7, 0, 0, tzinfo=UTC)),
@@ -79,7 +79,7 @@ class TimeRange(BaseSchema):
 
 class BaseRequestSchema(BaseSchema):
     time_range = Nested(
-        TimeRange,
+        GraphTimeRange,
         description="The time range from which to source the metrics.",
         example={
             "start": str(datetime(2026, 6, 16, 7, 0, 0, tzinfo=UTC)),
@@ -159,7 +159,7 @@ def reorganize_response(graph_spec: GraphSpec) -> ReorganizedGraphSpec:
 
 
 def reorganize_time_range(time_range: dict[str, Any] | None) -> dict[str, Any] | None:
-    """Reorganize a TimeRange into the format GraphExportRequest uses.
+    """Reorganize a GraphTimeRange into the format GraphExportRequest uses.
 
     >>> reorganize_time_range({'start': 0, 'end': 30})
     {'time_start': 0, 'time_end': 30}

@@ -702,7 +702,14 @@ def process_version(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    warnings.filterwarnings("ignore", category=UserWarning, module="apispec")
+    # apispec re-adds the self-referential ExprSchema while resolving its own nested reference.
+    warnings.filterwarnings(
+        "ignore",
+        message=r"<class 'cmk\.gui\.fields\.definitions\.ExprSchema'> has already been added",
+    )
+    # Colliding schema names get order-dependent numeric suffixes, making the spec unstable
+    # across editions.
+    warnings.filterwarnings("error", message="Multiple schemas resolved to the name")
 
     parser = argparse.ArgumentParser()
 
