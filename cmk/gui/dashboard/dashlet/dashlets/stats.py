@@ -11,6 +11,8 @@ from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from typing import NamedTuple
 
+from livestatus import MKLivestatusNotFoundError
+
 from cmk.gui import sites, visuals
 from cmk.gui.dashboard.type_defs import DashletConfig
 from cmk.gui.figures import FigureResponseData
@@ -19,7 +21,6 @@ from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.type_defs import HTTPVariables, SingleInfos, VisualContext
 from cmk.gui.utils.urls import makeuri_contextless
-from cmk.livestatus_client import MKLivestatusNotFoundError
 
 from ..base import RelativeLayoutConstraints, WidgetSize
 from ..figure_dashlet import ABCFigureDashlet

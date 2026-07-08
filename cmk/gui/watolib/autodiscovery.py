@@ -5,6 +5,8 @@
 
 from pydantic import BaseModel
 
+from livestatus import SiteConfigurations
+
 import cmk.utils.paths
 from cmk.ccc.site import omd_site
 from cmk.ccc.user import UserId
@@ -39,7 +41,6 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
-from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.auto_queue import AutoQueue
 
 

@@ -20,7 +20,8 @@ from unittest.mock import mock_open, patch
 import pytest
 import requests
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 import cmk.utils.paths
 from cmk.base import diagnostics
 from cmk.ccc.hostaddress import HostName

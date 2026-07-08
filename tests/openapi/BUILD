@@ -21,7 +21,7 @@ py_library(
         "//cmk/plugins",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         "//tests/testlib:fake_site",
         "//tests/testlib:rest_api_client",
         "//tests/testlib/common:repo",

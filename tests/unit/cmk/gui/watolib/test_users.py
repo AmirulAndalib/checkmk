@@ -12,6 +12,8 @@ from typing import cast
 
 import pytest
 
+from livestatus import SiteConfiguration, SiteConfigurations
+
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui import userdb
@@ -31,7 +33,6 @@ from cmk.gui.watolib.users import (
     edit_user,
     remove_custom_attribute_from_all_users,
 )
-from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 
 
 def _test_pending_changes() -> PendingChanges:

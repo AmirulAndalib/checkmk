@@ -6,6 +6,8 @@
 
 import datetime as dt
 
+from livestatus import MultiSiteConnection
+
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -17,7 +19,6 @@ from cmk.livestatus_client import (
     AcknowledgeServiceProblem,
     Command,
     LivestatusClient,
-    MultiSiteConnection,
     RemoveHostAcknowledgement,
     RemoveServiceAcknowledgement,
     tables,

@@ -6,6 +6,8 @@
 
 from collections.abc import Iterable, Mapping
 
+from livestatus import LivestatusResponse
+
 from cmk.ccc.exceptions import MKGeneralException, MKTimeout
 from cmk.gui import sites, visuals
 from cmk.gui.config import active_config
@@ -26,7 +28,6 @@ from cmk.gui.type_defs import ColumnName, VisualContext
 from cmk.gui.unit_formatter import IECFormatter
 from cmk.gui.utils.temperate_unit import TemperatureUnit
 from cmk.gui.utils.urls import makeuri_contextless
-from cmk.livestatus_client import LivestatusResponse
 
 
 def host_table_query(

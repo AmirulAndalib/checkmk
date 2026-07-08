@@ -74,7 +74,7 @@ py_library(
         "//cmk/utils",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("werkzeug"),
     ],
 )

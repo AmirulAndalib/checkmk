@@ -33,7 +33,7 @@ py_library(
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:version",
         "//packages/cmk-licensing/cmk/licensing/basics",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("python-dateutil"),
     ],
 )

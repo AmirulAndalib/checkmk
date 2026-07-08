@@ -9,6 +9,9 @@ import json
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from typing import Any, Literal
 
+import livestatus
+from livestatus import MKLivestatusNotFoundError, OnlySites, Query, QuerySpecification
+
 from cmk.crash import read_occurrences
 from cmk.gui import query_filters
 from cmk.gui.config import Config
@@ -47,14 +50,7 @@ from cmk.gui.views.sorter import (
 from cmk.gui.visuals import SiteFilter
 from cmk.gui.visuals._site_filters import default_site_filter_heading_info
 from cmk.gui.visuals.filter import Filter, FilterOption, FilterTime, InputTextFilter
-from cmk.livestatus_client import (
-    DeleteCrashReport,
-    lqencode,
-    MKLivestatusNotFoundError,
-    OnlySites,
-    Query,
-    QuerySpecification,
-)
+from cmk.livestatus_client import DeleteCrashReport
 
 from .helpers import local_files_involved_in_crash
 
@@ -148,7 +144,7 @@ class CrashReportsRowTable(RowTableLivestatus):
             file_path = "/".join([crash_info["crash_type"], crash_info["crash_id"]])
 
             headers = ["site", "crash_info"]
-            columns = ["file:crash_info:%s/crash.info" % lqencode(file_path)]
+            columns = ["file:crash_info:%s/crash.info" % livestatus.lqencode(file_path)]
 
             try:
                 raw_row = query_row(
@@ -156,7 +152,7 @@ class CrashReportsRowTable(RowTableLivestatus):
                         QuerySpecification(
                             table="crashreports",
                             columns=columns,
-                            headers="Filter: id = %s" % lqencode(crash_info["crash_id"]),
+                            headers="Filter: id = %s" % livestatus.lqencode(crash_info["crash_id"]),
                         )
                     ),
                     only_sites=only_sites,

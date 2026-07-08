@@ -11,6 +11,8 @@ from collections.abc import Iterator
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
+from livestatus import SiteConfigurations
+
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -24,7 +26,6 @@ from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChan
 from cmk.gui.wsgi.app import gui_context
 from cmk.livestatus_client import (
     SiteConfiguration,
-    SiteConfigurations,
 )
 from cmk.utils.redis import disable_redis
 

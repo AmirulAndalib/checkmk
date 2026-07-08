@@ -10,6 +10,8 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any, Final, Literal
 
+from livestatus import OnlySites
+
 from cmk.bi import storage
 from cmk.bi.computer import BIAggregationFilter
 from cmk.bi.filesystem import get_default_site_filesystem
@@ -52,7 +54,7 @@ from cmk.gui.views.command import (
 )
 from cmk.gui.visuals import get_livestatus_filter_headers
 from cmk.gui.visuals.filter import Filter
-from cmk.livestatus_client import Dummy, OnlySites
+from cmk.livestatus_client import Dummy
 from cmk.utils.servicename import ServiceName
 from cmk.utils.statename import short_service_state_name
 

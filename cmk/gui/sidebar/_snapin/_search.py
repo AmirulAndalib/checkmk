@@ -6,7 +6,8 @@
 
 import traceback
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk.ccc.exceptions import MKException, MKGeneralException
 from cmk.gui.config import Config
 from cmk.gui.exceptions import HTTPRedirect

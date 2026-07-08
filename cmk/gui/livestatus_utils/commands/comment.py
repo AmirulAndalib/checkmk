@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from livestatus import MultiSiteConnection
+
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -21,7 +23,6 @@ from cmk.livestatus_client import (
     DeleteHostComment,
     DeleteServiceComment,
     LivestatusClient,
-    MultiSiteConnection,
 )
 from cmk.livestatus_client.expressions import QueryExpression
 from cmk.livestatus_client.queries import detailed_connection, Query

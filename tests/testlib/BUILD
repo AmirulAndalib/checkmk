@@ -99,7 +99,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-crash:crash",
         "//packages/cmk-crypto",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         "//tests:pkg_marker",
         "//tests/testlib/common:repo",
         requirement("fakeredis"),

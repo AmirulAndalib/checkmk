@@ -228,6 +228,7 @@ py_library(
         "//cmk/piggyback:backend",
         "//cmk/utils:paths",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
     ],
 )
 

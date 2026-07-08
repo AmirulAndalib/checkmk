@@ -13,7 +13,8 @@ import time
 from collections.abc import Callable
 from typing import Literal, override
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user

@@ -15,6 +15,8 @@ from typing import Any
 
 import pytest
 
+from livestatus import NetworkSocketDetails, SiteConfiguration
+
 from cmk.ccc.site import SiteId
 from cmk.gui.token_auth import (
     AgentDownloadToken,
@@ -22,7 +24,6 @@ from cmk.gui.token_auth import (
     get_token_store,
 )
 from cmk.gui.token_auth._store import InvalidToken
-from cmk.livestatus_client import NetworkSocketDetails, SiteConfiguration
 from tests.testlib.gui.web_test_app import SetConfig
 from tests.testlib.rest_api_client import ClientRegistry
 

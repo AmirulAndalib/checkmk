@@ -11,7 +11,8 @@ import time
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal, override, TypedDict
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk import trace
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId

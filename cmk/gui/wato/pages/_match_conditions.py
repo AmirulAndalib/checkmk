@@ -5,6 +5,8 @@
 
 # mypy: disable-error-code="type-arg"
 
+from livestatus import SiteConfigurations
+
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.user_sites import get_activation_site_choices, get_configured_site_choices
@@ -18,7 +20,6 @@ from cmk.gui.valuespec import (
     MonitoredHostname,
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree
-from cmk.livestatus_client import SiteConfigurations
 
 from .._group_selection import sorted_host_group_choices
 from ._rule_conditions import DictHostTagCondition

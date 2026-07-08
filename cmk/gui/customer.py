@@ -9,6 +9,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from typing import Any, override
 
+from livestatus import SiteConfigurations
+
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import edition
@@ -16,7 +18,6 @@ from cmk.gui.groups import GroupSpec
 from cmk.gui.hooks import request_memoize
 from cmk.gui.type_defs import UserSpec
 from cmk.gui.valuespec import DropdownChoice, ValueSpec
-from cmk.livestatus_client import SiteConfigurations
 from cmk.rulesets.v1.form_specs import FormSpec
 from cmk.utils import paths
 

@@ -8,6 +8,8 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any, Literal, NewType
 
+from livestatus import SiteConfigurations
+
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition
 from cmk.gui.breadcrumb import Breadcrumb
@@ -36,7 +38,6 @@ from cmk.gui.watolib.config_domains import ConfigDomainGUI
 from cmk.gui.watolib.hosts_and_folders import folder_preserving_link, make_action_link
 from cmk.gui.watolib.mode import redirect
 from cmk.gui.watolib.pending_changes import PendingChanges
-from cmk.livestatus_client import SiteConfigurations
 
 DisplayIndex = NewType("DisplayIndex", int)
 RealIndex = NewType("RealIndex", int)

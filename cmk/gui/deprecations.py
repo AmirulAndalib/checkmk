@@ -16,6 +16,8 @@ from enum import auto, Enum
 from pathlib import Path
 from typing import override
 
+from livestatus import SiteConfigurations
+
 import cmk.ec.export as ec  # astrein: disable=cmk-module-layer-violation
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, SiteId
@@ -43,7 +45,6 @@ from cmk.gui.watolib.analyze_configuration import (
     ACTestResult,
     perform_tests,
 )
-from cmk.livestatus_client import SiteConfigurations
 from cmk.mkp_tool import get_stored_manifests, Manifest, PackageStore, PathConfig
 from cmk.utils import paths
 from cmk.utils.html import replace_state_markers

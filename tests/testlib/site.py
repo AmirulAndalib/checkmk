@@ -42,7 +42,8 @@ import pytest
 import pytest_check
 import requests
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk import trace
 from cmk.crypto.certificate import Certificate
 from cmk.crypto.password import Password

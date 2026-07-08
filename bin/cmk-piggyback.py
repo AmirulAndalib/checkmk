@@ -16,7 +16,8 @@ import sys
 import time
 from collections.abc import Callable
 
-from cmk.livestatus_client import LocalConnection, MKLivestatusSocketError, Query
+from livestatus import LocalConnection, MKLivestatusSocketError, Query
+
 from cmk.livestatus_client.queries import (
     Query as LQuery,
 )

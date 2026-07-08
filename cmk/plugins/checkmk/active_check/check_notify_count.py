@@ -10,7 +10,7 @@ import time
 from collections.abc import Sequence
 from pathlib import Path
 
-import cmk.livestatus_client as livestatus
+import livestatus
 
 
 def usage() -> None:

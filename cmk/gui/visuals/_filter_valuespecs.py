@@ -15,6 +15,8 @@ from collections.abc import ItemsView, Iterator, KeysView, Mapping, Sequence
 from itertools import chain
 from typing import override
 
+from livestatus import LivestatusTestingError
+
 from cmk.gui.config import Config
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.htmllib.foldable_container import foldable_container
@@ -42,7 +44,6 @@ from cmk.gui.valuespec import (
 )
 from cmk.gui.visuals.filter import Filter, filter_registry
 from cmk.gui.visuals.info import visual_info_registry
-from cmk.livestatus_client import LivestatusTestingError
 
 
 def FilterChoices(infos: SingleInfos, title: str, help: str) -> DualListChoice:

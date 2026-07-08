@@ -20,7 +20,7 @@ py_library(
     deps = [
         "//cmk/utils",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("requests"),
         requirement("werkzeug"),
     ],

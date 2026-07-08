@@ -17,6 +17,13 @@ from pathlib import Path
 import pytest
 from werkzeug.test import create_environ
 
+from livestatus import (
+    AuthenticationConnectionEntry,
+    SAMLAuthenticationEntry,
+    SiteConfiguration,
+    SiteConfigurations,
+)
+
 import cmk.utils.paths
 from cmk.ccc import store as ccc_store
 from cmk.ccc.site import SiteId
@@ -39,15 +46,11 @@ from cmk.gui.watolib.config_sync import (
 )
 from cmk.gui.watolib.site_changes import ChangeSpec, SiteChanges
 from cmk.livestatus_client import (
-    AuthenticationConnectionEntry,
     BrokerConnection,
     BrokerConnections,
     BrokerSite,
     ConnectionId,
     NetworkSocketDetails,
-    SAMLAuthenticationEntry,
-    SiteConfiguration,
-    SiteConfigurations,
 )
 from cmk.messaging import rabbitmq
 from tests.testlib.unit.rabbitmq import get_expected_definition

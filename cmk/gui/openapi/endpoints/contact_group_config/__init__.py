@@ -23,6 +23,8 @@ A contact group object can have the following relations present in `links`:
 from collections.abc import Iterable, Mapping
 from typing import Any, cast, Literal
 
+from livestatus import SiteConfigurations
+
 from cmk.ccc import version
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -87,7 +89,6 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
-from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import paths
 
 PERMISSIONS = permissions.Perm("wato.users")

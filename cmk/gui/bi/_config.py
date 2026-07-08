@@ -11,6 +11,8 @@ import json
 from collections.abc import Collection, Iterable
 from typing import Any, overload, override, TypedDict
 
+from livestatus import SiteConfigurations
+
 import cmk.ccc.version as cmk_version
 from cmk.bi.actions import BICallARuleAction
 from cmk.bi.aggregation import BIAggregation, BIAggregationSchema
@@ -117,7 +119,6 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
-from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import paths
 from cmk.utils.rulesets.definition import RuleGroup
 

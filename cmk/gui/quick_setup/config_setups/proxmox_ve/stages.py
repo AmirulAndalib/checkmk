@@ -5,6 +5,8 @@
 
 from collections.abc import Mapping, Sequence
 
+from livestatus import SiteConfiguration
+
 from cmk.ccc.site import SiteId
 from cmk.gui.form_specs.unstable.two_column_dictionary import TwoColumnDictionary
 from cmk.gui.i18n import _
@@ -43,7 +45,6 @@ from cmk.gui.quick_setup.v0_unstable.widgets import (
     Text,
     Widget,
 )
-from cmk.livestatus_client import SiteConfiguration
 from cmk.plugins.proxmox_ve.rulesets import (  # astrein: disable=cmk-module-layer-violation
     proxmox_ve,
 )

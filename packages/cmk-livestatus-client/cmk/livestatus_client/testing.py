@@ -1401,13 +1401,9 @@ def mock_livestatus_communication() -> Iterator[MockLiveStatusConnection]:
     live = MockLiveStatusConnection()
     with (
         mock.patch(
-            "cmk.livestatus_client.MultiSiteConnection.expect_query",
-            new=live.expect_query,
-            create=True,
+            "livestatus.MultiSiteConnection.expect_query", new=live.expect_query, create=True
         ),
-        mock.patch(
-            "cmk.livestatus_client.SingleSiteConnection._create_socket", new=live.create_socket
-        ),
+        mock.patch("livestatus.SingleSiteConnection._create_socket", new=live.create_socket),
     ):
         yield live
 

@@ -10,7 +10,8 @@
 from collections.abc import Collection, Mapping, Sequence
 from typing import Literal, NamedTuple
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk.ccc.site import SiteId
 from cmk.gui import notifications, sites, visuals
 from cmk.gui.config import Config

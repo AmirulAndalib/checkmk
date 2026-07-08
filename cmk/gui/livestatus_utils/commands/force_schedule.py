@@ -6,12 +6,13 @@
 
 import datetime as dt
 
+from livestatus import MultiSiteConnection
+
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site
 from cmk.gui.logged_in import user as _user
 from cmk.livestatus_client import (
     LivestatusClient,
-    MultiSiteConnection,
     ScheduleForcedHostCheck,
     ScheduleForcedServiceCheck,
 )

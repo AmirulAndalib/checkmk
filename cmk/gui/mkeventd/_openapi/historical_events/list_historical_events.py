@@ -7,6 +7,8 @@
 
 from typing import Annotated, Literal
 
+from livestatus import OnlySites
+
 from cmk.ccc.site import SiteId
 from cmk.gui import sites
 from cmk.gui.mkeventd._openapi.commands import (
@@ -28,7 +30,6 @@ from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
 from cmk.gui.openapi.framework.model.base_models import DomainObjectCollectionModel
 from cmk.gui.openapi.framework.model.common_fields import query_expression_validator
 from cmk.gui.openapi.restful_objects.constructors import collection_href
-from cmk.livestatus_client import OnlySites
 from cmk.livestatus_client.expressions import QueryExpression
 from cmk.livestatus_client.tables.eventconsolehistory import Eventconsolehistory
 

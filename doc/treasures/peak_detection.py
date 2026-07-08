@@ -15,9 +15,10 @@ from datetime import datetime
 from itertools import compress
 from typing import Any, Literal, NamedTuple
 
+import livestatus
+
 from cmk.ccc.site import SiteId
-from cmk.livestatus_client import
-    LocalConnection,
+from cmk.livestatus_client import (
     SingleSiteConnection,
 )
 
@@ -85,7 +86,7 @@ class LiveproxydConnection(SingleSiteConnection):
 
 
 def _query_livestatus(query: str) -> Sequence[Sequence[Any]]:
-    connection = LocalConnection()
+    connection = livestatus.LocalConnection()
     connection.set_timeout(5)
     return connection.query(query)
 

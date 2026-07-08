@@ -10,6 +10,8 @@ from typing import Annotated
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
+from livestatus import SiteConfigurations
+
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.config import Config
@@ -23,7 +25,6 @@ from cmk.gui.openapi.framework.model.common_fields import (
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
 from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
-from cmk.livestatus_client import SiteConfigurations
 from cmk.livestatus_client.expressions import BinaryExpression, NothingExpression, QueryExpression
 from cmk.livestatus_client.tables import Hosts
 from cmk.livestatus_client.types import Column

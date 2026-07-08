@@ -10,6 +10,8 @@ from collections.abc import Iterator
 
 import pytest
 
+from livestatus import SiteConfigurations
+
 import cmk.gui.mkeventd.wato as mkeventd
 from cmk.automations.results import DeleteHostsResult
 from cmk.ccc.hostaddress import HostName
@@ -23,7 +25,6 @@ from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import PendingChanges, PendingChangesStore
 from cmk.gui.wsgi.app import session_wsgi_app
 from cmk.gui.wsgi.blueprints import checkmk, rest_api
-from cmk.livestatus_client import SiteConfigurations
 from tests.testlib.rest_api_client import RestApiClient
 
 from .web_test_app import WebTestAppForCMK, WebTestAppRequestHandler

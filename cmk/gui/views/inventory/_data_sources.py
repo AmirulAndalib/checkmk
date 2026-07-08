@@ -6,6 +6,8 @@
 import abc
 from collections.abc import Iterable, Sequence
 
+from livestatus import LivestatusResponse, OnlySites
+
 import cmk.utils.paths
 from cmk.ccc.hostaddress import HostName
 from cmk.gui import sites
@@ -22,7 +24,6 @@ from cmk.gui.utils.user_errors import user_errors
 from cmk.gui.visuals import get_livestatus_filter_headers
 from cmk.gui.visuals.filter import Filter
 from cmk.inventory.structured_data import HistoryStore, RetentionInterval, SDValue
-from cmk.livestatus_client import LivestatusResponse, OnlySites
 
 
 class ABCDataSourceInventory(ABCDataSource):

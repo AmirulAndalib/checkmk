@@ -14,7 +14,8 @@ from enum import auto, Enum
 from pathlib import Path
 from typing import Literal
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 import cmk.utils.paths
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName

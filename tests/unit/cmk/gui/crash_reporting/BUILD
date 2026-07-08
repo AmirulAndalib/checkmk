@@ -10,7 +10,7 @@ py_cmk_test(
         "//cmk/gui:core_toolkit",
         "//cmk/gui/crash_reporting",
         "//packages/cmk-crash:crash",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("polyfactory"),
         requirement("werkzeug"),
     ],

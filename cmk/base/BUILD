@@ -34,7 +34,7 @@ py_library(
         "//packages/cmk-ccc:regex",
         "//packages/cmk-ccc:site",
         "//packages/cmk-events",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
     ],
 )
 
@@ -132,7 +132,7 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-check-engine/cmk/checkengine/sources",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         "//packages/cmk-plugin-apis:agent_based",
     ],
 )
@@ -217,7 +217,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-events",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
     ],
 )
 
@@ -248,7 +248,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-crash:crash",
-        "//packages/cmk-livestatus-client",
+        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("requests"),
     ],
 )

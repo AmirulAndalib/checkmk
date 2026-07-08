@@ -12,7 +12,8 @@ import abc
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any, Literal, NotRequired
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.gui import sites

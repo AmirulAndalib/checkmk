@@ -9,7 +9,8 @@ from collections.abc import Callable, Container, Iterable, Mapping
 from functools import partial
 from typing import Literal, override
 
-import cmk.livestatus_client as livestatus
+import livestatus
+
 from cmk.ccc.site import SiteId
 from cmk.gui import query_filters
 from cmk.gui import sites as sites

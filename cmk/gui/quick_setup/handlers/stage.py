@@ -15,6 +15,8 @@ from typing import Any, override
 
 from pydantic import BaseModel, ValidationError
 
+from livestatus import SiteConfiguration
+
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.i18n import _
@@ -81,7 +83,6 @@ from cmk.gui.watolib.automations import (
     do_remote_automation,
     MKAutomationException,
 )
-from cmk.livestatus_client import SiteConfiguration
 from cmk.rulesets.v1.form_specs import FormSpec
 from cmk.utils.automation_config import RemoteAutomationConfig
 

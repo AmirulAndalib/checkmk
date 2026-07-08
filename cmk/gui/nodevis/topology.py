@@ -20,9 +20,10 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any, Literal, override, Self
 
+import livestatus
+
 import cmk.ccc.plugin_registry
 import cmk.gui.visuals
-import cmk.livestatus_client as livestatus
 import cmk.utils.paths
 from cmk.ccc import store
 from cmk.ccc.hostaddress import HostName

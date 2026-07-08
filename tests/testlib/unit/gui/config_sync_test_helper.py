@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pytest
 
+from livestatus import NetworkSocketDetails, SiteConfiguration, TLSParams
+
 import cmk.ccc.version as cmk_version
 import cmk.gui.mkeventd.wato
 import cmk.utils.paths
@@ -20,7 +22,6 @@ from cmk.ccc.site import SiteId
 from cmk.gui.config import active_config
 from cmk.gui.nodevis.utils import topology_configs_dir
 from cmk.gui.watolib import activate_changes, config_sync
-from cmk.livestatus_client import NetworkSocketDetails, SiteConfiguration, TLSParams
 from cmk.messaging import rabbitmq
 
 

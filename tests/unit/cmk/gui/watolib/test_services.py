@@ -13,6 +13,8 @@ from unittest.mock import call, MagicMock, patch
 import pytest
 from pytest_mock import MockerFixture
 
+from livestatus import SiteConfigurations
+
 from cmk.automations.results import (
     AnalyzeServiceRuleMatchesResult,
     DeleteHostsResult,
@@ -43,7 +45,6 @@ from cmk.gui.watolib.services import (
     perform_host_label_discovery,
     perform_service_discovery,
 )
-from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig
 from cmk.utils.everythingtype import EVERYTHING
 from cmk.utils.labels import HostLabel
