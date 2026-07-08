@@ -126,6 +126,7 @@ void main() {
                     EDITION: edition_medium_chain,
                     DISTRO: distro_medium_chain,
                     DISABLE_CACHE: force_build,
+                    DISABLE_CMK_DISTRO_PACKAGE_SIGNING: disable_signing,
                     FAKE_ARTIFACTS: fake_artifacts,
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
@@ -156,6 +157,7 @@ void main() {
                         EDITION: edition_medium_chain,
                         DISTRO: distro_medium_chain,
                         DISABLE_CACHE: force_build,
+                        DISABLE_CMK_DISTRO_PACKAGE_SIGNING: disable_signing,
                         FAKE_ARTIFACTS: fake_artifacts,
                         // if there is a test filter specified on make target level, the last one in the list of pytest arguments will
                         // overwrite all previous ones. Place all required test filters in one place and connect them with "and"
