@@ -1315,12 +1315,12 @@ allows = []
 [components."cmk.liveproxyd.daemon"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@trace",
   "cmk.crash",
   "cmk.inventory",
   "cmk.liveproxyd.shared",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.liveproxyd.gui"]
