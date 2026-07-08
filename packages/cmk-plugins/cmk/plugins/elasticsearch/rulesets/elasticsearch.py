@@ -45,9 +45,8 @@ def _validate_index_patterns(value: str) -> None:
     invalid_chars = r"\\/?\"<>|, #"
     if invalid := set(value) & set(invalid_chars):
         raise ValidationError(
-            # astrein: disable=localization-named-placeholder
-            Message("Pattern contains invalid characters: %s")
-            % ",".join(f"'{el}'" for el in invalid)
+            Message("Pattern contains invalid characters: %(chars)s")
+            % {"chars": ",".join(f"'{el}'" for el in invalid)}
         )
 
 
