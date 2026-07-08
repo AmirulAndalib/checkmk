@@ -240,10 +240,9 @@ def _active_checks_http_validate_all(value: object) -> None:
     if isinstance(value, dict):
         _name, mode = value["mode"]
         if "proxy" in value and "virthost" in mode:
-            # astrein: disable=localization-named-placeholder
             msg = Message(
-                "Unfortunately, using a proxy and a virtual host is not supported (try '%s')."
-            ) % Message("Host settings")
+                "Unfortunately, using a proxy and a virtual host is not supported (try '%(section)s')."
+            ) % {"section": Message("Host settings")}
             raise validators.ValidationError(msg)
 
 
