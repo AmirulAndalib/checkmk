@@ -129,33 +129,6 @@ type _GraphPlugin = (
 )
 
 
-def build_matched_graphs_per_service(
-    *,
-    services: Sequence[Service],
-    graph: _GraphPlugin,
-    localizer: Callable[[str], str],
-    metric_names: Mapping[Service, Container[MetricName]],
-    graph_type: str,
-    registered_metrics: Mapping[str, metrics_v1.Metric],
-) -> Sequence[Graph]:
-    matched_graphs: list[Graph] = []
-    for service in services:
-        metric_names_of_service = metric_names.get(service, frozenset())
-        if not _walk(graph, metric_names_of_service).matched:
-            continue
-        with_predictive, _names = _add_predictive_lines(
-            parse_graph_from_api(
-                graph, service, localizer, registered_metrics, graph_type=graph_type
-            ),
-            service,
-            metric_names_of_service,
-            localizer,
-            registered_metrics,
-        )
-        matched_graphs.append(with_predictive)
-    return matched_graphs
-
-
 def build_matched_graphs(
     *,
     service: Service,

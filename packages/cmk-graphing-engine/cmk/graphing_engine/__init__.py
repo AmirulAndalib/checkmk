@@ -8,7 +8,6 @@ from ._evaluate import (
     EvaluatedCurve,
     EvaluatedGraph,
     EvaluatedLine,
-    EvaluatedRule,
     EvaluatedStack,
     EvaluatedVerticalRange,
     VerticalRangeType,
@@ -22,11 +21,9 @@ from ._graph import (
     MinimalRange,
     Rule,
     Stack,
-    VerticalRange,
 )
 from ._matching import (
     build_matched_graphs,
-    build_matched_graphs_per_service,
 )
 from ._options import (
     ConsolidationFunction,
@@ -85,7 +82,6 @@ __all__ = [
     "EvaluatedCurve",
     "EvaluatedGraph",
     "EvaluatedLine",
-    "EvaluatedRule",
     "EvaluatedQuantity",
     "EvaluatedStack",
     "EvaluatedVerticalRange",
@@ -119,10 +115,8 @@ __all__ = [
     "TimeRange",
     "TimeSeries",
     "Unit",
-    "VerticalRange",
     "VerticalRangeType",
     "build_matched_graphs",
-    "build_matched_graphs_per_service",
     "build_curve",
     "evaluate_graphs",
 ]

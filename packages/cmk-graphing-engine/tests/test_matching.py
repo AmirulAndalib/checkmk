@@ -13,7 +13,6 @@ from cmk.graphing.v2_unstable import metrics as metrics_v2_unstable
 from cmk.graphing_engine import (
     build_curve,
     build_matched_graphs,
-    build_matched_graphs_per_service,
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
@@ -558,47 +557,6 @@ def test_discover_template_graphs_ignores_a_predictive_metric_without_its_base()
     fetch_data = _FakeRRDFetchData(performance_response={service: _perf_data(_perf(predict))})
 
     assert _discover(service, registered_graphs, fetch_data=fetch_data) == []
-
-
-def test_build_matched_graphs_per_service_adds_predictive_lines() -> None:
-    # The combined primitive matches one plugin across several services; like the template path it
-    # adds a predictive line wherever predict_* exists for that service, and only there.
-    cpu_user = MetricName("cpu_user")
-    predict = MetricName("predict_cpu_user")
-    with_predict = Service(host_name=HostName("h1"), service_name=ServiceName("svc"))
-    without_predict = Service(host_name=HostName("h2"), service_name=ServiceName("svc"))
-    plugin = graphs_v1.Graph(name="cpu", title=Title("CPU"), simple_lines=["cpu_user"])
-
-    graphs = build_matched_graphs_per_service(
-        services=[with_predict, without_predict],
-        graph=plugin,
-        localizer=_id,
-        metric_names={with_predict: {cpu_user, predict}, without_predict: {cpu_user}},
-        graph_type=_KIND,
-        registered_metrics=_METRICS,
-    )
-
-    assert len(graphs) == 2
-    assert (
-        Line(
-            curve=build_curve(
-                RRDMetric(
-                    host_name=HostName("h1"), service_name=ServiceName("svc"), metric_name=predict
-                ),
-                _id,
-                _METRICS,
-            ),
-            inverse=False,
-        )
-        in graphs[0].lines
-    )
-    assert all(
-        not (
-            isinstance(line.curve.quantity, RRDMetric)
-            and line.curve.quantity.metric_name == predict
-        )
-        for line in graphs[1].lines
-    )
 
 
 def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> None:

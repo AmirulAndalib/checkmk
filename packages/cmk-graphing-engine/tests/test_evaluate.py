@@ -15,7 +15,6 @@ from cmk.graphing_engine import (
     EvaluatedCurve,
     EvaluatedGraph,
     EvaluatedLine,
-    EvaluatedRule,
     EvaluatedStack,
     EvaluatedVerticalRange,
     FixedRange,
@@ -38,7 +37,7 @@ from cmk.graphing_engine import (
     Unit,
     VerticalRangeType,
 )
-from cmk.graphing_engine._evaluate import _evaluate_graph
+from cmk.graphing_engine._evaluate import _evaluate_graph, EvaluatedRule
 from cmk.graphing_engine._perfdata import PerformanceData
 from cmk.graphing_engine._quantities import EvaluationContext, Quantity
 
