@@ -58,7 +58,7 @@ class NetworkFlowDonutContent(BaseWidgetContent):
         description="Displays a network flow breakdown as a donut chart with share-of-total slices."
     )
     dimension: NetworkFlowDonutDimension = api_field(
-        description="Which dimension to break the traffic down by (applications)."
+        description="Which dimension to break the traffic down by (applications or protocols)."
     )
     limit_to: int = api_field(
         description="Maximum number of slices to display before the rest are grouped as 'Other'."

@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { type Ref, computed, ref } from 'vue'
+import { type Ref, computed, ref, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
@@ -35,7 +35,8 @@ export function useDonut(currentSpec: WidgetSpec | null): UseDonut {
 
   // Default widget title per dimension; mirrors the dimension dropdown labels.
   const dimensionTitles: Record<Dimension, string> = {
-    applications: _t('Applications')
+    applications: _t('Applications'),
+    protocols: _t('Protocols')
   }
 
   const currentContent =
@@ -64,6 +65,14 @@ export function useDonut(currentSpec: WidgetSpec | null): UseDonut {
   const dimension = ref<Dimension>(initialDimension)
   const limitTo = ref<number>(currentContent?.limit_to ?? 6)
   const limitToValidationErrors = ref<string[]>([])
+
+  // Unless the user has customized the title, keep it in sync with the
+  // dimension's default as the dimension changes.
+  watch(dimension, (newDimension, oldDimension) => {
+    if (title.value === dimensionTitles[oldDimension]) {
+      title.value = dimensionTitles[newDimension]
+    }
+  })
 
   function validate(): boolean {
     limitToValidationErrors.value = []

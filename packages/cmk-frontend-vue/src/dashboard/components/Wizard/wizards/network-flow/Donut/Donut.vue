@@ -37,7 +37,10 @@ const handler = useDonut(props.editWidgetSpec)
 
 const dimensionOptions: Suggestions = {
   type: 'fixed',
-  suggestions: [{ name: 'applications', title: _t('Applications') }]
+  suggestions: [
+    { name: 'applications', title: _t('Applications') },
+    { name: 'protocols', title: _t('Protocols') }
+  ]
 }
 
 function getValidWidgetProps(): WidgetProps | null {

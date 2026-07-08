@@ -153,7 +153,7 @@ class NetworkFlowTopTableDashletConfig(DashletConfig):
     limit_to: int
 
 
-NetworkFlowDonutDimension = Literal["applications"]
+NetworkFlowDonutDimension = Literal["applications", "protocols"]
 
 
 class NetworkFlowDonutDashletConfig(DashletConfig):
