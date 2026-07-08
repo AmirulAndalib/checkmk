@@ -1282,6 +1282,7 @@ allows = ["@ccc", "cmk.crash", "cmk.events"]
 [components."cmk.metric_backend.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@metric_backend",
   "@plugin_apis",
   "cmk.fields",
@@ -1290,7 +1291,6 @@ allows = [
   "cmk.licensing",
   "cmk.shared_typing",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.dcd.daemon"]
