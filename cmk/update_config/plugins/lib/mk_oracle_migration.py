@@ -92,6 +92,16 @@ def convert(legacy: Mapping[str, Any]) -> MigratedRule:
     auth, connection, login_instances = _convert_login(legacy, warnings)
     instances.extend(login_instances)
 
+    login_exceptions = dict(legacy.get("login_exceptions", []))
+    instances.extend(
+        _convert_remote_instances(legacy.get("remote_instances", []), login_exceptions, warnings)
+    )
+
+    instances.extend(_convert_login_exceptions(login_exceptions, warnings))
+
+    if auth is None and instances and instances[0].auth is not None:
+        auth = instances[0].auth.model_copy()
+
     if auth is None or auth.auth_type is None:
         auth = (auth or GuiAuthConf[RawSecret]()).model_copy(
             update={"auth_type": (OracleAuthType.WALLET.value, None)}
@@ -191,6 +201,87 @@ def _convert_login(
         )
 
     return auth, connection, instances
+
+
+def _convert_remote_instances(
+    remote_instances: Sequence[Mapping[str, Any]],
+    login_exceptions: dict[str, Any],
+    warnings: list[str],
+) -> list[GuiInstanceConf[RawSecret]]:
+    """Build instances for remote_instances entries, consuming matching
+    login_exceptions entries (looked up by sid/piggyhost/explicit id) for their auth."""
+    instances = []
+    for remote in remote_instances:
+        if "sid" not in remote:
+            continue
+
+        if tns_alias := remote.get("tnsalias"):
+            oracle_id: tuple[Literal["alias", "descriptor", "sid"], GuiOracleIdentificationConf] = (
+                "alias",
+                GuiOracleIdentificationConf(alias=tns_alias),
+            )
+        else:
+            oracle_id = ("sid", GuiOracleIdentificationConf(sid=remote["sid"]))
+
+        # The remote instance is valid at this point,
+        # because the login is optional
+        new_instance = GuiInstanceConf[RawSecret](
+            connection=_convert_connection(remote),
+            oracle_id=oracle_id,
+            piggyback_host=remote.get("piggyhost") or None,
+        )
+        instances.append(new_instance)
+
+        look_up_type = remote.get("id")
+        if (
+            isinstance(look_up_type, str)
+            and look_up_type in remote
+            and isinstance(remote[look_up_type], str)
+        ):
+            look_up_key = remote[look_up_type]
+        elif isinstance(look_up_type, tuple):
+            look_up_key = look_up_type[-1]
+        else:
+            continue
+
+        login_exception = login_exceptions.get(look_up_key)
+        if isinstance(login_exception, Mapping):
+            if auth := _convert_auth(login_exception, auth_required=False, warnings=warnings):
+                new_instance.auth = auth
+            del login_exceptions[look_up_key]
+        else:
+            warnings.append(f"Could not find login for {remote['sid']} remote instance.")
+
+    return instances
+
+
+def _convert_login_exceptions(
+    login_exceptions: Mapping[str, Any], warnings: list[str]
+) -> list[GuiInstanceConf[RawSecret]]:
+    """Build instances for login_exceptions entries not consumed by remote_instances
+    (i.e. plain SID-keyed logins, and any ASM login routed here via '+ASM')."""
+    instances = []
+    for sid, login in login_exceptions.items():
+        if not isinstance(login, Mapping):
+            continue
+
+        if tns_alias := login.get("tnsalias"):
+            oracle_id: tuple[Literal["alias", "descriptor", "sid"], GuiOracleIdentificationConf] = (
+                "alias",
+                GuiOracleIdentificationConf(alias=tns_alias),
+            )
+        else:
+            oracle_id = ("sid", GuiOracleIdentificationConf(sid=sid))
+
+        instances.append(
+            GuiInstanceConf[RawSecret](
+                auth=_convert_auth(login, auth_required=False, warnings=warnings),
+                connection=_convert_connection(login),
+                oracle_id=oracle_id,
+            )
+        )
+
+    return instances
 
 
 def _convert_username_password(auth: tuple[Any, ...]) -> tuple[str, RawSecret]:

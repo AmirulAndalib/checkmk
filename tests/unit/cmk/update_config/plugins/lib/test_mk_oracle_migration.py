@@ -273,3 +273,179 @@ def test_login_tnsalias_extra_instance_has_correct_connection() -> None:
             "oracle_id": ("alias", {"alias": "myalias"}),
         }
     ]
+
+
+def test_no_instance_created_when_no_login_exceptions() -> None:
+    new_rule = convert({"login_exceptions": []})
+    assert dump(new_rule.rule)["instances"] == []
+
+
+def test_instance_created_when_login_exceptions_present() -> None:
+    new_rule = convert(
+        {
+            "login_exceptions": [
+                ("SID1", {"auth": "wallet", "host": "mydata.db", "port": 3635, "as": None})
+            ]
+        }
+    )
+    assert dump(new_rule.rule)["instances"] == [
+        {
+            "auth": {"auth_type": ("wallet", None)},
+            "oracle_id": ("sid", {"sid": "SID1"}),
+            "connection": {"host": "mydata.db", "port": 3635},
+        }
+    ]
+
+
+def test_remote_instance_maps_connection_and_piggyback() -> None:
+    new_rule = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": "sid",
+                    "sid": "ORCL",
+                    "host": "remote-host",
+                    "port": 1521,
+                    "piggyhost": "remote-monitoring-host",
+                }
+            ]
+        }
+    )
+    assert dump(new_rule.rule)["instances"] == [
+        {
+            "oracle_id": ("sid", {"sid": "ORCL"}),
+            "connection": {"host": "remote-host", "port": 1521},
+            "piggyback_host": "remote-monitoring-host",
+        }
+    ]
+
+
+def test_remote_instance_auth_from_login_exception_via_sid() -> None:
+    new_rule = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": "sid",
+                    "sid": "ORCL",
+                    "host": "remote-host",
+                    "port": 1521,
+                }
+            ],
+            "login_exceptions": [
+                (
+                    "ORCL",
+                    {
+                        "auth": ("explicit", ("orcl_user", ("password", "orcl_pass"))),
+                        "as": "sysdba",
+                    },
+                )
+            ],
+        }
+    )
+    assert dump(new_rule.rule)["instances"][0]["auth"] == {
+        "auth_type": (
+            "standard",
+            {
+                "username": "orcl_user",
+                "password": ("cmk_postprocessed", "explicit_password", ("", "orcl_pass")),
+            },
+        ),
+        "role": "sysdba",
+    }
+
+
+def test_remote_instance_auth_from_login_exception_via_piggyhost() -> None:
+    new_rule = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": "piggyhost",
+                    "sid": "ORCL2",
+                    "host": "remote-host-2",
+                    "port": 1522,
+                    "piggyhost": "monitor-host-2",
+                }
+            ],
+            "login_exceptions": [
+                (
+                    "monitor-host-2",
+                    {
+                        "auth": ("explicit", ("piggy_user", ("store", "stored_pw_id"))),
+                        "as": "sysoper",
+                    },
+                )
+            ],
+        }
+    )
+    assert dump(new_rule.rule)["instances"][0]["auth"] == {
+        "auth_type": (
+            "standard",
+            {
+                "username": "piggy_user",
+                "password": ("cmk_postprocessed", "stored_password", ("stored_pw_id", "")),
+            },
+        ),
+        "role": "sysoper",
+    }
+
+
+def test_remote_instance_auth_from_login_exception_via_id() -> None:
+    new_rules = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": ("explicit", "custom123"),
+                    "sid": "ORCL3",
+                    "host": "remote-host-3",
+                    "port": 1523,
+                }
+            ],
+            "login_exceptions": [
+                (
+                    "custom123",
+                    {"auth": "wallet", "as": "sysbackup"},
+                )
+            ],
+        }
+    )
+    assert dump(new_rules.rule)["instances"][0]["auth"] == {
+        "auth_type": ("wallet", None),
+        "role": "sysbackup",
+    }
+
+
+def test_converts_only_one_instance_when_remote_instance_references_login_exception() -> None:
+    # the login_exceptions entry is consumed by the remote instance's auth look-up,
+    # it must not also be emitted as a separate local-SID instance
+    new_rule = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": "sid",
+                    "sid": "ORCL",
+                    "host": "remote-host",
+                    "port": 1521,
+                }
+            ],
+            "login_exceptions": [("ORCL", {"auth": "wallet", "as": "sysdba"})],
+        }
+    )
+    assert len(dump(new_rule.rule)["instances"]) == 1
+
+
+def test_converts_two_instances_when_remote_instance_cannot_reference_login_exception() -> None:
+    new_rule = convert(
+        {
+            "remote_instances": [
+                {
+                    "id": "sid",
+                    "sid": "ORCL",
+                    "host": "remote-host",
+                    "port": 1521,
+                }
+            ],
+            "login_exceptions": [("EPIC", {"auth": "wallet", "as": "sysdba"})],
+        }
+    )
+    assert len(dump(new_rule.rule)["instances"]) == 2
+    assert new_rule.warnings[0] == "Could not find login for ORCL remote instance."
