@@ -764,8 +764,7 @@ def _vs_limits_inst_types() -> List:
                     name=inst_type,
                     title=Title(inst_type),  # astrein: disable=localization-checker
                     parameter_form=fs_aws_limits(
-                        # astrein: disable=localization-named-placeholder
-                        Title("%s instances") % inst_type,
+                        Title("%(inst_type)s instances") % {"inst_type": inst_type},
                         AWS_EC2_LIMITS_SPECIAL.get(inst_type, AWS_EC2_LIMITS_DEFAULT)[0],
                     ),
                 )
@@ -1657,8 +1656,7 @@ def _fs_aws_dynamodb_capacity(title: Title, unit: str) -> Dictionary:
     elements_single_minmmax: Mapping[str, DictElement] = {
         "levels_%s" % extr: DictElement(
             parameter_form=Dictionary(
-                # astrein: disable=localization-named-placeholder
-                title=Title("Levels on %s single-request consumption") % extr,
+                title=Title("Levels on %(extr)s single-request consumption") % {"extr": extr},
                 elements={
                     "levels_upper": DictElement(
                         parameter_form=Tuple(title=Title("Upper levels"), elements=elements_extr),
@@ -1704,9 +1702,10 @@ def _parameter_form_spec_aws_dynamodb_latency() -> Dictionary:
         elements={
             f"levels_seconds_{operation.lower()}_{statistic}": DictElement(
                 parameter_form=TupleLevels(
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("Upper levels on %s latency of successful %s requests")
-                    % (statistic, operation),
+                    title=Title(
+                        "Upper levels on %(statistic)s latency of successful %(operation)s requests"
+                    )
+                    % {"statistic": statistic, "operation": operation},
                     elements=[
                         Float(title=Title("Warning at"), unit_symbol="ms"),
                         Float(title=Title("Critical at"), unit_symbol="ms"),
@@ -1800,8 +1799,8 @@ def _parameter_form_spec_aws_wafv2_web_acl() -> Dictionary:
         elements={
             "%s_requests_perc" % action: DictElement(
                 parameter_form=TupleLevels(
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("Upper levels on percentage of %s requests") % action,
+                    title=Title("Upper levels on percentage of %(action)s requests")
+                    % {"action": action},
                     elements=[
                         Percentage(title=Title("Warning at")),
                         Percentage(title=Title("Critical at")),
