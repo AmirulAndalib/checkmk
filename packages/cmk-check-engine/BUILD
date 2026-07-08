@@ -325,6 +325,15 @@ py_cmk_test(
 )
 
 py_cmk_test(
+    name = "subclass-discovery-tests",
+    size = "small",
+    srcs = ["tests/cmk/checkengine/test_subclass_discovery.py"],
+    deps = [
+        ":subclass-discovery",
+    ],
+)
+
+py_cmk_test(
     name = "plugin-backend-tests",
     size = "small",
     srcs = glob([
