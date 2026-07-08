@@ -8,6 +8,24 @@
 #   Self-imports (component importing from itself) are always allowed implicitly.
 
 [groups]
+ccc = ["cmk.ccc"]
+
+crash = ["cmk.crash", "cmk.crash_reporting"]
+
+crypto = ["cmk.crypto"]
+
+flags = ["cmk.flags"]
+
+livestatus_client = ["cmk.livestatus_client"]
+
+messaging = ["cmk.messaging"]
+
+metric_backend = ["cmk.metric_backend"]
+
+mkp_tool = ["cmk.mkp_tool"]
+
+network_flow = ["cmk.network_flow"]
+
 plugin_apis = [
   "cmk.agent_based.internal",
   "cmk.agent_based.legacy",
@@ -31,29 +49,13 @@ plugin_apis = [
   "cmk.server_side_programs.v1_unstable",
 ]
 
-ccc = ["cmk.ccc"]
-
-messaging = ["cmk.messaging"]
-
-mkp_tool = ["cmk.mkp_tool"]
-
-werks = ["cmk.werks"]
-
-crypto = ["cmk.crypto"]
-
-flags = ["cmk.flags"]
-
-trace = ["cmk.trace"]
-
-metric_backend = ["cmk.metric_backend"]
-
-network_flow = ["cmk.network_flow"]
+relay_protocols = ["cmk.relay_protocols"]
 
 telemetry = ["cmk.telemetry"]
 
-livestatus_client = ["cmk.livestatus_client"]
+trace = ["cmk.trace"]
 
-relay_protocols = ["cmk.relay_protocols"]
+werks = ["cmk.werks"]
 
 
 [plugin_families]
@@ -481,6 +483,19 @@ allows = [
   "cmk.checkengine.snmplib",
   "cmk.utils",
 ]
+
+[components."cmk.cli"]
+allows = [
+  "@ccc",
+  "@crash",
+  "@trace",
+  "cmk.base.app",
+  "cmk.base.modes",
+  "cmk.base.profiling",
+  "cmk.base.utils",
+  "cmk.utils",
+]
+
 
 [components."cmk.legacy_includes"]
 allows = ["@plugin_apis", "cmk.plugins"]
@@ -1707,7 +1722,7 @@ allows = [
 
 
 [file_components]
-"bin/check_mk.py" = "cmk.base"
+"bin/check_mk.py" = "cmk.cli"
 "bin/cmk-automation-helper.py" = "cmk.base"
 "bin/cmk-cert.py" = "cmk.gui.cmkcert"
 "bin/message-broker-certs" = "cmk.message_broker_certs"
@@ -1720,7 +1735,6 @@ allows = [
 "bin/cmk-validate-config.py" = "cmk.validate_config"
 "bin/cmk-validate-plugins.py" = "cmk.validate_plugins"
 "bin/mkeventd.py" = "cmk.ec"
-"cmk/active_checks/check_cmk_inv.py" = "cmk.base"
 "omd/packages/appliance/webconf_snapin.py" = "cmk.gui"
 "omd/non-free/packages/cmk-dcd/cmk-dcd.py" = "cmk.dcd.daemon"
 "omd/non-free/packages/cmk-dcd/dcd.py" = "cmk.dcd.daemon"

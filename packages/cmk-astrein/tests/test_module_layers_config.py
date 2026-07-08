@@ -263,13 +263,13 @@ def test_load_config_file_components(tmp_path: Path) -> None:
         [groups]
 
         [file_components]
-        "bin/check_mk" = "cmk.base"
-        "bin/mkeventd" = "cmk.ec"
+        "bin/bar" = "cmk.foo"
+        "bin/gee" = "cmk.yolo"
         """,
     )
     config = load_config(config_path)
-    assert config.file_components[ModulePath("bin/check_mk")] == Component("cmk.base")
-    assert config.file_components[ModulePath("bin/mkeventd")] == Component("cmk.ec")
+    assert config.file_components[ModulePath("bin/bar")] == Component("cmk.foo")
+    assert config.file_components[ModulePath("bin/gee")] == Component("cmk.yolo")
 
 
 def test_load_config_file_dependencies(tmp_path: Path) -> None:
@@ -362,7 +362,7 @@ def test_real_config_has_plugin_families_smoke_test(real_config: ModuleLayersCon
 
 
 def test_real_config_file_components_present_smoke_test(real_config: ModuleLayersConfig) -> None:
-    assert real_config.file_components[ModulePath("bin/check_mk.py")] == Component("cmk.base")
+    assert real_config.file_components[ModulePath("bin/check_mk.py")] == Component("cmk.cli")
     assert real_config.file_components[ModulePath("bin/mkeventd.py")] == Component("cmk.ec")
 
 
