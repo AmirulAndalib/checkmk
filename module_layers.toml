@@ -1667,7 +1667,6 @@ allows = [
   "cmk.utils.misc",
   "cmk.utils.paths",
   "cmk.utils.servicename",
-  "livestatus",
 ]
 
 [components."cmk.utils.redis"]
