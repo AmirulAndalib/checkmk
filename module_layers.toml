@@ -938,7 +938,6 @@ allows = [
   "cmk.utils.paths",
   "cmk.utils.render",
   "cmk.utils.rulesets",
-  "livestatus",
 ]
 excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 
