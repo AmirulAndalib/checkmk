@@ -4,7 +4,7 @@
       "cp \"$PASEO_WORKTREE_PATH/.paseo/paseo.user.bazelrc\" \"$PASEO_WORKTREE_PATH/user.bazelrc\""
     ],
     "teardown": [
-      "output_base=\"$(cd \"$PASEO_WORKTREE_PATH\" && bazel info output_base 2>/dev/null)\"; (cd \"$PASEO_WORKTREE_PATH\" && bazel shutdown 2>/dev/null || true); [ -n \"$output_base\" ] && [ -d \"$output_base\" ] && rm -rf \"$output_base\" || true",
+      "bash \"$PASEO_WORKTREE_PATH/.paseo/reclaim-bazel-output-base.sh\"",
       "if git rev-parse --verify --quiet \"refs/heads/$PASEO_BRANCH_NAME\" >/dev/null 2>&1; then git checkout --detach && git branch -D \"$PASEO_BRANCH_NAME\"; fi"
     ]
   }
