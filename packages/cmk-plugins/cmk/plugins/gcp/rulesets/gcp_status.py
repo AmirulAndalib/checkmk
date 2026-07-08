@@ -25,8 +25,8 @@ def _parameter_form() -> Dictionary:
                     elements=[
                         MultipleChoiceElement(
                             name=_region_identifier_to_python_identifier(k),
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("%s | %s") % (k, v),
+                            title=Title("%(region_id)s | %(region_name)s")
+                            % {"region_id": k, "region_name": v},
                         )
                         for k, v in sorted(constants.RegionMap.items())
                     ],
