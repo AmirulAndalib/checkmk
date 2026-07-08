@@ -1601,6 +1601,7 @@ allows = ["@ccc", "cmk.utils"]
 [components."cmk.dcd.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.dcd.protocols",
   "cmk.discover_plugins",
@@ -1609,7 +1610,6 @@ allows = [
   "cmk.plugins.piggyback",
   "cmk.shared_typing",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.multi_tenancy.shared.customer"]
