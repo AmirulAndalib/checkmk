@@ -384,6 +384,7 @@ allows = ["@ccc", "cmk.bakery", "cmk.utils"]
 
 [components."cmk.base.nonfree.notify_automation"]
 allows = [
+  "@livestatus_client",
   "cmk.automations",
   "cmk.base.automations",
   "cmk.base.base_app",
@@ -392,7 +393,6 @@ allows = [
   "cmk.ccc.version",
   "cmk.checkengine",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.base.nonfree.cmc"]
