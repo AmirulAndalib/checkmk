@@ -31,6 +31,7 @@ select = [
   "B027",   # flake8-bugbear: empty-method-without-abstract-decorator
   "B031",   # flake8-bugbear: reuse-of-groupby-generator
   "B033",   # flake8-bugbear: duplicate-value
+  "B034",   # flake8-bugbear: re-sub-positional-args
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)
