@@ -29,10 +29,12 @@ import type {
 import { DashboardLayout, DashboardOwnerType } from '@/dashboard/types/dashboard.ts'
 import type { ContextFilter, ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type {
+  ComputedNetworkFlowDonutResponse,
   ComputedNetworkFlowTopTableResponse,
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
   EffectiveWidgetFilterContext,
+  NetworkFlowDonutContent,
   NetworkFlowTopTableContent,
   TopListContent,
   VisualContext,
@@ -271,6 +273,17 @@ export const dashboardAPI = {
   ): Promise<ComputedNetworkFlowTopTableResponse> => {
     return unwrap(
       await client.POST('/domain-types/dashboard/actions/compute-network-flow-top-table/invoke', {
+        ...CONTENT_TYPE_HEADER,
+        body: { content, context }
+      })
+    )
+  },
+  computeNetworkFlowDonutData: async (
+    content: NetworkFlowDonutContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowDonutResponse> => {
+    return unwrap(
+      await client.POST('/domain-types/dashboard/actions/compute-network-flow-donut/invoke', {
         ...CONTENT_TYPE_HEADER,
         body: { content, context }
       })

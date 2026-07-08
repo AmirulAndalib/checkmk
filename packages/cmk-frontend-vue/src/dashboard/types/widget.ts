@@ -56,6 +56,9 @@ export type TopListContent = components['schemas']['TopListContent']
 export type NetworkFlowTopTableContent = components['schemas']['NetworkFlowTopTableContent']
 export type ComputedNetworkFlowTopTableResponse =
   components['schemas']['ComputedNetworkFlowTopTableResponse']
+export type NetworkFlowDonutContent = components['schemas']['NetworkFlowDonutContent']
+export type ComputedNetworkFlowDonutResponse =
+  components['schemas']['ComputedNetworkFlowDonutResponse']
 export type SidebarElementContent = components['schemas']['SidebarElementContent']
 // Only picks graph_render_options, used to check legend visibility in the scrollable preview
 // as this is used by multiple widget types we extract it only once here
