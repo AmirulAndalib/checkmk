@@ -1326,11 +1326,11 @@ allows = [
 [components."cmk.liveproxyd.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.gui",
   "cmk.liveproxyd.shared",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.robotmk"]
