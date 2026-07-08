@@ -104,6 +104,9 @@ void fetch_package(Map args) {
                 CUSTOM_GIT_REF: args.rebase_onto ? params.CUSTOM_GIT_REF : cmd_output("git rev-parse HEAD")
             ];
         }
+        if (args.klaus_spezial) {
+            this_parameters["build_params"].remove("DISABLE_CMK_DISTRO_PACKAGE_SIGNING");
+        }
         upstream_build(this_parameters);
     }
 }
