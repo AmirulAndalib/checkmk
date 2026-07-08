@@ -901,7 +901,6 @@ allows = [
   "cmk.utils.timeperiod",
   "cmk.utils.typing_helpers",
   "cmk.utils.visuals",
-  "livestatus",
 ]
 excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 
