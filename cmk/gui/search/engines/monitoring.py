@@ -700,13 +700,15 @@ class QuicksearchManager:
             if total_rows > self._row_limit:
                 search_object.remove_rows_from_end(total_rows - self._row_limit)
                 if self.raise_too_many_rows_error:
-                    # astrein: disable=localization-named-placeholder
-                    raise TooManyRowsError(_("More than %d results") % self._row_limit)
+                    raise TooManyRowsError(
+                        _("More than %(count)d results") % {"count": self._row_limit}
+                    )
 
             if search_object.row_limit_exceeded():
                 if self.raise_too_many_rows_error:
-                    # astrein: disable=localization-named-placeholder
-                    raise TooManyRowsError(_("More than %d results") % self._row_limit)
+                    raise TooManyRowsError(
+                        _("More than %(count)d results") % {"count": self._row_limit}
+                    )
 
             if (
                 search_object.num_rows() > 0
