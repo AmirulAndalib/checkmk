@@ -10,11 +10,13 @@ from typing import Any, Final, Literal, NamedTuple
 from cmk.gui.watolib.rulesets import Rule, RuleOptions, Ruleset
 from cmk.plugins.oracle.bakery.mk_oracle_unified import (
     GuiAuthConf,
+    GuiAuthUserPasswordData,
     GuiConfig,
     GuiConnectionConf,
     GuiDiscoveryConf,
     GuiInstanceConf,
     GuiMainConf,
+    GuiOracleIdentificationConf,
     OracleAuthType,
 )
 
@@ -87,12 +89,18 @@ def convert(legacy: Mapping[str, Any]) -> MigratedRule:
 
     discovery = _convert_discovery(legacy.get("sids"))
 
-    auth = GuiAuthConf[RawSecret](auth_type=(OracleAuthType.WALLET, None))
-    warnings.append("No auth defined in legacy rule. Defaulting to Oracle wallet.")
+    auth, connection, login_instances = _convert_login(legacy, warnings)
+    instances.extend(login_instances)
+
+    if auth is None or auth.auth_type is None:
+        auth = (auth or GuiAuthConf[RawSecret]()).model_copy(
+            update={"auth_type": (OracleAuthType.WALLET.value, None)}
+        )
+        warnings.append("No auth defined in legacy rule. Defaulting to Oracle wallet.")
 
     main = GuiMainConf[RawSecret](
         auth=auth,
-        connection=GuiConnectionConf(),
+        connection=connection or GuiConnectionConf(),
         cache_age=cache_age,
         discovery=discovery,
         sections=sections,
@@ -153,6 +161,82 @@ def _convert_discovery(sids: tuple[str, Sequence[str]] | None) -> GuiDiscoveryCo
     if how in ("skip", "exclude"):
         return GuiDiscoveryConf(enabled=True, exclude=list(names))
     return None
+
+
+def _convert_login(
+    legacy: Mapping[str, Any], warnings: list[str]
+) -> tuple[
+    GuiAuthConf[RawSecret] | None, GuiConnectionConf | None, list[GuiInstanceConf[RawSecret]]
+]:
+    """Convert the legacy 'login' block into the unified main auth/connection,
+    plus an extra instance if a tnsalias is configured."""
+    login = legacy.get("login")
+    if not isinstance(login, Mapping):
+        return None, None, []
+
+    auth = _convert_auth(login, auth_required=True, warnings=warnings)
+    assert auth is not None  # auth_required=True always yields a real GuiAuthConf
+    connection = _convert_connection(login) or GuiConnectionConf()
+    if admin := legacy.get("tns_admin"):
+        connection.tns_admin = admin
+
+    instances = []
+    if tns_alias := login.get("tnsalias"):
+        instances.append(
+            GuiInstanceConf[RawSecret](
+                auth=auth.model_copy(),
+                connection=connection.model_copy(),
+                oracle_id=("alias", GuiOracleIdentificationConf(alias=tns_alias)),
+            )
+        )
+
+    return auth, connection, instances
+
+
+def _convert_username_password(auth: tuple[Any, ...]) -> tuple[str, RawSecret]:
+    username, password = auth[1]
+    password_type, password_value = password
+    final_type: Literal["explicit_password", "stored_password"] = (
+        "explicit_password" if password_type == "password" else "stored_password"
+    )
+    final_value: tuple[str, str] = (
+        ("", password_value) if final_type == "explicit_password" else (password_value, "")
+    )
+    return username, ("cmk_postprocessed", final_type, final_value)
+
+
+def _convert_auth(
+    login: Mapping[str, Any], auth_required: bool, warnings: list[str]
+) -> GuiAuthConf[RawSecret] | None:
+    auth = login.get("auth")
+    auth_type: tuple[OracleAuthType, GuiAuthUserPasswordData[RawSecret] | None] | None = None
+    if isinstance(auth, tuple) and auth[0] == "explicit":
+        username, password = _convert_username_password(auth)
+        auth_type = (
+            OracleAuthType.STANDARD,
+            GuiAuthUserPasswordData[RawSecret](username=username, password=password),
+        )
+    elif auth == "wallet":
+        auth_type = (OracleAuthType.WALLET, None)
+    elif auth_required:
+        warnings.append(
+            "Unknown auth type, defaulting to wallet because auth-type is mandatory in the unified plugin."
+        )
+        auth_type = (OracleAuthType.WALLET, None)
+
+    role = login.get("as") or None
+    if auth_type is None and role is None:
+        return None
+    return GuiAuthConf[RawSecret](auth_type=auth_type, role=role)
+
+
+def _convert_connection(login: Mapping[str, Any]) -> GuiConnectionConf | None:
+    kwargs: dict[str, Any] = {}
+    if host := login.get("host"):
+        kwargs["host"] = host
+    if port := login.get("port"):
+        kwargs["port"] = port
+    return GuiConnectionConf(**kwargs) if kwargs else None
 
 
 def dump(config: GuiConfig[RawSecret]) -> dict[str, Any]:

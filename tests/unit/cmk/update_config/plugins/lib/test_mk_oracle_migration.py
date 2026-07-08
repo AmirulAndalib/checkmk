@@ -14,6 +14,13 @@ def test_empty_body_auth_is_wallet() -> None:
     assert dump(convert({}).rule)["main"]["auth"] == {"auth_type": ("wallet", None)}
 
 
+def test_empty_body_auth_type_is_a_plain_str_not_an_enum_member() -> None:
+    # StrEnum == str, so this catches what == "wallet" above can't: an unconverted enum
+    # member, which pprints as invalid Python syntax.
+    auth_type = dump(convert({}).rule)["main"]["auth"]["auth_type"][0]
+    assert type(auth_type) is str
+
+
 def test_empty_body_has_no_instances() -> None:
     assert dump(convert({}).rule)["instances"] == []
 
@@ -154,3 +161,115 @@ def test_discovery_include_mapped_when_exclude_defined() -> None:
         "enabled": True,
         "exclude": ["a"],
     }
+
+
+def test_auth_type_wallet_when_auth_is_wallet() -> None:
+    assert dump(convert({"login": {"auth": "wallet"}}).rule)["main"]["auth"] == {
+        "auth_type": ("wallet", None)
+    }
+
+
+def test_standard_auth_type_with_password_when_auth_is_explicit_with_password() -> None:
+    new_rule = convert({"login": {"auth": ("explicit", ("my_user", ("password", "my_password")))}})
+    assert dump(new_rule.rule)["main"]["auth"] == {
+        "auth_type": (
+            "standard",
+            {
+                "username": "my_user",
+                "password": ("cmk_postprocessed", "explicit_password", ("", "my_password")),
+            },
+        )
+    }
+
+
+def test_standard_auth_type_with_store_when_auth_is_explicit_with_store() -> None:
+    new_rule = convert({"login": {"auth": ("explicit", ("store_user", ("store", "password_1")))}})
+    assert dump(new_rule.rule)["main"]["auth"] == {
+        "auth_type": (
+            "standard",
+            {
+                "username": "store_user",
+                "password": ("cmk_postprocessed", "stored_password", ("password_1", "")),
+            },
+        )
+    }
+
+
+def test_role_mapped_when_as_set() -> None:
+    new_rule = convert({"login": {"auth": "wallet", "as": "sysdba"}})
+    assert dump(new_rule.rule)["main"]["auth"] == {"auth_type": ("wallet", None), "role": "sysdba"}
+
+
+def test_role_omitted_when_as_none() -> None:
+    new_rule = convert({"login": {"auth": "wallet", "as": None}})
+    assert dump(new_rule.rule)["main"]["auth"] == {"auth_type": ("wallet", None)}
+
+
+def test_connection_empty_when_not_specified() -> None:
+    new_rule = convert({"login": {"auth": "wallet"}})
+    assert dump(new_rule.rule)["main"]["connection"] == {}
+
+
+def test_connection_converts_without_tns_admin() -> None:
+    new_rule = convert({"login": {"auth": "wallet", "host": "my_host", "port": 1521}})
+    assert dump(new_rule.rule)["main"]["connection"] == {"host": "my_host", "port": 1521}
+
+
+def test_connection_host_kept_when_explicitly_set_to_localhost() -> None:
+    new_rule = convert({"login": {"auth": "wallet", "host": "localhost"}})
+    assert dump(new_rule.rule)["main"]["connection"] == {"host": "localhost"}
+
+
+def test_connection_converts_with_tns_admin() -> None:
+    new_rule = convert(
+        {"login": {"auth": "wallet", "host": "my_host", "port": 1521}, "tns_admin": "tadmin"}
+    )
+    assert dump(new_rule.rule)["main"]["connection"] == {
+        "host": "my_host",
+        "port": 1521,
+        "tns_admin": "tadmin",
+    }
+
+
+def test_login_without_tnsalias_has_no_instance() -> None:
+    new_rule = convert({"login": {"auth": "wallet"}})
+    dumped = dump(new_rule.rule)
+
+    assert dumped["main"] == {"auth": {"auth_type": ("wallet", None)}, "connection": {}}
+
+    assert dumped["instances"] == []
+
+
+def test_login_with_tnsalias_adds_an_instance() -> None:
+    new_rule = convert({"login": {"auth": "wallet", "tnsalias": "myalias"}})
+    dumped = dump(new_rule.rule)
+
+    assert dumped["main"] == {"auth": {"auth_type": ("wallet", None)}, "connection": {}}
+
+    assert dumped["instances"] == [
+        {
+            "auth": {"auth_type": ("wallet", None)},
+            "connection": {},
+            "oracle_id": ("alias", {"alias": "myalias"}),
+        }
+    ]
+
+
+def test_login_tnsalias_extra_instance_has_correct_connection() -> None:
+    new_rule = convert(
+        {"login": {"auth": "wallet", "host": "mydata.db", "port": 3635, "tnsalias": "myalias"}}
+    )
+    dumped = dump(new_rule.rule)
+
+    assert dumped["main"] == {
+        "auth": {"auth_type": ("wallet", None)},
+        "connection": {"host": "mydata.db", "port": 3635},
+    }
+
+    assert dumped["instances"] == [
+        {
+            "auth": {"auth_type": ("wallet", None)},
+            "connection": {"host": "mydata.db", "port": 3635},
+            "oracle_id": ("alias", {"alias": "myalias"}),
+        }
+    ]
