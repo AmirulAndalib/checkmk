@@ -101,6 +101,9 @@ class GraphLineQueryAttribute:
     value: str
 
 
+type QueryMetricType = Literal["gauge", "sum", "histogram", "exponential_histogram", "summary"]
+
+
 @dataclass(frozen=True)
 class QueryDataKey:
     metric_name: MetricName
@@ -109,11 +112,12 @@ class QueryDataKey:
     data_point_attributes: tuple[GraphLineQueryAttribute, ...]
     aggregation_lookback: float
     aggregation_histogram_percentile: float
+    metric_types: frozenset[QueryMetricType] | None
 
 
 @dataclass(frozen=True)
 class QueryDataTimeSeries:
-    metric_type: Literal["gauge", "sum", "histogram", "exponential_histogram", "summary"]
+    metric_type: QueryMetricType
     time_series: TimeSeries
     id: str
     attributes: Mapping[Literal["resource", "scope", "data_point"], Mapping[str, str]]
