@@ -45,8 +45,8 @@ def _parameter_formspec_haproxy_frontend() -> Dictionary:
             state.name: DictElement(
                 required=False,
                 parameter_form=ServiceState(
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("Monitoring state of HAProxy frontend is %s") % state.value,
+                    title=Title("Monitoring state of HAProxy frontend is %(state)s")
+                    % {"state": state.value},
                     prefill=DefaultValue(default),
                 ),
             )
@@ -77,8 +77,8 @@ def _parameter_formspec_haproxy_server() -> Dictionary:
             state.name: DictElement(
                 required=False,
                 parameter_form=ServiceState(
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("Monitoring state if HAProxy server is '%s'") % state.value,
+                    title=Title("Monitoring state if HAProxy server is '%(state)s'")
+                    % {"state": state.value},
                     prefill=DefaultValue(default),
                 ),
             )
