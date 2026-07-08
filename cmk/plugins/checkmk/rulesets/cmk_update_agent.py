@@ -314,12 +314,11 @@ def _valuespec_server_data() -> Dictionary:
                 required=True,
                 parameter_form=String(
                     title=Title("Name of Checkmk site of update server"),
-                    # astrein: disable=localization-named-placeholder
                     help_text=Help(
-                        "You likely should enter <tt>%s</tt> here. However, in a distributed "
+                        "You likely should enter <tt>%(site)s</tt> here. However, in a distributed "
                         "monitoring setup, the update site might differ."
                     )
-                    % omd_site(),
+                    % {"site": omd_site()},
                     prefill=DefaultValue(omd_site()),
                     custom_validate=(validators.LengthInRange(min_value=1),),
                 ),
@@ -414,12 +413,11 @@ def _valuespec_interval() -> TimeSpan:
             validators.NumberInRange(
                 min_value=0,
                 max_value=MAX_UPDATE_INTERVAL,
-                # astrein: disable=localization-named-placeholder
                 error_msg=Message(
                     "To prevent the agent updater from being locked out, "
-                    "the maximum allowed update interval is set to %s seconds (30 days)"
+                    "the maximum allowed update interval is set to %(max_interval)s seconds (30 days)"
                 )
-                % str(MAX_UPDATE_INTERVAL),
+                % {"max_interval": str(MAX_UPDATE_INTERVAL)},
             ),
         ),
     )
@@ -514,18 +512,16 @@ def _validate_signature_keys(value: Sequence[object]) -> None:
 def _valuespec_signature_keys() -> MultipleChoiceExtended:
     return MultipleChoiceExtended(
         title=Title("Signature keys the agent will accept"),
-        # astrein: disable=localization-named-placeholder
         help_text=Help(
             "The agent will update itself only with packages that are signed "
             "by one of these keys. You need to specify at least one key. Keys are "
-            "being created <a href='%s' target='_blank'>here</a>."
+            "being created <a href='%(url)s' target='_blank'>here</a>."
         )
-        % "wato.py?mode=signature_keys",
+        % {"url": "wato.py?mode=signature_keys"},
         elements=[
             MultipleChoiceElementExtended(
                 name=key.certificate,
-                # astrein: disable=localization-named-placeholder
-                title=Title("%s") % key.alias,
+                title=Title("%(alias)s") % {"alias": key.alias},
             )
             for key in sorted(
                 _make_agent_sign_keypair_store().load().values(), key=lambda k: k.alias
