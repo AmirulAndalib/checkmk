@@ -290,6 +290,44 @@ def test_load_config_file_dependencies(tmp_path: Path) -> None:
     assert not checker(imported=ModuleName("cmk.gui"), component=None)
 
 
+def test_load_config_first_party_defaults_to_cmk(tmp_path: Path) -> None:
+    config_path = _write_toml(
+        tmp_path,
+        """\
+        [groups]
+
+        [components."cmk.foo"]
+        allows = []
+        """,
+    )
+    config = load_config(config_path)
+    assert config.first_party == (Component("cmk"),)
+
+
+def test_load_config_first_party_explicit(tmp_path: Path) -> None:
+    config_path = _write_toml(
+        tmp_path,
+        """\
+        first_party = ["cmk", "livestatus"]
+
+        [groups]
+        """,
+    )
+    config = load_config(config_path)
+    assert config.first_party == (Component("cmk"), Component("livestatus"))
+
+
+def test_load_config_first_party_wrong_type_raises(tmp_path: Path) -> None:
+    config_path = _write_toml(
+        tmp_path,
+        """\
+        first_party = "cmk"
+        """,
+    )
+    with pytest.raises(TypeError, match="'first_party' must be a list of strings"):
+        load_config(config_path)
+
+
 def test_load_config_file_not_found(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         load_config(tmp_path / "nonexistent.toml")
@@ -331,6 +369,10 @@ def test_real_config_loads_without_error(real_config: ModuleLayersConfig) -> Non
     assert len(real_config.components) > 100
     assert len(real_config.file_components) > 10
     assert len(real_config.file_dependencies) > 5
+
+
+def test_real_config_first_party(real_config: ModuleLayersConfig) -> None:
+    assert real_config.first_party == (Component("cmk"), Component("livestatus"))
 
 
 def test_real_config_has_expected_core_components_smoke_test(

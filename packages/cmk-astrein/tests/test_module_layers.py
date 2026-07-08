@@ -190,6 +190,25 @@ def test_allowed_import_gui_from_livestatus_client(make_checker: _MakeChecker) -
     assert len(errors) == 0
 
 
+def test_allowed_import_gui_from_legacy_livestatus(make_checker: _MakeChecker) -> None:
+    source_code = "from livestatus import SiteConfiguration"
+    checker = make_checker("cmk/gui/test_module.py", source_code)
+    tree = ast.parse(source_code)
+    errors = checker.check(tree)
+
+    assert len(errors) == 0
+
+
+def test_disallowed_import_ccc_from_legacy_livestatus(make_checker: _MakeChecker) -> None:
+    source_code = "import livestatus"
+    checker = make_checker("cmk/ccc/test_module.py", source_code)
+    tree = ast.parse(source_code)
+    errors = checker.check(tree)
+
+    assert len(errors) == 1
+    assert "livestatus" in errors[0].message
+
+
 def test_disallowed_import_ccc_from_gui(make_checker: _MakeChecker) -> None:
     source_code = "from cmk.gui.pages import Page"
     checker = make_checker("cmk/ccc/test_module.py", source_code)

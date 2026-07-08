@@ -127,7 +127,7 @@ class ModuleLayersChecker(ASTVisitorChecker):
         if self._shall_skip_layer_check(self.relative_path):
             return
 
-        if not imported.in_component(Component("cmk")):
+        if not any(imported.in_component(c) for c in self._config.first_party):
             return
 
         if not self._is_import_allowed(self.component, self.relative_path, imported):

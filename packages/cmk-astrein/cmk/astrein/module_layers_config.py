@@ -121,6 +121,7 @@ def _allow(
 class ModuleLayersConfig:
     """Parsed module layer architecture configuration."""
 
+    first_party: tuple[Component, ...]
     components: Mapping[Component, ImportCheckerProtocol]
     file_components: Mapping[ModulePath, Component]
     file_dependencies: Mapping[ModulePath, ImportCheckerProtocol]
@@ -256,6 +257,13 @@ def _parse_file_dependencies(
     return result
 
 
+def _parse_first_party(data: _TomlDict) -> tuple[Component, ...]:
+    raw = data.get("first_party", ["cmk"])
+    if not isinstance(raw, list) or not all(isinstance(name, str) for name in raw):
+        raise TypeError("'first_party' must be a list of strings")
+    return tuple(Component(name) for name in raw)
+
+
 def load_config(config_path: Path) -> ModuleLayersConfig:
     """Load and parse module_layers.toml into runtime configuration."""
     with config_path.open("rb") as f:
@@ -264,6 +272,7 @@ def load_config(config_path: Path) -> ModuleLayersConfig:
     groups: dict[str, list[str]] = data.get("groups", {})
 
     return ModuleLayersConfig(
+        first_party=_parse_first_party(data),
         components=_parse_components(data, groups),
         file_components=_parse_file_components(data),
         file_dependencies=_parse_file_dependencies(data, groups),
