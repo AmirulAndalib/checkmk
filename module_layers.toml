@@ -685,11 +685,11 @@ allows = []
 [components."cmk.gui.cmkcert"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@messaging",
   "cmk.crypto.certificate",
   "cmk.gui",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.mcp"]
