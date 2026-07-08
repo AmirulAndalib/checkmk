@@ -1335,6 +1335,7 @@ allows = [
 [components."cmk.robotmk"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   # I don't think we have any idea of how to fix this.
   "cmk.bakery.base",
@@ -1347,7 +1348,6 @@ allows = [
   "cmk.licensing.nonfree",
   "cmk.shared_typing",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.otel_collector"]
