@@ -6,9 +6,10 @@
 """The open quantity protocol: a custom quantity kind defined entirely outside the engine
 is evaluated by the engine without any change to its code."""
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 
+from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing_engine import (
     AutoPrecision,
     Curve,
@@ -56,6 +57,13 @@ class Negated:
 
     def metrics(self) -> Iterable[Metric]:
         yield from self.operand.metrics()
+
+    def attributes(
+        self,
+        localizer: Callable[[str], str],
+        registered_metrics: Mapping[str, metrics_v1.Metric],
+    ) -> CurveAttributes | None:
+        return self.operand.attributes(localizer, registered_metrics)
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         evaluated = self.operand.evaluate(context)

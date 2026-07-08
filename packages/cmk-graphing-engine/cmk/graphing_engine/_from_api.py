@@ -12,6 +12,12 @@ from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing.v2_unstable import graphs as graphs_v2_unstable
 from cmk.graphing.v2_unstable import metrics as metrics_v2_unstable
 
+from ._display import (
+    FALLBACK_ATTRIBUTES,
+    metric_display_attributes,
+    parse_color,
+    parse_unit,
+)
 from ._graph import Bound, Curve, Graph, Line, MinimalRange, Rule, Stack
 from ._perfdata import MetricName, Service
 from ._quantities import (
@@ -25,20 +31,7 @@ from ._quantities import (
     ScalarType,
     Sum,
 )
-from ._units import (
-    AutoPrecision,
-    CurveAttributes,
-    DecimalNotation,
-    EngineeringScientificNotation,
-    IECNotation,
-    Notation,
-    Precision,
-    SINotation,
-    StandardScientificNotation,
-    StrictPrecision,
-    TimeNotation,
-    Unit,
-)
+from ._units import CurveAttributes
 
 type _ApiQuantity = (
     str
@@ -54,104 +47,6 @@ type _ApiQuantity = (
     | metrics_v1.Difference
     | metrics_v1.Fraction
 )
-
-_COLORS: dict[metrics_v1.Color, str] = {
-    metrics_v1.Color.LIGHT_RED: "#f37c7c",
-    metrics_v1.Color.RED: "#ed3b3b",
-    metrics_v1.Color.DARK_RED: "#a82a2a",
-    metrics_v1.Color.LIGHT_ORANGE: "#ffad54",
-    metrics_v1.Color.ORANGE: "#ff8400",
-    metrics_v1.Color.DARK_ORANGE: "#b55e00",
-    metrics_v1.Color.LIGHT_YELLOW: "#ffe456",
-    metrics_v1.Color.YELLOW: "#ffd703",
-    metrics_v1.Color.DARK_YELLOW: "#ac7c02",
-    metrics_v1.Color.LIGHT_GREEN: "#62e0bf",
-    metrics_v1.Color.GREEN: "#15d1a0",
-    metrics_v1.Color.DARK_GREEN: "#0f9472",
-    metrics_v1.Color.LIGHT_BLUE: "#6fc1f7",
-    metrics_v1.Color.BLUE: "#28a2f3",
-    metrics_v1.Color.DARK_BLUE: "#1c73ad",
-    metrics_v1.Color.LIGHT_CYAN: "#68eeee",
-    metrics_v1.Color.CYAN: "#1ee6e6",
-    metrics_v1.Color.DARK_CYAN: "#17b5b5",
-    metrics_v1.Color.LIGHT_PURPLE: "#acaaff",
-    metrics_v1.Color.PURPLE: "#8380ff",
-    metrics_v1.Color.DARK_PURPLE: "#5d5bb5",
-    metrics_v1.Color.LIGHT_PINK: "#f9a8e2",
-    metrics_v1.Color.PINK: "#ec48b6",
-    metrics_v1.Color.DARK_PINK: "#be187a",
-    metrics_v1.Color.LIGHT_BROWN: "#d4ad84",
-    metrics_v1.Color.BROWN: "#bf8548",
-    metrics_v1.Color.DARK_BROWN: "#885e33",
-    metrics_v1.Color.LIGHT_GRAY: "#acacac",
-    metrics_v1.Color.GRAY: "#8c8c8c",
-    metrics_v1.Color.DARK_GRAY: "#5d5d5d",
-    metrics_v1.Color.BLACK: "#1e262e",
-    metrics_v1.Color.WHITE: "#ffffff",
-}
-
-
-def _parse_color(color: metrics_v1.Color) -> str:
-    return _COLORS[color]
-
-
-def _parse_unit(unit: metrics_v1.Unit) -> Unit:
-    notation: Notation
-    match unit.notation:
-        case metrics_v1.DecimalNotation(symbol):
-            notation = DecimalNotation(symbol)
-        case metrics_v1.SINotation(symbol):
-            notation = SINotation(symbol)
-        case metrics_v1.IECNotation(symbol):
-            notation = IECNotation(symbol)
-        case metrics_v1.StandardScientificNotation(symbol):
-            notation = StandardScientificNotation(symbol)
-        case metrics_v1.EngineeringScientificNotation(symbol):
-            notation = EngineeringScientificNotation(symbol)
-        case metrics_v1.TimeNotation():
-            notation = TimeNotation()
-        case _:
-            assert_never(unit.notation)
-
-    precision: Precision
-    match unit.precision:
-        case metrics_v1.AutoPrecision(digits):
-            precision = AutoPrecision(digits)
-        case metrics_v1.StrictPrecision(digits):
-            precision = StrictPrecision(digits)
-        case _:
-            assert_never(unit.precision)
-
-    return Unit(notation=notation, precision=precision)
-
-
-_FALLBACK_COLOR = _COLORS[metrics_v1.Color.GRAY]
-_FALLBACK_UNIT = Unit(notation=DecimalNotation(""), precision=AutoPrecision(2))
-
-_WARN_COLOR = "#ffd000"
-_CRIT_COLOR = "#ff3232"
-_RULE_DISPLAY: Mapping[ScalarType, tuple[str, str | None]] = {
-    ScalarType.WARNING: ("Warning", _WARN_COLOR),
-    ScalarType.CRITICAL: ("Critical", _CRIT_COLOR),
-    ScalarType.LOWER_WARNING: ("Warning (lower)", _WARN_COLOR),
-    ScalarType.LOWER_CRITICAL: ("Critical (lower)", _CRIT_COLOR),
-    ScalarType.MINIMUM: ("Minimum", None),
-    ScalarType.MAXIMUM: ("Maximum", None),
-}
-
-
-def _metric_display_attributes(
-    metric_name: str,
-    localizer: Callable[[str], str],
-    registered_metrics: Mapping[str, metrics_v1.Metric],
-) -> CurveAttributes:
-    if (definition := registered_metrics.get(metric_name)) is None:
-        return CurveAttributes(title=metric_name, unit=_FALLBACK_UNIT, color=_FALLBACK_COLOR)
-    return CurveAttributes(
-        title=definition.title.localize(localizer),
-        unit=_parse_unit(definition.unit),
-        color=_parse_color(definition.color),
-    )
 
 
 @dataclass(frozen=True)
@@ -171,14 +66,14 @@ class _ParseContext:
 def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttributes:
     match quantity:
         case str():
-            return _metric_display_attributes(
+            return metric_display_attributes(
                 quantity, context.localizer, context.registered_metrics
             )
         case metrics_v1.Constant():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
-                unit=_parse_unit(quantity.unit),
-                color=_parse_color(quantity.color),
+                unit=parse_unit(quantity.unit),
+                color=parse_color(quantity.color),
             )
         case (
             metrics_v2_unstable.LowerWarningOf()
@@ -190,31 +85,31 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
         case metrics_v1.MinimumOf() | metrics_v1.MaximumOf():
             attributes = _curve_display(quantity.metric_name, context)
             return CurveAttributes(
-                title=attributes.title, unit=attributes.unit, color=_parse_color(quantity.color)
+                title=attributes.title, unit=attributes.unit, color=parse_color(quantity.color)
             )
         case metrics_v1.Sum():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
                 unit=_curve_display(quantity.summands[0], context).unit,
-                color=_parse_color(quantity.color),
+                color=parse_color(quantity.color),
             )
         case metrics_v1.Product():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
-                unit=_parse_unit(quantity.unit),
-                color=_parse_color(quantity.color),
+                unit=parse_unit(quantity.unit),
+                color=parse_color(quantity.color),
             )
         case metrics_v1.Difference():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
                 unit=_curve_display(quantity.minuend, context).unit,
-                color=_parse_color(quantity.color),
+                color=parse_color(quantity.color),
             )
         case metrics_v1.Fraction():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
-                unit=_parse_unit(quantity.unit),
-                color=_parse_color(quantity.color),
+                unit=parse_unit(quantity.unit),
+                color=parse_color(quantity.color),
             )
         case _:
             assert_never(quantity)
@@ -248,13 +143,13 @@ def _parse_quantity(quantity: _ApiQuantity, context: _ParseContext) -> Quantity:
             return ScalarOf(
                 metric=context.rrd_metric(quantity.metric_name),
                 scalar_type=ScalarType.MINIMUM,
-                color=_parse_color(quantity.color),
+                color=parse_color(quantity.color),
             )
         case metrics_v1.MaximumOf():
             return ScalarOf(
                 metric=context.rrd_metric(quantity.metric_name),
                 scalar_type=ScalarType.MAXIMUM,
-                color=_parse_color(quantity.color),
+                color=parse_color(quantity.color),
             )
         case metrics_v1.Sum():
             return Sum(
@@ -400,38 +295,14 @@ def _bidirectional_range(
     return upper
 
 
-def _attributes_for(
-    quantity: Quantity,
-    localizer: Callable[[str], str],
-    registered_metrics: Mapping[str, metrics_v1.Metric],
-) -> CurveAttributes:
-    match quantity:
-        case RRDMetric():
-            return _metric_display_attributes(quantity.metric_name, localizer, registered_metrics)
-        case ScalarOf():
-            attributes = _attributes_for(quantity.metric, localizer, registered_metrics)
-            label, type_color = _RULE_DISPLAY[quantity.scalar_type]
-            return CurveAttributes(
-                title=localizer(label),
-                unit=attributes.unit,
-                color=quantity.color or type_color or attributes.color,
-            )
-        case _:
-            display = getattr(quantity, "display", None)
-            return (
-                display
-                if isinstance(display, CurveAttributes)
-                else CurveAttributes(title="", unit=_FALLBACK_UNIT, color=_FALLBACK_COLOR)
-            )
-
-
 def build_curve(
     quantity: Quantity,
     localizer: Callable[[str], str],
     registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> Curve:
     return Curve(
-        quantity=quantity, attributes=_attributes_for(quantity, localizer, registered_metrics)
+        quantity=quantity,
+        attributes=quantity.attributes(localizer, registered_metrics) or FALLBACK_ATTRIBUTES,
     )
 
 
