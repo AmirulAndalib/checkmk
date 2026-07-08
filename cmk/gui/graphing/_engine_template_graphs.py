@@ -104,7 +104,7 @@ def evaluate_template_graphs(
 
 def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Sequence[EvaluatedGraph]:
     return evaluate_template_graphs(
-        graphs=_deserialize_template_graphs(request.definition),
+        graphs=_deserialize_template_graphs(request.graph),
         consolidation_function=consolidation_function_of(request.options),
         time_range=time_range_of(request.options),
         fetch_data=EngineRRDFetchData(

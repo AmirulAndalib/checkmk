@@ -18,7 +18,7 @@ from ._engine_serialization import ensure_type, Json
 @dataclass(frozen=True, kw_only=True)
 class GraphDataRequest:
     graph_type: str
-    definition: Mapping[str, object]
+    graph: Mapping[str, object]
     options: Mapping[str, object] = field(default_factory=dict)
 
 

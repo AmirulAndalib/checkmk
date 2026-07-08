@@ -49,7 +49,7 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
         evaluated = evaluate_graphs(
             GraphDataRequest(
                 graph_type=body.graph_type,
-                definition=body.internal,
+                graph=body.internal,
                 options={
                     "consolidation_function": _consolidation_function(body.consolidation_function),
                     "time_range": time_range,
