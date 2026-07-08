@@ -43,6 +43,7 @@ void main() {
     def disable_cache = params.DISABLE_CACHE;
     def do_rebase = params.CIPARAM_GATED_TRIGGER_REBASE;
     def do_automerge = params.CIPARAM_GATED_TRIGGER_AUTOMERGE;
+    def disable_signing = params.DISABLE_CMK_DISTRO_PACKAGE_SIGNING;
     def fake_artifacts = true;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
 
