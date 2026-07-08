@@ -86,8 +86,8 @@ sh_binary(
 
 format_multirun(
     name = "format",
-    c = "@clang-linux-x86_64//:bin/clang-format",
-    cc = "@clang-linux-x86_64//:bin/clang-format",
+    c = "@multitool_hub//tools/clang-format",
+    cc = "@multitool_hub//tools/clang-format",
     css = ":prettier",
     groovy = ":groovy-format",
     html = ":prettier",

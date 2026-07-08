@@ -1,6 +1,5 @@
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@bazel_env.bzl", "bazel_env")
-load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//bazel/tools:eslint/package_json.bzl", eslint_bin = "bin")
@@ -103,11 +102,6 @@ sh_binary(
     name = "mypy_cli",
     srcs = ["mypy_wrapper.sh"],
     data = [":mypy_cli_original"],
-)
-
-native_binary(
-    name = "clang_tidy",
-    src = "@clang-linux-x86_64//:bin/clang-tidy",
 )
 
 filegroup(
