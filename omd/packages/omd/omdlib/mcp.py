@@ -3,9 +3,10 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import re
 from pathlib import Path
 
-from omdlib.config_api import Config, Hook
+from omdlib.config_api import Config, Hook, null_action
 
 
 def _write_mcp_apache_conf(site_name: str, site_home: Path, config: Config) -> None:
@@ -53,4 +54,14 @@ MCP_SERVER = Hook(
     default=lambda _edition: "off",
     activation=_write_mcp_apache_conf,
     choices=[("on", "enable"), ("off", "disable")],
+)
+
+# Additional OTLP target for the MCP server's traces, independent of the
+# site-wide TRACE_SEND pipeline: spans go to both. Empty (the default)
+# disables it. Same URL shape as TRACE_SEND_TARGET.
+MCP_TRACE_FORWARD_URL = Hook(
+    name="MCP_TRACE_FORWARD_URL",
+    choices=re.compile(r"^(|https?://[^\:]+:[0-9]{4,5})$"),
+    default=lambda _edition: "",
+    activation=null_action,
 )
