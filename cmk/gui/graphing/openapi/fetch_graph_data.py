@@ -46,16 +46,19 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
         end=body.requested_time_range.end,
         step=body.requested_time_range.step,
     )
+    options: dict[str, object] = {
+        "consolidation_function": _consolidation_function(body.consolidation_function),
+        "time_range": time_range,
+        "destination": None,
+    }
+    if body.combination_mode is not None:
+        options["combination_mode"] = body.combination_mode
     try:
         evaluated = evaluate_graphs(
             GraphDataRequest(
                 graph_type=body.graph_type,
                 graph=body.internal,
-                options={
-                    "consolidation_function": _consolidation_function(body.consolidation_function),
-                    "time_range": time_range,
-                    "destination": None,
-                },
+                options=options,
             )
         )
     except MKLivestatusException as exc:

@@ -96,6 +96,17 @@ class GraphFetchRequest:
     consolidation_function: Literal["min", "max", "avg"] = api_field(
         description="The consolidation function to use for RRD data.", example="avg"
     )
+    combination_mode: Literal["lines", "stacked", "sum", "average", "min", "max"] | None = (
+        api_field(
+            description=(
+                "How to combine the same metric across services for a combined graph: aggregate "
+                "(sum/average/min/max) or show each service separately (lines/stacked). Defaults "
+                "to sum. Ignored by other graph types."
+            ),
+            example="sum",
+            default=None,
+        )
+    )
 
 
 @api_model
