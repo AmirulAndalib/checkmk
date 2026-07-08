@@ -73,6 +73,7 @@ py_library(
         "//cmk/gui/watolib:config_infra",
         "//cmk/gui/watolib:groups_io",
         "//cmk/gui/watolib:registries",
+        "//cmk/plugins",
         "//cmk/utils",
         "//cmk/utils:redis",
         "//cmk/utils:werks",

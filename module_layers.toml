@@ -1256,6 +1256,7 @@ allows = [
   "cmk.message_broker_certs",
   "cmk.metric_backend.gui",
   "cmk.otel_collector",
+  "cmk.plugins",
   "cmk.robotmk",
   "cmk.utils",
   "cmk.validate_config",
