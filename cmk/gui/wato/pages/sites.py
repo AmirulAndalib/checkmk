@@ -365,8 +365,7 @@ class ModeEditSite(WatoMode):
     def title(self) -> str:
         if self._new:
             return _("Add site connection")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit site connection %s") % self._site_id
+        return _("Edit site connection %(site_id)s") % {"site_id": self._site_id}
 
     def _breadcrumb_url(self) -> str:
         assert self._site_id is not None
@@ -898,8 +897,7 @@ class ModeEditBrokerConnection(WatoMode):
     def title(self) -> str:
         if self._is_new:
             return _("Add message broker connection")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit message broker connection %s") % self._edit_id
+        return _("Edit message broker connection %(edit_id)s") % {"edit_id": self._edit_id}
 
     def _breadcrumb_url(self) -> str:
         assert self._edit_id is not None
@@ -1240,14 +1238,13 @@ class ModeDistributedMonitoring(WatoMode):
         if non_empty_folders:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
                 _(
                     "You cannot delete this connection. It still has non-empty "
-                    "folders/hosts assigned to it: %s"
+                    "folders/hosts assigned to it: %(folders)s"
                     "You need to first navigate to each folder and move/remove the nested "
                     "folders/hosts."
                 )
-                % self._build_urls_for_folders(non_empty_folders),
+                % {"folders": self._build_urls_for_folders(non_empty_folders)},
             )
 
         if empty_folders:
@@ -1256,13 +1253,15 @@ class ModeDistributedMonitoring(WatoMode):
             )
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
                 _(
                     "You cannot delete this connection. It still has empty folders assigned "
-                    "to it: %s. "
-                    'If you want us to remove these automatically, click <a href="%s">delete</a>.'
+                    "to it: %(folders)s. "
+                    'If you want us to remove these automatically, click <a href="%(delete_url)s">delete</a>.'
                 )
-                % (self._build_urls_for_folders(empty_folders), delete_folders_url),
+                % {
+                    "folders": self._build_urls_for_folders(empty_folders),
+                    "delete_url": delete_folders_url,
+                },
             )
 
         self._site_mgmt.delete_site(
@@ -1327,8 +1326,8 @@ class ModeDistributedMonitoring(WatoMode):
         pending_changes.add(
             Change(
                 action_name="edit-site",
-                # astrein: disable=localization-named-placeholder
-                text=_("Logged out of remote site %s") % HTMLWriter.render_tt(site["alias"]),
+                text=_("Logged out of remote site %(site_alias)s")
+                % {"site_alias": HTMLWriter.render_tt(site["alias"])},
                 domains=[ConfigDomainGUI().ident()],
             ),
             ChangeScope.local_site(),
@@ -1370,10 +1369,9 @@ class ModeDistributedMonitoring(WatoMode):
                     activate=True,
                     pprint_value=pprint_value,
                 )
-                # astrein: disable=localization-named-placeholder
-                message = _("Successfully logged into remote site %s.") % HTMLWriter.render_tt(
-                    site["alias"]
-                )
+                message = _("Successfully logged into remote site %(site_alias)s.") % {
+                    "site_alias": HTMLWriter.render_tt(site["alias"])
+                }
                 trigger_remote_certs_creation(login_id, site, force=False, debug=debug)
                 distribute_license_to_remotes(
                     logger,
@@ -1400,30 +1398,28 @@ class ModeDistributedMonitoring(WatoMode):
                 logger.exception("error logging in")
                 if debug:
                     raise
-                # astrein: disable=localization-named-placeholder
-                error = (_("Internal error: %s\n%s") % (e, traceback.format_exc())).replace(
-                    "\n", "\n<br>"
-                )
+                error = (
+                    _("Internal error: %(error)s\n%(traceback)s")
+                    % {"error": e, "traceback": traceback.format_exc()}
+                ).replace("\n", "\n<br>")
                 user_errors.add(MKUserError("_name", error))
 
         wato_html_head(
-            # astrein: disable=localization-named-placeholder
-            title=_('Login into site "%s"') % site["alias"],
+            title=_('Login into site "%(site_alias)s"') % {"site_alias": site["alias"]},
             breadcrumb=self.breadcrumb(),
         )
         if error:
             html.show_error(error)
 
         html.p(
-            # astrein: disable=localization-named-placeholder
             _(
                 "One manual login as administrator to the graphical user interface (GUI) of the remote site"
-                ' "%s" is required to initialize the connection.'
+                ' "%(site_alias)s" is required to initialize the connection.'
                 " The credentials will only be used for the initial handshake and not be stored."
                 " If the login is successful, then both sides will exchange a login secret"
                 " which will be used for subsequent remote calls."
             )
-            % HTMLWriter.render_tt(site["alias"])
+            % {"site_alias": HTMLWriter.render_tt(site["alias"])}
         )
 
         with html.form_context("login", method="POST"):
@@ -1564,8 +1560,9 @@ class ModeDistributedMonitoring(WatoMode):
             title = _("Site-specific global configuration")
             if has_site_globals:
                 icon = StaticIcon(IconNames.site_globals_modified)
-                # astrein: disable=localization-named-placeholder
-                title += " (%s)" % (_("%d specific settings") % len(site.get("globals", {})))
+                title += " (%s)" % (
+                    _("%(count)d specific settings") % {"count": len(site.get("globals", {}))}
+                )
             else:
                 icon = StaticIcon(IconNames.site_globals)
 
@@ -1761,12 +1758,13 @@ class PageAjaxFetchSiteStatus(AjaxPage):
         if status.success:
             assert not isinstance(status.response, Exception)
             icon = StaticIcon(IconNames.checkmark)
-            # astrein: disable=localization-named-placeholder
-            msg = _("Online (%s)") % make_site_version_info(
-                status.response.version,
-                status.response.edition,
-                status.response.license_state,
-            )
+            msg = _("Online (%(version_info)s)") % {
+                "version_info": make_site_version_info(
+                    status.response.version,
+                    status.response.edition,
+                    status.response.license_state,
+                )
+            }
         else:
             assert isinstance(status.response, Exception)
             icon = StaticIcon(IconNames.cross)
@@ -1851,10 +1849,9 @@ class PageAjaxFetchSiteStatus(AjaxPage):
                     "Connection to port %(remote_port)s refused. The site is using a self-signed certificate. Are you logged in?"
                 ) % {"remote_port": remote_port}
             case ConnectionRefused.CERTIFICATE_VERIFY_FAILED:
-                # astrein: disable=localization-named-placeholder
                 return StaticIcon(IconNames.cross), _(
-                    "Connection to port %s refused: Invalid certificate"
-                )
+                    "Connection to port %(remote_port)s refused: Invalid certificate"
+                ) % {"remote_port": remote_port}
             case ConnectionRefused.CLOSED:
                 return StaticIcon(IconNames.cross), _("Not available")
 
@@ -1911,8 +1908,7 @@ class ModeEditSiteGlobals(ABCGlobalSettingsMode):
             self._current_settings = self._site.get("globals", {})
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Edit site-specific global settings of %s") % self._site_id
+        return _("Edit site-specific global settings of %(site_id)s") % {"site_id": self._site_id}
 
     def _breadcrumb_url(self) -> str:
         return self.mode_url(site=self._site_id)
@@ -1968,11 +1964,10 @@ class ModeEditSiteGlobals(ABCGlobalSettingsMode):
 
         self._current_settings[varname] = new_value
 
-        # astrein: disable=localization-named-placeholder
-        msg = _("Changed site-specific configuration variable %s to %s.") % (
-            varname,
-            _("on") if self._current_settings[varname] else _("off"),
-        )
+        msg = _("Changed site-specific configuration variable %(varname)s to %(value)s.") % {
+            "varname": varname,
+            "value": _("on") if self._current_settings[varname] else _("off"),
+        }
 
         self._site.setdefault("globals", {})[varname] = self._current_settings[varname]
         self._site_mgmt.save_sites(
@@ -2077,8 +2072,7 @@ class ModeEditSiteGlobalSetting(ABCEditGlobalSettingMode):
         self._global_settings = load_configuration_settings()
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Site-specific global configuration for %s") % self._site_id
+        return _("Site-specific global configuration for %(site_id)s") % {"site_id": self._site_id}
 
     def _affected_sites(self) -> list[SiteId]:
         return [self._site_id]
@@ -2130,8 +2124,7 @@ class ModeSiteLivestatusEncryption(WatoMode):
             raise MKUserError("site", _("This site does not exist."))
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Livestatus encryption of %s") % self._site_id
+        return _("Livestatus encryption of %(site_id)s") % {"site_id": self._site_id}
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return PageMenu(
@@ -2180,9 +2173,8 @@ class ModeSiteLivestatusEncryption(WatoMode):
         if (cert_str := cert_pem.decode()) in trusted_cas:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _('The CA is already a <a href="%s">trusted CA</a>.')
-                % "wato.py?mode=edit_configvar&varname=trusted_certificate_authorities",
+                _('The CA is already a <a href="%(url)s">trusted CA</a>.')
+                % {"url": "wato.py?mode=edit_configvar&varname=trusted_certificate_authorities"},
             )
 
         trusted_cas.append(cert_str)
@@ -2301,12 +2293,11 @@ class ModeSiteLivestatusEncryption(WatoMode):
         if cert.verify_result.is_valid:
             return _("Yes")
 
-        # astrein: disable=localization-named-placeholder
-        return _("No (error: %s, code: %d, depth: %d)") % (
-            cert.verify_result.error_message,
-            cert.verify_result.error_number,
-            cert.verify_result.error_depth,
-        )
+        return _("No (error: %(error)s, code: %(code)d, depth: %(depth)d)") % {
+            "error": cert.verify_result.error_message,
+            "code": cert.verify_result.error_number,
+            "depth": cert.verify_result.error_depth,
+        }
 
     def _cert_trusted_css_class(self, cert: CertificateDetails) -> str:
         return "state state0" if cert.verify_result.is_valid else "state state2"
