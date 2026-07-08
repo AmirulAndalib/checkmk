@@ -543,7 +543,7 @@ allows = [
 ]
 
 [components."cmk.bi"]
-allows = ["@ccc", "cmk.fields", "cmk.utils", "livestatus"]
+allows = ["@ccc", "@livestatus_client", "cmk.fields", "cmk.utils"]
 
 [components."cmk.ccc"]
 allows = ["@trace"]
