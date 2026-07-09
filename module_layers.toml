@@ -1429,6 +1429,9 @@ allows = [
 [components."cmk.testlib.agent_receiver"]
 allows = ["@crypto", "@relay_protocols", "cmk.agent_receiver"]
 
+[components."cmk.testlib.mcp"]
+allows = ["cmk.mcp"]
+
 [components."cmk.testlib.metric_backend"]
 allows = ["cmk.metric_backend"]
 
