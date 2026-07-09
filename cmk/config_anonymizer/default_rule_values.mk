@@ -3665,7 +3665,7 @@ checkgroup_parameters['jvm_memory_pools'] = [
 checkgroup_parameters.setdefault('jvm_queue', [])
 
 checkgroup_parameters['jvm_queue'] = [
-{'id': '46a02733-f494-47d6-ab87-3582084c964c', 'value': {'levels': None}, 'condition': {}, 'options': {'disabled': False}},
+{'id': '46a02733-f494-47d6-ab87-3582084c964c', 'value': {'levels_upper': ('no_levels', None)}, 'condition': {}, 'options': {'disabled': False}},
 ] + checkgroup_parameters['jvm_queue']
 
 
@@ -9569,7 +9569,7 @@ static_checks['jvm_memory_pools'] = [
 static_checks.setdefault('jvm_queue', [])
 
 static_checks['jvm_queue'] = [
-{'id': '31ac324e-38bf-4dde-ac0a-53e80b554517', 'value': ('jolokia_metrics_bea_queue', 'example', {'levels': None}), 'condition': {}, 'options': {'disabled': False}},
+{'id': '31ac324e-38bf-4dde-ac0a-53e80b554517', 'value': ('jolokia_metrics_bea_queue', 'example', {'levels_upper': ('no_levels', None)}), 'condition': {}, 'options': {'disabled': False}},
 ] + static_checks['jvm_queue']
 
 
