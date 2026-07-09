@@ -8,7 +8,7 @@ from __future__ import annotations
 import enum
 import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass, field, KW_ONLY
+from dataclasses import dataclass, field
 from typing import assert_never, Protocol
 
 from cmk.graphing.v1 import metrics as metrics_v1
@@ -316,9 +316,8 @@ class Product:
         return self.display
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Difference:
-    _: KW_ONLY
     minuend: Quantity
     subtrahend: Quantity
     display: CurveAttributes | None = None
@@ -346,9 +345,8 @@ class Difference:
         return self.display
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Fraction:
-    _: KW_ONLY
     dividend: Quantity
     divisor: Quantity
     display: CurveAttributes | None = None
