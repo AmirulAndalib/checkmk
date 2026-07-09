@@ -191,20 +191,16 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
             | metrics_v1.WarningOf()
             | metrics_v1.CriticalOf()
         ):
-            metric = _metric_display_attributes(
-                quantity.metric_name, context.localizer, context.registered_metrics
-            )
+            attributes = _curve_display(quantity.metric_name, context)
             return CurveAttributes(
-                title=metric.title,
-                unit=metric.unit,
+                title=attributes.title,
+                unit=attributes.unit,
                 color=context.metric_color(quantity.metric_name),
             )
         case metrics_v1.MinimumOf() | metrics_v1.MaximumOf():
-            metric = _metric_display_attributes(
-                quantity.metric_name, context.localizer, context.registered_metrics
-            )
+            attributes = _curve_display(quantity.metric_name, context)
             return CurveAttributes(
-                title=metric.title, unit=metric.unit, color=_parse_color(quantity.color)
+                title=attributes.title, unit=attributes.unit, color=_parse_color(quantity.color)
             )
         case metrics_v1.Sum():
             return CurveAttributes(
