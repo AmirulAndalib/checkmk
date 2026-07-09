@@ -3,47 +3,64 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
-
 # oid(".1.3.6.1.4.1.9.9.109.1.1.1.1.5.1") is depreceated by
 # oid(".1.3.6.1.4.1.9.9.109.1.1.1.1.8.1"), we recognize both for now
 
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Any
+
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
 from cmk.agent_based.v2 import (
     all_of,
     any_of,
+    CheckPlugin,
+    CheckResult,
     contains,
+    DiscoveryResult,
     exists,
     not_contains,
     not_exists,
     render,
+    Result,
+    Service,
+    SimpleSNMPSection,
     SNMPTree,
+    State,
     StringTable,
 )
 
-check_info = dict[str, LegacyCheckDefinition]()
+
+@dataclass(frozen=True)
+class Section:
+    old_oid: str
+    new_oid: str
 
 
-def discover_cisco_cpu(info):
-    if info and (info[0][0].isdigit() or info[0][1].isdigit()):
-        yield None, {}
+def discover_cisco_cpu(section: Section) -> DiscoveryResult:
+    if section.old_oid.isdigit() or section.new_oid.isdigit():
+        yield Service()
 
 
-def check_cisco_cpu(item, params, info):
-    # Value of info could be (None, None) or ("", "").
-    if not info[0][0].isdigit() and not info[0][1].isdigit():
-        return 3, "No information about the CPU utilization available"
+def check_cisco_cpu(params: Mapping[str, Any], section: Section) -> CheckResult:
+    # Value of section could be (None, None) or ("", "").
+    if not section.old_oid.isdigit() and not section.new_oid.isdigit():
+        yield Result(
+            state=State.UNKNOWN, summary="No information about the CPU utilization available"
+        )
+        return
 
-    if info[0][1]:
-        util = float(info[0][1])
-    else:
-        util = float(info[0][0])
+    util = float(section.new_oid) if section.new_oid else float(section.old_oid)
 
-    warn, crit = params.get("util", (None, None)) if isinstance(params, dict) else params
+    if not isinstance(params, dict):
+        params = {"util": params}
+    warn, crit = params.get("util", (None, None))
 
-    return check_levels(
+    yield from check_levels(
         util,
         "util",
         (warn, crit),
@@ -53,13 +70,14 @@ def check_cisco_cpu(item, params, info):
     )
 
 
-def parse_cisco_cpu(string_table: StringTable) -> StringTable:
-    return string_table
+def parse_cisco_cpu(string_table: StringTable) -> Section | None:
+    if not string_table:
+        return None
+    return Section(old_oid=string_table[0][0], new_oid=string_table[0][1])
 
 
-check_info["cisco_cpu"] = LegacyCheckDefinition(
+snmp_section_cisco_cpu = SimpleSNMPSection(
     name="cisco_cpu",
-    parse_function=parse_cisco_cpu,
     detect=all_of(
         contains(".1.3.6.1.2.1.1.1.0", "cisco"),
         any_of(
@@ -74,6 +92,12 @@ check_info["cisco_cpu"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.9.9.109.1.1.1.1",
         oids=["5", "8"],
     ),
+    parse_function=parse_cisco_cpu,
+)
+
+
+check_plugin_cisco_cpu = CheckPlugin(
+    name="cisco_cpu",
     service_name="CPU utilization",
     discovery_function=discover_cisco_cpu,
     check_function=check_cisco_cpu,
