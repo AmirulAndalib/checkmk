@@ -9,7 +9,7 @@ import enum
 import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, KW_ONLY
-from typing import Protocol
+from typing import assert_never, Protocol
 
 from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import FetchedData, HostName, MetricName, PerformanceData, ServiceName, TimeSeries
@@ -173,16 +173,6 @@ class ScalarType(enum.StrEnum):
     MAXIMUM = "maximum"
 
 
-_SCALAR_VALUE: Mapping[ScalarType, Callable[[PerformanceData], float | None]] = {
-    ScalarType.WARNING: lambda data: data.warning,
-    ScalarType.CRITICAL: lambda data: data.critical,
-    ScalarType.LOWER_WARNING: lambda data: data.lower_warning,
-    ScalarType.LOWER_CRITICAL: lambda data: data.lower_critical,
-    ScalarType.MINIMUM: lambda data: data.minimum,
-    ScalarType.MAXIMUM: lambda data: data.maximum,
-}
-
-
 @dataclass(frozen=True)
 class ScalarOf:
     metric: RRDMetric
@@ -198,7 +188,21 @@ class ScalarOf:
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         if (data := context.data_of(self.metric)) is None:
             return None
-        value = _SCALAR_VALUE[self.scalar_type](data)
+        match self.scalar_type:
+            case ScalarType.WARNING:
+                value = data.warning
+            case ScalarType.CRITICAL:
+                value = data.critical
+            case ScalarType.LOWER_WARNING:
+                value = data.lower_warning
+            case ScalarType.LOWER_CRITICAL:
+                value = data.lower_critical
+            case ScalarType.MINIMUM:
+                value = data.minimum
+            case ScalarType.MAXIMUM:
+                value = data.maximum
+            case _:
+                assert_never(self.scalar_type)
         return EvaluatedQuantity(
             value=value, time_series=_constant_time_series(value, context.time_range)
         )
