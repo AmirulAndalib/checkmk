@@ -267,6 +267,7 @@ class ConfigGeneratorLocalSiteConnection(SampleConfigGenerator):
                         "timeout": 5,
                         "user_login": True,
                         "proxy": None,
+                        "authentication_connections": "all",
                         "user_attribute_sync_connections": "all",
                         "status_host": None,
                         "message_broker_port": 5672,

@@ -459,7 +459,6 @@ class SiteManagement:
             wrapped_form_spec=CascadingSingleChoiceExtended(
                 title=Title("Authentication connections"),
                 elements=elements,
-                prefill=DefaultValue("list"),
                 help_text=help_text,
                 layout=CascadingSingleChoiceLayout.vertical,
             ),
@@ -638,7 +637,6 @@ class SiteManagement:
             wrapped_form_spec=CascadingSingleChoiceExtended(
                 title=Title("Attribute Sync Connections"),
                 elements=elements,
-                prefill=DefaultValue("all"),
                 help_text=Help(
                     "Periodic user attribute synchronization keeps existing user attributes "
                     "(alias, email, roles, contact groups) up to date on this site."

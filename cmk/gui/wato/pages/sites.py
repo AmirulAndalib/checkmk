@@ -333,7 +333,7 @@ class ModeEditSite(WatoMode):
                 persist=False,
                 proxy={},
                 message_broker_port=5672,
-                authentication_connections=[],
+                authentication_connections="all",
                 user_attribute_sync_connections="all",
                 status_host=None,
                 replicate_mkps=True,
