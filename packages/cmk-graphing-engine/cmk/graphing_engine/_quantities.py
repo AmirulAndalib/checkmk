@@ -75,9 +75,10 @@ def _op_sum(point: Sequence[float | None]) -> float | None:
 
 
 def _op_product(point: Sequence[float | None]) -> float | None:
-    if None in point:
+    present = [value for value in point if value is not None]
+    if len(present) != len(point):
         return None
-    return math.prod(value for value in point if value is not None)
+    return math.prod(present)
 
 
 def _op_difference(point: Sequence[float | None]) -> float | None:
