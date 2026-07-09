@@ -35,15 +35,8 @@ if (
     # into the execed omd call. The OMD call must import the python version related
     # modules and libaries. This only works when PYTHONPATH and LD_LIBRARY_PATH are
     # not already set when calling "omd update"
-    try:  # noqa: SIM105
-        del os.environ["PYTHONPATH"]
-    except KeyError:
-        pass
-
-    try:  # noqa: SIM105
-        del os.environ["LD_LIBRARY_PATH"]
-    except KeyError:
-        pass
+    os.environ.pop("PYTHONPATH", None)
+    os.environ.pop("LD_LIBRARY_PATH", None)
     os.execv(sys.argv[0], sys.argv)
     sys.exit("Cannot run execv() %s" % sys.argv[0])
 
