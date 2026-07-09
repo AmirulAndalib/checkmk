@@ -232,7 +232,8 @@ def test_dump_agent_error(execute: Execute) -> None:
     for opt in ["--dump-agent", "-d"]:
         p = execute(["cmk", opt, "modes-test-host4"])
         assert p.returncode == 1, on_failure(p)
-        assert p.stdout.rstrip("\n") == output_long
+        assert p.stdout == ""
+        assert output_long in p.stderr  # No equality because of additional logging data
         assert "[agent]: Program exited " in p.stderr
 
 

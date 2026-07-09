@@ -57,7 +57,7 @@ from cmk.trace.export import (
 )
 from cmk.utils.log import console
 
-cmk.utils.log.setup_console_logging()
+cmk.utils.log.setup_logging_handler(sys.stderr)
 logger = logging.getLogger("cmk.base")
 
 cmk.base.utils.register_sigint_handler()
