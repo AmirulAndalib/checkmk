@@ -1,5 +1,11 @@
 # Windows PowerShell unit test.
 filegroup(
+    name = "mk_mysql_tests",
+    srcs = ["mk_mysql.Tests.ps1"],
+    tags = ["lint-with-psscriptanalyzer"],
+)
+
+filegroup(
     name = "powershell_scripts",
     srcs = [
         "hyperv_host.Tests.ps1",
