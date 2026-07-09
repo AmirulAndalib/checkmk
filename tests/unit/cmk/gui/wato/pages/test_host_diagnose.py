@@ -181,7 +181,9 @@ def _render_vs_host(value: dict[str, object]) -> BeautifulSoup:
 
 
 def _input_by_name(soup: BeautifulSoup, name: str) -> dict[str, str]:
-    el = soup.find(attrs={"name": name})
+    # NOTE: beautifulsoup4 4.15.0 seriously screwed up its typing annotations,
+    # here we are hit by an incorrect variance... :-/
+    el = soup.find(attrs={"name": name})  # type: ignore[call-overload]
     assert el is not None, f"missing form element with name={name!r}"
     return {k: str(v) for k, v in el.attrs.items()}
 
