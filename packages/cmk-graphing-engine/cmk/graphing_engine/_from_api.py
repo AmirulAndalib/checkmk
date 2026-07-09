@@ -167,11 +167,6 @@ class _ParseContext:
             metric_name=MetricName(metric_name),
         )
 
-    def metric_color(self, metric_name: str) -> str:
-        if (definition := self.registered_metrics.get(metric_name)) is None:
-            return _FALLBACK_COLOR
-        return _parse_color(definition.color)
-
 
 def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttributes:
     match quantity:
@@ -191,12 +186,7 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
             | metrics_v1.WarningOf()
             | metrics_v1.CriticalOf()
         ):
-            attributes = _curve_display(quantity.metric_name, context)
-            return CurveAttributes(
-                title=attributes.title,
-                unit=attributes.unit,
-                color=context.metric_color(quantity.metric_name),
-            )
+            return _curve_display(quantity.metric_name, context)
         case metrics_v1.MinimumOf() | metrics_v1.MaximumOf():
             attributes = _curve_display(quantity.metric_name, context)
             return CurveAttributes(
