@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "attribute_filter",
+  "anyOf": [
+    {
+      "$ref": "#/$defs/attribute_filter_equals"
+    },
+    {
+      "$ref": "#/$defs/attribute_filter_exists"
+    },
+    {
+      "$ref": "#/$defs/attribute_filter_and"
+    },
+    {
+      "$ref": "#/$defs/attribute_filter_or"
+    }
+  ],
+  "$defs": {
+    "attribute_kind": {
+      "type": "string",
+      "enum": ["scope", "resource", "data_point"]
+    },
+    "attribute_key": {
+      "type": "object",
+      "title": "attribute_key",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/attribute_kind"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["kind", "name"]
+    },
+    "attribute_filter_equals": {
+      "type": "object",
+      "title": "attribute_filter_equals",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["equals"]
+        },
+        "key": {
+          "$ref": "#/$defs/attribute_key"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": ["type", "key", "value"]
+    },
+    "attribute_filter_exists": {
+      "type": "object",
+      "title": "attribute_filter_exists",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["exists"]
+        },
+        "key": {
+          "$ref": "#/$defs/attribute_key"
+        }
+      },
+      "required": ["type", "key"]
+    },
+    "attribute_filter_and": {
+      "type": "object",
+      "title": "attribute_filter_and",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["and"]
+        },
+        "conjuncts": {
+          "type": "array",
+          "items": {
+            "$ref": "#"
+          }
+        }
+      },
+      "required": ["type", "conjuncts"]
+    },
+    "attribute_filter_or": {
+      "type": "object",
+      "title": "attribute_filter_or",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["or"]
+        },
+        "disjuncts": {
+          "type": "array",
+          "items": {
+            "$ref": "#"
+          }
+        }
+      },
+      "required": ["type", "disjuncts"]
+    }
+  }
+}
