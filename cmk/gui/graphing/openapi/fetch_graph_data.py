@@ -54,6 +54,7 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
                 options={
                     "consolidation_function": _consolidation_function(body.consolidation_function),
                     "time_range": time_range,
+                    "destination": None,
                 },
             )
         )

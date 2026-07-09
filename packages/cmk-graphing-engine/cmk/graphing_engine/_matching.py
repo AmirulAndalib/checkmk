@@ -33,7 +33,10 @@ def _matches(
     if any(MetricName(name) in available for name in graph.conflicting):
         return False
     optional = frozenset(MetricName(name) for name in graph.optional)
-    return all(name in available for name in names if name not in optional)
+    required = [name for name in names if name not in optional]
+    if required:
+        return all(name in available for name in required)
+    return any(name in available for name in names)
 
 
 @dataclass(frozen=True, kw_only=True)
