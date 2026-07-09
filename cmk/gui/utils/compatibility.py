@@ -83,7 +83,8 @@ def is_distributed_setup_compatible_for_licensing(
 
     if remote_license_state is LicenseState.FREE:
         return LicenseStateIncompatible(
-            "Remote site in license state %s is not allowed" % remote_license_state.readable
+            _("Remote site in license state %(license_state)s is not allowed")
+            % {"license_state": remote_license_state.readable}
         )
 
     if not isinstance(
