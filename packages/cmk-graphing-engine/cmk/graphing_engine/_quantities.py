@@ -28,16 +28,19 @@ class EvaluationContext:
     time_range: TimeRange
     fetched: Mapping[Metric, Sequence[FetchedData]] = field(default_factory=dict)
 
-    def data_of(self, metric: RRDMetric) -> PerformanceData | None:
+    def fetched_of(self, metric: Metric) -> Sequence[FetchedData]:
+        return self.fetched.get(metric, ())
+
+    def data_of(self, metric: Metric) -> PerformanceData | None:
         performance_data: PerformanceData | None = None
-        for data in self.fetched.get(metric, ()):
+        for data in self.fetched_of(metric):
             if data.performance_data is not None:
                 performance_data = data.performance_data
         return performance_data
 
-    def time_series_of(self, metric: RRDMetric) -> TimeSeries | None:
+    def time_series_of(self, metric: Metric) -> TimeSeries | None:
         time_series: TimeSeries | None = None
-        for data in self.fetched.get(metric, ()):
+        for data in self.fetched_of(metric):
             if data.time_series is not None:
                 time_series = data.time_series
         return time_series
@@ -161,7 +164,7 @@ class RRDMetric:
         return "rrd_metric"
 
     def ident(self) -> str:
-        return f"metric:{self.host_name}/{self.service_name}/{self.metric_name}"
+        return f"rrd_metric:{self.host_name}/{self.service_name}/{self.metric_name}"
 
     def metrics(self) -> Iterable[Metric]:
         yield self

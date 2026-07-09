@@ -111,7 +111,7 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
         ),
     )
     assert result.lines[0].curve == EvaluatedCurve(
-        id="negated(metric:h/svc/a)",
+        id="negated(rrd_metric:h/svc/a)",
         attributes=attributes,
         value=-3.0,
         time_series=TimeSeries(time_range=_TR, values=[-1.0, None, -3.0]),
