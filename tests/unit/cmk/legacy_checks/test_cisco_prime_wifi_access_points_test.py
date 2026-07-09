@@ -3,28 +3,26 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-untyped-call"
-
 # NOTE: This file has been created by an LLM (from something that was worse).
 # It mostly serves as test to ensure we don't accidentally break anything.
 # If you encounter something weird in here, do not hesitate to replace this
 # test by something more appropriate.
 
-from collections.abc import Mapping
 from typing import Any
 
 import pytest
 
+from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
 from cmk.legacy_checks.cisco_prime_wifi_access_points import (
     check_cisco_prime_wifi_access_points,
     discover_cisco_prime_wifi_access_points,
     parse_cisco_prime_wifi_access_points,
+    Section,
 )
 
 
 @pytest.fixture(name="string_table")
-def string_table_fixture() -> list[list[str]]:
+def string_table_fixture() -> StringTable:
     """Test data for Cisco Prime WiFi access points"""
     return [
         [
@@ -110,12 +108,12 @@ def string_table_fixture() -> list[list[str]]:
 
 
 @pytest.fixture(name="parsed")
-def parsed_fixture(string_table: list[list[str]]) -> Mapping[str, Any]:
+def parsed_fixture(string_table: StringTable) -> Section:
     """Parsed Cisco Prime WiFi access points data"""
     return parse_cisco_prime_wifi_access_points(string_table)
 
 
-def test_parse_cisco_prime_wifi_access_points(string_table: list[list[str]]) -> None:
+def test_parse_cisco_prime_wifi_access_points(string_table: StringTable) -> None:
     """Test Cisco Prime WiFi access points parsing extracts correct data"""
     parsed = parse_cisco_prime_wifi_access_points(string_table)
 
@@ -148,13 +146,12 @@ def test_parse_cisco_prime_wifi_access_points_empty() -> None:
     assert len(parsed) == 0
 
 
-def test_discover_cisco_prime_wifi_access_points(parsed: dict[str, Any]) -> None:
+def test_discover_cisco_prime_wifi_access_points(parsed: Section) -> None:
     """Test Cisco Prime WiFi access points discovery"""
     discovered = list(discover_cisco_prime_wifi_access_points(parsed))
 
     # Should discover one service (aggregate check)
-    assert len(discovered) == 1
-    assert discovered[0] == (None, {})
+    assert discovered == [Service()]
 
 
 def test_discover_cisco_prime_wifi_access_points_empty() -> None:
@@ -163,39 +160,38 @@ def test_discover_cisco_prime_wifi_access_points_empty() -> None:
     assert len(discovered) == 0
 
 
-def test_check_cisco_prime_wifi_access_points_normal(parsed: dict[str, Any]) -> None:
+def test_check_cisco_prime_wifi_access_points_normal(parsed: Section) -> None:
     """Test Cisco Prime WiFi access points check with normal thresholds"""
     params = {"levels": (20.0, 40.0)}
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, parsed))
+    result = list(check_cisco_prime_wifi_access_points(params, parsed))
 
     # Should have percentage check + status counts
     assert len(result) >= 2
 
     # First result should be the percentage critical check
     percent_result = result[0]
-    assert percent_result[0] == 1  # WARNING state (33.3% critical >= 20% threshold)
-    assert "Percent Critical" in percent_result[1]
-    assert "33.33%" in percent_result[1]  # 1 critical out of 3 total = 33.3%
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.WARN  # 33.3% critical >= 20% threshold
+    assert "Percent Critical" in percent_result.summary
+    assert "33.33%" in percent_result.summary  # 1 critical out of 3 total = 33.3%
 
     # Check performance data
-    perf_data = percent_result[2]
-    assert len(perf_data) == 1
-    assert perf_data[0][0] == "ap_devices_percent_unhealthy"
-    assert abs(perf_data[0][1] - 33.333333) < 0.001  # 1/3 * 100
+    percent_metric = result[1]
+    assert isinstance(percent_metric, Metric)
+    assert percent_metric.name == "ap_devices_percent_unhealthy"
+    assert abs(percent_metric.value - 33.333333) < 0.001  # 1/3 * 100
 
     # Check status counts in remaining results
-    status_results = result[1:]
-    status_texts = [res[1] for res in status_results]
-    status_text = " ".join(status_texts)
+    status_texts = " ".join(res.summary for res in result[2:] if isinstance(res, Result))
 
-    assert "Cleared: 2" in status_text
-    assert "Critical: 1" in status_text
+    assert "Cleared: 2" in status_texts
+    assert "Critical: 1" in status_texts
 
 
 def test_check_cisco_prime_wifi_access_points_warning_threshold() -> None:
     """Test Cisco Prime WiFi access points check with warning threshold exceeded"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CLEARED"},
         "2": {"status": "CRITICAL"},
         "3": {"status": "CRITICAL"},
@@ -204,18 +200,19 @@ def test_check_cisco_prime_wifi_access_points_warning_threshold() -> None:
 
     params = {"levels": (40.0, 60.0)}  # 50% critical should trigger warning
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # First result should be WARNING (50% critical >= 40% warning threshold)
     percent_result = result[0]
-    assert percent_result[0] == 1  # WARNING state
-    assert "Percent Critical" in percent_result[1]
-    assert "50.00%" in percent_result[1]
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.WARN
+    assert "Percent Critical" in percent_result.summary
+    assert "50.00%" in percent_result.summary
 
 
 def test_check_cisco_prime_wifi_access_points_critical_threshold() -> None:
     """Test Cisco Prime WiFi access points check with critical threshold exceeded"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CRITICAL"},
         "2": {"status": "CRITICAL"},
         "3": {"status": "CRITICAL"},
@@ -224,36 +221,38 @@ def test_check_cisco_prime_wifi_access_points_critical_threshold() -> None:
 
     params = {"levels": (20.0, 40.0)}  # 75% critical should trigger critical
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # First result should be CRITICAL (75% critical >= 40% critical threshold)
     percent_result = result[0]
-    assert percent_result[0] == 2  # CRITICAL state
-    assert "Percent Critical" in percent_result[1]
-    assert "75.00%" in percent_result[1]
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.CRIT
+    assert "Percent Critical" in percent_result.summary
+    assert "75.00%" in percent_result.summary
 
 
 def test_check_cisco_prime_wifi_access_points_no_thresholds() -> None:
     """Test Cisco Prime WiFi access points check with no thresholds configured"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CLEARED"},
         "2": {"status": "CRITICAL"},
     }
 
-    params = {"levels": (None, None)}
+    params: dict[str, Any] = {"levels": (None, None)}
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # Should always be OK when no thresholds are set
     percent_result = result[0]
-    assert percent_result[0] == 0  # OK state
-    assert "Percent Critical" in percent_result[1]
-    assert "50.00%" in percent_result[1]
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.OK
+    assert "Percent Critical" in percent_result.summary
+    assert "50.00%" in percent_result.summary
 
 
 def test_check_cisco_prime_wifi_access_points_various_statuses() -> None:
     """Test Cisco Prime WiFi access points check with various status types"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CLEARED"},
         "2": {"status": "CRITICAL"},
         "3": {"status": "WARNING"},
@@ -264,17 +263,10 @@ def test_check_cisco_prime_wifi_access_points_various_statuses() -> None:
 
     params = {"levels": (20.0, 40.0)}
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # Should count each status type
-    status_results = result[1:]
-    status_performance_data = []
-    for res in status_results:
-        if len(res) == 3 and res[2]:  # Has performance data
-            status_performance_data.extend(res[2])
-
-    # Check that all status types are counted
-    perf_metrics = [perf[0] for perf in status_performance_data]
+    perf_metrics = [res.name for res in result if isinstance(res, Metric)]
     assert "ap_devices_cleared" in perf_metrics
     assert "ap_devices_critical" in perf_metrics
     assert "ap_devices_warning" in perf_metrics
@@ -285,7 +277,7 @@ def test_check_cisco_prime_wifi_access_points_various_statuses() -> None:
 
 def test_check_cisco_prime_wifi_access_points_all_healthy() -> None:
     """Test Cisco Prime WiFi access points check with all devices healthy"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CLEARED"},
         "2": {"status": "CLEARED"},
         "3": {"status": "CLEARED"},
@@ -293,36 +285,38 @@ def test_check_cisco_prime_wifi_access_points_all_healthy() -> None:
 
     params = {"levels": (20.0, 40.0)}
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # Should have 0% critical
     percent_result = result[0]
-    assert percent_result[0] == 0  # OK state
-    assert "0%" in percent_result[1]
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.OK
+    assert "0%" in percent_result.summary
 
     # Should only show cleared count
-    status_results = result[1:]
+    status_results = [res for res in result[2:] if isinstance(res, Result)]
     assert len(status_results) == 1
-    assert "Cleared: 3" in status_results[0][1]
+    assert "Cleared: 3" in status_results[0].summary
 
 
 def test_check_cisco_prime_wifi_access_points_all_critical() -> None:
     """Test Cisco Prime WiFi access points check with all devices critical"""
-    test_data = {
+    test_data: Section = {
         "1": {"status": "CRITICAL"},
         "2": {"status": "CRITICAL"},
     }
 
     params = {"levels": (20.0, 40.0)}
 
-    result = list(check_cisco_prime_wifi_access_points(None, params, test_data))
+    result = list(check_cisco_prime_wifi_access_points(params, test_data))
 
     # Should have 100% critical
     percent_result = result[0]
-    assert percent_result[0] == 2  # CRITICAL state
-    assert "100.00%" in percent_result[1]
+    assert isinstance(percent_result, Result)
+    assert percent_result.state == State.CRIT
+    assert "100.00%" in percent_result.summary
 
     # Should only show critical count
-    status_results = result[1:]
+    status_results = [res for res in result[2:] if isinstance(res, Result)]
     assert len(status_results) == 1
-    assert "Critical: 2" in status_results[0][1]
+    assert "Critical: 2" in status_results[0].summary

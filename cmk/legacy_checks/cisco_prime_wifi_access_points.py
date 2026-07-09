@@ -3,55 +3,73 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-# mypy: disable-error-code="type-arg"
-
 """Cisco Prime access point check
 see https://solutionpartner.cisco.com/media/prime-infrastructure/api-reference/
       szier-m8-106.cisco.com/webacs/api/v1/data/AccessPointscc3b.html
 """
 
 import collections
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
+from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render, StringTable
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Metric,
+    render,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
 from cmk.legacy_includes.cisco_prime import parse_cisco_prime
 
-check_info = {}
-
-Section = Mapping
+Section = Mapping[str, Mapping[str, object]]
 
 
 def parse_cisco_prime_wifi_access_points(string_table: StringTable) -> Section:
     return parse_cisco_prime("accessPointsDTO", string_table)
 
 
-def discover_cisco_prime_wifi_access_points(section: Section) -> Iterable[tuple[None, dict]]:
+def discover_cisco_prime_wifi_access_points(section: Section) -> DiscoveryResult:
     if section:
-        yield None, {}
+        yield Service()
 
 
-def check_cisco_prime_wifi_access_points(item, params, parsed):
+def check_cisco_prime_wifi_access_points(
+    params: Mapping[str, Any], section: Section
+) -> CheckResult:
     """Sum up all individual counts for each connection type (as well as their sums
     indicated by 'count')"""
-    counts = collections.Counter(k["status"] for k in parsed.values())
-    count_total, count_critical = len(parsed), counts["CRITICAL"]
+    counts = collections.Counter(str(entry["status"]) for entry in section.values())
+    count_total, count_critical = len(section), counts["CRITICAL"]
     critical_percent = 100.0 * count_critical / count_total
-    yield check_levels(
+    yield from check_levels(
         critical_percent,
         "ap_devices_percent_unhealthy",
         params.get("levels", (None, None)),
         human_readable_func=render.percent,
         infoname="Percent Critical",
     )
-    for k, v in counts.items():
-        yield 0, f"{k.title()}: {v!r}", [("ap_devices_%s" % k.lower(), v)]
+    for status, count in counts.items():
+        yield Result(state=State.OK, summary=f"{status.title()}: {count!r}")
+        yield Metric(f"ap_devices_{status.lower()}", count)
 
 
-check_info["cisco_prime_wifi_access_points"] = LegacyCheckDefinition(
+agent_section_cisco_prime_wifi_access_points = AgentSection(
     name="cisco_prime_wifi_access_points",
     parse_function=parse_cisco_prime_wifi_access_points,
+)
+
+
+check_plugin_cisco_prime_wifi_access_points = CheckPlugin(
+    name="cisco_prime_wifi_access_points",
     service_name="Cisco Prime WiFi Access Points",
     discovery_function=discover_cisco_prime_wifi_access_points,
     check_function=check_cisco_prime_wifi_access_points,
