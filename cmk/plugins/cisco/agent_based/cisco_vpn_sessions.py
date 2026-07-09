@@ -32,15 +32,36 @@
 # CISCO-REMOTE-ACCESS-MONITOR-MIB::crasWebvpnPeakConcurrentSessions.0 = Gauge32: 0 Sessions
 
 
-from cmk.agent_based.v2 import any_of, contains, SimpleSNMPSection, SNMPTree, StringTable
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import (
+    any_of,
+    CheckPlugin,
+    CheckResult,
+    contains,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
 
 SESSION_TYPES = ["IPsec RA", "IPsec L2L", "AnyConnect SVC", "WebVPN"]
 METRICS_PER_SESSION_TYPE = ["active_sessions", "cumulative_sessions", "peak_sessions"]
 
+Section = dict[str, dict[str, int]]
+
 
 def parse_cisco_vpn_sessions(
     string_table: StringTable,
-) -> dict[str, dict[str, int]] | None:
+) -> Section | None:
     if not string_table:
         return None
 
@@ -103,4 +124,44 @@ snmp_section_cisco_vpn_sessions = SimpleSNMPSection(
             "1.1",  # crasMaxSessionsSupportable
         ],
     ),
+)
+
+
+def discover_cisco_vpn_sessions(section: Section) -> DiscoveryResult:
+    yield from (Service(item=item) for item in section)
+
+
+def check_cisco_vpn_sessions(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    if not (data := section.get(item)):
+        return
+    yield from check_levels(
+        data["active_sessions"],
+        "active_sessions",
+        params.get("active_sessions"),
+        infoname="Active sessions",
+        human_readable_func=int,
+    )
+
+    if item != "Summary":
+        yield from check_levels(
+            data["peak_sessions"],
+            "active_sessions_peak",
+            None,
+            infoname="Peak count",
+            human_readable_func=int,
+        )
+
+    if "maximum_sessions" in data:
+        yield Result(state=State.OK, summary=f"Overall system maximum: {data['maximum_sessions']}")
+
+    yield Result(state=State.OK, summary=f"Cumulative count: {data['cumulative_sessions']}")
+
+
+check_plugin_cisco_vpn_sessions = CheckPlugin(
+    name="cisco_vpn_sessions",
+    service_name="VPN Sessions %s",
+    discovery_function=discover_cisco_vpn_sessions,
+    check_function=check_cisco_vpn_sessions,
+    check_ruleset_name="cisco_vpn_sessions",
+    check_default_parameters={},
 )

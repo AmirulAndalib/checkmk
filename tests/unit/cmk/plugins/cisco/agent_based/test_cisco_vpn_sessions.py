@@ -6,8 +6,9 @@
 
 import pytest
 
-from cmk.agent_based.v2 import StringTable
+from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.plugins.cisco.agent_based import cisco_vpn_sessions
+from cmk.plugins.cisco.agent_based.cisco_vpn_sessions import Section
 
 DATA_0 = [["0", "0", "0", "13", "152", "13", "58", "10533", "87", "0", "0", "0", "2500"]]
 RESULT_0 = {
@@ -50,3 +51,95 @@ def test_cisco_vpn_sessions_parse(
 ) -> None:
     result = cisco_vpn_sessions.parse_cisco_vpn_sessions(string_table)
     assert result == output
+
+
+# NOTE: The tests below have been created by an LLM (from something that was worse).
+# They mostly serve as tests to ensure we don't accidentally break anything.
+# If you encounter something weird in here, do not hesitate to replace them
+# by something more appropriate.
+
+
+def _parsed() -> Section:
+    """Return parsed data from actual parse function."""
+    section = cisco_vpn_sessions.parse_cisco_vpn_sessions(
+        [["31", "100", "50", "2", "55", "11", "776", "10000", "800", "0", "0", "0", "12345"]]
+    )
+    assert section
+    return section
+
+
+def test_cisco_vpn_sessions_discovery() -> None:
+    assert list(cisco_vpn_sessions.discover_cisco_vpn_sessions(_parsed())) == [
+        Service(item="IPsec RA"),
+        Service(item="IPsec L2L"),
+        Service(item="AnyConnect SVC"),
+        Service(item="WebVPN"),
+        Service(item="Summary"),
+    ]
+
+
+def test_cisco_vpn_sessions_check_ipsec_ra() -> None:
+    """Test check function for IPsec RA sessions."""
+    params = {"active_sessions": (10, 100)}
+
+    results = list(cisco_vpn_sessions.check_cisco_vpn_sessions("IPsec RA", params, _parsed()))
+
+    # First result should be active sessions with warning (31 >= warn threshold of 10)
+    first_result = results[0]
+    assert isinstance(first_result, Result)
+    assert first_result.state == State.WARN
+    assert "Active sessions: 31" in first_result.summary
+
+
+def test_cisco_vpn_sessions_check_l2l() -> None:
+    """Test check function for IPsec L2L sessions."""
+    params = {"active_sessions": (10, 100)}
+
+    results = list(cisco_vpn_sessions.check_cisco_vpn_sessions("IPsec L2L", params, _parsed()))
+
+    # First result should be active sessions, no warning (2 < 10)
+    first_result = results[0]
+    assert isinstance(first_result, Result)
+    assert first_result.state == State.OK
+    assert "Active sessions: 2" in first_result.summary
+
+
+def test_cisco_vpn_sessions_check_summary() -> None:
+    """Test check function for Summary (different behavior)."""
+    results = list(cisco_vpn_sessions.check_cisco_vpn_sessions("Summary", {}, _parsed()))
+
+    # Summary has different behavior (no peak count)
+    assert len(results) >= 1
+    assert any(isinstance(result, Result) for result in results)
+
+
+def test_cisco_vpn_sessions_check_missing_item() -> None:
+    """Test check function with non-existent item."""
+    results = list(cisco_vpn_sessions.check_cisco_vpn_sessions("Missing Item", {}, _parsed()))
+
+    # Should return empty results for missing item
+    assert len(results) == 0
+
+
+def test_cisco_vpn_sessions_parse_function() -> None:
+    """Test that parse function creates expected data structure."""
+    section = _parsed()
+
+    # Should have all VPN session types
+    assert "IPsec RA" in section
+    assert "IPsec L2L" in section
+    assert "AnyConnect SVC" in section
+    assert "WebVPN" in section
+    assert "Summary" in section
+
+    # Check IPsec RA data structure
+    ipsec_ra = section["IPsec RA"]
+    assert "active_sessions" in ipsec_ra
+    assert ipsec_ra["active_sessions"] == 31
+    assert "peak_sessions" in ipsec_ra
+    assert ipsec_ra["peak_sessions"] == 50
+
+    # Check L2L data
+    l2l = section["IPsec L2L"]
+    assert l2l["active_sessions"] == 2
+    assert l2l["peak_sessions"] == 11
