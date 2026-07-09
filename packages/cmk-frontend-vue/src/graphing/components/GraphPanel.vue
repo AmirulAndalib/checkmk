@@ -8,7 +8,6 @@ conditions defined in the file COPYING, which is part of this source code packag
 import usei18n from '@/lib/i18n'
 
 import { useGraphInteraction } from '../composables/useGraphInteraction'
-import { useGraphTimeRange } from '../composables/useGraphTimeRange'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
 import type { GraphPanelEmits, GraphPanelProps, RequestedTimeRange } from '../types.ts'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
@@ -42,8 +41,6 @@ const {
   clearPin
 } = useGraphInteraction(() => props.dataTimeRange)
 
-const { setActiveTimeRange } = useGraphTimeRange(() => props.requestedTimeRange)
-
 const {
   hiddenMetricNames,
   hiddenLineNames,
@@ -58,7 +55,6 @@ const {
 )
 
 function updateTimeRange(val: RequestedTimeRange) {
-  setActiveTimeRange(val)
   emit('update:requestedTimeRange', val)
 }
 
