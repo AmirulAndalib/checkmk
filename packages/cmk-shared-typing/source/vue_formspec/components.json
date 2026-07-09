@@ -1031,6 +1031,9 @@
             "data_point_attributes": {
               "$ref": "#/$defs/metric_backend_attributes"
             },
+            "attribute_filter": {
+              "$ref": "../attribute_filter.json"
+            },
             "aggregation_lookback": {
               "type": "number"
             },
@@ -1075,6 +1078,9 @@
             },
             "data_point_attributes": {
               "$ref": "#/$defs/metric_backend_attributes"
+            },
+            "attribute_filter": {
+              "$ref": "../attribute_filter.json"
             }
           },
           "required": ["type", "resource_attributes", "scope_attributes", "data_point_attributes"]
