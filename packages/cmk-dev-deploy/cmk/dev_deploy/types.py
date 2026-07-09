@@ -219,6 +219,11 @@ class ConfigFileEntry:
     """A single file entry from the Bazel pkg_files build graph."""
 
     src: str
+
+    dest: str
+    """Packaged destination path, including ``pkg_files`` renames
+    (e.g. ``bin/check_mk`` for src ``bin/check_mk.py``)."""
+
     mode: str
     generated: bool = False
     """True when the file is a Bazel-generated artifact (``is_source=False``)."""

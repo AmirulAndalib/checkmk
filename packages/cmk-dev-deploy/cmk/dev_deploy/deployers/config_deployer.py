@@ -90,8 +90,11 @@ def _copy_dir(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path)
     dest.mkdir(parents=True, exist_ok=True)
 
     if spec.files:
-        # Copy using the Bazel-derived file list
-        prefix = spec.source_prefix.rstrip("/") + "/"
+        # Copy using the Bazel-derived file list.  The destination comes from
+        # entry.dest, which carries pkg_files renames (e.g. bin/check_mk.py is
+        # packaged as bin/check_mk) — deriving it from entry.src would deploy
+        # under the un-renamed source name.
+        prefix = spec.site_dest.rstrip("/") + "/"
         expected_files: set[str] = set()
 
         for entry in spec.files:
@@ -99,12 +102,10 @@ def _copy_dir(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path)
             if not src_path.is_file():
                 continue
 
-            if entry.src.startswith(prefix):
-                rel = entry.src[len(prefix) :]
-            elif entry.src == spec.source_prefix.rstrip("/"):
-                rel = "."
+            if entry.dest.startswith(prefix):
+                rel = entry.dest[len(prefix) :]
             else:
-                rel = entry.src
+                rel = os.path.basename(entry.dest)
 
             dst = dest / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -168,7 +169,7 @@ def _install_files(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: 
             src_path = _resolve_src(entry, repo_root)
             if not src_path.is_file():
                 continue
-            dest_file = dest / src_path.name
+            dest_file = dest / os.path.basename(entry.dest)
             shutil.copy2(src_path, dest_file)
             mode = _resolve_mode(entry.mode, spec.mode, spec.file_chmod)
             if mode:
