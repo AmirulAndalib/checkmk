@@ -3,83 +3,50 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-untyped-call"
+from collections.abc import Sequence
 
-from collections.abc import Mapping, Sequence
-from typing import Any
-
-import pytest
-
-from cmk.agent_based.v2 import StringTable
+from cmk.agent_based.v2 import Metric, Result, Service, State, StringByteTable
 from cmk.legacy_checks.cisco_ip_sla import (
     check_cisco_ip_sla,
     discover_cisco_ip_sla,
     parse_cisco_ip_sla,
 )
 
+_STRING_TABLE: Sequence[StringByteTable] = [
+    [["6", [10, 96, 66, 4], [10, 96, 27, 69], "1"]],
+    [["6", "", "", "9", "5000"]],
+    [["6", "6", "", "2", "2", "2"]],
+    [["6", "25", "1"]],
+]
 
-@pytest.mark.parametrize(
-    "string_table, expected_discoveries",
-    [
-        (
-            [
-                [["6", [10, 96, 66, 4], [10, 96, 27, 69], "1"]],
-                [["6", "", "", "9", "5000"]],
-                [["6", "6", "", "2", "2", "2"]],
-                [["6", "25", "1"]],
-            ],
-            [("6", {})],
-        ),
-    ],
-)
-def test_discover_cisco_ip_sla(
-    string_table: StringTable, expected_discoveries: Sequence[tuple[str, Mapping[str, Any]]]
-) -> None:
-    """Test discovery function for cisco_ip_sla check."""
-    parsed = parse_cisco_ip_sla(string_table)
+
+def test_discover_cisco_ip_sla() -> None:
+    parsed = parse_cisco_ip_sla(_STRING_TABLE)
     result = list(discover_cisco_ip_sla(parsed))
-    assert sorted(result) == sorted(expected_discoveries)
+    assert result == [Service(item="6")]
 
 
-@pytest.mark.parametrize(
-    "item, params, string_table, expected_results",
-    [
-        (
-            "6",
-            {
-                "completion_time_over_treshold_occured": "no",
-                "connection_lost_occured": "no",
-                "latest_rtt_completion_time": (250, 500),
-                "latest_rtt_state": "ok",
-                "state": "active",
-                "timeout_occured": "no",
-            },
-            [
-                [["6", [10, 96, 66, 4], [10, 96, 27, 69], "1"]],
-                [["6", "", "", "9", "5000"]],
-                [["6", "6", "", "2", "2", "2"]],
-                [["6", "25", "1"]],
-            ],
-            [
-                (0, "Target address: 10.96.66.4", []),
-                (0, "Source address: 10.96.27.69", []),
-                (0, "RTT type: jitter", []),
-                (0, "Threshold: 5000 ms", []),
-                (0, "State: active", []),
-                (0, "Connection lost occured: no", []),
-                (0, "Timeout occured: no", []),
-                (0, "Completion time over treshold occured: no", []),
-                (0, "Latest RTT completion time: 25 ms", [("rtt", 0.025, 0.25, 0.5)]),
-                (0, "Latest RTT state: ok", []),
-            ],
-        ),
-    ],
-)
-def test_check_cisco_ip_sla(
-    item: str, params: Mapping[str, Any], string_table: StringTable, expected_results: Sequence[Any]
-) -> None:
-    """Test check function for cisco_ip_sla check."""
-    parsed = parse_cisco_ip_sla(string_table)
-    result = list(check_cisco_ip_sla(item, params, parsed))
-    assert result == expected_results
+def test_check_cisco_ip_sla() -> None:
+    params = {
+        "completion_time_over_treshold_occured": "no",
+        "connection_lost_occured": "no",
+        "latest_rtt_completion_time": (250, 500),
+        "latest_rtt_state": "ok",
+        "state": "active",
+        "timeout_occured": "no",
+    }
+    parsed = parse_cisco_ip_sla(_STRING_TABLE)
+    result = list(check_cisco_ip_sla("6", params, parsed))
+    assert result == [
+        Result(state=State.OK, summary="Target address: 10.96.66.4"),
+        Result(state=State.OK, summary="Source address: 10.96.27.69"),
+        Result(state=State.OK, summary="RTT type: jitter"),
+        Result(state=State.OK, summary="Threshold: 5000 ms"),
+        Result(state=State.OK, summary="State: active"),
+        Result(state=State.OK, summary="Connection lost occured: no"),
+        Result(state=State.OK, summary="Timeout occured: no"),
+        Result(state=State.OK, summary="Completion time over treshold occured: no"),
+        Result(state=State.OK, summary="Latest RTT completion time: 25 ms"),
+        Metric("rtt", 0.025, levels=(0.25, 0.5)),
+        Result(state=State.OK, summary="Latest RTT state: ok"),
+    ]

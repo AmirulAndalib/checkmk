@@ -3,19 +3,39 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-# mypy: disable-error-code="type-arg"
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, NamedTuple
+
+from cmk.agent_based.v2 import (
+    all_of,
+    CheckPlugin,
+    CheckResult,
+    contains,
+    DiscoveryResult,
+    exists,
+    Metric,
+    OIDBytes,
+    OIDEnd,
+    Result,
+    Service,
+    SNMPSection,
+    SNMPTree,
+    State,
+    StringByteTable,
+)
 
 
-from collections.abc import Callable, Sequence
+class IPSlaField(NamedTuple):
+    description: str
+    value: Any
+    unit: str
+    type_: str | None
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import all_of, contains, exists, OIDBytes, OIDEnd, SNMPTree
 
-check_info = {}
+Section = Mapping[str, Sequence[IPSlaField]]
 
 
-def parse_cisco_ip_sla(string_table):
+def parse_cisco_ip_sla(string_table: Sequence[StringByteTable]) -> Section:
     precisions = {line[0]: "ms" if line[-1] == "1" else "us" for line in string_table[0]}
 
     rtt_types = {
@@ -66,7 +86,7 @@ def parse_cisco_ip_sla(string_table):
         "10": "application specific error",
     }
 
-    def to_ip_address(int_list):
+    def to_ip_address(int_list: Sequence[int]) -> str:
         if len(int_list) == 4:
             return "%d.%d.%d.%d" % tuple(int_list)
         if len(int_list) == 6:
@@ -74,7 +94,7 @@ def parse_cisco_ip_sla(string_table):
         return ""
 
     # contains description, parse function, unit and type
-    contents: Sequence[tuple[tuple[str, Callable | None, str, str | None], ...]] = [
+    contents: Sequence[tuple[tuple[str, Callable[[Any], Any] | None, str, str | None], ...]] = [
         (  # rttMonEchoAdminEntry
             ("Target address", to_ip_address, "", None),
             ("Source address", to_ip_address, "", None),
@@ -104,67 +124,67 @@ def parse_cisco_ip_sla(string_table):
         ),
     ]
 
-    parsed: dict[str, list] = {}
+    parsed: dict[str, list[IPSlaField]] = {}
     for content, entries in zip(contents, string_table):
         if not entries:
             continue
 
         for entry in entries:
-            index, values = entry[0], entry[1:]
+            index, values = str(entry[0]), entry[1:]
             data = parsed.setdefault(index, [])
             for (description, parser, unit, type_), value in zip(content, values):
                 if parser:
                     value = parser(value)
                 if unit == "ms/us":
                     unit = precisions[index]
-                data.append((description, value, unit, type_))
+                data.append(IPSlaField(description, value, unit, type_))
 
     return parsed
 
 
-def discover_cisco_ip_sla(parsed):
-    for index in parsed:
-        yield index, {}
+def discover_cisco_ip_sla(section: Section) -> DiscoveryResult:
+    for index in section:
+        yield Service(item=index)
 
 
-def check_cisco_ip_sla(item, params, parsed):
-    if not (data := parsed.get(item)):
+def check_cisco_ip_sla(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    if not (data := section.get(item)):
         return
     for description, value, unit, type_ in data:
         if not value:
             continue
 
-        state = 0
+        state = State.OK
         if unit:
             infotext = f"{description}: {value} {unit}"
         else:
             infotext = f"{description}: {value}"
-        perfdata = []
 
         param = params.get(description.lower().replace(" ", "_"))
 
         if type_ == "option":
             if param and param != value:
-                state = 1
-                infotext += " (expected %s)" % param
+                state = State.WARN
+                infotext += f" (expected {param})"
+            yield Result(state=state, summary=infotext)
         elif type_ == "level":
-            warn, crit = param  # a default level hat to exist
+            assert param is not None  # a default level has to exist
+            warn, crit = param
             if value >= crit:
-                state = 2
+                state = State.CRIT
             elif value >= warn:
-                state = 1
+                state = State.WARN
 
-            if state:
+            if state is not State.OK:
                 infotext += f" (warn/crit at {warn}/{crit})"
             factor = 1e3 if unit == "ms" else 1e6
-            perfdata = [
-                ("rtt", value / factor, warn / factor, crit / factor)
-            ]  # fixed: true-division
+            yield Result(state=state, summary=infotext)
+            yield Metric("rtt", value / factor, levels=(warn / factor, crit / factor))
+        else:
+            yield Result(state=state, summary=infotext)
 
-        yield state, infotext, perfdata
 
-
-check_info["cisco_ip_sla"] = LegacyCheckDefinition(
+snmp_section_cisco_ip_sla = SNMPSection(
     name="cisco_ip_sla",
     detect=all_of(
         contains(".1.3.6.1.2.1.1.1.0", "cisco"),
@@ -190,6 +210,11 @@ check_info["cisco_ip_sla"] = LegacyCheckDefinition(
         ),
     ],
     parse_function=parse_cisco_ip_sla,
+)
+
+
+check_plugin_cisco_ip_sla = CheckPlugin(
+    name="cisco_ip_sla",
     service_name="Cisco IP SLA %s",
     discovery_function=discover_cisco_ip_sla,
     check_function=check_cisco_ip_sla,
