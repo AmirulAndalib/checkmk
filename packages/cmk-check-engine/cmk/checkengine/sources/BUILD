@@ -17,6 +17,7 @@ py_library(
         "//packages/cmk-check-engine:fetchers",
         "//packages/cmk-check-engine:helper-interface",
         "//packages/cmk-check-engine:snmplib",
+        "//packages/cmk-check-engine:subclass-discovery",
         "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
     ],

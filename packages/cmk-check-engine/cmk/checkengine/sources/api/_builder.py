@@ -9,11 +9,13 @@
 # - Discovery works.
 # - Checking doesn't work - as it was before. Maybe we can handle this in the future.
 
+import functools
 import socket
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence, Sized
 from pathlib import Path
 from typing import assert_never, Final, Literal
 
+import cmk.checkengine.sources
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.fetchers.tcp import TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
@@ -32,21 +34,25 @@ from cmk.checkengine.sources._sources import (
     SpecialAgentSource,
     TCPSource,
 )
+from cmk.checkengine.sources.api._abc import Source
+from cmk.checkengine.sources.api._config import SourceConfig
+from cmk.checkengine.sources.api._optional import OptionalSource, SourceContext
+from cmk.checkengine.subclass_discovery import discover, get_default_identifier
 from cmk.ruleset_matcher.tags import ComputedDataSources, TagID
 from cmk.server_side_calls_backend import SpecialAgentCommandLine
 from cmk.utils.ip_lookup import IPStackConfig
 
-from ._abc import Source
-from ._config import SourceConfig
 
-# TODO: Remove temporary conditional import?
-# Will the feature flag prevent this import?
-try:
-    from cmk.checkengine.sources.metric_backend import (  # type: ignore[import-not-found, unused-ignore]
-        MetricBackendSource,
-    )
-except ImportError:
-    MetricBackendSource = None
+@functools.cache
+def _discover_optional_sources() -> Mapping[str, type[OptionalSource[Sized]]]:
+    # `functools.cache` both defers and memoizes the discovery. Deferring matters because it
+    # imports the public submodules of the `cmk.checkengine.sources` namespace package --
+    # including the `api` subpackage, whose `__init__` imports this module. By the first
+    # `SourceBuilder()` instantiation those imports have settled, so re-importing `api` is a
+    # no-op. An edition that does not ship an optional source simply does not expose its module,
+    # and `discover()` skips it.
+    # TODO: Do not co-locate the discovery/builder logic and and discovered content
+    return discover(cmk.checkengine.sources, OptionalSource, get_default_identifier)
 
 
 class SourceBuilder:
@@ -113,6 +119,19 @@ class SourceBuilder:
 
         self._elems: dict[str, Source] = {}
         self._initialize_agent_based()
+        self._initialize_optional_sources(
+            SourceContext(
+                host_name=self.host_name,
+                ipaddress=self.ipaddress,
+                computed_datasources=self.cds,
+                max_age_agent=self.max_age_agent,
+                file_cache_path_base=self._file_cache_path_base,
+                file_cache_path_relative=self._file_cache_path_relative,
+                omd_root=self.omd_root,
+                metrics_association=self._metrics_association,
+                check_mk_check_interval=self.check_mk_check_interval,
+            )
+        )
 
         if self.cds.is_tcp and not self._elems:
             # User wants a special agent, a CheckMK agent, or both.  But
@@ -199,19 +218,11 @@ class SourceBuilder:
             if not special_agents:
                 self._add_agent()
 
-        if MetricBackendSource is not None and self._metrics_association is not None:
-            self._add(
-                MetricBackendSource(
-                    self.host_name,
-                    self.ipaddress,
-                    metrics_association=self._metrics_association,
-                    check_interval=self.check_mk_check_interval,
-                    max_age=self.max_age_agent,
-                    file_cache_path_base=self._file_cache_path_base,
-                    file_cache_path_relative=self._file_cache_path_relative,
-                    omd_root=self.omd_root,
-                )
-            )
+    def _initialize_optional_sources(self, ctx: SourceContext) -> None:
+        # Additive sources that build themselves from the host's source config and are owned by other components.
+        for source_cls in _discover_optional_sources().values():
+            if (source := source_cls.from_context(ctx)) is not None:
+                self._add(source)
 
     def _initialize_snmp_based(self) -> None:
         if not self.cds.is_snmp:

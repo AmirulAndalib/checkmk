@@ -6,3 +6,5 @@
 from ._abc import Source as Source
 from ._builder import SourceBuilder as SourceBuilder
 from ._config import SourceConfig as SourceConfig
+from ._optional import OptionalSource as OptionalSource
+from ._optional import SourceContext as SourceContext
