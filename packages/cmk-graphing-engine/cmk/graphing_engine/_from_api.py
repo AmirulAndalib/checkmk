@@ -427,8 +427,6 @@ def _attributes_for(
                 color=quantity.color or type_color or attributes.color,
             )
         case _:
-            if (display_of := getattr(quantity, "display_of", None)) is not None:
-                return _attributes_for(display_of(), localizer, registered_metrics)
             display = getattr(quantity, "display", None)
             return (
                 display
