@@ -419,14 +419,12 @@ def _attributes_for(
         case RRDMetric():
             return _metric_display_attributes(quantity.metric_name, localizer, registered_metrics)
         case ScalarOf():
-            metric = _metric_display_attributes(
-                quantity.metric.metric_name, localizer, registered_metrics
-            )
+            attributes = _attributes_for(quantity.metric, localizer, registered_metrics)
             label, type_color = _RULE_DISPLAY[quantity.scalar_type]
             return CurveAttributes(
                 title=localizer(label),
-                unit=metric.unit,
-                color=quantity.color or type_color or metric.color,
+                unit=attributes.unit,
+                color=quantity.color or type_color or attributes.color,
             )
         case _:
             if (display_of := getattr(quantity, "display_of", None)) is not None:
