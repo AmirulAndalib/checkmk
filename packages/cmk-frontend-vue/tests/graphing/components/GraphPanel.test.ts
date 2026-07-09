@@ -10,13 +10,24 @@ import GraphPanel from '@/graphing/components/GraphPanel.vue'
 import type { Metric, TimeRange } from '@/graphing/components/TimeSeriesGraph'
 import type { BurgerMenuGroup, RequestedTimeRange } from '@/graphing/types'
 
-// Mock renders received metric titles as text so tests can assert on visibility filtering.
+// Mock renders received metric titles and view props as text so tests can assert on
+// visibility filtering and the interaction loop. Click targets are spans (not buttons)
+// to keep the "panel renders no button" assertions meaningful.
 vi.mock('@/graphing/components/TimeSeriesGraph', () => ({
   default: {
     inheritAttrs: false,
-    props: ['metrics'],
-    template:
-      '<div data-testid="time-series-graph">{{ metrics.map((m) => m.metadata.title).join(",") }}</div>'
+    props: ['metrics', 'time_range', 'inspecting'],
+    emits: ['zoom', 'reset'],
+    template: `<div data-testid="time-series-graph">
+      <span>{{ metrics.map((m) => m.metadata.title).join(",") }}</span>
+      <span data-testid="view-start">{{ time_range.start }}</span>
+      <span data-testid="inspecting">{{ inspecting }}</span>
+      <span
+        data-testid="emit-zoom"
+        @click="$emit('zoom', { timeRange: { start: 100, end: 200, step: 10 } })"
+      />
+      <span data-testid="emit-reset" @click="$emit('reset')" />
+    </div>`
   }
 }))
 
@@ -125,6 +136,46 @@ test('does not apply legend-right modifier class when legendPosition is "bottom"
   ).not.toBeInTheDocument()
 })
 
+test('the renderer receives the baseline view without inspection', () => {
+  render(GraphPanel, {
+    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  expect(screen.getByTestId('view-start')).toHaveTextContent(String(TIME_RANGE.start))
+  expect(screen.getByTestId('inspecting')).toHaveTextContent('false')
+})
+
+test('a zoom intent from the renderer overlays the view and activates inspection', async () => {
+  render(GraphPanel, {
+    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  await fireEvent.click(screen.getByTestId('emit-zoom'))
+
+  expect(screen.getByTestId('view-start')).toHaveTextContent('100')
+  expect(screen.getByTestId('inspecting')).toHaveTextContent('true')
+})
+
+test('a reset intent from the renderer restores the baseline view', async () => {
+  render(GraphPanel, {
+    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+  await fireEvent.click(screen.getByTestId('emit-zoom'))
+
+  await fireEvent.click(screen.getByTestId('emit-reset'))
+
+  expect(screen.getByTestId('view-start')).toHaveTextContent(String(TIME_RANGE.start))
+  expect(screen.getByTestId('inspecting')).toHaveTextContent('false')
+})
+
+test('the renderer receives every metric when none are hidden', () => {
+  render(GraphPanel, {
+    props: { metrics: [CPU, MEM], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  expect(screen.getByTestId('time-series-graph')).toHaveTextContent('CPU,Memory')
+})
+
 test('hiding a metric via the legend eye removes it from what TimeSeriesGraph receives', async () => {
   render(GraphPanel, {
     props: {
@@ -134,10 +185,8 @@ test('hiding a metric via the legend eye removes it from what TimeSeriesGraph re
       showLegend: true
     }
   })
-
-  expect(screen.getByTestId('time-series-graph')).toHaveTextContent('CPU,Memory')
-
   const cpuRow = screen.getByText('CPU').closest('tr')!
+
   await fireEvent.click(cpuRow.querySelector('button')!)
 
   expect(screen.getByTestId('time-series-graph')).toHaveTextContent('Memory')

@@ -6,14 +6,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 // TODO: usage example — shows how to wire the TimeSeriesGraph renderer through
-// useGraphView (emit-and-wait). Not yet consumed by a real call site.
-import { computed, ref, watch } from 'vue'
+// useGraphInteraction (emit-and-wait). Not yet consumed by a real call site.
+import { computed, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
 import CmkLabeledSwitch from '@/components/CmkLabeledSwitch.vue'
 
-import { useGraphView } from '../composables/useGraphView'
+import { useGraphInteraction } from '../composables/useGraphInteraction'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import TimeSeriesGraph, {
   type ConsolidationFn,
@@ -24,8 +24,7 @@ import TimeSeriesGraph, {
   type PinPayload,
   type RequestedTimeRange,
   type Size,
-  type TimeRange,
-  type ZoomMode
+  type TimeRange
 } from './TimeSeriesGraph'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 
@@ -59,15 +58,20 @@ const emit = defineEmits<{
 }>()
 
 const {
-  timeRange: viewTimeRange,
-  valueRange: viewValueRange,
+  viewTimeRange,
+  viewValueRange,
   inspectionActive,
-  handleIntent
-} = useGraphView(() => props.timeRange)
+  zoomMode,
+  pinTime,
+  onZoom,
+  onPan,
+  onReset,
+  onPinCreate,
+  clearPin
+} = useGraphInteraction(() => props.timeRange)
 
 watch(viewTimeRange, (view) => emit('update:view', view), { immediate: true, deep: true })
 
-const zoomMode = ref<ZoomMode>('time')
 const peakZoomActive = computed({
   get: () => zoomMode.value === 'value',
   set: (active) => {
@@ -79,16 +83,10 @@ const { _t } = usei18n()
 const timeZoomLabel = _t('Time zoom')
 const peakZoomLabel = _t('Peak zoom')
 
-const pinTime = ref<number | null>(null)
 function onPinAction(payload: PinPayload): void {
-  pinTime.value = null
+  clearPin()
   emit('pinAction', payload)
 }
-
-watch(
-  () => props.timeRange,
-  () => handleIntent({ kind: 'rangeCommit', timeRange: props.timeRange })
-)
 </script>
 
 <template>
@@ -116,10 +114,10 @@ watch(
       :highlighted-metric-name="null"
       :show-pin="showPin"
       :pin-time="pinTime"
-      @zoom="(payload) => handleIntent({ kind: 'zoomTransient', ...payload })"
-      @pan="(payload) => handleIntent({ kind: 'pan', ...payload })"
-      @reset="() => handleIntent({ kind: 'reset' })"
-      @pin-create="pinTime = $event.time"
+      @zoom="onZoom"
+      @pan="onPan"
+      @reset="onReset"
+      @pin-create="onPinCreate"
       @pin-action="onPinAction"
     />
 

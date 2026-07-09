@@ -5,16 +5,30 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { useGraphInteraction } from '../composables/useGraphInteraction'
 import type { GraphFigureProps } from '../types'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
 
-withDefaults(defineProps<GraphFigureProps>(), {
+const props = withDefaults(defineProps<GraphFigureProps>(), {
   interactive: true,
   canvasWidth: 800,
   canvasHeight: 300
 })
+
+const {
+  viewTimeRange,
+  viewValueRange,
+  inspectionActive,
+  zoomMode,
+  pinTime,
+  onZoom,
+  onPan,
+  onReset,
+  onPinCreate,
+  clearPin
+} = useGraphInteraction(() => props.timeRange)
 </script>
 
 <template>
@@ -26,19 +40,17 @@ withDefaults(defineProps<GraphFigureProps>(), {
       </div>
     </div>
 
-    <!-- TODO: pass the right boolean into 'inspecting' so TimeSeriesGraph knows when to render
-               its reset button -->
     <TimeSeriesGraph
       v-if="timeRange"
-      :time_range="timeRange"
+      :time_range="viewTimeRange"
       :metrics="metrics"
       :horizontal_lines="horizontalLines ?? []"
-      :value-range="null"
-      zoom-mode="time"
+      :value-range="viewValueRange"
+      :zoom-mode="zoomMode"
       :size="{ width: canvasWidth, height: canvasHeight, mode: 'fixed' }"
       :min-time-range="null"
       :min-value-range="null"
-      :inspecting="false"
+      :inspecting="inspectionActive"
       :pan-enabled="interactive"
       :options="{
         header: { title: title ?? null, show_graph_time: false },
@@ -49,6 +61,12 @@ withDefaults(defineProps<GraphFigureProps>(), {
         font_size_pt: 10
       }"
       :highlighted-metric-name="null"
+      :pin-time="pinTime"
+      @zoom="onZoom"
+      @pan="onPan"
+      @reset="onReset"
+      @pin-create="onPinCreate"
+      @pin-action="clearPin"
     />
   </div>
 </template>

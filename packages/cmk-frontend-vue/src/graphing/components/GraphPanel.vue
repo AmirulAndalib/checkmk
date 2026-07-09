@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import usei18n from '@/lib/i18n'
 
+import { useGraphInteraction } from '../composables/useGraphInteraction'
 import { useGraphTimeRange } from '../composables/useGraphTimeRange'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
 import type {
@@ -22,7 +21,6 @@ import GraphBurgerMenu from './GraphBurgerMenu.vue'
 import GraphLegend from './GraphLegend.vue'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
-import type { TimeRange } from './TimeSeriesGraph'
 import TimeSeriesGraph from './TimeSeriesGraph'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 
@@ -37,8 +35,18 @@ const props = withDefaults(defineProps<GraphPanelProps>(), {
 
 const emit = defineEmits<GraphPanelEmits>()
 
-// Renderer's live time view (= viewTimeRange), used to position the brush window.
-const currentView = ref<TimeRange | null>(null)
+const {
+  viewTimeRange,
+  viewValueRange,
+  inspectionActive,
+  zoomMode,
+  pinTime,
+  onZoom,
+  onPan,
+  onReset,
+  onPinCreate,
+  clearPin
+} = useGraphInteraction(() => props.timeRange)
 
 const { setActiveTimeRange } = useGraphTimeRange(() => props.requestedTimeRange)
 
@@ -92,22 +100,17 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           {{ _t('All metrics are hidden') }}
         </div>
 
-        <!-- TODO: 'zoom-mode': pass the right literal ('time' | 'value') once the toggle element
-                   is implemented
-                   'inspecting': pass the right boolean so TimeSeriesGraph knows when to render
-                   its reset button
-        -->
         <TimeSeriesGraph
-          v-if="timeRange"
-          :time_range="timeRange"
+          v-else-if="timeRange"
+          :time_range="viewTimeRange"
           :metrics="visibleMetrics"
           :horizontal_lines="visibleHorizontalLines"
-          :value-range="null"
-          zoom-mode="time"
+          :value-range="viewValueRange"
+          :zoom-mode="zoomMode"
           :size="{ width: canvasWidth, height: canvasHeight, mode: 'fixed' }"
           :min-time-range="null"
           :min-value-range="null"
-          :inspecting="false"
+          :inspecting="inspectionActive"
           :pan-enabled="interactive"
           :options="{
             header: { title: title ?? null, show_graph_time: false },
@@ -118,6 +121,12 @@ function updateConsolidationFunction(val: ConsolidationFn) {
             font_size_pt: 10
           }"
           :highlighted-metric-name="highlightedMetricName"
+          :pin-time="pinTime"
+          @zoom="onZoom"
+          @pan="onPan"
+          @reset="onReset"
+          @pin-create="onPinCreate"
+          @pin-action="clearPin"
         />
 
         <!--
@@ -130,7 +139,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           class="graphing-graph-panel__brush"
           :metrics="overview.metrics"
           :domain="overview.timeRange"
-          :window="currentView ?? { start: timeRange!.start, end: timeRange!.end }"
+          :window="viewTimeRange"
           :min-span="null"
           :width="canvasWidth + CANVAS_MARGIN_HORIZONTAL"
           :plot-left="CANVAS_MARGIN_LEFT"
