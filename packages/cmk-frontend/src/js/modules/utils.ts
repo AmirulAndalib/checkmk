@@ -963,10 +963,7 @@ export interface FunctionSpec {
 }
 
 function getContentBody(): HTMLElement | null {
-  const contentArea = document.getElementById('content_area')
-  return contentArea !== null
-    ? (contentArea.firstElementChild! as unknown as HTMLIFrameElement).contentWindow!.document.body
-    : document.body
+  return document.getElementById('content_area') ?? document.body
 }
 
 export function makeLoadingTransition(
