@@ -158,3 +158,12 @@ sh_library(
         "run",
     ],
 )
+
+filegroup(
+    name = "windows_ci_scripts",
+    srcs = [
+        "run.ps1",
+        "tests/files/ci-scripts/manage-test-registry-set.ps1",
+    ],
+    tags = ["lint-with-psscriptanalyzer"],
+)
