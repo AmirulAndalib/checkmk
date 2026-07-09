@@ -19,7 +19,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "  cmk-dev-deploy              Auto-detect site and deploy\n"
             "  cmk-dev-deploy --site v260  Deploy to a specific site\n"
             "  cmk-dev-deploy --info       Show site info without deploying\n"
-            "  cmk-dev-deploy --full       Force full deploy (ignore state)\n"
+            "  cmk-dev-deploy --full       Reset site and redeploy all changes\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -43,7 +43,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Force full deployment, ignoring incremental state",
+        help="Reset the site (overlay/clone) and redeploy all changes since the "
+        "site build, clearing incremental deploy state",
     )
     parser.add_argument(
         "--verbose",

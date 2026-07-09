@@ -30,7 +30,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, TYPE_CHECKING
 
-from cmk.dev_deploy.types import ChangeCategory
+from cmk.dev_deploy.types import ChangeCategory, DiffBaseSource
 
 if TYPE_CHECKING:
     from cmk.dev_deploy.types import (
@@ -507,9 +507,9 @@ def print_restart_skipped() -> None:
 
 
 @_verbose_only
-def print_state_info(diff_base_source: str, diff_base_commit: str) -> None:
+def print_state_info(diff_base_source: DiffBaseSource, diff_base_commit: str) -> None:
     """Display the source of the diff base being used."""
-    if diff_base_source == "state":
+    if diff_base_source is DiffBaseSource.STATE:
         _print_locked(f"  {DIM}Diff base: last deploy ({diff_base_commit[:12]}){RESET}")
     else:
         _print_locked(f"  {DIM}Diff base: site build ({diff_base_commit[:12]}){RESET}")

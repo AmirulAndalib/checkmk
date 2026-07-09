@@ -69,6 +69,7 @@ from cmk.dev_deploy.types import (
     ChangeCategory,
     ChangeSet,
     DeployCycleResult,
+    DiffBaseSource,
     SiteInfo,
     SkipResult,
     StepResult,
@@ -247,26 +248,27 @@ def _run_deploy_cycle(
         # independent of per-deployer commits (which may be stale when
         # a deployer is repeatedly skipped).
         diff_base = state.diff_base_commit
+        diff_base_source = DiffBaseSource.STATE
     elif state is not None and state.deployers:
         # Fallback for schema v2 states without diff_base_commit:
         # use the most recently deployed commit across all deployers.
         latest = max(state.deployers.values(), key=lambda ds: ds.deployed_at)
         diff_base = latest.git_commit
+        diff_base_source = DiffBaseSource.STATE
     else:
         diff_base = site.build_commit
+        diff_base_source = DiffBaseSource.SITE_BUILD
 
     if diff_base is not None:
-        if state is not None and state.diff_base_commit or state is not None and state.deployers:
-            _source = "state"
-        else:
-            _source = "site_build"
-        output.print_state_info(_source, diff_base)
+        output.print_state_info(diff_base_source, diff_base)
 
     # Change detection
     if output.get_verbosity() >= output.Verbosity.VERBOSE:
         output.print_blank()
     target_commit = args.commit
-    changes = detect_changes(diff_base, repo_root, target_commit=target_commit)
+    changes = detect_changes(
+        diff_base, repo_root, target_commit=target_commit, diff_base_source=diff_base_source
+    )
 
     # Coverage warning (persists across runs via the deploy state); also
     # fires on cycles that end in an early "nothing to deploy" return.

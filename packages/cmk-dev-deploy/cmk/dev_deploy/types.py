@@ -68,6 +68,13 @@ class SiteInfo:
     build_commit: str | None
 
 
+class DiffBaseSource(StrEnum):
+    """Provenance of the commit that change detection diffs against."""
+
+    STATE = "state"
+    SITE_BUILD = "site_build"
+
+
 class ChangeCategory(StrEnum):
     """Categories of changed files, determining deployment strategy."""
 

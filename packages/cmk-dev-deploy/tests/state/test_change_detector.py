@@ -17,7 +17,7 @@ from cmk.dev_deploy.state.change_detector import (
     categorize_file,
     detect_changes,
 )
-from cmk.dev_deploy.types import CategorizationRule, ChangeCategory, ChangeSet
+from cmk.dev_deploy.types import CategorizationRule, ChangeCategory, ChangeSet, DiffBaseSource
 
 
 @pytest.fixture(autouse=True)
@@ -316,6 +316,61 @@ class TestDetectChanges:
 
         with pytest.raises(ChangeDetectionError, match="not found"):
             detect_changes("deadbeef" * 5, tmp_path)
+
+    def test_missing_site_build_commit_message(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A missing site build commit suggests fetching; --full cannot skip it."""
+        monkeypatch.setattr(
+            "cmk.dev_deploy.state.change_detector.subprocess.run",
+            _make_mock_run(returncode=128, stderr="fatal: bad object"),
+        )
+
+        with pytest.raises(ChangeDetectionError) as excinfo:
+            detect_changes("d" * 40, tmp_path)
+
+        assert "Site build commit" in excinfo.value.message
+        assert excinfo.value.recovery is not None
+        assert "git fetch origin" in excinfo.value.recovery
+        assert "even with --full" in excinfo.value.recovery
+
+    def test_missing_state_commit_message(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A missing deploy state commit names the state and suggests --full."""
+        monkeypatch.setattr(
+            "cmk.dev_deploy.state.change_detector.subprocess.run",
+            _make_mock_run(returncode=128, stderr="fatal: bad object"),
+        )
+
+        with pytest.raises(ChangeDetectionError) as excinfo:
+            detect_changes("d" * 40, tmp_path, diff_base_source=DiffBaseSource.STATE)
+
+        assert "Deploy state commit" in excinfo.value.message
+        assert excinfo.value.recovery is not None
+        assert "cmk-dev-deploy --full" in excinfo.value.recovery
+
+    def test_missing_target_commit_names_ref(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A missing --commit ref is reported as such, not as the site build commit."""
+        build_commit = "a" * 40
+
+        def _mock_run(cmd: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+            if cmd[-1] == build_commit:
+                return subprocess.CompletedProcess(
+                    args=cmd, returncode=0, stdout="commit\n", stderr=""
+                )
+            return subprocess.CompletedProcess(
+                args=cmd, returncode=128, stdout="", stderr="fatal: bad object"
+            )
+
+        monkeypatch.setattr("cmk.dev_deploy.state.change_detector.subprocess.run", _mock_run)
+
+        with pytest.raises(ChangeDetectionError) as excinfo:
+            detect_changes(build_commit, tmp_path, target_commit="no-such-branch")
+
+        assert "--commit ref 'no-such-branch'" in excinfo.value.message
 
     def test_returns_empty_changeset_for_no_changes(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path

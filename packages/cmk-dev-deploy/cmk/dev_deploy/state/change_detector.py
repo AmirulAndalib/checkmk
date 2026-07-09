@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 from cmk.dev_deploy.core.timeouts import GIT_QUICK
 from cmk.dev_deploy.errors import ChangeDetectionError
 from cmk.dev_deploy.manifest.reader import get_categorization_rules
-from cmk.dev_deploy.types import CategorizationRule, ChangeCategory, ChangeSet
+from cmk.dev_deploy.types import CategorizationRule, ChangeCategory, ChangeSet, DiffBaseSource
 
 if TYPE_CHECKING:
     from cmk.dev_deploy.state.deploy_state import DeployState
@@ -176,18 +176,25 @@ def detect_changes(
     repo_root: Path,
     *,
     target_commit: str | None = None,
+    diff_base_source: DiffBaseSource = DiffBaseSource.SITE_BUILD,
 ) -> ChangeSet | None:
     """Detect and categorize changed files between build_commit and a target.
 
     Returns None if build_commit is None. When target_commit is None, diffs
     against the working tree; otherwise diffs committed changes only.
+    diff_base_source records where build_commit came from, so that a commit
+    that cannot be resolved produces an error naming the actual culprit.
     """
     if build_commit is None:
         return None
 
-    _validate_commit(build_commit, repo_root)
-    if target_commit is not None:
-        _validate_commit(target_commit, repo_root)
+    if not _commit_exists(build_commit, repo_root):
+        raise _missing_diff_base_error(build_commit, diff_base_source)
+    if target_commit is not None and not _commit_exists(target_commit, repo_root):
+        raise ChangeDetectionError(
+            f"--commit ref '{target_commit}' not found in this repository.",
+            recovery="Check the ref name, or fetch it first: git fetch origin",
+        )
     changed_files = _git_diff_files(build_commit, repo_root, target_commit=target_commit)
     deleted_files = _git_diff_deleted(build_commit, repo_root, target_commit=target_commit)
 
@@ -221,8 +228,8 @@ def detect_changes(
 # ---------------------------------------------------------------------------
 
 
-def _validate_commit(commit: str, repo_root: Path) -> None:
-    """Verify that a commit hash exists in the local repository."""
+def _commit_exists(commit: str, repo_root: Path) -> bool:
+    """Return True if the ref resolves to a commit in the local repository."""
     result = subprocess.run(
         ["git", "cat-file", "-t", commit],
         capture_output=True,
@@ -231,15 +238,29 @@ def _validate_commit(commit: str, repo_root: Path) -> None:
         cwd=str(repo_root),
         timeout=GIT_QUICK,
     )
-    if result.returncode != 0 or result.stdout.strip() != "commit":
-        raise ChangeDetectionError(
-            f"Build commit {commit[:12]} not found in this repository.",
+    return result.returncode == 0 and result.stdout.strip() == "commit"
+
+
+def _missing_diff_base_error(commit: str, source: DiffBaseSource) -> ChangeDetectionError:
+    """Build the error for a diff base commit missing from the local repository."""
+    if source is DiffBaseSource.STATE:
+        return ChangeDetectionError(
+            f"Deploy state commit {commit[:12]} not found in this repository.",
             recovery=(
-                "The site was built from a commit not in your local repo.\n"
-                "Try: git fetch origin\n"
-                "Or deploy without change detection: cmk-dev-deploy --full"
+                "The commit recorded by the last deploy no longer exists here\n"
+                "(e.g. rebased away, or deployed from a different clone).\n"
+                "Reset the deploy state: cmk-dev-deploy --full"
             ),
         )
+    return ChangeDetectionError(
+        f"Site build commit {commit[:12]} not found in this repository.",
+        recovery=(
+            "The site was built from a commit you do not have locally.\n"
+            "Fetch it first: git fetch origin\n"
+            "This commit is required even with --full: every deploy diffs the\n"
+            "working tree against the site build to determine what to deploy."
+        ),
+    )
 
 
 def _git_diff_files(
@@ -268,7 +289,8 @@ def _git_diff_files(
     if result.returncode != 0:
         raise ChangeDetectionError(
             f"git diff failed (exit {result.returncode}): {result.stderr.strip()}",
-            recovery="Ensure the site build commit is reachable in this repo.",
+            recovery="Inspect the git error above; the repository may be locked, "
+            "shallow, or corrupted.",
         )
     return [line for line in result.stdout.strip().splitlines() if line]
 
