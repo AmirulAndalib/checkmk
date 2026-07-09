@@ -60,6 +60,6 @@ pkg_files(
         allow_empty = True,
     ),
     attributes = pkg_attributes(mode = "0755"),
-    prefix = "lib/python%s/site-packages/cmk/plugins/gerrit/libexec" % PYTHON_MAJOR_DOT_MINOR,
+    prefix = "lib/python%s/site-packages/cmk/plugins/bazel/libexec" % PYTHON_MAJOR_DOT_MINOR,
     visibility = ["//packages/cmk-plugins:__pkg__"],
 )
