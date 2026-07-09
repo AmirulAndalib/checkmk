@@ -178,3 +178,11 @@ sh_library(
         "run",
     ],
 )
+
+# Root-level Windows CI script.
+filegroup(
+    name = "windows_ci_scripts",
+    srcs = ["run.ps1"],
+    tags = ["lint-with-psscriptanalyzer"],
+    visibility = ["//visibility:public"],
+)

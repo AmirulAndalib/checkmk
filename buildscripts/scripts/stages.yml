@@ -138,8 +138,6 @@ STAGES:
               `# CMK-35752` \
               --known-offender packages/mk-sql/run.ps1 \
               --known-offender packages/mk-sql/tests/files/ci-scripts/manage-test-registry-set.ps1 \
-              `# CMK-35753` \
-              --known-offender packages/cmk-agent-ctl/run.ps1 \
               `# CMK-35754` \
               --known-offender agents/windows/unit_tests_ps1/mk_mysql.Tests.ps1 \
               `# CMK-35755` \
