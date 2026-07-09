@@ -89,8 +89,8 @@ def _add_predictive_lines(
     names: set[MetricName] = set()
     for base, inverse in inverse_by_metric.items():
         for predictive in (
-            MetricName(f"predict_{base}"),
-            MetricName(f"predict_lower_{base}"),
+            MetricName(f"{_PREDICT_PREFIX}{base}"),
+            MetricName(f"{_PREDICT_PREFIX}lower_{base}"),
         ):
             if predictive in available and predictive not in names:
                 added.append(
