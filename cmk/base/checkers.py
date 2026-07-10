@@ -193,7 +193,7 @@ def _do_fetch(
     result.Result[AgentRawData | SNMPRawData, Exception],
     Snapshot,
 ]:
-    logger.debug("Fetching source: %s", source_info)
+    logger.debug("Fetching source: %(source_info)s", {"source_info": source_info})
     with CPUTracker(logger.debug) as tracker:
         raw_data = trigger.get_raw_data(file_cache, fetcher, mode, secrets)
     return source_info, raw_data, tracker.duration
@@ -695,7 +695,7 @@ def _make_rrd_data_getter(
                 livestatus.MKLivestatusNotFoundError,
             )
         ) as e:
-            logger.warning("Cannot get historic metrics via Livestatus: %s", e)
+            logger.warning("Cannot get historic metrics via Livestatus: %(error)s", {"error": e})
         return None
 
     return get_rrd_data

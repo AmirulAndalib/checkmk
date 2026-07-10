@@ -70,7 +70,7 @@ _EXCLUDED_PREFIXES = (
 _INCLUDED_PATHS = (
     "cmk/plugins",
     "cmk/update_config",
-    "cmk/base/notify.py",
+    "cmk/base",
     "non-free/packages/cmk-update-agent",
     "non-free/packages/cmk-dcd/cmk/dcd",
     "non-free/packages/cmk-relay-engine",

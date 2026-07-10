@@ -1170,12 +1170,14 @@ def _execute_autodiscovery(
     for host_name in autodiscovery_queue:
         if host_name in hosts_config.clusters:
             logger.debug(
-                "Removing host from autodiscovery queue: '%s' (host is a cluster)", host_name
+                "Removing host from autodiscovery queue: '%(host_name)s' (host is a cluster)",
+                {"host_name": host_name},
             )
             autodiscovery_queue.remove(host_name)
         elif host_name not in all_hosts:
             logger.debug(
-                "Removing host from autodiscovery queue: '%s' (host not configured)", host_name
+                "Removing host from autodiscovery queue: '%(host_name)s' (host not configured)",
+                {"host_name": host_name},
             )
             autodiscovery_queue.remove(host_name)
 
@@ -1216,7 +1218,9 @@ def _execute_autodiscovery(
 
                 # TODO: Add host to hosts_processed AFTER it was processed!
                 hosts_processed.add(host_name)
-                logger.debug("Performing autodiscovery on host: %s", host_name)
+                logger.debug(
+                    "Performing autodiscovery on host: %(host_name)s", {"host_name": host_name}
+                )
                 params = env.config_cache.discovery_check_parameters(host_name)
                 if params.commandline_only:
                     logger.warning("Autodiscovery failed: discovery check is disabled")

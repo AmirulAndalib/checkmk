@@ -86,7 +86,7 @@ def event_keepalive(
     # Send signal that we are ready to receive the next event, but
     # not after a config-reload-restart (see below)
     if os.getenv("CMK_EVENT_RESTART") != "1":
-        logger.info("Starting in keepalive mode with PID %d", os.getpid())
+        logger.info("Starting in keepalive mode with PID %(pid)d", {"pid": os.getpid()})
         _send_reply_ready()
     else:
         logger.info("We are back after a restart.")
@@ -132,7 +132,7 @@ def event_keepalive(
                     except Exception as e:
                         if cmk.ccc.debug.enabled():
                             raise
-                        logger.info("Cannot read data from CMC: %s", e)
+                        logger.info("Cannot read data from CMC: %(error)s", {"error": e})
 
                     if not new_data:
                         logger.info("CMC has closed the connection. Shutting down.")
@@ -464,7 +464,7 @@ def complete_raw_context(
         _update_enriched_context_from_notify_host_file(enriched_context)
 
     except Exception as e:
-        logger.info("Error on completing raw context: %s", e)
+        logger.info("Error on completing raw context: %(error)s", {"error": e})
 
     if with_dump:
         log_context = "\n".join(
@@ -476,7 +476,7 @@ def complete_raw_context(
                 ]
             )
         )
-        logger.info("Computed variables:\n%s", log_context)
+        logger.info("Computed variables:\n%(log_context)s", {"log_context": log_context})
 
     return enriched_context
 

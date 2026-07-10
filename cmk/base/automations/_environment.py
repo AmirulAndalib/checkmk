@@ -253,7 +253,6 @@ class AutomationEnvironment:
 def handle_ip_lookup_error(host: HostName, exception: Exception) -> None:
     logger = logging.getLogger("cmk.automations")
     logger.warning(
-        "Cannot lookup IP address of '%s' (%s). The host will not be monitored correctly.",
-        host,
-        exception,
+        "Cannot lookup IP address of '%(host)s' (%(exception)s). The host will not be monitored correctly.",
+        {"host": host, "exception": exception},
     )

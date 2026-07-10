@@ -135,13 +135,14 @@ def do_localize(args: list[str]) -> None:
             _write_alias(lang, alias)
         except LocalizeException as e:
             # Expected CLI error, the traceback adds no value here.
-            logger.error("%s", e)  # noqa: TRY400
+            logger.error("%(error)s", {"error": e})  # noqa: TRY400
             sys.exit(1)
     else:
         allc = sorted(commands.keys())
         allc = [tty.bold + c + tty.normal for c in allc]
         logger.error(
-            "Invalid localize command. Allowed are: %s and %s.", ", ".join(allc[:-1]), allc[-1]
+            "Invalid localize command. Allowed are: %(commands)s and %(last_command)s.",
+            {"commands": ", ".join(allc[:-1]), "last_command": allc[-1]},
         )
         sys.exit(1)
 
@@ -188,7 +189,7 @@ def _localize_update_po(lang: LanguageName) -> None:
     ):
         logger.error("Failed!")
     else:
-        logger.info("Success! Output: %s", _po_file(lang))
+        logger.info("Success! Output: %(output)s", {"output": _po_file(lang)})
 
 
 def _localize_init_po(lang: LanguageName) -> None:
@@ -261,7 +262,7 @@ msgstr ""
 """
 
         _pot_file().write_text(header + _pot_file().read_text())
-        logger.info("Success! Output: %s", _pot_file())
+        logger.info("Success! Output: %(output)s", {"output": _pot_file()})
 
 
 def _localize_edit(lang: LanguageName) -> None:
@@ -283,10 +284,10 @@ def _localize_update(lang: LanguageName) -> None:
     _localize_sniff()
 
     if not _po_file(lang).exists():
-        logger.info("Initializing .po file for language %s...", lang)
+        logger.info("Initializing .po file for language %(lang)s...", {"lang": lang})
         _localize_init_po(lang)
     else:
-        logger.info("Updating .po file for language %s...", lang)
+        logger.info("Updating .po file for language %(lang)s...", {"lang": lang})
         _localize_update_po(lang)
 
 
@@ -306,7 +307,7 @@ def _localize_compile(lang: LanguageName) -> None:
     if subprocess.call(["msgfmt", po_file, "-o", _mo_file(lang)]) != 0:
         logger.error("Failed!")
     else:
-        logger.info("Success! Output: %s", _mo_file(lang))
+        logger.info("Success! Output: %(output)s", {"output": _mo_file(lang)})
 
 
 def _initialize_local_po_file(lang: LanguageName) -> None:
@@ -319,4 +320,6 @@ def _initialize_local_po_file(lang: LanguageName) -> None:
             builtin_po_file.read_text(encoding="utf-8"),
             encoding="utf-8",
         )
-        logger.info("Initialize %s with the file in the default hierarchy", po_file)
+        logger.info(
+            "Initialize %(po_file)s with the file in the default hierarchy", {"po_file": po_file}
+        )

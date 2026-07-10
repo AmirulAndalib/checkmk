@@ -217,7 +217,7 @@ async def _reloader_task(
             return state.changes_cache.get_last_detected_change()
         except CacheError as error:
             # The CacheError carries all the relevant information we care about. -> Ignore Ruff rule
-            logger.error("Error getting last detected change: %s", error)  # noqa: TRY400
+            logger.error("Error getting last detected change: %(error)s", {"error": error})  # noqa: TRY400
             return 0.0
 
     # The watcher records a "last detected change" per filesystem event, so a single
@@ -231,8 +231,8 @@ async def _reloader_task(
 
         last_change = cached_last_change
         logger.info(
-            "Change detected %.2f seconds ago",
-            time.time() - last_change,
+            "Change detected %(seconds_ago).2f seconds ago",
+            {"seconds_ago": time.time() - last_change},
         )
 
         current_cooldown = config.cooldown_interval
@@ -267,8 +267,8 @@ async def _reloader_task(
                 )
                 last_change = cached_last_change
                 logger.info(
-                    "Change detected %.2f seconds ago",
-                    time.time() - last_change,
+                    "Change detected %(seconds_ago).2f seconds ago",
+                    {"seconds_ago": time.time() - last_change},
                 )
 
 
@@ -282,9 +282,8 @@ def _execute_automation_endpoint(
 ) -> AutomationResponse:
     logger = log_manager.get_logger("automation")
     logger.info(
-        'Processing automation command "%s" with args: %s',
-        payload.name,
-        payload.args,
+        'Processing automation command "%(command)s" with args: %(args)s',
+        {"command": payload.name, "args": payload.args},
     )
     try:
         if state.reload_if_required():
@@ -327,9 +326,8 @@ def _execute_automation_endpoint(
             automation_end_time = time.time()
         except SystemExit as system_exit:
             logger.error(  # noqa: TRY400
-                'Encountered SystemExit exception while processing automation "%s" with args: %s',
-                payload.name,
-                payload.args,
+                'Encountered SystemExit exception while processing automation "%(command)s" with args: %(args)s',
+                {"command": payload.name, "args": payload.args},
             )
             result_or_error_code = (
                 system_exit_code
@@ -338,10 +336,12 @@ def _execute_automation_endpoint(
             )
         else:
             logger.info(
-                'Processed automation command "%s" with args "%s" in %.2f seconds',
-                payload.name,
-                payload.args,
-                automation_end_time - automation_start_time,
+                'Processed automation command "%(command)s" with args "%(args)s" in %(duration).2f seconds',
+                {
+                    "command": payload.name,
+                    "args": payload.args,
+                    "duration": automation_end_time - automation_start_time,
+                },
             )
 
         match result_or_error_code:
