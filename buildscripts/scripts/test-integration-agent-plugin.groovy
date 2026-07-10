@@ -29,7 +29,7 @@ void main() {
     def disable_cache = params.DISABLE_CACHE;
     def distro = params.DISTRO;
     def edition = params.EDITION;
-    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def fake_artifacts = false;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
     def version = params.VERSION;
 
