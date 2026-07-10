@@ -10,7 +10,6 @@ from cmk.plugins.azure_deprecated.special_agent.agent_azure import (
     ApiError,
     MgmtApiClient,
 )
-from cmk.utils.http_proxy_config import EnvironmentProxyConfig, ExplicitProxyConfig
 
 RESOURCE_ID = "/subscriptions/1234/resourceGroups/test/providers/Microsoft.Network/virtualNetworkGateways/vnet_gateway"
 
@@ -49,7 +48,7 @@ def test_get_available_metrics_from_exception(
 ) -> None:
     client = MgmtApiClient(
         _AuthorityURLs("login-url", "resource-url", "base-url"),
-        EnvironmentProxyConfig(),
+        None,
         "subscription",
     )
 
@@ -81,7 +80,7 @@ def test_get_available_metrics_from_exception_error(
 ) -> None:
     client = MgmtApiClient(
         _AuthorityURLs("login-url", "resource-url", "base-url"),
-        ExplicitProxyConfig("http://my-proxy:1234"),
+        dict.fromkeys(("http", "https"), "http://my-proxy:1234"),
         "subscription",
     )
 

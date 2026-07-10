@@ -11,6 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from cmk.plugins.azure_deprecated.http_proxies import serialize_proxy
 from cmk.server_side_calls.v1 import (
     EnvProxy,
     HostConfig,
@@ -95,13 +96,7 @@ def agent_azure_arguments(
         args += ["--piggyback_vms", params.piggyback_vms]
 
     if params.proxy:
-        match params.proxy:
-            case URLProxy(url=url):
-                args += ["--proxy", url]
-            case EnvProxy():
-                args += ["--proxy", "FROM_ENVIRONMENT"]
-            case NoProxy():
-                args += ["--proxy", "NO_PROXY"]
+        args += ["--proxy", serialize_proxy(params.proxy)]
 
     if params.services:
         args += [

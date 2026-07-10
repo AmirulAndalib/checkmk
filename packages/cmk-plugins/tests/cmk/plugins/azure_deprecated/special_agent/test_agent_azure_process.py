@@ -32,9 +32,6 @@ from cmk.plugins.azure_deprecated.special_agent.agent_azure import (
     write_remaining_reads,
     write_section_ad,
 )
-from cmk.utils.http_proxy_config import NoProxyConfig
-
-pytestmark = pytest.mark.checks
 
 
 class MockMgmtApiClient(MgmtApiClient):
@@ -58,7 +55,7 @@ class MockMgmtApiClient(MgmtApiClient):
 
         super().__init__(
             _AuthorityURLs("login-url", "resource-url", "base-url"),
-            NoProxyConfig(),
+            {"http": "", "https": ""},
             "mock_subscription",
         )
 

@@ -150,13 +150,28 @@ py_library(
             "werks/**",
         ],
     ),
+    # We do not add packages:__subpackages__ here:
+    # depending on cmk.utils is discouraged.
+    # Don't introduce new dependencies over there!
+    # The ones listed here are just the sad status quo
     visibility = [
         "//bin:__subpackages__",
         "//cmk:__subpackages__",
-        "//non-free/packages:__subpackages__",
+        "//non-free/packages/cmk-agent-registration-extended:__subpackages__",
+        "//non-free/packages/cmk-bakery:__subpackages__",
+        "//non-free/packages/cmk-dcd:__subpackages__",
+        "//non-free/packages/cmk-licensing-nonfree:__subpackages__",
+        "//non-free/packages/cmk-liveproxyd:__subpackages__",
+        "//non-free/packages/cmk-metric-backend:__subpackages__",
+        "//non-free/packages/cmk-network-flow:__subpackages__",
+        "//non-free/packages/cmk-notification-plugins-nonfree:__subpackages__",
+        "//non-free/packages/cmk-robotmk:__subpackages__",
+        "//non-free/packages/cmk-telemetry:__subpackages__",
         "//non-free/tests:__subpackages__",
         "//omd/packages:__subpackages__",
-        "//packages:__subpackages__",
+        "//packages/cmk-backup:__subpackages__",
+        "//packages/cmk-check-engine:__subpackages__",
+        "//packages/cmk-notification-plugins:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [

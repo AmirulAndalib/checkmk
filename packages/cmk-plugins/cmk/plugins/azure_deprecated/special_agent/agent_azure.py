@@ -36,8 +36,8 @@ import msal
 import requests
 
 from cmk.password_store.v1_unstable import parser_add_secret_option, resolve_secret_option
+from cmk.plugins.azure_deprecated.http_proxies import deserialize_proxy_config, ProxyConfig
 from cmk.server_side_programs.v1_unstable import vcrtrace
-from cmk.utils.http_proxy_config import deserialize_http_proxy_config, HTTPProxyConfig
 
 from ._data_cache import DataCache
 
@@ -495,7 +495,7 @@ class BaseApiClient:
     def __init__(
         self,
         authority_urls: _AuthorityURLs,
-        http_proxy_config: HTTPProxyConfig,
+        proxy_config: ProxyConfig,
     ) -> None:
         self._ratelimit = float("Inf")
         self._headers: dict = {}
@@ -503,14 +503,14 @@ class BaseApiClient:
         self._resource_url = authority_urls.resource
         self._base_url = authority_urls.base
         self._regional_url = authority_urls.regional
-        self._http_proxy_config = http_proxy_config
+        self._proxy_config = proxy_config
 
     def login(self, tenant: str, client: str, secret: str) -> None:
         client_app = msal.ConfidentialClientApplication(  # type: ignore[attr-defined]
             client,
             secret,
             f"{self._login_url}/{tenant}",
-            proxies=self._http_proxy_config.to_requests_proxies(),
+            proxies=self._proxy_config,
         )
         token = client_app.acquire_token_for_client([self._resource_url + "/.default"])
 
@@ -666,7 +666,7 @@ class BaseApiClient:
                 json=body,
                 params=params,
                 headers=self._headers,
-                proxies=self._http_proxy_config.to_requests_proxies(),
+                proxies=None if self._proxy_config is None else {**self._proxy_config},
             )
 
         response = self._handle_ratelimit(get_response)
@@ -724,7 +724,7 @@ class MgmtApiClient(BaseApiClient):
     def __init__(
         self,
         authority_urls: _AuthorityURLs,
-        http_proxy_config: HTTPProxyConfig,
+        http_proxy_config: ProxyConfig,
         subscription: str,
     ):
         self.subscription = subscription
@@ -1779,7 +1779,7 @@ def write_exception_to_agent_info_section(exception, component):
 def main_graph_client(args: Args) -> None:
     graph_client = GraphApiClient(
         _get_graph_authority_urls(args.authority),
-        deserialize_http_proxy_config(args.proxy),
+        deserialize_proxy_config(args.proxy),
     )
     try:
         graph_client.login(
@@ -1935,7 +1935,7 @@ def test_connection(args: Args, subscription: str) -> int | tuple[int, str]:
     connection that's essential for the vast majority of setups."""
     mgmt_client = MgmtApiClient(
         _get_mgmt_authority_urls(args.authority, subscription),
-        deserialize_http_proxy_config(args.proxy),
+        deserialize_proxy_config(args.proxy),
         subscription,
     )
     try:
@@ -1956,7 +1956,7 @@ def test_connection(args: Args, subscription: str) -> int | tuple[int, str]:
 def main_subscription(args: Args, selector: Selector, subscription: str) -> None:
     mgmt_client = MgmtApiClient(
         _get_mgmt_authority_urls(args.authority, subscription),
-        deserialize_http_proxy_config(args.proxy),
+        deserialize_proxy_config(args.proxy),
         subscription,
     )
 
