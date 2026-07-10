@@ -227,13 +227,10 @@ function onClickOutside(): void {
 }
 
 function handleUpdate(selected: Suggestion | null): void {
-  // CmkSuggestion tells us to change our value
-  const newValue =
-    selected === null || selected.name === null
-      ? new NoSelection()
-      : new SelectionWithTitle(selected.name, selected.title)
-  selectedOption.value = newValue
-  selectedOptionPublic.value = newValue.getName()
+  // Only write the model; the internal state syncs back from the watch, so a
+  // controlled parent that keeps its value (e.g. an add-control pinned to
+  // null) keeps the dropdown unselected and repeated picks emit again.
+  selectedOptionPublic.value = selected === null || selected.name === null ? null : selected.name
   callbackFilteredErrorMessage.value = null
   hideSuggestions()
 }
@@ -278,6 +275,9 @@ const group = computed<ButtonVariants['group']>(() => {
       :class="{ 'cmk-dropdown__validation-error': formValidation }"
       @click="showSuggestions"
     >
+      <span v-if="!!slots['button-prefix']" class="cmk-dropdown--button-prefix">
+        <slot name="button-prefix"></slot>
+      </span>
       <template v-if="callbackFilteredLoading">
         <CmkLoading />
       </template>
@@ -312,6 +312,12 @@ const group = computed<ButtonVariants['group']>(() => {
   position: relative;
   white-space: nowrap;
   align-self: flex-start;
+
+  .cmk-dropdown--button-prefix {
+    display: flex;
+    align-items: center;
+    height: 1lh;
+  }
 
   .cmk-dropdown--arrow {
     flex-shrink: 0;

@@ -1,0 +1,71 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import { defineComponent, h } from 'vue'
+
+import { untranslated } from '@/lib/i18n'
+
+import CmkAddDropdown from '@/components/CmkDropdown/CmkAddDropdown.vue'
+import type { Suggestions } from '@/components/CmkSuggestions'
+
+const OPTIONS: Suggestions = {
+  type: 'fixed',
+  suggestions: [
+    { name: 'metrics_backend', title: untranslated('Metrics backend') },
+    { name: 'cmk_rrd', title: untranslated('CMK RRD') }
+  ]
+}
+
+function mountAddDropdown(onSelect: (value: string) => void = () => {}) {
+  return render(
+    defineComponent({
+      render() {
+        return h(CmkAddDropdown, {
+          options: OPTIONS,
+          label: untranslated('Add scope'),
+          onSelect
+        })
+      }
+    })
+  )
+}
+
+test('shows the label as button text with a plus icon', () => {
+  mountAddDropdown()
+
+  const button = screen.getByRole('combobox', { name: 'Add scope' })
+  expect(button).toHaveTextContent('Add scope')
+  expect(button.querySelector('img')).not.toBeNull()
+})
+
+test('selecting an option emits select and keeps the button unselected', async () => {
+  const onSelect = vi.fn()
+  mountAddDropdown(onSelect)
+
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add scope' }))
+  await fireEvent.click(await screen.findByText('CMK RRD'))
+
+  expect(onSelect).toHaveBeenCalledWith('cmk_rrd')
+  await waitFor(() => {
+    expect(screen.getByRole('combobox', { name: 'Add scope' })).toHaveTextContent('Add scope')
+  })
+})
+
+test('a second pick of the same option emits again', async () => {
+  const onSelect = vi.fn()
+  mountAddDropdown(onSelect)
+
+  for (const _ of [1, 2]) {
+    await fireEvent.click(screen.getByRole('combobox', { name: 'Add scope' }))
+    await fireEvent.click(await screen.findByText('CMK RRD'))
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: 'Add scope' })).toHaveTextContent('Add scope')
+    })
+  }
+
+  expect(onSelect).toHaveBeenCalledTimes(2)
+  expect(onSelect).toHaveBeenNthCalledWith(2, 'cmk_rrd')
+})

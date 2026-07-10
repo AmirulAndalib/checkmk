@@ -133,6 +133,9 @@ def test_ucl_parity() -> None:
     ucl.remove("CmkMultitoneIcon")
     ucl.remove("CmkIconEmblem")
 
+    # does not follow the usual path pattern, but is stored inside CmkDropdown
+    ucl.remove("CmkAddDropdown")
+
     assert components == ucl
 
     helpers = dict(unique_dict(load_ucl_helper_components()))
