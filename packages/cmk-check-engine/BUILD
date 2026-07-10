@@ -34,7 +34,6 @@ py_library(
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:hostaddress",
-        "//packages/cmk-ccc:tty",
     ],
 )
 
@@ -288,7 +287,6 @@ py_cmk_test(
     srcs = glob(["tests/cmk/checkengine/snmplib/**/*.py"]),
     deps = [
         "snmplib",
-        "//cmk/utils",
         "//packages/cmk-plugin-apis:agent_based",
     ],
 )

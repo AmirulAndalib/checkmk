@@ -35,7 +35,6 @@ from cmk.checkengine.snmplib import (
     SNMPVersion,
     SpecialColumn,
 )
-from cmk.utils.log import logger
 
 SNMPConfig = SNMPHostConfig(
     is_ipv6_primary=False,
@@ -97,7 +96,6 @@ def test_get_snmp_table(
                 tree=info,
                 walk_cache={},
                 backend=backend,
-                log=logger.debug,
             )
         return [
             get_snmp_table(
@@ -105,7 +103,6 @@ def test_get_snmp_table(
                 tree=i,
                 walk_cache={},
                 backend=backend,
-                log=logger.debug,
             )
             for i in info
         ]
@@ -177,7 +174,6 @@ def test_walk_passes_on_timeout_with_snmpv3_context_continue_on_timeout() -> Non
                     ],
                 ),
             ),
-            log=logger.debug,
         )
 
 
@@ -222,5 +218,4 @@ def test_walk_raises_on_timeout_without_snmpv3_context_stop_on_timeout() -> None
                     ],
                 ),
             ),
-            log=logger.debug,
         )

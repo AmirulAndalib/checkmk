@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import ast
-import logging
 import sys
 from collections.abc import Callable, Mapping
 from pathlib import Path
@@ -36,8 +35,6 @@ else:
 
 cmk.ccc.debug.enable()
 
-logger = logging.getLogger(__name__)
-
 params: tuple[OID, str, Mapping[str, Any], str] = ast.literal_eval(sys.stdin.read())
 oid = params[0]
 backend_type = SNMPBackendEnum.deserialize(params[1])
@@ -63,7 +60,6 @@ sys.stdout.write(
                 oid,
                 single_oid_cache=single_oid_cache,
                 backend=backend(config),
-                log=logger.debug,
             ),
             single_oid_cache,
         )

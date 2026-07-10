@@ -3122,7 +3122,6 @@ def _automation_diag_snmp(
             ),
             walk_cache={},
             backend=make_snmp_backend(snmp_config),
-            log=log.logger.debug,
         )
     except Exception as e:
         if cmk.ccc.debug.enabled():
@@ -3621,7 +3620,6 @@ class AutomationDiagHost:
             ),
             walk_cache={},
             backend=make_snmp_backend(snmp_config),
-            log=log.logger.debug,
         )
 
         if data:

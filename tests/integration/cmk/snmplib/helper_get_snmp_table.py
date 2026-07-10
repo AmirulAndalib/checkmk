@@ -63,7 +63,6 @@ sys.stdout.write(
                 tree=tree,
                 backend=backend(config),
                 walk_cache=walk_cache,
-                log=logger.debug,
             ),
             walk_cache,
         )

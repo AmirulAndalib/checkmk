@@ -6,6 +6,7 @@
 
 import contextlib
 import hashlib
+import logging
 from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from functools import partial
 from typing import assert_never
@@ -34,6 +35,7 @@ SNMPRawData = Mapping[SNMPSectionMarker, SNMPRawDataElem]
 
 _ResultColumnsUnsanitized = list[tuple[OID, SNMPRowInfo, SNMPValueEncoding]]
 _ResultColumnsSanitized = list[tuple[list[SNMPRawValue], SNMPValueEncoding]]
+logger = logging.getLogger(__name__)
 
 
 def get_snmp_table(
@@ -42,7 +44,6 @@ def get_snmp_table(
     tree: BackendSNMPTree,
     walk_cache: MutableMapping[tuple[str, str, bool], SNMPRowInfo],
     backend: SNMPBackend,
-    log: Callable[[str], None],
 ) -> Sequence[SNMPTable]:
     index_column = -1
     index_format: SpecialColumn | None = None
@@ -78,7 +79,6 @@ def get_snmp_table(
                 walk_cache=walk_cache,
                 save_walk_cache=oid.save_to_cache,
                 backend=backend,
-                log=log,
             )
             if len(rowinfo) > max_len:
                 max_len_col = len(columns)
@@ -177,7 +177,6 @@ def get_snmpwalk(
     walk_cache: MutableMapping[tuple[str, str, bool], SNMPRowInfo],
     save_walk_cache: bool,
     backend: SNMPBackend,
-    log: Callable[[str], None],
 ) -> SNMPRowInfo:
     context_config = backend.config.snmpv3_contexts_of(section_name)
     context_string = "-".join([c if c else "no_context" for c in context_config.contexts])
@@ -187,7 +186,7 @@ def get_snmpwalk(
 
     with contextlib.suppress(KeyError):
         cache_info = walk_cache[(fetchoid, context_hash, save_walk_cache)]
-        log(f"Already fetched OID: {fetchoid}")
+        logger.debug("Already fetched OID: %(oid)s", {"oid": fetchoid})
         return cache_info
 
     added_oids: set[OID] = set()
@@ -209,7 +208,9 @@ def get_snmpwalk(
             if context_config.timeout_policy == "stop":
                 raise
 
-            log(f"Timeout for SNMP context {context}.  Skipping for now.")
+            logger.debug(
+                "Timeout for SNMP context %(context)s. Skipping for now.", {"context": context}
+            )
             skip.add(context)
             continue
 
@@ -218,12 +219,14 @@ def get_snmpwalk(
         # .1.3.6.1.2.1.1.1.0 was being walked. We try to detect these situations
         # by removing any duplicate OID information
         if len(rows) > 1 and rows[0][0] == rows[1][0]:
-            log("Detected broken SNMP agent. Ignoring duplicate OID {rows[0][0]}.")
+            logger.debug(
+                "Detected broken SNMP agent. Ignoring duplicate OID %(oid)s", {"oid": rows[0][0]}
+            )
             rows = rows[:1]
 
         for row_oid, val in rows:
             if row_oid in added_oids:
-                log(f"Duplicate OID found: {row_oid} ({val!r})")
+                logger.debug("Duplicate OID found: %(oid)s %(val)s", {"oid": row_oid, "val": val})
             else:
                 rowinfo.append((row_oid, val))
                 added_oids.add(row_oid)

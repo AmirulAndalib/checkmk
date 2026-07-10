@@ -1326,7 +1326,7 @@ def _mode_snmpget(app: CheckmkBaseApp, options: Mapping[str, object], args: Sequ
             backend_override=snmp_backend_override,
         )
         backend = make_backend(snmp_config)
-        value = get_single_oid(oid, single_oid_cache={}, backend=backend, log=log.logger.debug)
+        value = get_single_oid(oid, single_oid_cache={}, backend=backend)
         sys.stdout.write(f"{backend.hostname} ({backend.address}): {value!r}\n")
 
 
