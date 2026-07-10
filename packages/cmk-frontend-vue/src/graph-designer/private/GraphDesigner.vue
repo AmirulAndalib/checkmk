@@ -1170,6 +1170,7 @@ const graphDesignerContentAsJson = computed(() => {
             v-if="graphLine.type !== 'query'"
             v-model="graphLine.color"
             :aria-label="_t('Color picker')"
+            style="margin-right: 10px"
           />
         </td>
         <td class="nobr narrow">{{ graphLine.auto_title }}</td>

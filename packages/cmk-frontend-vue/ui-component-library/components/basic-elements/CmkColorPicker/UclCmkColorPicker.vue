@@ -34,6 +34,12 @@ export const panelConfig = {
     title: 'Color',
     initialState: '#ff0000',
     help: 'Controls the selected color value in hexadecimal format.'
+  },
+  boxed: {
+    type: 'boolean' as const,
+    title: 'Boxed',
+    initialState: false,
+    help: 'When enabled, the swatch is rendered inside a padded box instead of a plain bordered swatch.'
   }
 } satisfies PanelConfigFor<typeof CmkColorPicker>
 </script>
@@ -61,7 +67,7 @@ const propState = new PanelStateCreator<typeof CmkColorPicker>().createRef(panel
     <UclDetailPageHeader>CmkColorPicker</UclDetailPageHeader>
 
     <UclDetailPageComponent>
-      <CmkColorPicker v-model="propState.modelValue" />
+      <CmkColorPicker v-model="propState.modelValue" :boxed="propState.boxed" />
 
       <template #properties>
         <UclPropertiesPanel v-model="propState" :config="panelConfig" />
