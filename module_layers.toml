@@ -630,15 +630,17 @@ allows = [
   "cmk.utils.timeperiod",
 ]
 
-[components."cmk.checkengine.sources"]
+[components."cmk.checkengine.source_builder"]
 allows = [
   "@ccc",
-  "cmk.checkengine",
   "cmk.server_side_calls_backend",
-  "cmk.utils.agent_registration",
-  "cmk.utils.ip_lookup",
+  "cmk.checkengine",
   "cmk.ruleset_matcher",
+  "cmk.utils.ip_lookup",
 ]
+
+[components."cmk.checkengine.sources"]
+allows = ["@ccc", "cmk.checkengine"]
 
 [components."cmk.core_client"]
 allows = ["@ccc", "@trace"]

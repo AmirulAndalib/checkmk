@@ -35,7 +35,8 @@ from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.helper_interface import SourceType
 from cmk.checkengine.plugins import AgentBasedPlugins, ServiceID
 from cmk.checkengine.snmplib import SNMPBackendEnum, SNMPVersion
-from cmk.checkengine.sources.api import Source, SourceBuilder
+from cmk.checkengine.source_abc import Source
+from cmk.checkengine.source_builder import SourceBuilder
 from cmk.checkengine.specs.parameters import IsTimeperiodActiveCallback, TimespecificParameters
 from cmk.password_store.v1_unstable import Secret
 from cmk.ruleset_matcher.tags import ComputedDataSources, HostTags

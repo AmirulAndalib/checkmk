@@ -30,8 +30,7 @@ from cmk.checkengine.filecache import (
 from cmk.checkengine.helper_interface import AgentRawData, FetcherType, SourceInfo, SourceType
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPRawData
-from cmk.checkengine.sources.api._abc import Source
-from cmk.checkengine.sources.api._config import SourceConfig
+from cmk.checkengine.source_abc import Source, SourceConfig
 
 __all__ = [
     "SNMPSource",

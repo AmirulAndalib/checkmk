@@ -24,7 +24,8 @@ from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcher, S
 from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.checkengine.sources.api import Source, SourceBuilder
+from cmk.checkengine.source_abc import Source
+from cmk.checkengine.source_builder import SourceBuilder
 from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.ip_lookup import IPStackConfig

@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import cmk.checkengine.sources
-from cmk.checkengine.sources.api import OptionalSource
+from cmk.checkengine.source_abc import OptionalSource
 from cmk.checkengine.subclass_discovery import discover, get_default_identifier
 
 

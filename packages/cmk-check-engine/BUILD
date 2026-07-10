@@ -142,6 +142,34 @@ py_library(
 )
 
 py_library(
+    name = "sources",
+    srcs = [
+        "cmk/checkengine/source_builder.py",
+    ] + glob([
+        "cmk/checkengine/source_abc/*.py",
+        "cmk/checkengine/sources/*.py",
+    ]),
+    imports = ["."],
+    visibility = [
+        "//cmk:__pkg__",
+        "//cmk/base:__subpackages__",
+        "//non-free/packages/cmk-telemetry:__pkg__",
+        "//packages/cmk-check-engine:__pkg__",
+    ],
+    deps = [
+        "//cmk/server_side_calls_backend",
+        "//cmk/utils",
+        "//packages/cmk-ccc:hostaddress",
+        "//packages/cmk-check-engine:fetchers",
+        "//packages/cmk-check-engine:helper-interface",
+        "//packages/cmk-check-engine:snmplib",
+        "//packages/cmk-check-engine:subclass-discovery",
+        "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
+        "//packages/cmk-check-engine/cmk/checkengine/plugins",
+    ],
+)
+
+py_library(
     name = "checker-plugin",
     srcs = [
         "cmk/checkengine/checkerplugin.py",
@@ -421,10 +449,10 @@ py_wheel(
         ":inventory",
         ":lib",
         ":section-parser",
+        ":sources",
         "//packages/cmk-check-engine/cmk/checkengine/checking",
         "//packages/cmk-check-engine/cmk/checkengine/discovery",
         "//packages/cmk-check-engine/cmk/checkengine/parser",
-        "//packages/cmk-check-engine/cmk/checkengine/sources",
     ],
 )
 

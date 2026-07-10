@@ -22,6 +22,7 @@ from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.helper_interface import FetcherType
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPBackendEnum
+from cmk.checkengine.source_abc import OptionalSource, Source, SourceConfig, SourceContext
 from cmk.checkengine.sources._sources import (
     IPMISource,
     MgmtSNMPSource,
@@ -34,9 +35,6 @@ from cmk.checkengine.sources._sources import (
     SpecialAgentSource,
     TCPSource,
 )
-from cmk.checkengine.sources.api._abc import Source
-from cmk.checkengine.sources.api._config import SourceConfig
-from cmk.checkengine.sources.api._optional import OptionalSource, SourceContext
 from cmk.checkengine.subclass_discovery import discover, get_default_identifier
 from cmk.ruleset_matcher.tags import ComputedDataSources, TagID
 from cmk.server_side_calls_backend import SpecialAgentCommandLine
