@@ -3,30 +3,33 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
 
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import cmk.plugins.aws.constants as aws_types
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.aws import check_aws_limits
-from cmk.plugins.aws.lib import parse_aws_limits_generic
-
-check_info = {}
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Service,
+)
+from cmk.plugins.aws.lib import AWSLimitsByRegion, check_aws_limits_legacy, parse_aws_limits_generic
 
 default_running_ondemand_instances = [
     (inst_type, (None, 80.0, 90.0)) for inst_type in aws_types.AWS_EC2_INST_TYPES
 ]
 
 default_running_ondemand_instance_families = [
-    ("%s_vcpu" % inst_fam, (None, 80.0, 90.0)) for inst_fam in aws_types.AWS_EC2_INST_FAMILIES
+    (f"{inst_fam}_vcpu", (None, 80.0, 90.0)) for inst_fam in aws_types.AWS_EC2_INST_FAMILIES
 ]
 
 
-def _transform_ec2_limits(params):
+def _transform_ec2_limits(params: Mapping[str, Any]) -> dict[str, Any]:
     # Check default reset
-    def instance_limits(limits):
-        return {"running_ondemand_instances_%s" % inst_type: levels for inst_type, levels in limits}
+    def instance_limits(limits: Sequence[tuple[str, Any]]) -> dict[str, Any]:
+        return {f"running_ondemand_instances_{inst_type}": levels for inst_type, levels in limits}
 
     transformed = instance_limits(default_running_ondemand_instances)
     transformed.update(instance_limits(default_running_ondemand_instance_families))
@@ -39,23 +42,30 @@ def _transform_ec2_limits(params):
     return transformed
 
 
-def check_aws_ec2_limits(item, params, parsed):
-    if not (region_data := parsed.get(item)):
+def check_aws_ec2_limits(
+    item: str, params: Mapping[str, Any], section: AWSLimitsByRegion
+) -> CheckResult:
+    if not (region_data := section.get(item)):
         return
     # params look like:
     # {'vpc_sec_group_rules': (50, 80.0, 90.0),
     #  'running_ondemand_instances': [('a1.4xlarge', (20, 80.0, 90.0))]}
-    params = _transform_ec2_limits(params)
-    yield from check_aws_limits("ec2", params, region_data)
+    yield from check_aws_limits_legacy("ec2", _transform_ec2_limits(params), region_data)
 
 
-def discover_aws_ec2_limits(section):
-    yield from ((item, {}) for item in section)
+def discover_aws_ec2_limits(section: AWSLimitsByRegion) -> DiscoveryResult:
+    for item in section:
+        yield Service(item=item)
 
 
-check_info["aws_ec2_limits"] = LegacyCheckDefinition(
+agent_section_aws_ec2_limits = AgentSection(
     name="aws_ec2_limits",
     parse_function=parse_aws_limits_generic,
+)
+
+
+check_plugin_aws_ec2_limits = CheckPlugin(
+    name="aws_ec2_limits",
     service_name="AWS/EC2 Limits %s",
     discovery_function=discover_aws_ec2_limits,
     check_function=check_aws_ec2_limits,
