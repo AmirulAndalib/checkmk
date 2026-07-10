@@ -52,7 +52,8 @@ def save_payload_on_message(
         channel: Channel[PiggybackPayload], delivery_tag: DeliveryTag, received: PiggybackPayload
     ) -> None:
         logger.debug(
-            "Received payload for piggybacked host from source host '%s'", received.source_host
+            "Received payload for piggybacked host from source host '%(source_host)s'",
+            {"source_host": received.source_host},
         )
         store_piggyback_raw_data(
             source_hostname=received.source_host,
@@ -83,14 +84,14 @@ class SendingPayloadProcess(multiprocessing.Process):
         self.task_name = "publishing on queue 'payload'"
 
     def run(self) -> None:
-        self.logger.info("Starting: %s", self.task_name)
+        self.logger.info("Starting: %(task_name)s", {"task_name": self.task_name})
         signal.signal(
             signal.SIGTERM,
             make_log_and_exit(self.logger.info, f"Terminating: {self.task_name}"),
         )
 
         config = load_config(self.omd_root)
-        self.logger.debug("Loaded configuration: %r", config)
+        self.logger.debug("Loaded configuration: %(config)r", {"config": config})
 
         failed_message = None
         try:
@@ -107,11 +108,16 @@ class SendingPayloadProcess(multiprocessing.Process):
                             self._handle_message(channel, config, piggyback_message)
                     except CMKConnectionError as exc:
                         failed_message = piggyback_message
-                        self.logger.info("Reconnecting: %s: %s", self.task_name, exc)
+                        self.logger.info(
+                            "Reconnecting: %(task_name)s: %(exc)s",
+                            {"task_name": self.task_name, "exc": exc},
+                        )
         except CMKConnectionError:
-            self.logger.exception("Connection error: %s", self.task_name)
+            self.logger.exception("Connection error: %(task_name)s", {"task_name": self.task_name})
         except Exception as exc:
-            self.logger.exception("Exception: %s: %s", self.task_name, exc)
+            self.logger.exception(
+                "Exception: %(task_name)s: %(exc)s", {"task_name": self.task_name, "exc": exc}
+            )
             crash_report_msg = self.crash_report_callback()
             # The traceback was already logged above; this only adds the crash report reference.
             self.logger.error(crash_report_msg)  # noqa: TRY400
@@ -127,11 +133,13 @@ class SendingPayloadProcess(multiprocessing.Process):
             return
 
         self.logger.debug(
-            "%s: from host '%s' to host '%s' on site '%s'",
-            self.task_name.title(),
-            message.meta.source,
-            message.meta.piggybacked,
-            site_id,
+            "%(task_name)s: from host '%(source)s' to host '%(piggybacked)s' on site '%(site)s'",
+            {
+                "task_name": self.task_name.title(),
+                "source": message.meta.source,
+                "piggybacked": message.meta.piggybacked,
+                "site": site_id,
+            },
         )
         channel.publish_for_site(
             site_id, PiggybackPayload.from_message(message), routing=RoutingKey("payload")
@@ -153,7 +161,7 @@ def send_messages_oneshot(
     targets: Mapping[HostName, str],
 ) -> None:
     task_name = "sending oneshot messages"
-    logger.info("Starting: %s", task_name)
+    logger.info("Starting: %(task_name)s", {"task_name": task_name})
 
     hub_payloads = [
         (site_id, PiggybackPayload.from_message(message))
@@ -166,12 +174,14 @@ def send_messages_oneshot(
             channel = conn.channel(PiggybackPayload)
             for site, payload in hub_payloads:
                 logger.debug(
-                    "%s: to site '%s' for host '%s'",
-                    task_name.title(),
-                    site,
-                    ",".join(payload.raw_data),  # it's only one.
+                    "%(task_name)s: to site '%(site)s' for host '%(host)s'",
+                    {
+                        "task_name": task_name.title(),
+                        "site": site,
+                        "host": ",".join(payload.raw_data),  # it's only one.
+                    },
                 )
                 channel.publish_for_site(site, payload, routing=RoutingKey("payload"))
 
     except CMKConnectionError:
-        logger.exception("Connection error: %s", task_name)
+        logger.exception("Connection error: %(task_name)s", {"task_name": task_name})

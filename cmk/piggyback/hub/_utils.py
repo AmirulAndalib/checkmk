@@ -52,7 +52,7 @@ class ReceivingProcess[ModelT: BaseModel](multiprocessing.Process):
         self.task_name = f"receiving on queue '{self.queue.value}'"
 
     def run(self) -> None:
-        self.logger.info("Starting: %s", self.task_name)
+        self.logger.info("Starting: %(task_name)s", {"task_name": self.task_name})
         signal.signal(
             signal.SIGTERM,
             make_log_and_exit(self.logger.info, f"Terminating: {self.task_name}"),
@@ -64,16 +64,21 @@ class ReceivingProcess[ModelT: BaseModel](multiprocessing.Process):
                         channel: Channel[ModelT] = conn.channel(self.model)
                         channel.queue_declare(queue=self.queue, message_ttl=self.message_ttl)
 
-                        self.logger.debug("Consuming: %s", self.task_name)
+                        self.logger.debug("Consuming: %(task_name)s", {"task_name": self.task_name})
                         channel.consume(self.queue, self.callback)
                     except CMKConnectionError as exc:
                         self.logger.info(
-                            "Interrupted by failed connection: %s: %s", self.task_name, exc
+                            "Interrupted by failed connection: %(task_name)s: %(exc)s",
+                            {"task_name": self.task_name, "exc": exc},
                         )
         except CMKConnectionError:
-            self.logger.exception("Reconnecting failed: %s", self.task_name)
+            self.logger.exception(
+                "Reconnecting failed: %(task_name)s", {"task_name": self.task_name}
+            )
         except Exception as exc:
-            self.logger.exception("Exception: %s: %s", self.task_name, exc)
+            self.logger.exception(
+                "Exception: %(task_name)s: %(exc)s", {"task_name": self.task_name, "exc": exc}
+            )
             crash_report_msg = self.crash_report_callback()
             # The traceback was already logged above; this only adds the crash report reference.
             self.logger.error(crash_report_msg)  # noqa: TRY400
@@ -96,7 +101,10 @@ def make_connection(
             # and/or broker is restarting
             CMKConnectionError,
         ) as exc:
-            logger.info("Connection failed (will retry): %s: %s", task_name, exc)
+            logger.info(
+                "Connection failed (will retry): %(task_name)s: %(exc)s",
+                {"task_name": task_name, "exc": exc},
+            )
             # Retry.
             time.sleep(interval)
 

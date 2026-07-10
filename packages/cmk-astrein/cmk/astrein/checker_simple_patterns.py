@@ -68,6 +68,7 @@ _EXCLUDED_PREFIXES = (
 #: Repo-relative paths force-checked even when they sit below an ``_EXCLUDED_PREFIXES``
 #: entry, so individual files can be migrated ahead of their surrounding tree.
 _INCLUDED_PATHS = (
+    "cmk/piggyback",
     "cmk/plugins",
     "cmk/update_config",
     "cmk/base",

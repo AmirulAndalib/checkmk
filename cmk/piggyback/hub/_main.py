@@ -54,7 +54,10 @@ def handle_received_config(
         delivery_tag: DeliveryTag,
         received: PiggybackHubConfig,
     ) -> None:
-        logger.debug("New configuration received (type: %s)", received.type.name)
+        logger.debug(
+            "New configuration received (type: %(config_type)s)",
+            {"config_type": received.type.name},
+        )
 
         match received.type:
             case ConfigType.ONESHOT:
@@ -149,7 +152,9 @@ def run_piggyback_hub(
         p.start()
 
     def terminate_all_processes(reason: str) -> int:
-        logger.info("Stopping: %s (%s)", APP_NAME.value, reason)
+        logger.info(
+            "Stopping: %(app_name)s (%(reason)s)", {"app_name": APP_NAME.value, "reason": reason}
+        )
         for p in processes:
             p.terminate()
         return 0
@@ -178,7 +183,7 @@ def main(
     logger = _setup_logging(args)
     omd_root = Path(args.omd_root)
 
-    logger.info("Starting: %s", APP_NAME.value)
+    logger.info("Starting: %(app_name)s", {"app_name": APP_NAME.value})
 
     if not args.foreground:
         daemonize()
@@ -192,7 +197,9 @@ def main(
             raise
         if isinstance(exc, HostNameValidationError):
             invalid_hostname_callback(exc)
-        logger.exception("Exception: %s: %s", APP_NAME.value, exc)
+        logger.exception(
+            "Exception: %(app_name)s: %(exc)s", {"app_name": APP_NAME.value, "exc": exc}
+        )
         crash_report_msg = crash_report_callback()
         # The traceback was already logged above; this only adds the crash report reference.
         logger.error(crash_report_msg)  # noqa: TRY400

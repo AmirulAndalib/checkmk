@@ -171,7 +171,10 @@ def get_messages_for(
 ) -> Sequence[PiggybackMessage]:
     """Returns piggyback messages for the given host"""
     piggyback_meta_data = _get_payload_meta_data(piggybacked_hostname, omd_root)
-    logger.debug("%s piggyback files for '%s'.", len(piggyback_meta_data), piggybacked_hostname)
+    logger.debug(
+        "%(count)s piggyback files for '%(piggybacked_hostname)s'.",
+        {"count": len(piggyback_meta_data), "piggybacked_hostname": piggybacked_hostname},
+    )
 
     piggyback_data = []
     for meta_data in piggyback_meta_data:
@@ -186,7 +189,7 @@ def get_messages_for(
             # race condition: file was removed between listing and reading
             continue
 
-        logger.debug("Read piggyback file '%s'", content_path)
+        logger.debug("Read piggyback file '%(content_path)s'", {"content_path": content_path})
         piggyback_data.append(PiggybackMessage(meta_data, raw_data))
 
     return piggyback_data
@@ -264,7 +267,10 @@ def store_piggyback_raw_data(
     # Store the last contact with this piggyback source to be able to filter outdated data later
     # We use the mtime of this file later for comparison.
     # Only do this for hosts that sent piggyback data this turn.
-    logger.debug("Received piggyback data for %d hosts", len(piggybacked_raw_data))
+    logger.debug(
+        "Received piggyback data for %(host_count)d hosts",
+        {"host_count": len(piggybacked_raw_data)},
+    )
     status_file_path = _get_source_status_file_path(source_hostname, omd_root)
     # usually the status file is updated with the same timestamp as the piggyback files, but in
     # case of distributed piggyback we want to keep the original timestamps so the fetchers etc.
@@ -272,7 +278,10 @@ def store_piggyback_raw_data(
     _write_file_with_mtime(file_path=status_file_path, content=b"", mtime=contact_timestamp)
 
     for piggybacked_hostname, lines in piggybacked_raw_data.items():
-        logger.debug("Storing piggyback data for: %r", piggybacked_hostname)
+        logger.debug(
+            "Storing piggyback data for: %(piggybacked_hostname)r",
+            {"piggybacked_hostname": piggybacked_hostname},
+        )
         # Raw data is always stored as bytes. Later the content is
         # converted to unicode in abstact.py:_parse_info which respects
         # 'encoding' in section options.
@@ -428,9 +437,11 @@ def cleanup_piggyback_files(
         max_cache_file_age, _compute_largest_configured_threshold(all_configured_rule_values)
     )
     logger.debug(
-        "Cleanup piggyback data from before %s (%s).",
-        _render_datetime(cut_off_timestamp),
-        cut_off_timestamp,
+        "Cleanup piggyback data from before %(cut_off)s (%(cut_off_timestamp)s).",
+        {
+            "cut_off": _render_datetime(cut_off_timestamp),
+            "cut_off_timestamp": cut_off_timestamp,
+        },
     )
 
     piggybacked_hosts_settings = [
@@ -453,9 +464,12 @@ def _cleanup_old_source_status_files(
 
         if mtime < cut_off_timestamp:
             logger.debug(
-                "Piggyback source status file '%s' too old (%s). Remove it.",
-                source_state_file,
-                _render_datetime(mtime),
+                "Piggyback source status file '%(source_state_file)s' too old (%(mtime)s). "
+                "Remove it.",
+                {
+                    "source_state_file": source_state_file,
+                    "mtime": _render_datetime(mtime),
+                },
             )
             _remove_piggyback_file(source_state_file)
 
@@ -472,9 +486,11 @@ def _cleanup_old_piggybacked_files(
 
             if mtime < cut_off_timestamp:
                 logger.debug(
-                    "Piggyback file '%s' too old (%s). Remove it.",
-                    piggybacked_host_source,
-                    _render_datetime(mtime),
+                    "Piggyback file '%(piggybacked_host_source)s' too old (%(mtime)s). Remove it.",
+                    {
+                        "piggybacked_host_source": piggybacked_host_source,
+                        "mtime": _render_datetime(mtime),
+                    },
                 )
                 _remove_piggyback_file(piggybacked_host_source)
 
@@ -486,8 +502,8 @@ def _cleanup_old_piggybacked_files(
                 continue
             raise
         logger.debug(
-            "Piggyback folder '%s' was empty. Removed it.",
-            piggybacked_host_folder,
+            "Piggyback folder '%(piggybacked_host_folder)s' was empty. Removed it.",
+            {"piggybacked_host_folder": piggybacked_host_folder},
         )
 
 
