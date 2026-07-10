@@ -129,7 +129,7 @@
       "title": "consolidation_gauge",
       "properties": {
         "type": { "type": "string", "enum": ["gauge"] },
-        "function": { "type": "string", "enum": ["gauge_last"] },
+        "function": { "type": "string", "enum": ["gauge_last", "gauge_max"] },
         "lookback_seconds": { "type": "number" }
       },
       "required": ["type", "function", "lookback_seconds"]

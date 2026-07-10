@@ -51,11 +51,11 @@ export const scopeOptions: Array<{ title: string; name: ScopeName }> = [
 ]
 
 // fullCatalog ({}) offers everything; backendSupported mirrors the graph editor's
-// one function per type.
+// allowlist of implemented functions.
 export const allowedFunctionsScopes: Record<ScopeName, AllowedFunctions> = {
   fullCatalog: {},
   backendSupported: {
-    gauge: ['gauge_last'],
+    gauge: ['gauge_last', 'gauge_max'],
     sum: ['sum_rate'],
     histogram: ['histogram_quantile']
   }

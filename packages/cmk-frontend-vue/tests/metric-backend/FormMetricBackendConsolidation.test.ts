@@ -74,11 +74,23 @@ test('a sum metric shows the rate function and no quantile input', async () => {
   expect(models.aggregationHistogramPercentile.value).toBe(90)
 })
 
-test('a gauge metric shows the last-value function', () => {
+test('a gauge metric shows the last-value function by default', () => {
   renderConsolidation({ metricTypes: ['gauge'] })
 
   expect(chip()).toHaveTextContent('[gauge]')
   expect(chip()).toHaveTextContent('last')
+})
+
+test('a gauge metric offers the last and max functions', async () => {
+  renderConsolidation({ metricTypes: ['gauge'] })
+
+  await userEvent.click(chip())
+  await userEvent.click(screen.getByRole('combobox', { name: 'Consolidation function' }))
+
+  await waitFor(() => {
+    expect(screen.getByRole('option', { name: 'Last recorded value' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Max' })).toBeVisible()
+  })
 })
 
 test('the offered function is fixed to the single backend-supported one', async () => {

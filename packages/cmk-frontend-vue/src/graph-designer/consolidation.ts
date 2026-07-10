@@ -33,6 +33,8 @@ export function buildConsolidationFunction(
   percentile: number
 ): WireConsolidationFunction {
   switch (consolidationFunction?.function) {
+    case 'gauge_max':
+      return { type: 'gauge', function: 'gauge_max', lookback_seconds: lookbackSeconds }
     case 'sum_rate':
       return { type: 'sum', function: 'sum_rate', lookback_seconds: lookbackSeconds }
     case 'histogram_quantile':

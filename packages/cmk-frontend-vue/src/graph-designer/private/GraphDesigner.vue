@@ -806,6 +806,7 @@ function compareQueryAttributes(a: GraphLineQueryAttribute[], b: GraphLineQueryA
 function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationFunction): boolean {
   switch (a.function) {
     case 'gauge_last':
+    case 'gauge_max':
     case 'sum_rate':
       return b.function === a.function && a.lookback_seconds === b.lookback_seconds
     case 'histogram_quantile':

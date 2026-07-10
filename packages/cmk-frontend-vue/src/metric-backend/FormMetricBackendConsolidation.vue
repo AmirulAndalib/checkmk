@@ -30,9 +30,9 @@ import type {
 
 const { _t } = usei18n()
 
-// The backend implements one consolidation function per type today; offer only that one.
+// Offer only the functions the backend implements.
 const SUPPORTED_FUNCTIONS: AllowedFunctions = {
-  gauge: ['gauge_last'],
+  gauge: ['gauge_last', 'gauge_max'],
   sum: ['sum_rate'],
   histogram: ['histogram_quantile']
 }
