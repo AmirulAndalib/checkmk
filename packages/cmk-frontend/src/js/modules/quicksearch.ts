@@ -9,6 +9,8 @@ let iCurrent: number | null = null
 let oCurrent: HTMLAnchorElement | null = null
 let oldValue = ''
 
+const QUICKSEARCH_AUTOFOCUS_KEY = 'cmk.quicksearch.autofocus'
+
 // Register an input field to be a search field and add eventhandlers
 export function register_search_field(field: string) {
   const oField = document.getElementById(field) as HTMLInputElement | null
@@ -28,7 +30,24 @@ export function register_search_field(field: string) {
     oField.ondblclick = function () {
       toggle_popup(oField)
     }
+
+    restore_autofocus(oField)
   }
+}
+
+function remember_navigation(query: string) {
+  sessionStorage.setItem(QUICKSEARCH_AUTOFOCUS_KEY, query)
+}
+
+function restore_autofocus(oField: HTMLInputElement) {
+  const query = sessionStorage.getItem(QUICKSEARCH_AUTOFOCUS_KEY)
+  if (query === null) {
+    return
+  }
+  sessionStorage.removeItem(QUICKSEARCH_AUTOFOCUS_KEY)
+  oField.value = query
+  oField.focus()
+  oField.setSelectionRange(query.length, query.length)
 }
 
 // On key release event handler
@@ -76,12 +95,14 @@ function mkSearchKeyDown(e: KeyboardEvent, oField: HTMLInputElement): false | vo
     // Return/Enter
     case 13:
       if (oCurrent != null) {
+        remember_navigation(oField.value)
         mkSearchNavigate()
         oField.value = search_dropdown_value() ?? ''
         close_popup()
       } else {
         if (oField.value == '') return /* search field empty, rather not show all services! */
         // When nothing selected, navigate with the current contents of the field
+        remember_navigation(oField.value)
         window.location.href = 'search_open.py?q=' + encodeURIComponent(oField.value)
         close_popup()
       }
