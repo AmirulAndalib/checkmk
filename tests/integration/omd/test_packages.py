@@ -343,7 +343,8 @@ def test_mk_oracle_exotic_distros(distro: str, expectation: str, site: Site) -> 
         ],
         check=False,
     )
-    assert expectation in process.stdout, process.stdout
+    normalized_stdout = process.stdout.replace("\\012- ", "")
+    assert expectation in normalized_stdout, process.stdout
 
 
 def test_nrpe(site: Site) -> None:
