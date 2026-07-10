@@ -1749,6 +1749,7 @@ allows = [
   "@plugin_apis",
   "cmk.fields",
   "cmk.gui",
+  "cmk.metric_backend.gui",
   "cmk.shared_typing.vue_formspec_components",
   "cmk.telemetry.host_name_template",
 ]
