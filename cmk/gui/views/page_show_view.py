@@ -381,7 +381,13 @@ def _show_view(
     )
 
     # Set browser reload
-    if browser_reload and display_options.enabled(display_options.R):
+    if (
+        browser_reload
+        and display_options.enabled(display_options.R)
+        # With vue graphing, the page must not auto-reload: a reload would re-mount the
+        # Vue apps and resets the global time picker state.
+        and not request.has_var("vue-graphing-enabled")
+    ):
         html.browser_reload = browser_reload
 
     if config.enable_sounds and config.sounds:

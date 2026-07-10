@@ -10,6 +10,7 @@ from dataclasses import asdict
 from tzlocal import get_localzone_name
 
 from cmk.graphing_engine import Graph
+from cmk.gui.config import active_config
 from cmk.gui.htmllib.html import html
 from cmk.gui.type_defs import GraphTimerange
 from cmk.shared_typing.cmk_time_series_graph import (
@@ -24,6 +25,18 @@ from cmk.shared_typing.cmk_time_series_graph import (
 from cmk.shared_typing.global_time_picker import CustomGraphTimeRange, GlobalTimePickerProps
 
 from ._engine_dispatch import serialize_graphs
+
+
+def default_time_range_seconds() -> int:
+    """Graph time range shown by default: resolves to the first of the global settings' graph time
+    range definitions. With builtin time ranges this resolves to "Last 1 h".
+    Keeps graph rendering and global time picker in sync.
+
+    Must be called per-request (not cached at import time) as active_config is only bound within a
+    request context.
+    """
+    return active_config.graph_timeranges[0]["duration"]
+
 
 _DEFAULT_INTERACTION = Interaction(
     burger="enabled",

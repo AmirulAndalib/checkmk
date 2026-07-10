@@ -9,10 +9,13 @@
 import copy
 import time
 from collections.abc import Mapping, Sequence
+from dataclasses import asdict
 from typing import Literal
 from uuid import uuid4
 
+import cmk.gui.graphing._engine_plugins as engine_plugins
 from cmk.ccc.user import UserId
+from cmk.graphing_engine import Service
 from cmk.gui.config import active_config
 from cmk.gui.graphing import (
     compute_html_graph_ranges,
@@ -33,6 +36,10 @@ from cmk.gui.graphing import (
     resolve_user_size,
     vs_graph_render_options,
 )
+from cmk.gui.graphing._engine_rrd_source import EngineRRDFetchMetricNames
+from cmk.gui.graphing._engine_template_graphs import build_template_graphs
+from cmk.gui.graphing._frontend import default_time_range_seconds, to_cmk_time_series_graph
+from cmk.gui.htmllib.generator import HTMLWriter
 from cmk.gui.http import Request, Response, response
 from cmk.gui.i18n import _, _l
 from cmk.gui.logged_in import LoggedInUser
@@ -73,6 +80,7 @@ from cmk.gui.view_utils import (
     JSONExportError,
     PythonExportError,
 )
+from cmk.shared_typing.cmk_time_series_graph import Size
 
 
 def register(
@@ -179,6 +187,14 @@ _GRAPH_VIEWS = {
 }
 
 
+def _with_graph_time_range_option(options: list[str], request: Request) -> list[str]:
+    # With vue graphing, the graph time range comes from the global time picker
+    # instead of the pnp_timerange painter option.
+    if request.has_var("vue-graphing-enabled"):
+        return options
+    return ["pnp_timerange", *options]
+
+
 def _paint_time_graph_cmk(
     row: Row,
     cell: Cell,
@@ -226,7 +242,7 @@ def _paint_time_graph_cmk(
         duration = painter_params["set_default_time_range"]
         raw_time_range: tuple[int, int] = (now - duration, now)
     else:
-        raw_time_range = (now - 3600 * 4, now)
+        raw_time_range = (now - default_time_range_seconds(), now)
 
     # Load timerange from painter option (overrides the defaults, if set by the user)
     painter_option_pnp_timerange = painter_options.get_without_default("pnp_timerange")
@@ -274,6 +290,7 @@ def _paint_time_graph_cmk(
     # painter settings (which makes sense). The caching in graph.ts breaks this assumption. So
     # for now, we randomize. See also CMK-13840.
     display_id = str(uuid4())
+
     graph_specification = get_template_graph_specification(
         site_id=row["site"],
         host_name=row["host_name"],
@@ -288,8 +305,51 @@ def _paint_time_graph_cmk(
         debug=debug,
         show_graph_ids=bool(painter_options.get("show_internal_graph_and_metric_ids")),
     )
+    vue_html: HTML | str = ""
+    if request.has_var("vue-graphing-enabled"):
+        engine_graphs = build_template_graphs(
+            service=Service(
+                host_name=row["host_name"],
+                service_name=row.get("service_description", "_HOST_"),
+            ),
+            registered_graphs=engine_plugins.registered_graphs(),
+            registered_metrics=engine_plugins.registered_metrics(),
+            fetch_metric_names=EngineRRDFetchMetricNames(
+                site_id=row["site"],
+                debug=debug,
+                registered_translations=engine_plugins.registered_translations(),
+            ),
+        )
+        vue_graphs = [
+            asdict(
+                to_cmk_time_series_graph(
+                    graph,
+                    size=Size(
+                        width=graph_size[0],
+                        height=graph_size[1],
+                        mode="resizable" if display_config.resizable else "fixed",
+                    ),
+                    show_pin=display_config.show_pin,
+                    show_graph_time=display_config.show_time_range_previews,
+                )
+            )
+            for graph in engine_graphs
+        ]
+        # TODO: Handle the case of shared dashobards (request.has_var("cmk-token"))
+        vue_html = HTMLWriter.render_vue_component(
+            "cmk-graph-group",
+            {
+                "site_id": row["site"],
+                "host_name": row["host_name"],
+                "service_name": row.get("service_description", "_HOST_"),
+                "initial_time_range_start": raw_time_range[0],
+                "initial_time_range_end": raw_time_range[1],
+                "graphs": vue_graphs,
+            },
+        )
+
     if request.has_var("cmk-token"):
-        return "", render_graphs_html(
+        return "", vue_html + render_graphs_html(
             graph_specification,
             ranges,
             display_config,
@@ -298,7 +358,7 @@ def _paint_time_graph_cmk(
             graph_timeranges=graph_timeranges,
             display_id=display_id,
         )
-    return "", render_deferred_graphs_html(
+    return "", vue_html + render_deferred_graphs_html(
         graph_specification,
         ranges,
         display_config,
@@ -370,7 +430,7 @@ class PainterServiceGraphs(Painter):
 
     @property
     def painter_options(self) -> list[str]:
-        return ["pnp_timerange", "graph_render_options"]
+        return _with_graph_time_range_option(["graph_render_options"], self.request)
 
     @property
     def parameters(self) -> MigrateNotUpdated:
@@ -424,7 +484,7 @@ class PainterHostGraphs(Painter):
 
     @property
     def painter_options(self) -> list[str]:
-        return ["pnp_timerange", "graph_render_options"]
+        return _with_graph_time_range_option(["graph_render_options"], self.request)
 
     @property
     def parameters(self) -> MigrateNotUpdated:
@@ -504,7 +564,7 @@ class PainterSvcPnpgraph(Painter):
 
     @property
     def painter_options(self) -> list[str]:
-        return ["pnp_timerange", "show_internal_graph_and_metric_ids"]
+        return _with_graph_time_range_option(["show_internal_graph_and_metric_ids"], self.request)
 
     @property
     def parameters(self) -> Transform:
@@ -560,7 +620,7 @@ class PainterHostPnpgraph(Painter):
 
     @property
     def painter_options(self) -> list[str]:
-        return ["pnp_timerange"]
+        return _with_graph_time_range_option([], self.request)
 
     @property
     def parameters(self) -> Transform:

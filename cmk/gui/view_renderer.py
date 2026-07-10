@@ -21,6 +21,7 @@ from cmk.gui.config import active_config
 from cmk.gui.data_source import row_id
 from cmk.gui.display_options import display_options
 from cmk.gui.exceptions import MKUserError
+from cmk.gui.graphing._frontend import default_time_range_seconds, render_global_time_picker
 from cmk.gui.hooks import call as call_hooks
 from cmk.gui.htmllib.html import html
 from cmk.gui.http import request
@@ -184,6 +185,8 @@ class GUIViewRenderer(ABCViewRenderer):
                 hide_suggestions=not user.get_tree_state("suggestions", "all", True),
                 user_role_ids=user.role_ids,
             )
+            if request.has_var("vue-graphing-enabled"):
+                self._render_global_time_picker()
             html.begin_page_content()
 
         has_done_actions = False
@@ -597,25 +600,26 @@ class GUIViewRenderer(ABCViewRenderer):
             display_options.enabled(display_options.D)
             and painter_options.painter_option_graph_time_form_enabled()
         ):
-            display_dropdown.topics.insert(
-                0,
-                PageMenuTopic(
-                    title=_("Set graph time"),
-                    entries=[
-                        PageMenuEntry(
-                            title=_("Set graph time"),
-                            icon_name=StaticIcon(IconNames.graph_time),
-                            item=PageMenuPopup(
-                                self._render_painter_options_timerange_form(painter_options)
-                            ),
-                            name="display_painter_options_timerange",
-                            is_shortcut=True,
-                            is_suggested=True,
-                            is_list_entry=False,
-                        )
-                    ],
-                ),
-            )
+            if not request.has_var("vue-graphing-enabled"):
+                display_dropdown.topics.insert(
+                    0,
+                    PageMenuTopic(
+                        title=_("Set graph time"),
+                        entries=[
+                            PageMenuEntry(
+                                title=_("Set graph time"),
+                                icon_name=StaticIcon(IconNames.graph_time),
+                                item=PageMenuPopup(
+                                    self._render_painter_options_timerange_form(painter_options)
+                                ),
+                                name="display_painter_options_timerange",
+                                is_shortcut=True,
+                                is_suggested=True,
+                                is_list_entry=False,
+                            )
+                        ],
+                    ),
+                )
 
     def _page_menu_entries_filter(self, show_filters: list[Filter]) -> Iterator[PageMenuEntry]:
         is_filter_set = check_if_non_default_filter_in_request(
@@ -751,6 +755,23 @@ class GUIViewRenderer(ABCViewRenderer):
                 html.hidden_fields()
 
             return HTML.without_escaping(output_funnel.drain())
+
+    def _render_global_time_picker(self) -> None:
+        if not PainterOptions.get_instance().painter_options_permitted():
+            return
+        # Only render the picker if a graph is actually shown. Graph painters mark
+        # themselves via printable == "time_graph"; the pnp_timerange painter option
+        # cannot serve as the marker here since it is dropped from the painters'
+        # options when vue graphing is enabled.
+        if not any(
+            cell.printable() == "time_graph"
+            for cell in [*self.view.group_cells, *self.view.row_cells]
+        ):
+            return
+        render_global_time_picker(
+            active_config.graph_timeranges,
+            default_time_range_seconds=default_time_range_seconds(),
+        )
 
     def _extend_help_dropdown(self, menu: PageMenu) -> None:
         # TODO

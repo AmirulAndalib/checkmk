@@ -10,6 +10,7 @@ from cmk.gui.config import active_config
 from cmk.gui.data_source import ABCDataSource, data_source_registry
 from cmk.gui.display_options import display_options
 from cmk.gui.exceptions import MKUserError
+from cmk.gui.http import request
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.painter.v0 import all_painters, Cell, JoinCell, Painter
@@ -268,8 +269,12 @@ class View:
 
         # Mandatory options for all views (if permitted)
         if display_options.enabled(display_options.O):
-            if display_options.enabled(display_options.R) and user.may(
-                "general.view_option_refresh"
+            if (
+                display_options.enabled(display_options.R)
+                and user.may("general.view_option_refresh")
+                # With vue graphing, the page does not auto-reload (see
+                # page_show_view._show_view), so the refresh interval option is pointless.
+                and not request.has_var("vue-graphing-enabled")
             ):
                 options.add("refresh")
 
