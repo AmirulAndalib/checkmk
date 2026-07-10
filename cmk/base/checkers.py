@@ -242,7 +242,6 @@ class CMKParser:
                         section_cache_path=section_cache_path,
                     ),
                     keep_outdated=self.keep_outdated,
-                    logger=self.logger,
                 ),
                 raw_data,
                 selection=self.selected_sections,

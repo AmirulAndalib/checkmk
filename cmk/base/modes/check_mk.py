@@ -815,7 +815,6 @@ def _mode_dump_agent(
                         section_cache_path=section_cache_path,
                     ),
                     keep_outdated=file_cache_options.keep_outdated,
-                    logger=log.logger,
                 ),
                 raw_data,
                 selection=NO_SELECTION,

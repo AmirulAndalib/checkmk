@@ -28,6 +28,8 @@ from ._parser import (
 )
 from ._sectionstore import SectionStore
 
+logger = logging.getLogger(__name__)
+
 
 class SectionWithHeader(NamedTuple):
     header: SectionMarker
@@ -90,14 +92,12 @@ class ParserState(abc.ABC):
         *,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         self.hostname: Final = hostname
         self.sections = sections
         self.piggyback_sections = piggyback_sections
         self.translation: Final = translation
         self.encoding_fallback: Final = encoding_fallback
-        self._logger: Final = logger
 
     @abc.abstractmethod
     def do_action(self, line: bytes) -> ParserState:
@@ -120,7 +120,7 @@ class ParserState(abc.ABC):
         raise NotImplementedError
 
     def to_noop_parser(self) -> NOOPParser:
-        self._logger.debug(
+        logger.debug(
             "Transition %(from_state)s -> %(to_state)s",
             {"from_state": type(self).__name__, "to_state": NOOPParser.__name__},
         )
@@ -130,14 +130,13 @@ class ParserState(abc.ABC):
             self.piggyback_sections,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_host_section_parser(
         self,
         section_header: SectionMarker,
     ) -> HostSectionParser:
-        self._logger.debug(
+        logger.debug(
             "%(section_header)s / Transition %(from_state)s -> %(to_state)s",
             {
                 "section_header": section_header,
@@ -154,14 +153,13 @@ class ParserState(abc.ABC):
             current_section=section_header,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_piggyback_parser(
         self,
         header: PiggybackMarker,
     ) -> PiggybackParser:
-        self._logger.debug(
+        logger.debug(
             "%(header)s / Transition %(from_state)s -> %(to_state)s",
             {
                 "header": header,
@@ -177,7 +175,6 @@ class ParserState(abc.ABC):
             current_host=header,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_piggyback_section_parser(
@@ -185,7 +182,7 @@ class ParserState(abc.ABC):
         current_host: PiggybackMarker,
         section_header: SectionMarker,
     ) -> PiggybackSectionParser:
-        self._logger.debug(
+        logger.debug(
             "%(current_host)r %(section_header)r / Transition %(from_state)s -> %(to_state)s",
             {
                 "current_host": current_host,
@@ -207,7 +204,6 @@ class ParserState(abc.ABC):
             current_section=section_header,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_piggyback_noop_parser(
@@ -221,7 +217,6 @@ class ParserState(abc.ABC):
             current_host=current_host,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_piggyback_ignore_parser(self) -> PiggybackIgnoreParser:
@@ -231,11 +226,10 @@ class ParserState(abc.ABC):
             self.piggyback_sections,
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
 
     def to_error(self, line: bytes) -> ParserState:
-        self._logger.warning(
+        logger.warning(
             "%(state)s: Ignoring invalid data %(line)r",
             {"state": type(self).__name__, "line": line},
             # to_error() is only ever called from within an `except` block,
@@ -307,7 +301,6 @@ class PiggybackParser(ParserState):
         current_host: PiggybackMarker,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__(
             hostname,
@@ -315,7 +308,6 @@ class PiggybackParser(ParserState):
             piggyback_sections,
             translation=translation,
             encoding_fallback=encoding_fallback,
-            logger=logger,
         )
         self.current_host: Final = current_host
 
@@ -350,7 +342,6 @@ class PiggybackSectionParser(ParserState):
         current_section: SectionMarker,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__(
             hostname,
@@ -358,7 +349,6 @@ class PiggybackSectionParser(ParserState):
             piggyback_sections,
             translation=translation,
             encoding_fallback=encoding_fallback,
-            logger=logger,
         )
         self.current_host: Final = current_host
         self.current_section: Final = current_section
@@ -393,7 +383,6 @@ class PiggybackNOOPParser(ParserState):
         current_host: PiggybackMarker,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__(
             hostname,
@@ -401,7 +390,6 @@ class PiggybackNOOPParser(ParserState):
             piggyback_sections,
             translation=translation,
             encoding_fallback=encoding_fallback,
-            logger=logger,
         )
         self.current_host: Final = current_host
 
@@ -453,7 +441,6 @@ class HostSectionParser(ParserState):
         current_section: SectionMarker,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__(
             hostname,
@@ -461,7 +448,6 @@ class HostSectionParser(ParserState):
             piggyback_sections,
             translation=translation,
             encoding_fallback=encoding_fallback,
-            logger=logger,
         )
         self.current_section: Final = current_section
 
@@ -499,7 +485,6 @@ class AgentParser(Parser[AgentRawData, AgentRawDataSection]):
         keep_outdated: bool,
         translation: TranslationOptions,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__()
         self.hostname: Final = hostname
@@ -509,7 +494,6 @@ class AgentParser(Parser[AgentRawData, AgentRawDataSection]):
         self.keep_outdated: Final = keep_outdated
         self.translation: Final = translation
         self.encoding_fallback: Final = encoding_fallback
-        self._logger = logger
 
     def parse(
         self,
@@ -550,7 +534,6 @@ class AgentParser(Parser[AgentRawData, AgentRawDataSection]):
             {},
             translation=self.translation,
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
         for line in raw_data.split(b"\n"):
             parser = parser(line.rstrip(b"\r"))

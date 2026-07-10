@@ -93,8 +93,7 @@ def execute_checkmk_checks(
 ) -> Sequence[ActiveCheckResult]:
     host_sections = parser(fetched)
     host_sections_by_host = group_by_host(
-        ((HostKey(s.hostname, s.source_type), r.ok) for s, r in host_sections if r.is_ok()),
-        console.debug,
+        ((HostKey(s.hostname, s.source_type), r.ok) for s, r in host_sections if r.is_ok())
     )
     store_piggybacked_sections(host_sections_by_host, omd_root)
     providers = make_providers(

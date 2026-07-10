@@ -21,6 +21,7 @@ from ._sectionstore import SectionStore
 from ._snmp import SNMPParser
 
 __all__ = ["make_parser", "ParserConfig"]
+logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -46,14 +47,12 @@ def make_parser(
     omd_root: Path,
     persisted_section_dir: Path,
     keep_outdated: bool,
-    logger: logging.Logger,
 ) -> Parser:
     if fetcher_type is FetcherType.SNMP:
         return SNMPParser()
 
     section_store = SectionStore[Sequence[AgentRawDataSectionElem]](
         persisted_section_dir,
-        logger=logger,
     )
 
     if fetcher_type is FetcherType.PIGGYBACK:
@@ -65,7 +64,6 @@ def make_parser(
             config.piggyback_max_cache_age_callbacks(host_name),
             keep_outdated=keep_outdated,
             encoding_fallback=config.fallback_agent_output_encoding,
-            logger=logger,
         )
 
     return AgentParser(
@@ -75,5 +73,4 @@ def make_parser(
         translation=config.parsed_piggyback_translations(host_name),
         keep_outdated=keep_outdated,
         encoding_fallback=config.fallback_agent_output_encoding,
-        logger=logger,
     )

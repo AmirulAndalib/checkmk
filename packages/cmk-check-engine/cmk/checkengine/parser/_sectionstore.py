@@ -14,21 +14,19 @@ from cmk.checkengine.plugins import SectionName
 
 __all__ = ["SectionStore"]
 PersistedSectionDir = Path
+logger = logging.getLogger(__name__)
 
 
 class SectionStore[T]:
     def __init__(
         self,
         path: PersistedSectionDir,
-        *,
-        logger: logging.Logger,
     ) -> None:
         super().__init__()
         self.path: Final = Path(path)
-        self._logger: Final = logger
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({self.path!r}, logger={self._logger!r})"
+        return f"{type(self).__name__}({self.path!r})"
 
     @staticmethod
     def make_persisted_section_dir(
@@ -38,7 +36,7 @@ class SectionStore[T]:
 
     def store(self, sections: MutableMapping[SectionName, tuple[int, int, T]]) -> None:
         if not sections:
-            self._logger.debug("No persisted sections")
+            logger.debug("No persisted sections")
             self.path.unlink(missing_ok=True)
             return
 
@@ -47,7 +45,7 @@ class SectionStore[T]:
             self.path,
             {str(k): v for k, v in sections.items()},
         )
-        self._logger.debug(
+        logger.debug(
             "Stored persisted sections: %(sections)s",
             {"sections": ", ".join(str(s) for s in sections)},
         )
@@ -128,14 +126,12 @@ class SectionStore[T]:
         for section_name, entry in persisted_sections.items():
             # Don't overwrite sections that have been received from the source with this call
             if section_name in sections:
-                self._logger.debug(
+                logger.debug(
                     "Skipping persisted section %(section_name)r, live data available",
                     {"section_name": section_name},
                 )
                 continue
 
-            self._logger.debug(
-                "Using persisted section %(section_name)r", {"section_name": section_name}
-            )
+            logger.debug("Using persisted section %(section_name)r", {"section_name": section_name})
             result[section_name] = entry[-1]
         return result

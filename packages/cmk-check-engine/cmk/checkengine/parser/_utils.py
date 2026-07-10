@@ -7,8 +7,9 @@
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Mapping, MutableMapping
+from collections.abc import Iterable, Mapping, MutableMapping
 
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.helper_interface import HostKey
@@ -17,10 +18,11 @@ from cmk.checkengine.plugins import SectionName
 from ._parser import HostSections
 
 __all__ = ["group_by_host"]
+logger = logging.getLogger(__name__)
 
 
 def group_by_host(
-    host_sections: Iterable[tuple[HostKey, HostSections]], log: Callable[[str], None]
+    host_sections: Iterable[tuple[HostKey, HostSections]],
 ) -> Mapping[HostKey, HostSections]:
     out_sections: dict[HostKey, MutableMapping[SectionName, list]] = defaultdict(dict)
     out_cache_info: dict[HostKey, MutableMapping[SectionName, tuple[int, int]]] = defaultdict(dict)
@@ -30,7 +32,10 @@ def group_by_host(
     for host_key, host_section in host_sections:
         host_keys.append(host_key)
         section_names = sorted(str(s) for s in host_section.sections)
-        log(f"  {host_key!s}  -> Add sections: {section_names}")
+        logger.debug(
+            "%(host_key)s -> Add sections: %(section_names)s",
+            {"host_key": host_key, "section_names": section_names},
+        )
         for section_name, section_content in host_section.sections.items():
             out_sections[host_key].setdefault(section_name, []).extend(section_content)
         for hostname, raw_lines in host_section.piggybacked_raw_data.items():

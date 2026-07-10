@@ -35,6 +35,8 @@ from ._parser import (
 )
 from ._sectionstore import SectionStore
 
+logger = logging.getLogger(__name__)
+
 
 class PiggybackParser(Parser[AgentRawData, AgentRawDataSection]):
     """A parser for piggyback data."""
@@ -49,7 +51,6 @@ class PiggybackParser(Parser[AgentRawData, AgentRawDataSection]):
         *,
         keep_outdated: bool,
         encoding_fallback: str,
-        logger: logging.Logger,
     ) -> None:
         super().__init__()
         self.hostname: Final = hostname
@@ -59,7 +60,6 @@ class PiggybackParser(Parser[AgentRawData, AgentRawDataSection]):
         self.piggyback_max_cache_age: Final = piggyback_max_cache_age
         self.keep_outdated: Final = keep_outdated
         self.encoding_fallback: Final = encoding_fallback
-        self._logger = logger
 
     def parse(
         self,
@@ -102,7 +102,6 @@ class PiggybackParser(Parser[AgentRawData, AgentRawDataSection]):
             {},
             translation={},  # there are no "nested" piggyback sections
             encoding_fallback=self.encoding_fallback,
-            logger=self._logger,
         )
         for line in raw_data.split(b"\n"):
             parser = parser(line.rstrip(b"\r"))
@@ -114,7 +113,7 @@ class PiggybackParser(Parser[AgentRawData, AgentRawDataSection]):
         )
 
     def _make_piggyback_data(self) -> AgentRawData:
-        self._logger.debug("Get piggybacked data")
+        logger.debug("Get piggybacked data")
         if not (
             sources := [
                 line

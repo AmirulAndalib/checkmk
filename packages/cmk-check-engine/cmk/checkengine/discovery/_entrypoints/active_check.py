@@ -52,7 +52,6 @@ from cmk.checkengine.specs.checkresults import ActiveCheckResult
 from cmk.checkengine.summarize import SummarizerFunction
 from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
 from cmk.utils.auto_queue import AutoQueue
-from cmk.utils.log import console
 from cmk.utils.servicename import ServiceName
 
 __all__ = ["execute_check_discovery"]
@@ -121,8 +120,7 @@ def execute_check_discovery(
 
     host_sections = parser(fetched)
     host_sections_by_host = group_by_host(
-        ((HostKey(s.hostname, s.source_type), r.ok) for s, r in host_sections if r.is_ok()),
-        console.debug,
+        ((HostKey(s.hostname, s.source_type), r.ok) for s, r in host_sections if r.is_ok())
     )
     store_piggybacked_sections(host_sections_by_host, omd_root)
     providers = make_providers(

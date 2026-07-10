@@ -4052,7 +4052,6 @@ def _automation_get_agent_output(
                             section_cache_path=section_cache_path,
                         ),
                         keep_outdated=file_cache_options.keep_outdated,
-                        logger=logging.getLogger("cmk.base.checking"),
                     ),
                     raw_data,
                     selection=NO_SELECTION,

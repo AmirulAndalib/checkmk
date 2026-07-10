@@ -13,7 +13,6 @@
 
 import copy
 import itertools
-import logging
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -44,7 +43,6 @@ class TestSectionStore:
             repr(
                 SectionStore(
                     Path("/dev/null"),
-                    logger=logging.getLogger("test"),
                 )
             ),
             str,
@@ -57,23 +55,18 @@ class TestAgentParser:
         return HostName("testhost")
 
     @pytest.fixture
-    def logger(self):
-        return logging.getLogger("test")
-
-    @pytest.fixture
     def store_path(self, tmp_path):
         return tmp_path / "store"
 
     @pytest.fixture
-    def store(self, store_path, logger):
-        return SectionStore[Sequence[AgentRawDataSectionElem]](store_path, logger=logger)
+    def store(self, store_path):
+        return SectionStore[Sequence[AgentRawDataSectionElem]](store_path)
 
     @pytest.fixture
     def parser(
         self,
         hostname: HostName,
         store: SectionStore[Sequence[AgentRawDataSectionElem]],
-        logger: logging.Logger,
     ) -> AgentParser:
         return AgentParser(
             hostname,
@@ -82,7 +75,6 @@ class TestAgentParser:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
     def test_missing_host_header(
@@ -762,7 +754,6 @@ class ParserStateAdapter(ParserState):
             piggyback_sections={},
             translation={} if translation is None else translation,
             encoding_fallback="utf-8",
-            logger=logging.getLogger(),
         )
 
     def do_action(self, line: bytes) -> ParserState:
@@ -933,8 +924,8 @@ class TestSNMPParser:
 
 
 class MockStore(SectionStore):
-    def __init__(self, path: Path, sections: object, *, logger: logging.Logger) -> None:
-        super().__init__(path, logger=logger)
+    def __init__(self, path: Path, sections: object) -> None:
+        super().__init__(path)
         self._sections = sections
 
     def store(self, sections):
@@ -945,12 +936,8 @@ class MockStore(SectionStore):
 
 
 class TestAgentPersistentSectionHandling:
-    @pytest.fixture
-    def logger(self):
-        return logging.getLogger("test")
-
-    def test_update_with_empty_store_and_empty_raw_data(self, logger: logging.Logger) -> None:
-        section_store = MockStore(Path("/dev/null"), {}, logger=logger)
+    def test_update_with_empty_store_and_empty_raw_data(self) -> None:
+        section_store = MockStore(Path("/dev/null"), {})
         raw_data = AgentRawData(b"")
         parser = AgentParser(
             HostName("testhost"),
@@ -959,7 +946,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -968,11 +954,10 @@ class TestAgentPersistentSectionHandling:
         assert not ahs.piggybacked_raw_data
         assert section_store.load() == {}
 
-    def test_update_with_store_and_empty_raw_data(self, logger: logging.Logger) -> None:
+    def test_update_with_store_and_empty_raw_data(self) -> None:
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("stored"): (0, 0, [])},
-            logger=logger,
         )
         raw_data = AgentRawData(b"")
         parser = AgentParser(
@@ -982,7 +967,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -991,9 +975,9 @@ class TestAgentPersistentSectionHandling:
         assert not ahs.piggybacked_raw_data
         assert section_store.load() == {SectionName("stored"): (0, 0, [])}
 
-    def test_update_with_empty_store_and_raw_data(self, logger: logging.Logger) -> None:
+    def test_update_with_empty_store_and_raw_data(self) -> None:
         raw_data = AgentRawData(b"<<<fresh>>>")
-        section_store = MockStore(Path("/dev/null"), {}, logger=logger)
+        section_store = MockStore(Path("/dev/null"), {})
         parser = AgentParser(
             HostName("testhost"),
             section_store,
@@ -1001,7 +985,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -1010,11 +993,10 @@ class TestAgentPersistentSectionHandling:
         assert not ahs.piggybacked_raw_data
         assert section_store.load() == {}
 
-    def test_update_with_store_and_non_persisting_raw_data(self, logger: logging.Logger) -> None:
+    def test_update_with_store_and_non_persisting_raw_data(self) -> None:
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("stored"): (0, 0, [])},
-            logger=logger,
         )
         raw_data = AgentRawData(b"<<<fresh>>>")
         parser = AgentParser(
@@ -1024,7 +1006,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -1037,13 +1018,12 @@ class TestAgentPersistentSectionHandling:
         assert section_store.load() == {SectionName("stored"): (0, 0, [])}
 
     def test_update_with_store_and_persisting_raw_data(
-        self, logger: logging.Logger, monkeypatch: pytest.MonkeyPatch
+        self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(time, "time", lambda c=itertools.count(1000, 50): next(c))
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("stored"): (0, 0, [["canned", "section"]])},
-            logger=logger,
         )
         raw_data = AgentRawData(b"<<<fresh:persist(10)>>>\nhello section")
         parser = AgentParser(
@@ -1053,7 +1033,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -1071,11 +1050,10 @@ class TestAgentPersistentSectionHandling:
             SectionName("fresh"): (1000, 10, [["hello", "section"]]),
         }
 
-    def test_update_store_with_newest(self, logger: logging.Logger) -> None:
+    def test_update_store_with_newest(self) -> None:
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("section"): (0, 0, [["oldest"]])},
-            logger=logger,
         )
         raw_data = AgentRawData(b"<<<section>>>\nnewest")
         parser = AgentParser(
@@ -1085,7 +1063,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -1094,16 +1071,13 @@ class TestAgentPersistentSectionHandling:
         assert not ahs.piggybacked_raw_data
         assert section_store.load() == {SectionName("section"): (0, 0, [["oldest"]])}
 
-    def test_keep_outdated_false(
-        self, logger: logging.Logger, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_keep_outdated_false(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(time, "time", lambda c=itertools.count(1000, 50): next(c))
 
         raw_data = AgentRawData(b"<<<another_section>>>")
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("section"): (500, 600, [])},
-            logger=logger,
         )
         parser = AgentParser(
             HostName("testhost"),
@@ -1112,7 +1086,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=False,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
@@ -1121,16 +1094,13 @@ class TestAgentPersistentSectionHandling:
         assert not ahs.piggybacked_raw_data
         assert section_store.load() == {}
 
-    def test_keep_outdated_true(
-        self, logger: logging.Logger, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_keep_outdated_true(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(time, "time", lambda c=itertools.count(1000, 50): next(c))
 
         raw_data = AgentRawData(b"<<<another_section>>>")
         section_store = MockStore(
             Path("/dev/null"),
             {SectionName("section"): (500, 600, [])},
-            logger=logger,
         )
         parser = AgentParser(
             HostName("testhost"),
@@ -1139,7 +1109,6 @@ class TestAgentPersistentSectionHandling:
             keep_outdated=True,
             translation=TranslationOptions(),
             encoding_fallback="ascii",
-            logger=logger,
         )
 
         ahs = parser.parse(raw_data, selection=NO_SELECTION)
