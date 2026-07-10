@@ -183,6 +183,8 @@ class QueryDataKey:
     scope_attributes: tuple[GraphLineQueryAttribute, ...]
     data_point_attributes: tuple[GraphLineQueryAttribute, ...]
     consolidation_function: ConsolidationFunction
+    # Excluded from key identity: unhashable and redundant with the three lists it derives from.
+    attribute_filter: Mapping[str, object] | None = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)

@@ -946,6 +946,7 @@ allows = [
   "cmk.gui_plugins.internal",
   "cmk.licensing",
   "cmk.liveproxyd.gui",
+  "cmk.metric_backend.adapters",
   "cmk.metric_backend.gui",
   "cmk.telemetry.gui",
   "cmk.otel_collector",
