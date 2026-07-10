@@ -1,0 +1,79 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
+import { nextTick } from 'vue'
+
+import type { DateTimeRange } from '@/components/date-time'
+
+import { useGlobalTimeRange } from '@/graphing/GlobalTimePicker/useGlobalTimeRange'
+import { useRequestedTimeRange } from '@/graphing/composables/useRequestedTimeRange'
+
+const TZ = 'Europe/Berlin'
+const zoned = (day: number): ZonedDateTime =>
+  toZoned(new CalendarDateTime(2026, 3, day, 0, 0), TZ, 'compatible')
+const range = (fromDay: number, toDay: number): DateTimeRange => ({
+  from: zoned(fromDay),
+  to: zoned(toDay)
+})
+const epochSeconds = (value: ZonedDateTime): number => Math.floor(value.toDate().getTime() / 1000)
+
+const INITIAL = { start: 1_000, end: 2_000 }
+
+describe('useRequestedTimeRange', () => {
+  // The global picker store is a module-level singleton shared across the whole bundle; reset it
+  // so each test starts from a known state.
+  beforeEach(() => {
+    useGlobalTimeRange().setActiveTimeRange(null)
+  })
+
+  test('seeds from initial when no global range is published', () => {
+    const requested = useRequestedTimeRange(INITIAL)
+    expect(requested.value).toEqual(INITIAL)
+  })
+
+  test('seeds from the global picker when it has already published a range', () => {
+    const published = range(9, 10)
+    useGlobalTimeRange().setActiveTimeRange(published)
+
+    const requested = useRequestedTimeRange(INITIAL)
+
+    expect(requested.value).toEqual({
+      start: epochSeconds(published.from),
+      end: epochSeconds(published.to)
+    })
+  })
+
+  test('follows a global picker change published after setup', async () => {
+    const requested = useRequestedTimeRange(INITIAL)
+
+    const published = range(9, 10)
+    useGlobalTimeRange().setActiveTimeRange(published)
+    await nextTick()
+
+    expect(requested.value).toEqual({
+      start: epochSeconds(published.from),
+      end: epochSeconds(published.to)
+    })
+  })
+
+  test('keeps the last range when the global picker resets to null', async () => {
+    const requested = useRequestedTimeRange(INITIAL)
+    useGlobalTimeRange().setActiveTimeRange(range(9, 10))
+    await nextTick()
+    const last = { ...requested.value }
+
+    useGlobalTimeRange().setActiveTimeRange(null)
+    await nextTick()
+
+    expect(requested.value).toEqual(last)
+  })
+
+  test('stays writable for local updates such as brush zooms', () => {
+    const requested = useRequestedTimeRange(INITIAL)
+    requested.value = { start: 5_000, end: 6_000 }
+    expect(requested.value).toEqual({ start: 5_000, end: 6_000 })
+  })
+})

@@ -1,0 +1,99 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import type { CmkTimeSeriesGraph } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
+import { type Ref, readonly, ref, watch } from 'vue'
+
+import client, { unwrap } from '@/lib/rest-api-client/client'
+
+import type { HorizontalLine, Metric, TimeRange } from '../components/TimeSeriesGraph'
+import type { ConsolidationFn } from '../components/consolidation'
+import type { RequestedTimeRange } from '../types'
+
+export interface ResolvedGraph {
+  title: string
+  metrics: Metric[]
+  timeRange: TimeRange
+  horizontalLines: HorizontalLine[]
+}
+
+function computeStep(start: number, end: number, canvasWidth: number): number {
+  return Math.max(60, Math.ceil((end - start) / canvasWidth))
+}
+
+// Graph discovery (matching templates to a service) happens backend-only: the caller already
+// receives the self-contained `graph_type` + `internal` definitions via the initial page props
+// (see build_template_graphs -> to_cmk_time_series_graph in cmk/gui/views/graph.py). This
+// composable only re-fetches evaluated data for those definitions as the requested range changes.
+export function useGraphData(
+  getGraphs: () => CmkTimeSeriesGraph[],
+  getRequestedTimeRange: () => RequestedTimeRange,
+  getCanvasWidth: () => number,
+  getConsolidationFn: () => ConsolidationFn,
+  getCombinationMode: () => 'average' | 'lines' | 'max' | 'min' | 'stacked' | 'sum' | null = () =>
+    null
+): {
+  graphs: Readonly<Ref<ResolvedGraph[]>>
+  isLoading: Readonly<Ref<boolean>>
+  error: Readonly<Ref<string | null>>
+} {
+  const graphsRef = ref<ResolvedGraph[]>([])
+  const isLoadingRef = ref(false)
+  const errorRef = ref<string | null>(null)
+
+  async function load() {
+    const definitions = getGraphs()
+    const range = getRequestedTimeRange()
+
+    isLoadingRef.value = true
+    errorRef.value = null
+
+    try {
+      const step = computeStep(range.start, range.end, getCanvasWidth())
+      const requestedTimeRange = { start: range.start, end: range.end, step }
+      const consolidationFunction = getConsolidationFn()
+      const combinationMode = getCombinationMode()
+
+      graphsRef.value = await Promise.all(
+        definitions.map(async (definition) => {
+          const fetched = unwrap(
+            await client.POST('/domain-types/graph/actions/fetch_data/invoke', {
+              params: { header: { 'Content-Type': 'application/json' } },
+              body: {
+                graph_type: definition.graph_type,
+                internal: definition.internal,
+                requested_time_range: requestedTimeRange,
+                consolidation_function: consolidationFunction,
+                combination_mode: combinationMode
+              }
+            })
+          )
+          return {
+            title: definition.options.header.title ?? '',
+            metrics: fetched.metrics,
+            timeRange: fetched.time_range,
+            horizontalLines: fetched.horizontal_lines
+          }
+        })
+      )
+    } catch (e) {
+      errorRef.value = e instanceof Error ? e.message : String(e)
+      graphsRef.value = []
+    } finally {
+      isLoadingRef.value = false
+    }
+  }
+
+  watch([getGraphs, getRequestedTimeRange, getConsolidationFn], () => void load(), {
+    immediate: true,
+    deep: true
+  })
+
+  return {
+    graphs: graphsRef,
+    isLoading: readonly(isLoadingRef),
+    error: readonly(errorRef)
+  }
+}

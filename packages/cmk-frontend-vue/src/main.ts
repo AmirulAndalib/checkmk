@@ -23,6 +23,7 @@ import SharedDashboard from './dashboard/DashboardSharedApp.vue'
 import DateTimePickerApp from './date-time-picker/CmkDateTimePickerApp.vue'
 import DialogApp from './dialog/DialogApp.vue'
 import { GlobalTimePickerApp } from './graphing/GlobalTimePicker'
+import GraphGroup from './graphing/components/GraphGroup.vue'
 import { registerMetricBackendFormComponents } from './metric-backend/registerFormComponents'
 import ModeCreateOAuth2ConnectionApp from './mode-oauth2-connection/ModeCreateOAuth2ConnectionApp.vue'
 import ModeRedirectOAuth2ConnectionAppCopy from './mode-oauth2-connection/ModeRedirectOAuth2ConnectionApp.vue'
@@ -79,3 +80,4 @@ defineCmkComponent('cmk-webauthn-register-button', WebAuthnRegisterButtonApp)
 defineCmkComponent('cmk-product-usage-analytics', ProductUsageAnalyticsApp)
 defineCmkComponent('cmk-date-time-picker', DateTimePickerApp)
 defineCmkComponent('cmk-global-time-picker', GlobalTimePickerApp)
+defineCmkComponent('cmk-graph-group', GraphGroup)
