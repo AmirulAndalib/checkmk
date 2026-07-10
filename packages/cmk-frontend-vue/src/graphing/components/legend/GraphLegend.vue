@@ -12,19 +12,18 @@ import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
-import type { ConsolidationFn, HorizontalLine, Metric } from '../TimeSeriesGraph'
+import type { HorizontalLine, Metric } from '../TimeSeriesGraph'
+import {
+  CONSOLIDATION_FUNCTIONS,
+  type ConsolidationFn,
+  useConsolidationFunctionLabels
+} from '../consolidation'
 import GraphLegendEyeButton from './GraphLegendEyeButton.vue'
 import { metricsInGraphTopToBottomOrder, withNameToggled } from './legendUtils'
 
 const { _t, _tn } = usei18n()
 
-const CONSOLIDATION_FUNCTION_LABELS = computed(
-  (): Record<ConsolidationFn, string> => ({
-    min: _t('Min'),
-    avg: _t('Average'),
-    max: _t('Max')
-  })
-)
+const consolidationFunctionLabels = useConsolidationFunctionLabels()
 
 const props = withDefaults(
   defineProps<{
@@ -195,11 +194,11 @@ watch(
             </div>
           </th>
           <th
-            v-for="cfn in ['min', 'avg', 'max'] as ConsolidationFn[]"
-            :key="cfn"
+            v-for="consolidationFunction in CONSOLIDATION_FUNCTIONS"
+            :key="consolidationFunction"
             class="graphing-graph-legend__consolidation-function-th"
           >
-            {{ CONSOLIDATION_FUNCTION_LABELS[cfn] }}
+            {{ consolidationFunctionLabels[consolidationFunction] }}
           </th>
           <th class="graphing-graph-legend__last-header">
             {{ _t('Last') }}

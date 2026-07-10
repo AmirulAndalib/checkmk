@@ -5,8 +5,9 @@
  */
 import type { ScaleLinear, ScaleTime } from 'd3-scale'
 
+import type { ConsolidationFn } from '../../consolidation'
 import type { M4Bucket } from '../decimation/types'
-import type { ConsolidationFn, Metric } from '../types'
+import type { Metric } from '../types'
 import { selectConsolidatedValue } from './bucket'
 
 export interface StackedBand {

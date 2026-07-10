@@ -16,7 +16,6 @@ import CmkLabeledSwitch from '@/components/CmkLabeledSwitch.vue'
 import { useGraphInteraction } from '../composables/useGraphInteraction'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import TimeSeriesGraph, {
-  type ConsolidationFn,
   type GraphOptions,
   type HorizontalLine,
   type LineInterpolator,
@@ -26,6 +25,7 @@ import TimeSeriesGraph, {
   type Size,
   type TimeRange
 } from './TimeSeriesGraph'
+import type { ConsolidationFn } from './consolidation'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 
 interface CmkInteractionFlags {

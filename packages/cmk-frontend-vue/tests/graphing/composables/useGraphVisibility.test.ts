@@ -6,7 +6,8 @@
 import { render } from '@testing-library/vue'
 import { defineComponent, ref } from 'vue'
 
-import type { ConsolidationFn, HorizontalLine, Metric } from '@/graphing/components/TimeSeriesGraph'
+import type { HorizontalLine, Metric } from '@/graphing/components/TimeSeriesGraph'
+import type { ConsolidationFn } from '@/graphing/components/consolidation'
 import { useGraphVisibility } from '@/graphing/composables/useGraphVisibility'
 
 // Minimal fixtures — the composable only accesses metadata.name and line.name

@@ -10,17 +10,13 @@ import usei18n from '@/lib/i18n'
 import { useGraphInteraction } from '../composables/useGraphInteraction'
 import { useGraphTimeRange } from '../composables/useGraphTimeRange'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
-import type {
-  ConsolidationFn,
-  GraphPanelEmits,
-  GraphPanelProps,
-  RequestedTimeRange
-} from '../types.ts'
+import type { GraphPanelEmits, GraphPanelProps, RequestedTimeRange } from '../types.ts'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import GraphBurgerMenu from './GraphBurgerMenu.vue'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
+import type { ConsolidationFn } from './consolidation'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 import GraphLegend from './legend/GraphLegend.vue'
 

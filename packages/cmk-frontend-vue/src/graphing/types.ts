@@ -3,14 +3,10 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type {
-  ConsolidationFn,
-  HorizontalLine,
-  Metric,
-  TimeRange
-} from './components/TimeSeriesGraph'
+import type { HorizontalLine, Metric, TimeRange } from './components/TimeSeriesGraph'
+import type { ConsolidationFn } from './components/consolidation'
 
-export type { ConsolidationFn, HorizontalLine, Metric, TimeRange }
+export type { HorizontalLine, Metric, TimeRange }
 
 export interface TimeInterval {
   start: number // unix seconds

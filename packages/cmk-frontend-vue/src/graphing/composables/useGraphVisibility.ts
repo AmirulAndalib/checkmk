@@ -5,7 +5,8 @@
  */
 import { computed, ref } from 'vue'
 
-import type { ConsolidationFn, HorizontalLine, Metric } from '../components/TimeSeriesGraph'
+import type { HorizontalLine, Metric } from '../components/TimeSeriesGraph'
+import type { ConsolidationFn } from '../components/consolidation'
 
 export function useGraphVisibility(
   getMetrics: () => Metric[],

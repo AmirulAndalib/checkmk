@@ -14,6 +14,7 @@ import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
 import CmkButton from '@/components/CmkButton'
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
+import type { ConsolidationFn } from '../consolidation'
 import { CANVAS_MARGIN_LEFT, CANVAS_MARGIN_RIGHT } from '../constants'
 import { computeTimeAxis } from './axes/timeAxis'
 import { computeYDomain } from './axes/valueAxis'
@@ -25,13 +26,7 @@ import { drawData } from './render'
 import { invertBucket } from './render/bucket'
 import { drawHorizontalLines } from './render/horizontalLines'
 import { computeStackedSeries } from './render/stacked'
-import type {
-  ConsolidationFn,
-  PinPayload,
-  TimeRange,
-  TimeSeriesGraphProps,
-  ZoomPayload
-} from './types'
+import type { PinPayload, TimeRange, TimeSeriesGraphProps, ZoomPayload } from './types'
 import { useAxes } from './useAxes'
 import { useHover } from './useHover'
 import { usePanGesture } from './usePanGesture'

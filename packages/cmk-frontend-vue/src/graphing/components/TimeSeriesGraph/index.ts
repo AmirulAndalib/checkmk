@@ -6,7 +6,6 @@
 
 export { default } from './TimeSeriesGraph.vue'
 export type {
-  ConsolidationFn,
   GraphOptions,
   HorizontalLine,
   LineInterpolator,

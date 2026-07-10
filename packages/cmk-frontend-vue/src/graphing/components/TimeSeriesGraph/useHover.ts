@@ -9,11 +9,12 @@ import { type Ref, onBeforeUnmount, ref } from 'vue'
 
 import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
 
+import type { ConsolidationFn } from '../consolidation'
 import type { M4Bucket, M4Cache } from './decimation/types'
 import { type HoverSample, type HoverState, metricHitDistance } from './interaction/hover'
 import { selectConsolidatedValue } from './render/bucket'
 import type { StackedSeries } from './render/stacked'
-import type { ConsolidationFn, Metric } from './types'
+import type { Metric } from './types'
 
 const HOVER_CLEAR_DELAY_MS = 150
 

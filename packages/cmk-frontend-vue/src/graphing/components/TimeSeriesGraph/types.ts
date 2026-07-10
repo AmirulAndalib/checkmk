@@ -6,6 +6,7 @@
 import type { CmkTimeSeriesGraph, Size } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 
+import type { ConsolidationFn } from '../consolidation'
 import type { ZoomMode } from './interaction/selection'
 
 export type {
@@ -24,7 +25,6 @@ export type MetricRender = components['schemas']['ApiMetricRender']
 export type HorizontalLine = components['schemas']['ApiHorizontalLine']
 export type TimeRange = components['schemas']['ApiTimeRange']
 
-export type ConsolidationFn = 'min' | 'max' | 'avg'
 export type LineInterpolator = 'linear' | 'monotoneX' | 'basis'
 export type SizeMode = Size['mode']
 

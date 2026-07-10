@@ -3,8 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { ConsolidationFn } from '../../consolidation'
 import type { M4Bucket } from '../decimation/types'
-import type { ConsolidationFn } from '../types'
 
 export function selectConsolidatedValue(bucket: M4Bucket, consolidation: ConsolidationFn): number {
   if (bucket.gap || bucket.sampleCount === 0) {
