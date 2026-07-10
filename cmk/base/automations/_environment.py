@@ -55,6 +55,8 @@ from cmk.ruleset_matcher.matcher import (
 from cmk.ruleset_matcher.tags import HostTags
 from cmk.utils import ip_lookup
 
+logger = logging.getLogger(__name__)
+
 
 class ConfigSource(enum.Enum):
     """Which configuration a handler is operating against.
@@ -250,7 +252,6 @@ class AutomationEnvironment:
 
 
 def handle_ip_lookup_error(host: HostName, exception: Exception) -> None:
-    logger = logging.getLogger("cmk.automations")
     logger.warning(
         "Cannot lookup IP address of '%(host)s' (%(exception)s). The host will not be monitored correctly.",
         {"host": host, "exception": exception},

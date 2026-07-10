@@ -250,6 +250,7 @@ from cmk.utils.servicename import Item, ServiceName
 HistoryFile = str
 HistoryFilePair = tuple[HistoryFile, HistoryFile]
 
+logger = logging.getLogger(__name__)
 tracer = trace.get_tracer()
 
 
@@ -859,7 +860,7 @@ def _execute_discovery(
         effective_host=config_cache.clustering.effective_host,
         get_snmp_backend=config_cache.get_snmp_backend,
         timeperiods_active=cmk.utils.timeperiod.TimeperiodActiveCoreLookup(
-            livestatus.get_optional_timeperiods_active_map, logging.getLogger(__name__).warning
+            livestatus.get_optional_timeperiods_active_map, logger.warning
         ),
     )
     autochecks_config = config.AutochecksConfigurer(
@@ -1054,7 +1055,6 @@ def _execute_autodiscovery(
     loading_result: config.LoadingResult | None,
 ) -> tuple[Mapping[HostName, DiscoveryReport], bool]:
     file_cache_options = FileCacheOptions(use_outdated=True)
-    logger = logging.getLogger("cmk.automation.autodiscovery")
 
     if not (autodiscovery_queue := AutoQueue(autodiscovery_dir)):
         logger.debug("No hosts to discover, returning.")
@@ -1889,7 +1889,6 @@ class AutomationAnalyseServices:
     ) -> AnalyseServiceResult:
         host_name = HostName(args[0])
         servicedesc = args[1]
-        logger = logging.getLogger("cmk.base.automations")  # this might go nowhere.
 
         env = AutomationEnvironment.create(app, plugins, loading_result)
         env.ruleset_matcher.ruleset_optimizer.set_all_processed_hosts({host_name})
