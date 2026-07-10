@@ -54,7 +54,6 @@ py_library(
         "//cmk/gui:general_pages",
         "//cmk/gui:messaging",
         "//cmk/gui:page_toolkit",
-        "//cmk/gui:request_globals",
         "//cmk/gui:session_context",
         "//cmk/gui/dashboard",
         "//cmk/gui/form_specs",
