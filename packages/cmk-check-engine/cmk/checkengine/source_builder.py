@@ -9,7 +9,6 @@
 # - Discovery works.
 # - Checking doesn't work - as it was before. Maybe we can handle this in the future.
 
-import functools
 import socket
 from collections.abc import Iterable, Mapping, Sequence, Sized
 from pathlib import Path
@@ -41,15 +40,7 @@ from cmk.server_side_calls_backend import SpecialAgentCommandLine
 from cmk.utils.ip_lookup import IPStackConfig
 
 
-@functools.cache
 def _discover_optional_sources() -> Mapping[str, type[OptionalSource[Sized]]]:
-    # `functools.cache` both defers and memoizes the discovery. Deferring matters because it
-    # imports the public submodules of the `cmk.checkengine.sources` namespace package --
-    # including the `api` subpackage, whose `__init__` imports this module. By the first
-    # `SourceBuilder()` instantiation those imports have settled, so re-importing `api` is a
-    # no-op. An edition that does not ship an optional source simply does not expose its module,
-    # and `discover()` skips it.
-    # TODO: Do not co-locate the discovery/builder logic and and discovered content
     return discover(cmk.checkengine.sources, OptionalSource, get_default_identifier)
 
 
