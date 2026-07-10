@@ -17,6 +17,8 @@ from typing import Final, Self, TypedDict
 from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
 from cmk.checkengine.helper_interface import AgentRawData
 
+logger = logging.getLogger(__name__)
+
 
 class ProgramFetcherParams(TypedDict):
     cmdline: str
@@ -36,7 +38,6 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
         self.cmdline: Final = cmdline
         self.stdin: Final = stdin
         self.is_cmc: Final = is_cmc
-        self._logger: Final = logging.getLogger("cmk.helper.program")
         self._process: subprocess.Popen | None = None
 
     def __repr__(self) -> str:
@@ -69,9 +70,9 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
         return cls(**params)
 
     def open(self) -> None:
-        self._logger.debug("Calling: %(cmdline)s", {"cmdline": self.cmdline})
+        logger.debug("Calling: %(cmdline)s", {"cmdline": self.cmdline})
         if self.stdin:
-            self._logger.debug(
+            logger.debug(
                 "STDIN (first 30 bytes): %(stdin_head)s... (total %(stdin_len)d bytes)",
                 {"stdin_head": self.stdin[:30], "stdin_len": len(self.stdin)},
             )
@@ -121,7 +122,7 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
         self._process = None
 
     def _fetch_from_io(self, _mode: Mode) -> AgentRawData:
-        self._logger.debug("Get data from program")
+        logger.debug("Get data from program")
         if self._process is None:
             raise TypeError("no process")
         # ? do they have the default byte type, because in open() none of the "text", "encoding",
@@ -130,7 +131,7 @@ class ProgramFetcher(Fetcher[AgentRawData, ProgramFetcherParams]):
             input=self.stdin.encode() if self.stdin else None
         )
         if self._process.returncode:
-            self._logger.error(
+            logger.error(
                 "Program fetcher failure. Command: '%(cmdline)s'. Exit code: %(exit_code)s. "
                 "Error message: %(error)s",
                 {

@@ -46,6 +46,9 @@ __all__ = [
 ]
 
 
+logger = logging.getLogger(__name__)
+
+
 class NoSelectedSNMPSections: ...
 
 
@@ -132,7 +135,6 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
         self.caching_config: Final = caching_config
         self.snmp_config: Final = snmp_config
         self.force_stored_walks: Final = force_stored_walks
-        self._logger: Final = logging.getLogger("cmk.helper.snmp")
         self._backend: SNMPBackend | None = None
 
     def __eq__(self, other: object) -> bool:
@@ -326,7 +328,6 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
 
         walk_cache = WalkCache(
             self.base_path / self.relative_walk_cache_path / str(self._backend.hostname),
-            self._logger,
         )
         if mode is Mode.CHECKING:
             walk_cache_msg = "SNMP walk cache is enabled: Use any locally cached information"
@@ -339,7 +340,7 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
         for section_name in self._sort_section_names(section_names):
             if section_name in cached_data:
                 continue
-            self._logger.debug(
+            logger.debug(
                 "%(section_name)s: Fetching data (%(walk_cache_msg)s)",
                 {"section_name": section_name, "walk_cache_msg": walk_cache_msg},
             )
@@ -350,7 +351,7 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
                         tree=tree,
                         walk_cache=walk_cache,
                         backend=self._backend,
-                        log=self._logger.debug,
+                        log=logger.debug,
                     )
                     for tree in self.plugin_store[section_name].trees
                 ]

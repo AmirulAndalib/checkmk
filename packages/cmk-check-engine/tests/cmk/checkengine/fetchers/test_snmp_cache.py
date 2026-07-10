@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-import logging
 from collections.abc import Iterable, MutableMapping
 from pathlib import Path
 
@@ -14,7 +13,7 @@ from cmk.checkengine.snmplib import SNMPRowInfo
 
 class MockWalkCache(WalkCache):
     def __init__(self, mockdata: MutableMapping[str, SNMPRowInfo], path: Path) -> None:
-        super().__init__(path, logging.getLogger("test"))
+        super().__init__(path)
         self.mock_stored_on_fs = mockdata
 
     def _read_row(self, path: Path) -> SNMPRowInfo:

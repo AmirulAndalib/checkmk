@@ -14,6 +14,7 @@ from cmk.checkengine.snmplib import SNMPRawDataElem, SNMPRowInfo, SNMPSectionMar
 
 # mypy: disable-error-code="no-any-return"
 # mypy: disable-error-code="comparison-overlap"
+logger = logging.getLogger(__name__)
 
 
 class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
@@ -30,12 +31,11 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
     is true).
     """
 
-    __slots__ = ("_store", "_path", "_logger")
+    __slots__ = ("_store", "_path")
 
-    def __init__(self, walk_cache: Path, logger: logging.Logger) -> None:
+    def __init__(self, walk_cache: Path) -> None:
         self._store: dict[tuple[str, str, bool], SNMPRowInfo] = {}
         self._path = walk_cache
-        self._logger = logger
 
     def _read_row(self, path: Path) -> SNMPRowInfo:
         return store.load_object_from_file(path, default=None)
@@ -82,7 +82,7 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
         for path in self._iterfiles():
             fetchoid, context_hash = self._name2oid(path.name)
 
-            self._logger.debug(
+            logger.debug(
                 "  Loading %(fetchoid)s from walk cache %(path)s",
                 {"fetchoid": fetchoid, "path": path},
             )
@@ -91,7 +91,7 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
             except MKTimeout:
                 raise
             except Exception:
-                self._logger.debug(
+                logger.debug(
                     "  Failed to load %(fetchoid)s from walk cache %(path)s",
                     {"fetchoid": fetchoid, "path": path},
                 )
@@ -108,7 +108,7 @@ class WalkCache(MutableMapping[tuple[str, str, bool], SNMPRowInfo]):
                 continue
 
             path = self._path / self._oid2name(fetchoid, context_hash)
-            self._logger.debug(
+            logger.debug(
                 "  Saving walk of %(fetchoid)s to walk cache %(path)s",
                 {"fetchoid": fetchoid, "path": path},
             )

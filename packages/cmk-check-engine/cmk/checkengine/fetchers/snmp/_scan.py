@@ -4,15 +4,13 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import functools
+import logging
 from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
-from logging import Logger
 
 from cmk.agent_based.internal import evaluate_snmp_detection
 from cmk.agent_based.v2 import SNMPDetectSpecification
-from cmk.ccc import tty
 from cmk.ccc.exceptions import MKGeneralException, MKTimeout, OnError
-from cmk.ccc.tty import format_warning
 from cmk.checkengine.fetcher_abc import FetcherError
 from cmk.checkengine.snmplib import (
     get_single_oid,
@@ -23,6 +21,7 @@ from cmk.checkengine.snmplib import (
 )
 
 type SNMPScanSection = tuple[SNMPSectionName, SNMPDetectBaseType]
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -49,7 +48,7 @@ def gather_available_raw_section_names(
         if scan_config.on_error is OnError.RAISE:
             raise
         if scan_config.on_error is OnError.WARN:
-            backend.logger.exception("SNMP scan failed")
+            logger.exception("SNMP scan failed")
 
     return frozenset()
 
@@ -64,19 +63,19 @@ def _snmp_scan(
     scan_config: SNMPScanConfig,
     backend: SNMPBackend,
 ) -> frozenset[SNMPSectionName]:
-    backend.logger.debug("  SNMP scan:")
+    logger.debug("SNMP scan:")
 
     found_sections = _find_sections(
         sections,
         (
-            _fake_description_object(backend.logger)
+            _fake_description_object()
             if scan_config.missing_sys_description
             else _prefetch_description_object(backend=backend)
         ),
         on_error=scan_config.on_error,
         backend=backend,
     )
-    _output_snmp_check_plugins("SNMP scan found", found_sections, backend.logger)
+    _output_snmp_check_plugins("SNMP scan found", found_sections)
     return found_sections
 
 
@@ -106,10 +105,10 @@ def _prefetch_description_object(*, backend: SNMPBackend) -> Mapping[str, SNMPDe
     }
 
 
-def _fake_description_object(logger: Logger) -> Mapping[str, SNMPDecodedString]:
+def _fake_description_object() -> Mapping[str, SNMPDecodedString]:
     """Fake OID values to prevent issues with a lot of scan functions"""
     logger.debug(
-        '       Skipping system description OID (Set %(sys_descr)s and %(sys_obj)s to "")',
+        'Skipping system description OID (Set %(sys_descr)s and %(sys_obj)s to "")',
         {"sys_descr": OID_SYS_DESCR, "sys_obj": OID_SYS_OBJ},
     )
     return {OID_SYS_DESCR: "", OID_SYS_OBJ: ""}
@@ -149,23 +148,16 @@ def _find_sections(
             if on_error is OnError.RAISE:
                 raise
             if on_error is OnError.WARN:
-                backend.logger.warning(
-                    format_warning(f"   Exception in SNMP scan function of {name}")
-                )
+                logger.exception("Exception in SNMP scan function of %(name)s", {"name": name})
     return frozenset(found_sections)
 
 
-def _output_snmp_check_plugins(
-    title: str, collection: Collection[SNMPSectionName], logger: Logger
-) -> None:
+def _output_snmp_check_plugins(title: str, collection: Collection[SNMPSectionName]) -> None:
     collection_out = " ".join(str(n) for n in sorted(collection)) if collection else "-"
     logger.debug(
-        "   %(title)-35s%(bold)s%(yellow)s%(collection)s%(normal)s",
+        "%(title)-35s%(collection)s",
         {
             "title": title,
-            "bold": tty.bold,
-            "yellow": tty.yellow,
             "collection": collection_out,
-            "normal": tty.normal,
         },
     )

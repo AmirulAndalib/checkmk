@@ -32,6 +32,9 @@ __all__ = [
 ]
 
 
+logger = logging.getLogger(__name__)
+
+
 @dataclass(frozen=True, kw_only=True)
 class TLSConfig:
     cas_dir: Path
@@ -132,7 +135,6 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         self.uuid_file: Final = uuid_file
         self.pre_shared_secret: Final = pre_shared_secret
         self.tls_config: Final = tls_config
-        self._logger: Final = logging.getLogger("cmk.helper.tcp")
         self._socket: socket.socket | None = None
 
     def __repr__(self) -> str:
@@ -206,7 +208,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         if ip_addr in ("0.0.0.0", "::"):  # nosec B104 # BNS:d61a82
             raise FetcherError("IP Address of the host %s is not known" % self.host_name)
 
-        self._logger.debug(
+        logger.debug(
             "Connecting via TCP to %(host)s:%(port)d (%(timeout)ss timeout)",
             {"host": self.address[0], "port": self.address[1], "timeout": self.timeout},
         )
@@ -231,7 +233,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
     def close(self) -> None:
         if self._socket is None:
             return
-        self._logger.debug(
+        logger.debug(
             "Closing TCP connection to %(host)s:%(port)d",
             {"host": self.address[0], "port": self.address[1]},
         )
@@ -255,9 +257,9 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
     def _from_tls(
         self, sock: socket.socket, server_hostname: str
     ) -> tuple[TransportProtocol, Buffer]:
-        self._logger.debug("Reading data from agent via TLS socket")
+        logger.debug("Reading data from agent via TLS socket")
         with wrap_tls(sock, server_hostname, tls_config=self.tls_config) as ssock:
-            self._logger.debug("Reading data from agent")
+            logger.debug("Reading data from agent")
             raw_agent_data = recvall(ssock)
         try:
             agent_data = AgentCtlMessage.from_bytes(raw_agent_data).payload
@@ -273,7 +275,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         except ValueError:
             raise FetcherError(f"Unknown transport protocol: {bytes(memoryview(agent_data)[:2])!r}")
 
-        self._logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
+        logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
         return protocol, memoryview(agent_data)[2:]
 
     def _get_agent_data(self, sock: socket.socket, server_hostname: str | None) -> AgentRawData:
@@ -290,7 +292,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         except ValueError:
             raise FetcherError(f"Unknown transport protocol: {raw_protocol!r}")
 
-        self._logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
+        logger.debug("Detected transport protocol: %(protocol)s", {"protocol": protocol})
         validate_agent_protocol(
             protocol, self.encryption_handling, is_registered=server_hostname is not None
         )
@@ -301,7 +303,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
 
             protocol, output = self._from_tls(sock, server_hostname)
         else:
-            self._logger.debug("Reading data from agent")
+            logger.debug("Reading data from agent")
             output = recvall(sock, socket.MSG_WAITALL)
 
         if not memoryview(output):
@@ -313,7 +315,7 @@ class TCPFetcher(Fetcher[AgentRawData, TCPFetcherParams]):
         if (secret := self.pre_shared_secret) is None:
             raise FetcherError("Data is encrypted but no secret is known")
 
-        self._logger.debug("Try to decrypt output")
+        logger.debug("Try to decrypt output")
         try:
             return AgentRawData(decrypt_by_agent_protocol(secret, protocol, output))
         except MKTimeout:

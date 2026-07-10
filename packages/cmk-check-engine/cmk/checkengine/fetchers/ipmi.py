@@ -31,6 +31,7 @@ from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, Fetcher
 from cmk.checkengine.helper_interface import AgentRawData
 
 __all__ = ["IPMICredentials", "IPMIFetcher"]
+logger = logging.getLogger(__name__)
 
 
 # Keep in sync with cmk.gui.watolib.host_attributes.IPMICredentials
@@ -133,7 +134,6 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         self.address: Final = address
         self.username: Final = username
         self.password: Final = password
-        self._logger: Final = logging.getLogger("cmk.helper.ipmi")
         self._command: ipmi_cmd.Command | None = None
 
     def __repr__(self) -> str:
@@ -174,14 +174,14 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         )
 
     def _fetch_from_io(self, _mode: Mode) -> AgentRawData:
-        self._logger.debug("Get IPMI data")
+        logger.debug("Get IPMI data")
         if self._command is None:
             raise OSError(errno.ENOTCONN, os.strerror(errno.ENOTCONN))
 
         return AgentRawData(b"" + self._sensors_section() + self._firmware_section())
 
     def open(self) -> None:
-        self._logger.debug(
+        logger.debug(
             "Connecting to %(address)s:623 (User: %(user)s, Privlevel: 2)",
             {"address": self.address or "local", "user": self.username or "no user"},
         )
@@ -203,7 +203,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             return
 
-        self._logger.debug("Closing connection to %(bmc)s:623", {"bmc": self._command.bmc})
+        logger.debug("Closing connection to %(bmc)s:623", {"bmc": self._command.bmc})
 
         # This should not be our task, but seems pyghmi is not cleaning up good enough.
         # There are some module and class level caches in pyghmi.ipmi.private.session that
@@ -240,9 +240,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             raise OSError(errno.ENOTCONN, os.strerror(errno.ENOTCONN))
 
-        self._logger.debug(
-            "Fetching sensor data via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
-        )
+        logger.debug("Fetching sensor data via UDP from %(bmc)s:623", {"bmc": self._command.bmc})
 
         # Performance: See header.
         import pyghmi.ipmi.sdr as ipmi_sdr  # type: ignore[import-untyped,unused-ignore] # nosec B415 # BNS:7c4e91
@@ -250,8 +248,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         try:
             sdr = ipmi_sdr.SDR(self._command)
         except NotImplementedError as e:
-            self._logger.debug("Failed to fetch sensor data: %(exc)r", {"exc": e})
-            self._logger.debug("Exception", exc_info=True)
+            logger.debug("Failed to fetch sensor data: %(exc)r", {"exc": e}, exc_info=True)
             return AgentRawData(b"")
 
         sensors = []
@@ -270,7 +267,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
                 # not installed
                 if "GPU" in reading.name and has_no_gpu:
                     continue
-                self._logger.debug(
+                logger.debug(
                     "Raw reading states of %(name)s: %(states)s",
                     {"name": reading.name, "states": reading.states},
                 )
@@ -285,7 +282,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         if self._command is None:
             raise OSError(errno.ENOTCONN, os.strerror(errno.ENOTCONN))
 
-        self._logger.debug(
+        logger.debug(
             "Fetching firmware information via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
         )
         try:
@@ -293,8 +290,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         except MKTimeout:
             raise
         except Exception as e:
-            self._logger.debug("Failed to fetch firmware information: %(exc)r", {"exc": e})
-            self._logger.debug("Exception", exc_info=True)
+            logger.debug("Failed to fetch firmware information: %(exc)r", {"exc": e}, exc_info=True)
             return AgentRawData(b"")
 
         return AgentRawData(
@@ -315,7 +311,7 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
             return False
 
         # helper to sort out not installed GPU components
-        self._logger.debug(
+        logger.debug(
             "Fetching inventory information via UDP from %(bmc)s:623", {"bmc": self._command.bmc}
         )
         try:
@@ -323,8 +319,9 @@ class IPMIFetcher(Fetcher[AgentRawData, IPMIFetcherParams]):
         except MKTimeout:
             raise
         except Exception as e:
-            self._logger.debug("Failed to fetch inventory information: %(exc)r", {"exc": e})
-            self._logger.debug("Exception", exc_info=True)
+            logger.debug(
+                "Failed to fetch inventory information: %(exc)r", {"exc": e}, exc_info=True
+            )
             # in case of connection problems, we don't want to ignore possible
             # GPU entries
             return True
