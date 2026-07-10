@@ -122,8 +122,6 @@ STAGES:
           make_rc=0
           ./scripts/in_bazel.sh ".py" "py_binary|py_library|py_test" \
               --known-offender omd/packages/omd/omdlib/__init__.py \
-              `# pre-existing, not part of any CMK-3575x ticket; drained in a later commit` \
-              --known-offender tests/plugins_consistency/test_section_host_label_doc_community.py \
               > ${RESULTS}/results.txt || make_rc=$?
           ./buildscripts/scripts/check_community_edition_all_free.sh >> ${RESULTS}/results.txt || make_rc=$?
           ./scripts/in_bazel.sh "requirements.in" "filegroup" \
