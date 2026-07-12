@@ -26,7 +26,7 @@ EVENT_CONSOLE_RULE_ID = "2105c8a7-5672-4242-98f6-fd6ce8b8f3a7"
 class UpdatePSDiscovery(UpdateAction):
     @override
     def __call__(self, logger: Logger) -> None:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
 
         if ps_discovery_rules := all_rulesets.get_rulesets().get(PS_DISCOVERY_RULE_NAME):
             add_ps_discovery_rules(logger, ps_discovery_rules)

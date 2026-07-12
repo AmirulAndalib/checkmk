@@ -256,7 +256,7 @@ def _load_automatic_host_removal_ruleset() -> Sequence[RuleSpec]:
     return [
         rule.to_config(use_host_folder=UseHostFolder.HOST_FOLDER_FOR_BASE)
         for _folder, _idx, rule in SingleRulesetRecursively.load_single_ruleset_recursively(
-            "automatic_host_removal"
+            folder_tree(), "automatic_host_removal"
         )
         .get("automatic_host_removal")
         .get_rules()

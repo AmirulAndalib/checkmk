@@ -684,13 +684,13 @@ def _delete_passwords(
 def _iter_all_rules(rulespecs: set[str] | None) -> Iterable[tuple[Folder, int, Rule]]:
     if rulespecs:
         for rulespec in rulespecs:
-            ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(rulespec).get(
-                rulespec
-            )
+            ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(
+                folder_tree(), rulespec
+            ).get(rulespec)
             yield from ruleset.get_rules()
 
     else:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         for ruleset in all_rulesets.get_rulesets().values():
             yield from ruleset.get_rules()
 

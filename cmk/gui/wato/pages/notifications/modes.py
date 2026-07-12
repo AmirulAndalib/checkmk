@@ -167,7 +167,7 @@ from cmk.gui.watolib.check_mk_automations import (
 )
 from cmk.gui.watolib.config_domain_name import CORE
 from cmk.gui.watolib.global_settings import load_configuration_settings
-from cmk.gui.watolib.hosts_and_folders import folder_preserving_link, make_action_link
+from cmk.gui.watolib.hosts_and_folders import folder_preserving_link, folder_tree, make_action_link
 from cmk.gui.watolib.mode import mode_registry, mode_url, ModeRegistry, redirect, WatoMode
 from cmk.gui.watolib.notification_parameter import notification_parameter_registry
 from cmk.gui.watolib.notifications import (
@@ -1406,7 +1406,7 @@ def _get_total_sent_notifications_last_seven_days() -> int:
 
 
 def _get_ruleset_infos(entries: dict[str, list[str]]) -> list[RuleTopic]:
-    all_rulesets = AllRulesets.load_all_rulesets()
+    all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
     rule_topic_list: list[RuleTopic] = []
     for section, ruleset in entries.items():
         rule_list: list[Rule] = []

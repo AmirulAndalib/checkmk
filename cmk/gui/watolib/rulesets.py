@@ -436,14 +436,12 @@ class RulesetCollection:
     def _load_folder_rulesets(
         self, folder: Folder, only_varname: RulesetName | None = None
     ) -> None:
-        path = folder.rules_file_path()
-
-        if not path.exists():
+        if not folder.rules_file_path().exists():
             return  # Do not initialize rulesets when no rule at all exists
 
         self.replace_folder_config(
             folder,
-            RuleConfigFile(path).load_for_reading(),
+            RuleConfigFile(folder).load_for_reading(),
             only_varname,
         )
 
@@ -535,7 +533,7 @@ class RulesetCollection:
         *,
         pprint_value: bool,
     ) -> bool:
-        RuleConfigFile(folder.rules_file_path()).save_rulesets_and_unknown_rulesets(
+        RuleConfigFile(folder).save_rulesets_and_unknown_rulesets(
             rulesets, unknown_rulesets, pprint_value=pprint_value
         )
 
@@ -596,6 +594,10 @@ def _paths_with_rules_file(folder_paths: Sequence[str]) -> list[str]:
 
 
 class AllRulesets(RulesetCollection):
+    def __init__(self, rulesets: Mapping[RulesetName, Ruleset], tree: FolderTree) -> None:
+        super().__init__(rulesets)
+        self._tree = tree
+
     def _load_rulesets_recursively(self, folder: Folder) -> None:
         # Note: The sort order of the folders does not matter here
         #       self._load_folder_rulesets ultimately puts each folder into a dict
@@ -615,16 +617,23 @@ class AllRulesets(RulesetCollection):
         self._load_folder_rulesets(folder)
 
     @staticmethod
-    def load_all_rulesets() -> AllRulesets:
-        """Load all rules of all folders"""
+    def load_all_rulesets(tree: FolderTree | None = None) -> AllRulesets:
+        """Load all rules of all folders
+
+        tree defaults to the request-global folder_tree() for callers that must not
+        depend on cmk.gui.watolib.hosts_and_folders directly, e.g. plugin components
+        restricted by the module-layer isolation.
+        """
+        if tree is None:
+            tree = folder_tree()
         rulesets = RulesetCollection._initialize_rulesets()
-        self = AllRulesets(rulesets)
-        self._load_rulesets_recursively(folder_tree().root_folder())
+        self = AllRulesets(rulesets, tree)
+        self._load_rulesets_recursively(tree.root_folder())
         return self
 
     def save(self, *, pprint_value: bool, debug: bool) -> None:
         """Save all rulesets of all folders recursively"""
-        if self._save_rulesets_recursively(folder_tree().root_folder(), pprint_value=pprint_value):
+        if self._save_rulesets_recursively(self._tree.root_folder(), pprint_value=pprint_value):
             update_merged_password_file(debug=debug)
 
     def save_folder(self, folder: Folder, *, pprint_value: bool, debug: bool) -> None:
@@ -688,10 +697,12 @@ class SingleRulesetRecursively(RulesetCollection):
         self._load_folder_rulesets(folder, only_varname)
 
     @staticmethod
-    def load_single_ruleset_recursively(name: RulesetName) -> SingleRulesetRecursively:
+    def load_single_ruleset_recursively(
+        tree: FolderTree, name: RulesetName
+    ) -> SingleRulesetRecursively:
         rulesets = RulesetCollection._initialize_rulesets(only_varname=name)
         self = SingleRulesetRecursively(rulesets)
-        self._load_rulesets_recursively(folder_tree().root_folder(), only_varname=name)
+        self._load_rulesets_recursively(tree.root_folder(), only_varname=name)
         return self
 
 
@@ -1641,7 +1652,7 @@ class Rule:
 
     def _get_search_folders(self, search_options: SearchOptions) -> list[str]:
         current_folder, do_recursion = search_options["rule_folder"]
-        current_folder = folder_tree().folder(current_folder)
+        current_folder = self.folder.tree.folder(current_folder)
         search_in_folders = [current_folder.path()]
         if do_recursion:
             search_in_folders = [
@@ -1722,7 +1733,7 @@ def _match_rule_host_list(rule: Rule, search_hosts_str: str) -> bool:
     if any(c in ".?*+^$|[](){}\\" for c in search_hosts_str):
         match_regex = re.compile(search_hosts_str)
         rule_host_list = []
-        for host_name, _host in folder_tree().all_hosts().items():
+        for host_name, _host in rule.folder.tree.all_hosts().items():
             if match_regex.search(host_name):
                 rule_host_list.append(host_name)
         if not any(
@@ -1859,7 +1870,7 @@ class EnabledDisabledServicesEditor:
         if not services:
             return
 
-        rulesets = AllRulesets.load_all_rulesets()
+        rulesets = AllRulesets.load_all_rulesets(self._host.folder().tree)
 
         try:
             ruleset = rulesets.get("ignored_services")
@@ -2008,7 +2019,9 @@ class EnabledDisabledServicesEditor:
 
 def find_timeperiod_usage_in_host_and_service_rules(time_period_name: str) -> list[TimeperiodUsage]:
     used_in: list[TimeperiodUsage] = []
-    rulesets = AllRulesets.load_all_rulesets()
+    # Gated: registered in timeperiod_usage_finder_registry, which invokes finders with a fixed
+    # (time_period_name) signature and hands them no folder tree.
+    rulesets = AllRulesets.load_all_rulesets(folder_tree())
     for varname, ruleset in rulesets.get_rulesets().items():
         if not isinstance(ruleset.rulespec.value_model, TimeperiodValuespec | TimeSpecific):
             continue
@@ -2039,7 +2052,9 @@ def find_timeperiod_usage_in_time_specific_parameters(
     time_period_name: str,
 ) -> list[TimeperiodUsage]:
     used_in: list[TimeperiodUsage] = []
-    rulesets = AllRulesets.load_all_rulesets()
+    # Gated: registered in timeperiod_usage_finder_registry, which invokes finders with a fixed
+    # (time_period_name) signature and hands them no folder tree.
+    rulesets = AllRulesets.load_all_rulesets(folder_tree())
     for ruleset in rulesets.get_rulesets().values():
         if not isinstance(ruleset.rulespec.value_model, TimeperiodValuespec | TimeSpecific):
             continue
@@ -2069,15 +2084,15 @@ def find_timeperiod_usage_in_time_specific_parameters(
 class RuleConfigFile(WatoConfigFile[Mapping[RulesetName, Any]]):
     """Handles reading and writing rules.mk files"""
 
-    def __init__(self, config_file_path: Path) -> None:
-        super().__init__(config_file_path=config_file_path, spec_class=Mapping[RulesetName, Any])
+    def __init__(self, folder: Folder) -> None:
+        super().__init__(
+            config_file_path=folder.rules_file_path(), spec_class=Mapping[RulesetName, Any]
+        )
+        self._folder = folder
 
     @property
     def folder(self) -> Folder:
-        root_dir = Path(folder_tree().get_root_dir())
-        return folder_tree().folder(
-            str(self._config_file_path.parent.relative_to(root_dir)).strip(".")
-        )
+        return self._folder
 
     @override
     def _load_file(self, *, lock: bool) -> Mapping[RulesetName, Any]:

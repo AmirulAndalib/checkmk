@@ -97,7 +97,7 @@ def test_validate_host_condition(
     )
     mocker.patch(
         "cmk.update_config.plugins.pre_actions.rulesets.AllRulesets.load_all_rulesets",
-        return_value=AllRulesets({ruleset_name: ruleset}),
+        return_value=AllRulesets({ruleset_name: ruleset}, root_folder.tree),
     )
     if expected:
         with pytest.raises(MKUserError) as e:

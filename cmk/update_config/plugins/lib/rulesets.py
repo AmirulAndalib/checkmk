@@ -71,7 +71,7 @@ def load_and_transform(
     pending_changes: PendingChanges,
     use_new_descriptions_for: Mapping[str, bool],
 ) -> AllRulesets:
-    all_rulesets = AllRulesets.load_all_rulesets()
+    all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
 
     if not use_new_descriptions_for.get("http", False):
         _force_old_http_service_description(all_rulesets)

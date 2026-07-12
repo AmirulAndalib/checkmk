@@ -55,7 +55,7 @@ from cmk.gui.watolib.analyze_configuration import (
 from cmk.gui.watolib.check_mk_automations import find_unknown_check_parameter_rule_sets
 from cmk.gui.watolib.config_domain_name import ABCConfigDomain
 from cmk.gui.watolib.config_domains import ConfigDomainOMD
-from cmk.gui.watolib.hosts_and_folders import Folder
+from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
 from cmk.gui.watolib.rulesets import AllRulesets, Rule, SingleRulesetRecursively
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.livestatus_client import LocalConnection, SiteConfiguration, SiteConfigurations
@@ -1197,7 +1197,7 @@ class ACTestESXDatasources(ACTest):
 
     def _get_rules(self) -> list[tuple[Folder, int, Rule]]:
         collection = SingleRulesetRecursively.load_single_ruleset_recursively(
-            RuleGroup.SpecialAgents("vsphere")
+            folder_tree(), RuleGroup.SpecialAgents("vsphere")
         )
 
         ruleset = collection.get(RuleGroup.SpecialAgents("vsphere"))
@@ -1252,7 +1252,7 @@ class ACTestDeprecatedRuleSets(ACTest):
         ]
         if deprecated_rule_sets := [
             r
-            for r in AllRulesets.load_all_rulesets().get_rulesets().values()
+            for r in AllRulesets.load_all_rulesets(folder_tree()).get_rulesets().values()
             if r.is_deprecated()
             and r.num_rules()
             and r.name not in unknown_check_parameter_rule_sets
@@ -1779,7 +1779,7 @@ class ACTestUnexpectedAllowedIPRanges(ACTest):
 
     def _get_rules(self) -> list[tuple[str, str]]:
         ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(
-            RuleGroup.CheckgroupParameters("agent_update")
+            folder_tree(), RuleGroup.CheckgroupParameters("agent_update")
         ).get(RuleGroup.CheckgroupParameters("agent_update"))
         state_map = {0: "OK", 1: "WARN", 2: "CRIT", 3: "UNKNOWN"}
         return [

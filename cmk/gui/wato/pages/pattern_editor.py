@@ -227,9 +227,9 @@ class ModePatternEditor(WatoMode):
     def _show_patterns(
         self, *, site_configs: Mapping[SiteId, SiteConfiguration], debug: bool
     ) -> None:
-        ruleset = SingleRulesetRecursively.load_single_ruleset_recursively("logwatch_rules").get(
-            "logwatch_rules"
-        )
+        ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(
+            folder_tree(), "logwatch_rules"
+        ).get("logwatch_rules")
 
         html.h3(_("Log file patterns"))
         if ruleset.is_empty():

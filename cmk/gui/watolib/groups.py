@@ -41,7 +41,7 @@ from cmk.gui.watolib.host_attributes import (
     HostAttributeTopic,
     HostContactGroupSpec,
 )
-from cmk.gui.watolib.hosts_and_folders import folder_preserving_link
+from cmk.gui.watolib.hosts_and_folders import folder_preserving_link, folder_tree
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.rulesets import AllRulesets
 from cmk.gui.watolib.timeperiods import load_timeperiods
@@ -291,7 +291,7 @@ def find_usages_of_service_group(name: GroupName) -> list[tuple[str, str]]:
 
 def _find_usages_of_group_in_rules(name: GroupName, varnames: list[str]) -> list[tuple[str, str]]:
     used_in = []
-    rulesets = AllRulesets.load_all_rulesets()
+    rulesets = AllRulesets.load_all_rulesets(folder_tree())
     for varname in varnames:
         ruleset = rulesets.get(varname)
         for _folder, _rulenr, rule in ruleset.get_rules():

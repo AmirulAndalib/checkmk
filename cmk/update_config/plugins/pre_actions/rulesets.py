@@ -21,6 +21,7 @@ from cmk.gui.groups import GroupSpec
 from cmk.gui.pages import set_global_vars
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib.groups_io import load_contact_group_information
+from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import AllRulesets, Ruleset, RulesetCollection
 from cmk.gui.watolib.rulespecs import FormSpecNotImplementedError
 from cmk.gui.wsgi.app import gui_context
@@ -49,7 +50,7 @@ class PreUpdateRulesets(PreUpdateAction):
         try:
             with disable_redis(), gui_context(), SuperUserContext():
                 set_global_vars()
-                rulesets = AllRulesets.load_all_rulesets()
+                rulesets = AllRulesets.load_all_rulesets(folder_tree())
         except Exception as exc:
             logger.exception("Exception while trying to load rulesets")
             if _continue_on_ruleset_exception(conflict_mode).is_abort():

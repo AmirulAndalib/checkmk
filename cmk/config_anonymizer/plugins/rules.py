@@ -21,7 +21,7 @@ from cmk.checkengine.plugins._check import CheckPlugin, CheckPluginName
 from cmk.config_anonymizer.interface import AnonInterface, AnonymizationError
 from cmk.config_anonymizer.step import AnonymizeStep
 from cmk.gui.config import Config
-from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
+from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree, FolderTree
 from cmk.gui.watolib.rulesets import (
     _FOLDER_PATH_MACRO,
     AllRulesets,
@@ -50,17 +50,17 @@ from cmk.utils.global_ident_type import GlobalIdent
 
 
 class AnonymizedAllRulesets(AllRulesets):
-    def __init__(self, anon_interface: AnonInterface) -> None:
+    def __init__(self, anon_interface: AnonInterface, tree: FolderTree) -> None:
         """Load all rules of all folders"""
         rulesets = RulesetCollection._initialize_rulesets()
-        super().__init__(rulesets)
-        self._load_rulesets_recursively(folder_tree().root_folder())
+        super().__init__(rulesets, tree)
+        self._load_rulesets_recursively(tree.root_folder())
         self._anon_interface = anon_interface
         self._unknown_rulesets = {}
 
     def save_anon_rulesets(self, pprint_value: bool) -> None:
         """Save all rulesets of all folders recursively"""
-        self._save_anon_rulesets_recursively(folder_tree().root_folder(), pprint_value=pprint_value)
+        self._save_anon_rulesets_recursively(self._tree.root_folder(), pprint_value=pprint_value)
 
     def _save_anon_rulesets_recursively(self, folder: Folder, pprint_value: bool) -> None:
         for subfolder in folder.subfolders():
@@ -450,7 +450,7 @@ class RulesStep(AnonymizeStep):
     ) -> None:
         logger.warning("Processing rules")
 
-        anonymized_all_rulesets = AnonymizedAllRulesets(anon_interface)
+        anonymized_all_rulesets = AnonymizedAllRulesets(anon_interface, folder_tree())
 
         builtin_ids = BuiltinTagConfig()
 

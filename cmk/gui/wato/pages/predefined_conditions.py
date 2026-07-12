@@ -127,7 +127,7 @@ class ModePredefinedConditions(SimpleListMode[PredefinedConditionSpec]):
     ) -> None:
         if {
             name: ruleset
-            for name, ruleset in AllRulesets.load_all_rulesets().get_rulesets().items()
+            for name, ruleset in AllRulesets.load_all_rulesets(folder_tree()).get_rulesets().items()
             if ruleset.matches_search_with_rules({"rule_predefined_condition": ident}, debug=debug)
         }:
             raise MKUserError(

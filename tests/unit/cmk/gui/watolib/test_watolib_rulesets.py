@@ -113,7 +113,7 @@ def fixture_allrulesets_with_rules_in_multiple_files() -> AllRulesets:
             },
         ),
     )
-    return AllRulesets(rulesets={rule_name: ruleset})
+    return AllRulesets(rulesets={rule_name: ruleset}, tree=folder_tree())
 
 
 @pytest.mark.parametrize(

@@ -367,10 +367,11 @@ class ABCRulesetMode(WatoMode):
                             self._search_options, debug=config.debug
                         )
                     }
-                )
+                ),
+                folder_tree(),
             )
         else:
-            rulesets = AllRulesets(visible_rulesets(self._rulesets().get_rulesets()))
+            rulesets = AllRulesets(visible_rulesets(self._rulesets().get_rulesets()), folder_tree())
 
         if self._page_type is PageType.RuleSearch and not html.form_submitted():
             return  # Do not show the result list when no query has been made
@@ -462,7 +463,7 @@ class ModeRuleSearch(ABCRulesetMode):
         return PageType.RuleSearch
 
     def _rulesets(self) -> RulesetCollection:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         if self._group_name == "static":
             return RulesetCollection(
                 {
@@ -723,7 +724,7 @@ class ModeRulesetGroup(ABCRulesetMode):
         return PageType.RulesetGroup
 
     def _rulesets(self) -> RulesetCollection:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         if self._group_name == "static":
             return RulesetCollection(
                 {
@@ -1241,9 +1242,9 @@ class ModeEditRuleset(WatoMode):
             )
             html.div(display_varname, class_="varname")
 
-        ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(self._name).get(
-            self._name
-        )
+        ruleset = SingleRulesetRecursively.load_single_ruleset_recursively(
+            folder_tree(), self._name
+        ).get(self._name)
 
         if self._rulespec.deprecation_planned:
             forms.warning_message(_DEPRECATION_WARNING)
@@ -2232,7 +2233,9 @@ class ABCEditRuleMode(WatoMode):
         else:
             rule_id = request.get_ascii_input_mandatory(self.VAR_RULE_ID)
 
-            collection = SingleRulesetRecursively.load_single_ruleset_recursively(self._name)
+            collection = SingleRulesetRecursively.load_single_ruleset_recursively(
+                folder_tree(), self._name
+            )
             ruleset = collection.get(self._name)
             try:
                 self._folder = ruleset.get_rule_by_id(rule_id).folder
@@ -3689,7 +3692,7 @@ class ModeUnknownRulesets(WatoMode):
         Sequence[Ruleset],
         Mapping[RulesetName, Sequence[tuple[FolderPath, RuleSpec[object]]]],
     ]:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         rulesets = all_rulesets.get_rulesets()
 
         found_rule_sets: dict[RulesetName, Ruleset] = {}
@@ -3867,7 +3870,7 @@ class ModeUnknownRulesets(WatoMode):
         debug: bool,
         pending_changes: PendingChanges,
     ) -> ActionResult:
-        rulesets = AllRulesets.load_all_rulesets()
+        rulesets = AllRulesets.load_all_rulesets(folder_tree())
         do_reset = False
 
         by_folder: dict[Folder, list[tuple[Ruleset, Rule]]] = {}
@@ -3906,7 +3909,7 @@ class ModeUnknownRulesets(WatoMode):
         debug: bool,
         pending_changes: PendingChanges,
     ) -> ActionResult:
-        rulesets = AllRulesets.load_all_rulesets()
+        rulesets = AllRulesets.load_all_rulesets(folder_tree())
         if not (ruleset := rulesets.get_rulesets().get(selected_ruleset_name)):
             return None
 
@@ -3927,7 +3930,7 @@ class ModeUnknownRulesets(WatoMode):
     def _delete_selected_rule(
         self, selected_ruleset_name: str, selected_rule_id: str, *, pprint_value: bool, debug: bool
     ) -> ActionResult:
-        rulesets = AllRulesets.load_all_rulesets()
+        rulesets = AllRulesets.load_all_rulesets(folder_tree())
         for folder_path, rulespecs_by_name in rulesets.get_unknown_rulesets().items():
             for ruleset_name, rulespecs in rulespecs_by_name.items():
                 for rulespec in rulespecs:

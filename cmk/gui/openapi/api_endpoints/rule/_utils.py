@@ -18,7 +18,7 @@ from cmk.gui.user_sites import activation_sites
 from cmk.gui.utils import permission_verification as permissions
 from cmk.gui.utils.escaping import strip_tags
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
-from cmk.gui.watolib.hosts_and_folders import Folder
+from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
     PendingChanges,
@@ -304,7 +304,7 @@ def validate_value(ruleset: Ruleset, value: RuleValue) -> None:
 
 def get_rule_by_id(rule_uuid: str, all_rulesets: AllRulesets | None = None) -> RuleEntry:
     if all_rulesets is None:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
 
     for ruleset in visible_rulesets(all_rulesets.get_rulesets()).values():
         folder: Folder

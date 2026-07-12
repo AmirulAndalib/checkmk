@@ -11,6 +11,7 @@ from cmk.gui.exceptions import MKUserError
 from cmk.gui.pages import set_global_vars
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.site_config import is_distributed_setup_remote_site
+from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import AllRulesets
 from cmk.gui.wsgi.app import gui_context
 from cmk.update_config.lib import ExpiryVersion
@@ -30,7 +31,7 @@ class CheckHTTPRules(PreUpdateAction):
             set_global_vars()
             if is_distributed_setup_remote_site(active_config.sites):
                 return
-            http_ruleset = AllRulesets.load_all_rulesets().get("active_checks:http")
+            http_ruleset = AllRulesets.load_all_rulesets(folder_tree()).get("active_checks:http")
         if (count := len(http_ruleset.get_rules())) > 0:
             logger.info(
                 tty.format_warning(

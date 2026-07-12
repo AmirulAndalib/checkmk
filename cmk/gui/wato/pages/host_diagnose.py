@@ -246,7 +246,7 @@ class ModeDiagHost(WatoMode):
         html.open_table()
         html.open_tr()
         html.open_td()
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         agent_ports_ruleset = all_rulesets.get("agent_ports")
         tcp_connect_timeouts_ruleset = all_rulesets.get("tcp_connect_timeouts")
         snmp_timing_ruleset = all_rulesets.get("snmp_timing")

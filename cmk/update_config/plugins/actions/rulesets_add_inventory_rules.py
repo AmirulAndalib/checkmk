@@ -19,7 +19,7 @@ CMK_INV_RULESET_NAME = "active_checks:cmk_inv"
 class UpdateInventoryRules(UpdateAction):
     @override
     def __call__(self, logger: Logger) -> None:
-        all_rulesets = AllRulesets.load_all_rulesets()
+        all_rulesets = AllRulesets.load_all_rulesets(folder_tree())
         add_cmk_inv_rules(logger, all_rulesets)
         all_rulesets.save(pprint_value=active_config.wato_pprint_config, debug=active_config.debug)
 

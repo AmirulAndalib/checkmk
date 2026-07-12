@@ -427,7 +427,7 @@ def test_create_and_delete_config_bundle_rules(other_folder: str, with_admin_log
 
     def _len_rules() -> int:
         return len(
-            SingleRulesetRecursively.load_single_ruleset_recursively(ruleset_name)
+            SingleRulesetRecursively.load_single_ruleset_recursively(folder_tree(), ruleset_name)
             .get(ruleset_name)
             .get_rules()
         )
