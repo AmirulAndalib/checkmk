@@ -50,7 +50,14 @@ from .host_attributes import (
     IPRange,
     NetworkScanResult,
 )
-from .hosts_and_folders import Folder, folder_tree, FolderTree, Host, update_metadata
+from .hosts_and_folders import (
+    Folder,
+    folder_tree,
+    FolderTree,
+    Host,
+    make_folder_tree,
+    update_metadata,
+)
 
 NetworkScanFoundHosts = list[tuple[HostName, HostAddress]]
 
@@ -66,7 +73,7 @@ def execute_network_scan_job(config: Config) -> None:
     if is_distributed_setup_remote_site(config.sites):
         return  # Don't execute this job on slaves.
 
-    tree = folder_tree()
+    tree = make_folder_tree(config)
     folder = _find_folder_to_scan(tree)
     if not folder:
         return  # Nothing to do.

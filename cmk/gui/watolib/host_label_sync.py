@@ -38,7 +38,7 @@ from cmk.gui.watolib.automations import (
     MKAutomationException,
     remote_automation_config_from_site_config,
 )
-from cmk.gui.watolib.hosts_and_folders import folder_tree
+from cmk.gui.watolib.hosts_and_folders import folder_tree, make_folder_tree
 from cmk.gui.watolib.paths import wato_var_dir
 from cmk.livestatus_client import SiteConfiguration
 from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore
@@ -155,7 +155,7 @@ def execute_host_label_sync_job(config: Config) -> None:
 
     _cleanup_discovered_host_labels(
         cmk.utils.paths.discovered_host_labels_dir,
-        folder_tree().root_folder().all_hosts_recursively(),
+        make_folder_tree(config).root_folder().all_hosts_recursively(),
     )
     store.save_text_to_file(_PATH_LAST_CLEANUP_TIMESTAMP, str(now))
 

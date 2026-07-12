@@ -39,7 +39,12 @@ from cmk.gui.watolib.automations import (
     MKAutomationException,
 )
 from cmk.gui.watolib.check_mk_automations import analyze_host_rule_matches, delete_hosts
-from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree, FolderTree, Host
+from cmk.gui.watolib.hosts_and_folders import (
+    Folder,
+    FolderTree,
+    Host,
+    make_folder_tree,
+)
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
     PendingChanges,
@@ -59,7 +64,8 @@ def execute_host_removal_job(config: Config) -> None:
     if is_distributed_setup_remote_site(config.sites):
         return
 
-    if not _load_automatic_host_removal_ruleset():
+    tree = make_folder_tree(config)
+    if not _load_automatic_host_removal_ruleset(tree):
         _LOGGER.debug("Automatic host removal not configured")
         return
 
@@ -70,7 +76,6 @@ def execute_host_removal_job(config: Config) -> None:
     def _folder_of_host(h: Host) -> Folder:
         return h.folder()
 
-    tree = folder_tree()
     try:
         _LOGGER.info("Starting host removal background job")
 
@@ -189,7 +194,7 @@ def _hosts_to_be_removed_for_site(
     if isinstance(automation_config, LocalAutomationConfig):
         try:
             # evaluate the generator here to potentially catch the exception below
-            hostnames = list(_hosts_to_be_removed_local(debug=debug))
+            hostnames = list(_hosts_to_be_removed_local(tree, debug=debug))
         # can happen if the Nagios core is currently restarting during the activation of changes
         except MKLivestatusSocketError:
             _LOGGER.info(
@@ -219,8 +224,8 @@ def _hosts_to_be_removed_for_site(
     return [tree.load_host(hostname) for hostname in hostnames]
 
 
-def _hosts_to_be_removed_local(*, debug: bool) -> Iterator[HostName]:
-    if not (automatic_host_removal_ruleset := _load_automatic_host_removal_ruleset()):
+def _hosts_to_be_removed_local(tree: FolderTree, *, debug: bool) -> Iterator[HostName]:
+    if not (automatic_host_removal_ruleset := _load_automatic_host_removal_ruleset(tree)):
         _LOGGER.debug("No cleanup rule configured: Terminating.")
         return  # small 'optimization'
     now = time.time()
@@ -265,11 +270,11 @@ def _hosts_to_be_removed_local(*, debug: bool) -> Iterator[HostName]:
             _LOGGER.debug("Shall not be removed")
 
 
-def _load_automatic_host_removal_ruleset() -> Sequence[RuleSpec]:
+def _load_automatic_host_removal_ruleset(tree: FolderTree) -> Sequence[RuleSpec]:
     return [
         rule.to_config(use_host_folder=UseHostFolder.HOST_FOLDER_FOR_BASE)
         for _folder, _idx, rule in SingleRulesetRecursively.load_single_ruleset_recursively(
-            folder_tree(), "automatic_host_removal"
+            tree, "automatic_host_removal"
         )
         .get("automatic_host_removal")
         .get_rules()
@@ -354,6 +359,7 @@ def _activate_changes(
 
 
 class HostsForAutoRemovalRequest(NamedTuple):
+    tree: FolderTree
     debug: bool
 
 
@@ -365,10 +371,13 @@ class AutomationHostsForAutoRemoval(AutomationCommand[HostsForAutoRemovalRequest
     @override
     def get_request(self, config: Config, request: Request) -> HostsForAutoRemovalRequest:
         return HostsForAutoRemovalRequest(
+            tree=make_folder_tree(config),
             #  default is needed for 2.4 central site compability in 2.5
-            debug=request.get_str_input_mandatory("debug", deflt="") == "1"
+            debug=request.get_str_input_mandatory("debug", deflt="") == "1",
         )
 
     @override
     def execute(self, api_request: HostsForAutoRemovalRequest) -> str:
-        return json.dumps(list(_hosts_to_be_removed_local(debug=api_request.debug)))
+        return json.dumps(
+            list(_hosts_to_be_removed_local(api_request.tree, debug=api_request.debug))
+        )

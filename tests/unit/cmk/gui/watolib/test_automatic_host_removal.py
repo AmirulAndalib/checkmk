@@ -21,15 +21,16 @@ from cmk.base.automations.check_mk import automation_analyze_host_rule_matches
 from cmk.base.community_app import make_app
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
-from cmk.gui.config import Config
-from cmk.gui.logged_in import user
+from cmk.gui.config import Config, get_default_config, make_config_object
+from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.watolib import automatic_host_removal
-from cmk.gui.watolib.hosts_and_folders import folder_tree
+from cmk.gui.watolib.hosts_and_folders import FolderTree, make_folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import FolderRulesets, Rule, RuleConditions, RuleOptions, Ruleset
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.livestatus_client.testing import MockLiveStatusConnection
 from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.ruleset_matcher.tags import get_effective_tag_config
 from cmk.utils.paths import default_config_dir
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
@@ -79,7 +80,7 @@ def fixture_activate_changes(mocker: MockerFixture) -> MagicMock:
 
 def test_remove_hosts_no_rules_early_return(
     activate_changes_mock: MagicMock,
-    request_context: None,
+    patch_omd_site: None,
 ) -> None:
     automatic_host_removal.execute_host_removal_job(Config())
     activate_changes_mock.assert_not_called()
@@ -94,19 +95,33 @@ TEST_HOSTS = [
 ]
 
 
+@pytest.fixture(name="config")
+def fixture_config() -> Config:
+    raw_config = get_default_config()
+    raw_config["tags"] = get_effective_tag_config(raw_config["wato_tags"])
+    config = make_config_object(raw_config)
+    config.sites = SiteConfigurations({SiteId("NO_SITE"): default_site_config()})
+    return config
+
+
+@pytest.fixture(name="tree")
+def fixture_tree(patch_omd_site: None, config: Config) -> FolderTree:
+    return make_folder_tree(config)
+
+
 @pytest.fixture(name="setup_hosts")
-def fixture_setup_hosts() -> None:
-    folder_tree().root_folder().create_hosts(
+def fixture_setup_hosts(tree: FolderTree) -> None:
+    tree.root_folder().create_hosts(
         [(hostname, {}, None) for hostname in TEST_HOSTS],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=user,
+        acting_user=LoggedInSuperUser(),
     )
 
 
 @pytest.fixture(name="setup_rules")
-def fixture_setup_rules() -> None:
-    root_folder = folder_tree().root_folder()
+def fixture_setup_rules(tree: FolderTree) -> None:
+    root_folder = tree.root_folder()
     ruleset = Ruleset("automatic_host_removal")
     ruleset.append_rule(
         root_folder,
@@ -241,15 +256,14 @@ def fixture_mock_analyze_host_rule_matches_automation(
 @pytest.mark.usefixtures("setup_hosts")
 @pytest.mark.usefixtures("setup_rules")
 @pytest.mark.usefixtures("setup_livestatus_mock")
-@pytest.mark.usefixtures("with_admin_login")
 @pytest.mark.usefixtures("mock_analyze_host_rule_matches_automation")
 def test_execute_host_removal_job(
+    config: Config,
+    tree: FolderTree,
     mock_livestatus: MockLiveStatusConnection,
     activate_changes_mock: MagicMock,
     mock_delete_hosts_automation: MagicMock,
 ) -> None:
-    config = Config()
-    config.sites[SiteId("NO_SITE")] = default_site_config()
     with (
         time_machine.travel(datetime.datetime.fromtimestamp(1000, tz=ZoneInfo("UTC"))),
         mock_livestatus(expect_status_query=False),
@@ -265,7 +279,9 @@ def test_execute_host_removal_job(
         )
         automatic_host_removal.execute_host_removal_job(config)
 
-    assert sorted(folder_tree().root_folder().all_hosts_recursively()) == [
+    # The job mutated its own tree instance; re-read this one from disk.
+    tree.invalidate_caches()
+    assert sorted(tree.root_folder().all_hosts_recursively()) == [
         "host_crit_keep",
         "host_no_rule_match",
         "host_ok",
@@ -278,9 +294,8 @@ def test_execute_host_removal_job(
 @pytest.mark.usefixtures(
     "setup_rules"
 )  # needed to pass the early-exit guard in execute_host_removal_job
-@pytest.mark.usefixtures("with_admin_login")
 def test_execute_host_removal_job_skips_remote_site_without_secret(
-    mocker: MockerFixture, request_context: None
+    mocker: MockerFixture,
 ) -> None:
     """A remote site with replication enabled but no login secret must not appear in
     automation_configs. Covers the race window between sites.create() (no secret yet)
