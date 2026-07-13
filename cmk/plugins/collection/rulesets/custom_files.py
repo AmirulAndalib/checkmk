@@ -26,12 +26,12 @@ def migrate(value: object) -> Mapping[str, object]:
 def _valuespec_agent_config_custom_files() -> Dictionary:
     return Dictionary(
         help_text=Help(
-            "This rule provides a simple way to add files to agent bakery packages without the need"
-            " to write a bakery plug-in.<br>"
+            "This rule provides a simple way to add files to Agent Bakery packages without the need"
+            " to write a Bakery plug-in.<br>"
             "<i>Custom files</i> are organized in folders under"
             " <tt>&lt;site_root&gt;/local/share/check_mk/agents/custom</tt>.<br>"
             "To add a set of custom files to the agent, please create a subfolder there with a meaningful"
-            " name of your choice and enter the folder name here.<br>"
+            " name of your choice.<br>Added folders will be shown in this rule for activation.<br>"
             "<br>"
             "Since the agent installation paths are customizable by other rules, the file structure"
             " below these sets doesn't resemble directly to the agent installation.<br>"
