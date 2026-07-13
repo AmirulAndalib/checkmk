@@ -221,7 +221,6 @@ def test_dump_agent_missing_arg(execute: Execute) -> None:
         assert p.returncode == 1, on_failure(p)
 
 
-@pytest.mark.medium_test_chain
 def test_dump_agent_error(execute: Execute) -> None:
     output_long = (
         "Program fetcher failure. "
@@ -538,6 +537,7 @@ def test_check_discovery(execute: Execute) -> None:
 #   '----------------------------------------------------------------------'
 
 
+@pytest.mark.medium_test_chain
 def test_check(execute: Execute) -> None:
     opts: list[list[str]] = [["--check"], []]
     for opt in opts:
