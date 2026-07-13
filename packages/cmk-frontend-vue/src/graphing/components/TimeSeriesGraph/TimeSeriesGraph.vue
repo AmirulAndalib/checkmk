@@ -55,11 +55,13 @@ const M4_BUCKETS = 4000
 const canvas = ref<HTMLCanvasElement | null>(null)
 const axesContainer = ref<SVGGElement | null>(null)
 
-const plotWidth = computed(() => props.size.width)
-const plotHeight = computed(() => props.size.height)
-const figureWidth = computed(() => plotWidth.value + MARGIN.left + MARGIN.right)
+// size is the outer figure size; the plot (canvas) area is what remains after
+// subtracting the axis/label margins.
+const figureWidth = computed(() => props.size.width)
+const figureHeight = computed(() => props.size.height)
+const plotWidth = computed(() => figureWidth.value - MARGIN.left - MARGIN.right)
 const plotTop = computed(() => MARGIN.top + (props.showPin ? PIN_HANDLE_HEADROOM : 0))
-const figureHeight = computed(() => plotHeight.value + plotTop.value + MARGIN.bottom)
+const plotHeight = computed(() => figureHeight.value - plotTop.value - MARGIN.bottom)
 
 const pinVisible = computed(
   () =>

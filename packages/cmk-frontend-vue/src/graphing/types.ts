@@ -39,8 +39,10 @@ export interface GraphFigureProps {
   showTitle?: boolean
   showTimestamp?: boolean
   horizontalLines?: HorizontalLine[]
-  canvasWidth?: number
-  canvasHeight?: number
+  // Outer figure dimensions (plot area + axis/label margins). The renderer derives
+  // the plot (canvas) size by subtracting its margins.
+  figureWidth?: number
+  figureHeight?: number
 }
 
 // GraphPanel adds the optional footer zone (legend, time ranges) and the

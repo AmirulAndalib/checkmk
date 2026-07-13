@@ -19,6 +19,7 @@ import { useGraphData } from '../composables/useGraphData'
 import { useRequestedTimeRange } from '../composables/useRequestedTimeRange'
 import GraphPanel from './GraphPanel.vue'
 import type { ConsolidationFn } from './consolidation'
+import { CANVAS_MARGIN_HORIZONTAL } from './constants'
 
 const { _t } = usei18n()
 
@@ -30,11 +31,11 @@ const props = withDefaults(
     initial_time_range_start: number
     initial_time_range_end: number
     graphs: CmkTimeSeriesGraph[]
-    // Canvas width in CSS pixels; drives RRD step resolution. Defaults to 770
-    // (= 70 ex × 11 px/ex, matching the legacy HTML graph default size).
-    canvas_width?: number
+    // Outer figure width in CSS pixels (plot area + axis margins); the RRD step
+    // resolution is derived from the resulting plot width.
+    figure_width?: number
   }>(),
-  { canvas_width: 800 }
+  { figure_width: 800 }
 )
 
 // Seeded from the backend-provided initial range, then follows the page's
@@ -48,7 +49,7 @@ const consolidationFn = ref<ConsolidationFn>('avg')
 const { graphs, isLoading, error } = useGraphData(
   () => props.graphs,
   () => requestedTimeRange.value,
-  () => props.canvas_width,
+  () => props.figure_width - CANVAS_MARGIN_HORIZONTAL,
   () => consolidationFn.value
 )
 </script>
@@ -71,7 +72,7 @@ const { graphs, isLoading, error } = useGraphData(
         :show-burger-menu="true"
         :show-legend="true"
         :horizontal-lines="graph.horizontalLines"
-        :canvas-width="canvas_width"
+        :figure-width="figure_width"
         @update:requested-time-range="requestedTimeRange = $event"
         @update:consolidation-fn="consolidationFn = $event"
       />

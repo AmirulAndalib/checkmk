@@ -13,8 +13,8 @@ import TimeSeriesGraph from './TimeSeriesGraph'
 
 const props = withDefaults(defineProps<GraphFigureProps>(), {
   interactive: true,
-  canvasWidth: 800,
-  canvasHeight: 300
+  figureWidth: 800,
+  figureHeight: 300
 })
 
 const {
@@ -47,7 +47,7 @@ const {
       :horizontal_lines="horizontalLines ?? []"
       :value-range="viewValueRange"
       :zoom-mode="zoomMode"
-      :size="{ width: canvasWidth, height: canvasHeight, mode: 'fixed' }"
+      :size="{ width: figureWidth, height: figureHeight, mode: 'fixed' }"
       :min-time-range="null"
       :min-value-range="null"
       :inspecting="inspectionActive"

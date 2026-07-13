@@ -21,8 +21,8 @@ const { _t } = usei18n()
 
 const props = withDefaults(defineProps<GraphPanelProps>(), {
   interactive: true,
-  canvasWidth: 800,
-  canvasHeight: 300,
+  figureWidth: 800,
+  figureHeight: 300,
   legendPosition: 'bottom'
 })
 
@@ -65,7 +65,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
 </script>
 
 <template>
-  <div class="graphing-graph-panel" :style="{ width: `${canvasWidth}px` }">
+  <div class="graphing-graph-panel" :style="{ width: `${figureWidth}px` }">
     <div
       class="graphing-graph-panel__container"
       :class="{ 'graphing-graph-panel__container--legend-right': legendPosition === 'right' }"
@@ -88,7 +88,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
         <div
           v-if="dataTimeRange && visibleMetrics.length === 0"
           class="graphing-graph-panel__empty-state"
-          :style="{ height: `${canvasHeight}px` }"
+          :style="{ height: `${figureHeight}px` }"
         >
           {{ _t('All metrics are hidden') }}
         </div>
@@ -100,7 +100,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           :horizontal_lines="visibleHorizontalLines"
           :value-range="viewValueRange"
           :zoom-mode="zoomMode"
-          :size="{ width: canvasWidth, height: canvasHeight, mode: 'fixed' }"
+          :size="{ width: figureWidth, height: figureHeight, mode: 'fixed' }"
           :min-time-range="null"
           :min-value-range="null"
           :inspecting="inspectionActive"
@@ -123,9 +123,9 @@ function updateConsolidationFunction(val: ConsolidationFn) {
         />
 
         <!--
-          plot-left=CANVAS_MARGIN_LEFT / width=canvasWidth+CANVAS_MARGIN_HORIZONTAL mirror the renderer's private figure MARGIN
-          (left=CANVAS_MARGIN_LEFT, left+right=CANVAS_MARGIN_HORIZONTAL) so the brush track aligns under the plot. Exporting MARGIN
-          from TimeSeriesGraph.vue (or deriving these) is a follow-up.
+          The brush spans the full figure width; its plot track mirrors the renderer's
+          horizontal margins (plot-left=CANVAS_MARGIN_LEFT, plot-width=figure minus
+          CANVAS_MARGIN_HORIZONTAL) so it aligns under the plot.
         -->
         <GraphBrush
           v-if="showBrush && overview && dataTimeRange"
@@ -134,9 +134,9 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           :domain="overview.timeRange"
           :window="viewTimeRange"
           :min-span="null"
-          :width="canvasWidth + CANVAS_MARGIN_HORIZONTAL"
+          :width="figureWidth"
           :plot-left="CANVAS_MARGIN_LEFT"
-          :plot-width="canvasWidth"
+          :plot-width="figureWidth - CANVAS_MARGIN_HORIZONTAL"
           @update:requested-time-range="updateTimeRange($event)"
         />
       </div>
