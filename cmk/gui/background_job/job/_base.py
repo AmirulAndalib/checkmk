@@ -206,9 +206,9 @@ class BackgroundJob:
                     span.get_span_context(),
                 )
             ).is_ok():
-                self._logger.debug('Started job "%s"', self._job_id)
+                self._logger.debug('Started job "%(job_id)s"', {"job_id": self._job_id})
             else:
-                self._logger.debug('Failed to start job "%s"', self._job_id)
+                self._logger.debug('Failed to start job "%(job_id)s"', {"job_id": self._job_id})
                 if not isinstance(start_result.error, AlreadyRunningError):
                     # Callers decided on the severity of this case, so we don't report this as an
                     # error condition here.

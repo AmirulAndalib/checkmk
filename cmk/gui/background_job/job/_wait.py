@@ -15,9 +15,11 @@ from ._manager import BackgroundJobManager
 def wait_for_background_jobs(logger: Logger, timeout: int) -> None:
     for job_id in running_job_ids(logger):
         job = BackgroundJob(job_id, logger=logger)
-        logger.info("Waiting for %s to finish...", job_id)
+        logger.info("Waiting for %(job_id)s to finish...", {"job_id": job_id})
         if not job.wait_for_completion(timeout):
-            logger.warning("WARNING: Did not finish within %d seconds", timeout)
+            logger.warning(
+                "WARNING: Did not finish within %(timeout)d seconds", {"timeout": timeout}
+            )
 
 
 def running_job_ids(logger: Logger) -> list[str]:

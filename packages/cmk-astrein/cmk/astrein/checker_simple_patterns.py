@@ -79,6 +79,7 @@ _INCLUDED_PATHS = (
     "non-free/packages/cmk-liveproxyd",
     "cmk/gui/nonfree",
     "cmk/gui/watolib",
+    "cmk/gui/background_job",
     "non-free/packages/cmk-mknotifyd",
     "cmk/special_agents",
 )

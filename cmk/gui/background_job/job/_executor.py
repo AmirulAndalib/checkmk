@@ -159,7 +159,7 @@ class ThreadedJobExecutor(JobExecutor):
     @override
     def terminate(self, job_id: str) -> result.Result[None, StartupError]:
         try:
-            self._logger.debug("Stop job %s using stop event", job_id)
+            self._logger.debug("Stop job %(job_id)s using stop event", {"job_id": job_id})
             ThreadedJobExecutor.running_jobs[job_id].stop_event.set()
             self._logger.debug("Wait for job to finish")
             ThreadedJobExecutor.running_jobs[job_id].thread.join()

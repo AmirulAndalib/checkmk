@@ -104,7 +104,9 @@ def run_process(job_parameters: JobParameters) -> None:
                 else nullcontext()
             ),
         ):
-            logger.log(VERBOSE, "Initialized background job (Job ID: %s)", job_id)
+            logger.log(
+                VERBOSE, "Initialized background job (Job ID: %(job_id)s)", {"job_id": job_id}
+            )
             jobstatus_store.update(
                 {
                     "state": JobStatusStates.RUNNING,
@@ -154,8 +156,8 @@ def run_process(job_parameters: JobParameters) -> None:
     except Exception:
         crash = create_gui_crash_report()
         logger.exception(
-            "Exception while preparing background function environment (Crash ID: %s)",
-            crash.ident_to_text(),
+            "Exception while preparing background function environment (Crash ID: %(crash_id)s)",
+            {"crash_id": crash.ident_to_text()},
         )
         final_status_update = {"state": JobStatusStates.EXCEPTION}
     finally:
@@ -206,7 +208,10 @@ def _execute_function(
         raise
     except Exception as e:
         crash = create_gui_crash_report()
-        logger.exception("Exception in background function (Crash ID: %s)", crash.ident_to_text())
+        logger.exception(
+            "Exception in background function (Crash ID: %(crash_id)s)",
+            {"crash_id": crash.ident_to_text()},
+        )
         job_interface.send_exception(
             _("Exception (crash ID: %(crash_id)s): %(error)s")
             % {"crash_id": crash.ident_to_text(), "error": e}
