@@ -9,14 +9,14 @@ UNIT_COUNTER = metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision
 
 metric_kube_cluster_collector_container_metrics_cache_size = metrics.Metric(
     name="kube_cluster_collector_container_metrics_cache_size",
-    title=Title("Cluster collector: Container metrics cache size"),
+    title=Title("Cluster Collector: container metrics cache size"),
     unit=UNIT_COUNTER,
     color=metrics.Color.PURPLE,
 )
 
 metric_kube_cluster_collector_machine_sections_cache_size = metrics.Metric(
     name="kube_cluster_collector_machine_sections_cache_size",
-    title=Title("Cluster collector: Machine sections cache size"),
+    title=Title("Cluster Collector: machine sections cache size"),
     unit=UNIT_COUNTER,
     color=metrics.Color.GREEN,
 )
