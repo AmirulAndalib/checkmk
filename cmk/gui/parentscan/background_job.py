@@ -378,6 +378,7 @@ class ParentScanBackgroundJob(BackgroundJob):
     ) -> Folder:
         if where == "here":  # directly in current folder
             return disk_or_search_base_folder_from_request(
+                host_folder.tree,
                 request.var("folder"),
                 request.get_ascii_input("host"),
                 acting_user=user,
@@ -386,6 +387,7 @@ class ParentScanBackgroundJob(BackgroundJob):
 
         if where == "subfolder":
             current = disk_or_search_base_folder_from_request(
+                host_folder.tree,
                 request.var("folder"),
                 request.get_ascii_input("host"),
                 acting_user=user,

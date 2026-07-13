@@ -1410,6 +1410,7 @@ def _search_folder_from_request(
 
 
 def disk_or_search_base_folder_from_request(
+    tree: FolderTree,
     var_folder: str | None = None,
     host_name: str | None = None,
     *,
@@ -1417,7 +1418,7 @@ def disk_or_search_base_folder_from_request(
     request: Request,
 ) -> Folder:
     disk_or_search_folder = disk_or_search_folder_from_request(
-        folder_tree(), var_folder, host_name, acting_user=acting_user, request=request
+        tree, var_folder, host_name, acting_user=acting_user, request=request
     )
     if isinstance(disk_or_search_folder, Folder):
         return disk_or_search_folder
