@@ -229,6 +229,7 @@ test-docker-docker() {
 test-integration-agent-plugin() {
     _pytest -x "$(realpath "$SCRIPT_DIR/agent_plugin_integration")" \
         "${PYTEST_SYSTEM_TEST_ARGS[@]}" --session-timeout 3600 \
+        --log-cli-level=INFO -o junit_logging=all \
         ${RESULT_PATH:+--junitxml="$RESULT_PATH/junit.xml"} \
         ${MK_ORACLE_BINARY_PATH:+"$MK_ORACLE_BINARY_PATH"}
 }
