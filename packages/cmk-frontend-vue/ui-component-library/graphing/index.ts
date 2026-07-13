@@ -6,5 +6,9 @@
 import { Page } from '@ucl/_ucl/types/page'
 
 import UclGlobalTimePicker from './UclGlobalTimePicker.vue'
+import UclMetricsCalculationSlideout from './UclMetricsCalculationSlideout.vue'
 
-export const pages = [new Page('Global time picker', UclGlobalTimePicker)]
+export const pages = [
+  new Page('Global time picker', UclGlobalTimePicker),
+  new Page('Metrics calculation slideout', UclMetricsCalculationSlideout)
+]
