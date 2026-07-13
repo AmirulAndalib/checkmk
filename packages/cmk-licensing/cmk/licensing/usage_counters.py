@@ -18,10 +18,19 @@ from typing import Any, Literal
 
 from cmk.discover_plugins import discover_plugins_from_modules
 
+LICENSE_LABEL_NAME = "cmk/licensing"
+LICENSE_LABEL_EXCLUDE = "excluded"
+
 # The counter names plug-ins may emit. Every name corresponds to a field of
 # the license usage sample which create_sample() fills from the collected
 # counters; sharing this type makes mypy check both sides of that contract.
-LicenseUsageCounterName = Literal["active_metric_series"]
+LicenseUsageCounterName = Literal[
+    "synthetic_tests",
+    "synthetic_tests_excluded",
+    "synthetic_kpis",
+    "synthetic_kpis_excluded",
+    "active_metric_series",
+]
 
 
 @dataclass(frozen=True)
@@ -49,7 +58,10 @@ def discover_license_usage_counter_plugins() -> Sequence[LicenseUsageCounterPlug
             # Modules that may expose a `LicenseUsageCounterPlugin`. Passed
             # unconditionally: modules absent from the running edition are
             # simply skipped.
-            ("cmk.metric_backend.license_usage",),  # non-free, ships with the metric backend
+            (
+                "cmk.metric_backend.license_usage",  # non-free, ships with the metric backend
+                "cmk.robotmk.license_usage",  # non-free, ships with synthetic monitoring
+            ),
             skip_wrong_types=False,
             raise_errors=True,
         ).plugins.values()

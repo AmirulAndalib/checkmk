@@ -32,11 +32,17 @@ def test_counters_of_all_plugins_are_collected(
     context: CounterCollectionContext, logger: MagicMock
 ) -> None:
     plugins = [
-        LicenseUsageCounterPlugin(name="one", collect=lambda _ctx: {}),
+        LicenseUsageCounterPlugin(
+            name="one", collect=lambda _ctx: {"synthetic_tests": 1, "synthetic_kpis": 2}
+        ),
         LicenseUsageCounterPlugin(name="two", collect=lambda _ctx: {"active_metric_series": 3}),
     ]
 
-    assert collect_license_usage_counters(plugins, context, logger) == {"active_metric_series": 3}
+    assert collect_license_usage_counters(plugins, context, logger) == {
+        "synthetic_tests": 1,
+        "synthetic_kpis": 2,
+        "active_metric_series": 3,
+    }
 
 
 def test_no_plugins_yield_no_counters(context: CounterCollectionContext, logger: MagicMock) -> None:
@@ -67,8 +73,13 @@ def test_duplicate_counter_is_logged_and_first_wins(
 ) -> None:
     plugins = [
         LicenseUsageCounterPlugin(name="one", collect=lambda _ctx: {"active_metric_series": 1}),
-        LicenseUsageCounterPlugin(name="two", collect=lambda _ctx: {"active_metric_series": 2}),
+        LicenseUsageCounterPlugin(
+            name="two", collect=lambda _ctx: {"active_metric_series": 2, "synthetic_tests": 3}
+        ),
     ]
 
-    assert collect_license_usage_counters(plugins, context, logger) == {"active_metric_series": 1}
+    assert collect_license_usage_counters(plugins, context, logger) == {
+        "active_metric_series": 1,
+        "synthetic_tests": 3,
+    }
     logger.error.assert_called_once()

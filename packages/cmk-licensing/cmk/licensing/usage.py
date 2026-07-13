@@ -49,6 +49,8 @@ from cmk.licensing.usage_counters import (
     collect_license_usage_counters,
     CounterCollectionContext,
     discover_license_usage_counter_plugins,
+    LICENSE_LABEL_EXCLUDE,
+    LICENSE_LABEL_NAME,
 )
 
 CLOUD_SERVICE_PREFIXES = {"aws", "azure", "gcp"}
@@ -62,12 +64,6 @@ CLOUD_SERVICE_PREFIXES = {"aws", "azure", "gcp"}
 #   |                   \__,_| .__/ \__,_|\__,_|\__\___|                   |
 #   |                        |_|                                           |
 #   '----------------------------------------------------------------------'
-
-_LICENSE_LABEL_NAME = "cmk/licensing"
-_LICENSE_LABEL_EXCLUDE = "excluded"
-SYNTHETIC_MON_CHECK_NAME = "robotmk_test"
-PATTERN_BASED_KPI_CHECK_NAME = "robotmk_pattern_based_kpi"
-MARKER_BASED_KPI_CHECK_NAME = "robotmk_marker_based_kpi"
 
 
 class DoCreateSample(Protocol):
@@ -150,23 +146,11 @@ def create_sample(
         - that are shadow services
     num_services_excluded: Services
         - with the "cmk/licensing:excluded" label
-    num_synthetic_tests Services
-        - with the check_command: robotmk_test
-        - that are not shadow services
-        - without the "cmk/licensing:excluded" label
-    num_synthetic_tests_excluded: Services
-        - with the check_command: robotmk_test
-        - that are not shadow services
-        - with the "cmk/licensing:excluded" label
-    num_synthetic_kpis Services
-        - with the check_command: robotmk_pattern_based_kpi or robotmk_marker_based_kpi
-        - that are not shadow services
-        - without the "cmk/licensing:excluded" label
-    num_synthetic_kpis_excluded: Services
-        - with the check_command: robotmk_pattern_based_kpi or robotmk_marker_based_kpi
-        - that are not shadow services
-        - with the "cmk/licensing:excluded" label
-    num_active_metric_series: coming from metric backend
+    num_synthetic_tests, num_synthetic_tests_excluded, num_synthetic_kpis,
+    num_synthetic_kpis_excluded: provided by the synthetic monitoring feature
+        via its license usage counter plug-in
+    num_active_metric_series: provided by the metric backend feature via its
+        license usage counter plug-in
 
     Shadow objects: 0: active, 1: passive, 2: shadow
     """
@@ -182,7 +166,6 @@ def create_sample(
     hosts_counter = _get_hosts_counter()
     services_counter = _get_services_counter()
     cloud_counter = _get_cloud_counter()
-    synthetic_monitoring_counter = _get_synthetic_monitoring_counter()
     feature_counters = collect_license_usage_counters(
         discover_license_usage_counter_plugins(),
         CounterCollectionContext(omd_root=omd_root, query_livestatus=_get_from_livestatus),
@@ -207,10 +190,10 @@ def create_sample(
         num_services_cloud=cloud_counter.services,
         num_services_shadow=services_counter.num_shadow,
         num_services_excluded=services_counter.num_excluded,
-        num_synthetic_tests=synthetic_monitoring_counter.num_services,
-        num_synthetic_tests_excluded=synthetic_monitoring_counter.num_excluded,
-        num_synthetic_kpis=synthetic_monitoring_counter.num_kpis,
-        num_synthetic_kpis_excluded=synthetic_monitoring_counter.num_kpis_excluded,
+        num_synthetic_tests=feature_counters.get("synthetic_tests", 0),
+        num_synthetic_tests_excluded=feature_counters.get("synthetic_tests_excluded", 0),
+        num_synthetic_kpis=feature_counters.get("synthetic_kpis", 0),
+        num_synthetic_kpis_excluded=feature_counters.get("synthetic_kpis_excluded", 0),
         num_active_metric_series=feature_counters.get("active_metric_series", 0),
         sample_time=sample_time,
         timezone=now.tz,
@@ -251,10 +234,10 @@ def _get_hosts_counter() -> HostsOrServicesCounter:
         _get_from_livestatus(
             "GET hosts\n"
             "Stats: host_check_type != 2\n"
-            f"Stats: host_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: host_labels != '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
             "StatsAnd: 2\n"
             "Stats: check_type = 2\n"
-            f"Stats: host_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: host_labels = '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
         )
     )
 
@@ -265,14 +248,14 @@ def _get_services_counter() -> HostsOrServicesCounter:
             "GET services\n"
             "Stats: host_check_type != 2\n"
             "Stats: check_type != 2\n"
-            f"Stats: host_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
-            f"Stats: service_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: host_labels != '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: service_labels != '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
             "StatsAnd: 4\n"
             "Stats: host_check_type = 2\n"
             "Stats: check_type = 2\n"
             "StatsAnd: 2\n"
-            f"Stats: host_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
-            f"Stats: service_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: host_labels = '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
+            f"Stats: service_labels = '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'\n"
             "StatsOr: 2\n"
         )
     )
@@ -307,78 +290,10 @@ def _get_cloud_counter() -> HostsOrServicesCloudCounter:
             "\nColumns: host_name service_check_command"
             "\nFilter: host_check_type != 2"
             "\nFilter: check_type != 2"
-            f"\nFilter: host_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'"
-            f"\nFilter: service_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'"
+            f"\nFilter: host_labels != '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'"
+            f"\nFilter: service_labels != '{LICENSE_LABEL_NAME}' '{LICENSE_LABEL_EXCLUDE}'"
         )
     )
-
-
-class HostsOrServicesSyntheticCounter(NamedTuple):
-    num_services: int
-    num_excluded: int
-    num_kpis: int
-    num_kpis_excluded: int
-
-    @classmethod
-    def make(cls, livestatus_response: Sequence[Sequence[Any]]) -> HostsOrServicesSyntheticCounter:
-        stats = livestatus_response[0]
-        return cls(
-            num_services=int(stats[0]),
-            num_excluded=int(stats[1]),
-            num_kpis=int(stats[2]),
-            num_kpis_excluded=int(stats[3]),
-        )
-
-
-def _get_synthetic_monitoring_counter() -> HostsOrServicesSyntheticCounter:
-    shadow_entity_type = "2"
-    num_synthetic_tests_query = [
-        f"\nStats: host_check_type != {shadow_entity_type}",
-        f"\nStats: check_type != {shadow_entity_type}",
-        f"\nStats: host_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: service_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: check_command = check_mk-{SYNTHETIC_MON_CHECK_NAME}",
-        "\nStatsAnd: 5",
-    ]
-    num_synthetic_tests_excluded_query = [
-        f"\nStats: host_check_type != {shadow_entity_type}",
-        f"\nStats: check_type != {shadow_entity_type}",
-        f"\nStats: host_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: service_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        "\nStatsOr: 2",
-        f"\nStats: check_command = check_mk-{SYNTHETIC_MON_CHECK_NAME}",
-        "\nStatsAnd: 4",
-    ]
-    num_synthetic_kpis_query = [
-        f"\nStats: host_check_type != {shadow_entity_type}",
-        f"\nStats: check_type != {shadow_entity_type}",
-        f"\nStats: host_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: service_labels != '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: check_command = check_mk-{PATTERN_BASED_KPI_CHECK_NAME}",
-        f"\nStats: check_command = check_mk-{MARKER_BASED_KPI_CHECK_NAME}",
-        "\nStatsOr: 2",
-        "\nStatsAnd: 5",
-    ]
-    num_synthetic_kpis_excluded_query = [
-        f"\nStats: host_check_type != {shadow_entity_type}",
-        f"\nStats: check_type != {shadow_entity_type}",
-        f"\nStats: host_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        f"\nStats: service_labels = '{_LICENSE_LABEL_NAME}' '{_LICENSE_LABEL_EXCLUDE}'",
-        "\nStatsOr: 2",
-        f"\nStats: check_command = check_mk-{PATTERN_BASED_KPI_CHECK_NAME}",
-        f"\nStats: check_command = check_mk-{MARKER_BASED_KPI_CHECK_NAME}",
-        "\nStatsOr: 2",
-        "\nStatsAnd: 4",
-    ]
-    livestatus_query = (
-        "GET services"
-        + "".join(num_synthetic_tests_query)
-        + "".join(num_synthetic_tests_excluded_query)
-        + "".join(num_synthetic_kpis_query)
-        + "".join(num_synthetic_kpis_excluded_query)
-    )
-
-    return HostsOrServicesSyntheticCounter.make(_get_from_livestatus(livestatus_query))
 
 
 def _get_next_run_ts(file_path: Path) -> int:
