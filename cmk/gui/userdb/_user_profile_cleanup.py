@@ -50,8 +50,8 @@ def cleanup_abandoned_profiles(now: datetime, max_age: timedelta) -> None:
         logger.debug("Found no abandoned profile.")
         return
 
-    logger.info("Found %d abandoned profiles", len(abandoned_profiles))
-    logger.debug("Profiles: %s", ", ".join(abandoned_profiles))
+    logger.info("Found %(count)d abandoned profiles", {"count": len(abandoned_profiles)})
+    logger.debug("Profiles: %(profiles)s", {"profiles": ", ".join(abandoned_profiles)})
 
     for profile_name in abandoned_profiles:
         profile_dir = profile_base_dir / profile_name
@@ -60,7 +60,14 @@ def cleanup_abandoned_profiles(now: datetime, max_age: timedelta) -> None:
         )
         if now - last_mtime > max_age:
             try:
-                logger.info("Removing abandoned profile directory: %s", profile_name)
+                logger.info(
+                    "Removing abandoned profile directory: %(profile_name)s",
+                    {"profile_name": profile_name},
+                )
                 shutil.rmtree(profile_dir)
             except OSError:
-                logger.debug("Could not delete %s", profile_dir, exc_info=True)
+                logger.debug(
+                    "Could not delete %(profile_dir)s",
+                    {"profile_dir": profile_dir},
+                    exc_info=True,
+                )

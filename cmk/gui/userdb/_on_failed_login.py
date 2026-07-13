@@ -57,12 +57,15 @@ def on_failed_login(
             log_msg_until_locked = "N/A"
             log_msg_locked = "N/A"
         auth_logger.warning(
-            "Login failed for username: %s (existing: %s, locked: %s, failed logins until locked: %s), client: %s",
-            username,
-            existing,
-            log_msg_locked,
-            log_msg_until_locked,
-            request.remote_ip,
+            "Login failed for username: %(username)s (existing: %(existing)s, locked: %(locked)s, "
+            "failed logins until locked: %(until_locked)s), client: %(client_ip)s",
+            {
+                "username": username,
+                "existing": existing,
+                "locked": log_msg_locked,
+                "until_locked": log_msg_until_locked,
+                "client_ip": request.remote_ip,
+            },
         )
 
 

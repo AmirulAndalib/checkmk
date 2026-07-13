@@ -75,7 +75,7 @@ def execute_userdb_job(config: Config) -> None:
             ),
         )
     ).is_error():
-        gui_logger.error("Error starting user sync job: %s", result.error)
+        gui_logger.error("Error starting user sync job: %(error)s", {"error": result.error})
 
 
 class UserSyncArgs(BaseModel, frozen=True):
@@ -240,7 +240,8 @@ class UserSyncBackgroundJob(BackgroundJob):
                     _("[%(connection_id)s] exception"), {"connection_id": connection_id}
                 )
                 gui_logger.error(
-                    "Exception (%s, userdb_job): %s", connection_id, traceback.format_exc()
+                    "Exception (%(connection_id)s, userdb_job): %(traceback)s",
+                    {"connection_id": connection_id, "traceback": traceback.format_exc()},
                 )
 
         logger.info(_("Finalizing synchronization"))

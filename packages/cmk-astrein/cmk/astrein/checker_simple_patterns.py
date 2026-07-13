@@ -80,6 +80,7 @@ _INCLUDED_PATHS = (
     "cmk/gui/nonfree",
     "cmk/gui/watolib",
     "cmk/gui/background_job",
+    "cmk/gui/userdb",
     "non-free/packages/cmk-mknotifyd",
     "cmk/special_agents",
 )

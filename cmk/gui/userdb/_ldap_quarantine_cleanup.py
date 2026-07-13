@@ -43,7 +43,10 @@ def expire_quarantined_users(now: datetime, retention: int | None) -> None:
     for user_id in expired:
         quarantine = users[user_id].get("ldap_quarantine")
         del users[user_id]
-        logger.info("Deleting quarantined LDAP user after retention period: %s", user_id)
+        logger.info(
+            "Deleting quarantined LDAP user after retention period: %(user_id)s",
+            {"user_id": user_id},
+        )
         log_security_event(
             UserManagementEvent(
                 event="user deleted",

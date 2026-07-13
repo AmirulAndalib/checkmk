@@ -89,7 +89,8 @@ def ensure_user_can_init_session(username: UserId, now: datetime) -> None:
         idle_time = now.timestamp() - session_info.last_activity
         if idle_time <= session_timeout:
             auth_logger.debug(
-                "%s another session is active (inactive for: %s seconds)", username, idle_time
+                "%(username)s another session is active (inactive for: %(idle_time)s seconds)",
+                {"username": username, "idle_time": idle_time},
             )
             raise MKUserError(None, _("Another session is active"))
 
@@ -149,7 +150,8 @@ def is_valid_user_session(
 
     if session_id not in session_infos or session_infos[session_id].is_logged_out:
         auth_logger.debug(
-            "%s session_id %s not valid (logged out or timed out?)", username, session_id
+            "%(username)s session_id %(session_id)s not valid (logged out or timed out?)",
+            {"username": username, "session_id": session_id},
         )
         return False
 
