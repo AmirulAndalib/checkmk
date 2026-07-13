@@ -98,7 +98,10 @@ def test_ldap_connection_v1(
                 except Exception as e:
                     state = False
                     msg = f"Exception: {e}"
-                    logger.exception("error testing LDAP %s for %s", title, address)
+                    logger.exception(
+                        "error testing LDAP %(title)s for %(address)s",
+                        {"title": title, "address": address},
+                    )
                 results.append(
                     LDAPConnectionTestResult(title=title, success=state, details=msg or "")
                 )

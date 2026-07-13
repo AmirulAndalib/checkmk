@@ -261,13 +261,13 @@ def _get_ad_locator() -> Any:
             max_servers_parallel = 60
             for i in range(0, len(addresses), max_servers_parallel):
                 for addr in addresses[i : i + max_servers_parallel]:
-                    self.m_logger.debug("NetLogon query to %s", addr[0])
+                    self.m_logger.debug("NetLogon query to %(address)s", {"address": addr[0]})
                     try:
                         client.query(addr, domain)
                     except Exception:
                         continue
                 replies += client.call()
-                self.m_logger.debug("%d replies", len(replies))
+                self.m_logger.debug("%(reply_count)d replies", {"reply_count": len(replies)})
                 if len(replies) >= 1:
                     break
             if not replies:
@@ -281,7 +281,7 @@ def _get_ad_locator() -> Any:
                     found_sites[reply.client_site] = 1
             sites_list = [(value, key) for key, value in found_sites.items()]
             sites_list.sort()
-            self.m_logger.debug("site detected as %s", sites_list[-1][1])
+            self.m_logger.debug("site detected as %(site)s", {"site": sites_list[-1][1]})
             return str(sites_list[0][1])
 
     return FasterDetectLocator()
@@ -382,10 +382,12 @@ def _load_copy_of_existing_user(
     # the rare overlap of bare-SAML + suffixed-LDAP-of-this-connector.
     if existing is not None and _is_saml_connector(existing.get("connector")):
         ldap_user_connector._logger.info(
-            'TAKEOVER "%s": connector %s -> %s',
-            bare,
-            existing.get("connector"),
-            ldap_user_connector.id,
+            'TAKEOVER "%(user_id)s": connector %(old_connector)s -> %(new_connector)s',
+            {
+                "user_id": bare,
+                "old_connector": existing.get("connector"),
+                "new_connector": ldap_user_connector.id,
+            },
         )
         taken_over = copy.deepcopy(existing)
         taken_over["connector"] = ldap_user_connector.id
@@ -677,18 +679,22 @@ def _sync_ldap_user(
 
     if ldap_user_connector.create_users_only_on_login() and not login_attempt:
         ldap_user_connector._logger.info(
-            '  SKIP SYNC "%s" (Only create user of "%s" connector on login)',
-            fetched_ldap_user.ldap_user_name,
-            ldap_user_connector.id,
+            '  SKIP SYNC "%(ldap_user_name)s" (Only create user of "%(connector_id)s" connector on login)',
+            {
+                "ldap_user_name": fetched_ldap_user.ldap_user_name,
+                "connector_id": ldap_user_connector.id,
+            },
         )
         return None
 
     if not login_attempt and not ldap_user_connector.is_authentication_connection():
         ldap_user_connector._logger.info(
-            '  SKIP SYNC "%s" (connector "%s" only syncs attributes; '
+            '  SKIP SYNC "%(ldap_user_name)s" (connector "%(connector_id)s" only syncs attributes; '
             "user creation is reserved for authentication_connections)",
-            fetched_ldap_user.ldap_user_name,
-            ldap_user_connector.id,
+            {
+                "ldap_user_name": fetched_ldap_user.ldap_user_name,
+                "connector_id": ldap_user_connector.id,
+            },
         )
         return None
 
@@ -913,7 +919,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
     def _discover_nearest_dc(self, domain: str) -> str:
         cached_server = self._get_nearest_dc_from_cache()
         if cached_server:
-            self._logger.info("Using cached DC %s", cached_server)
+            self._logger.info("Using cached DC %(cached_server)s", {"cached_server": cached_server})
             return cached_server
 
         locator = _get_ad_locator()
@@ -921,12 +927,20 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         try:
             server = locator.locate(domain)
             self._cache_nearest_dc(server)
-            self._logger.info("  DISCOVERY: Discovered server %r from %r", server, domain)
+            self._logger.info(
+                "  DISCOVERY: Discovered server %(server)r from %(domain)r",
+                {"server": server, "domain": domain},
+            )
             return server
         except Exception:
-            self._logger.info("  DISCOVERY: Failed to discover a server from domain %r", domain)
+            self._logger.info(
+                "  DISCOVERY: Failed to discover a server from domain %(domain)r",
+                {"domain": domain},
+            )
             self._logger.exception("error discovering LDAP server")
-            self._logger.info("  DISCOVERY: Try to use domain DNS name %r as server", domain)
+            self._logger.info(
+                "  DISCOVERY: Try to use domain DNS name %(domain)r as server", {"domain": domain}
+            )
             return domain
 
     def _get_nearest_dc_from_cache(self) -> str | None:
@@ -937,7 +951,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         return None
 
     def _cache_nearest_dc(self, server: str) -> None:
-        self._logger.debug("Caching nearest DC %s", server)
+        self._logger.debug("Caching nearest DC %(server)s", {"server": server})
         store.save_text_to_file(self._nearest_dc_cache_filepath(), server)
 
     def _clear_nearest_dc_cache(self) -> None:
@@ -996,14 +1010,17 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         if conn is None:
             assert self._ldap_obj is not None
             conn = self._ldap_obj
-        self._logger.info("LDAP_BIND %s", user_dn)
+        self._logger.info("LDAP_BIND %(user_dn)s", {"user_dn": user_dn})
         try:
             conn.simple_bind_s(user_dn, password_store.extract(password_id))
             self._logger.info("  SUCCESS")
         except (INVALID_CREDENTIALS, INAPPROPRIATE_AUTH):
             raise
         except LDAPError as e:
-            self._logger.info("  FAILED (%s: %s)", e.__class__.__name__, e)
+            self._logger.info(
+                "  FAILED (%(error_class)s: %(error)s)",
+                {"error_class": e.__class__.__name__, "error": e},
+            )
             if catch:
                 raise MKLDAPException(
                     _("Unable to authenticate with LDAP (%(error)s)") % {"error": e}
@@ -1182,7 +1199,10 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         if columns is None:
             columns = []
 
-        self._logger.info('LDAP_SEARCH "%s" "%s" "%s" "%r"', base, scope, filt, columns)
+        self._logger.info(
+            'LDAP_SEARCH "%(base)s" "%(scope)s" "%(filter)s" "%(columns)r"',
+            {"base": base, "scope": scope, "filter": filt, "columns": columns},
+        )
         self._num_queries += 1
         start_time = time.time()
 
@@ -1238,7 +1258,9 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
                 last_exc = e
                 if implicit_connect and tries_left:
-                    self._logger.info("  Received %r. Retrying with clean connection...", e)
+                    self._logger.info(
+                        "  Received %(error)r. Retrying with clean connection...", {"error": e}
+                    )
                     self.disconnect()
                     time.sleep(0.5)
                 else:
@@ -1267,7 +1289,10 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
                 % {"error": last_exc}
             )
 
-        self._logger.info("  RESULT length: %d, duration: %0.3f", len(result), duration)
+        self._logger.info(
+            "  RESULT length: %(result_length)d, duration: %(duration)0.3f",
+            {"result_length": len(result), "duration": duration},
+        )
         return result
 
     def _ldap_get_scope(self, scope: str) -> int:
@@ -1449,7 +1474,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             try:
                 user_id = self._sanitize_user_id(ldap_user[user_id_attr][0])
             except ValueError as e:
-                self._logger.warning("  SKIP SYNC %s", e)
+                self._logger.warning("  SKIP SYNC %(error)s", {"error": e})
                 continue
 
             if user_id:
@@ -1781,13 +1806,14 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
             result = True
         except (INVALID_CREDENTIALS, INAPPROPRIATE_AUTH) as e:
             self._logger.warning(
-                "Unable to authenticate user %s. Reason: %s",
-                user_id,
-                e.args[0].get("desc", e),
+                "Unable to authenticate user %(user_id)s. Reason: %(reason)s",
+                {"user_id": user_id, "reason": e.args[0].get("desc", e)},
             )
             result = False
         except Exception:
-            self._logger.exception("  Exception during authentication (User: %s)", user_id)
+            self._logger.exception(
+                "  Exception during authentication (User: %(user_id)s)", {"user_id": user_id}
+            )
             result = False
 
         self._default_bind(self._ldap_obj)
@@ -1958,10 +1984,14 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
         if self.id not in [
             connection[0] for connection in active_connections(active_config.user_connections)
         ]:
-            self._logger.info('  SKIP SYNC connector "%s" is disabled', self.id)
+            self._logger.info(
+                '  SKIP SYNC connector "%(connector_id)s" is disabled', {"connector_id": self.id}
+            )
             return
 
-        self._logger.info("  SYNC PLUGINS: %s", ", ".join(self.active_plugins().keys()))
+        self._logger.info(
+            "  SYNC PLUGINS: %(plugins)s", {"plugins": ", ".join(self.active_plugins().keys())}
+        )
 
         # Flush ldap related before each sync to have a caching only for the
         # current sync process
@@ -2038,7 +2068,8 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
         duration = time.time() - sync_users_result.sync_start_time
         self._logger.info(
-            "SYNC FINISHED - Duration: %0.3f sec, Queries: %d", duration, self._num_queries
+            "SYNC FINISHED - Duration: %(duration)0.3f sec, Queries: %(num_queries)d",
+            {"duration": duration, "num_queries": self._num_queries},
         )
 
         # TODO: Maybe move this to the ldap-sync-finished hook?

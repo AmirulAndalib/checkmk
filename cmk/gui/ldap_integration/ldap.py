@@ -966,7 +966,10 @@ class ModeEditLDAPConnection(WatoMode):
                         except Exception as e:
                             state = False
                             msg = _("Exception: %(error)s") % {"error": e}
-                            logger.exception("error testing LDAP %s for %s", title, address)
+                            logger.exception(
+                                "error testing LDAP %(title)s for %(address)s",
+                                {"title": title, "address": address},
+                            )
 
                         if state:
                             img = html.render_static_icon(

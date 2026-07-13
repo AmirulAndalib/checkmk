@@ -83,6 +83,7 @@ _INCLUDED_PATHS = (
     "cmk/gui/userdb",
     "non-free/packages/cmk-mknotifyd",
     "cmk/special_agents",
+    "cmk/gui/ldap_integration",
 )
 
 
