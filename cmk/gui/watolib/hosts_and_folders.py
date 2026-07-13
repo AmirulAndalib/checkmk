@@ -4289,7 +4289,7 @@ host_action_menu_registry = HostActionMenuRegistry()
 
 def ajax_popup_host_action_menu(ctx: PageContext) -> None:
     hostname = ctx.request.get_validated_type_input_mandatory(HostName, "hostname")
-    host = folder_tree().host(hostname)
+    host = make_folder_tree(ctx.config).host(hostname)
     if host is None:
         html.show_error(_('"%(hostname)s" is not a valid host name') % {"hostname": hostname})
         return
