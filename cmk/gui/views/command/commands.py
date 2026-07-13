@@ -1556,7 +1556,7 @@ class CommandScheduleDowntimesForm:
         html.td(_("Duration"))
         html.open_td(class_="down_duration")
         html.write_html(self._get_duration_options())
-        html.a(_("(Edit presets)"), href=self._get_presets_url(), class_="down_presets")
+        html.a(_("(edit presets)"), href=self._get_presets_url(), class_="down_presets")
         html.close_td()
         html.close_tr()
 

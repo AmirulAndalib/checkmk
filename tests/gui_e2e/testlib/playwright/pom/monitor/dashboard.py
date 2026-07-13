@@ -263,7 +263,7 @@ class MainDashboard(BaseDashboard):
 
 
 class DashboardMobile(BaseDashboard):
-    page_title: str = r"Checkmk Mobile"
+    page_title: str = r"Checkmk mobile"
 
     links: list[str] = [
         r"Host Search",

@@ -4513,7 +4513,7 @@ class PainterDowntimeDuration(Painter):
         return _("Downtime duration (if flexible)")
 
     def short_title(self, cell: Cell) -> str:
-        return _("Flex. Duration")
+        return _("Flex. duration")
 
     @property
     def columns(self) -> Sequence[ColumnName]:

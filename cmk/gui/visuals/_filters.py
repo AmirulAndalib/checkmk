@@ -1695,7 +1695,7 @@ def register_starred_filters(filter_registry: FilterRegistry) -> None:
     filter_starred_with_register(
         filter_registry=filter_registry,
         what="host",
-        title=_l("Favorite Hosts"),
+        title=_l("Favorite hosts"),
         sort_index=501,
         group=FilterGroup.OTHER,
     )
@@ -1703,7 +1703,7 @@ def register_starred_filters(filter_registry: FilterRegistry) -> None:
     filter_starred_with_register(
         filter_registry=filter_registry,
         what="service",
-        title=_l("Favorite Services"),
+        title=_l("Favorite services"),
         sort_index=501,
     )
 

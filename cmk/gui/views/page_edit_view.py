@@ -190,7 +190,7 @@ def view_editor_general_properties(ds_name: str) -> Dictionary:
                 "column_headers",
                 Migrate(
                     DropdownChoice(
-                        title=_("Column Headers"),
+                        title=_("Column headers"),
                         choices=[
                             ("off", _("off")),
                             ("pergroup", _("once per group")),
