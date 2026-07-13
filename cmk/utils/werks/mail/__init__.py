@@ -268,7 +268,9 @@ def add_note(repo: Repo, commit: Commit, args: Args) -> None:
     now = datetime.datetime.now(datetime.UTC)
     note = f"Mail sent: {now.isoformat()}"
     repo.git.notes(f"--ref={args.ref}", "add", "-m", note, commit.hexsha)
-    logger.info("added note to commit %s: %s", commit.hexsha, note)
+    logger.info(
+        "added note to commit %(hexsha)s: %(note)s", {"hexsha": commit.hexsha, "note": note}
+    )
 
 
 def get_werk_commits(repo: Repo, branch_name: str, args: Args) -> Sequence[WerkCommit]:
@@ -304,7 +306,7 @@ def get_werk_commits(repo: Repo, branch_name: str, args: Args) -> Sequence[WerkC
     werk_changes = []
 
     for commit in repo.iter_commits(branch_name):
-        logger.debug("checking commit %s", commit)
+        logger.debug("checking commit %(commit)s", {"commit": commit})
         if has_note(repo, commit, args):
             # found a note -> we already sent mails for this change, so we assume
             # all changes before this change are covered, we can stop searching for more.
@@ -313,7 +315,7 @@ def get_werk_commits(repo: Repo, branch_name: str, args: Args) -> Sequence[WerkC
         # no note for this commit, so let's see if werks have been changed
         change = get_change(commit)
         if change:
-            logger.debug("commit %s contains werk changes", commit)
+            logger.debug("commit %(commit)s contains werk changes", {"commit": commit})
             werk_changes.append(change)
     else:
         raise RuntimeError(
@@ -402,10 +404,10 @@ def main(argparse_args: argparse.Namespace) -> None:
     args = Args.new(argparse_args)
 
     logging.basicConfig(level=logging.INFO)
-    logger.info("repo_path=%s", args.repo_path)
-    logger.info("branch=%s", args.branch)
-    logger.info("ref=%s", args.ref)
-    logger.info("ref_fixup=%s", args.ref_fixup)
+    logger.info("repo_path=%(repo_path)s", {"repo_path": args.repo_path})
+    logger.info("branch=%(branch)s", {"branch": args.branch})
+    logger.info("ref=%(ref)s", {"ref": args.ref})
+    logger.info("ref_fixup=%(ref_fixup)s", {"ref_fixup": args.ref_fixup})
 
     env = Environment(
         loader=PackageLoader("cmk.utils.werks.mail", "templates"),
@@ -430,19 +432,24 @@ def main(argparse_args: argparse.Namespace) -> None:
         change_with_werk = []
         for change in werk_commit.changes:
             logger.info(
-                "Detected werk change in commit %s: %s %s",
-                werk_commit.commit,
-                change.file.name,
-                change.__class__.__name__,
+                "Detected werk change in commit %(commit)s: %(file_name)s %(change_type)s",
+                {
+                    "commit": werk_commit.commit,
+                    "file_name": change.file.name,
+                    "change_type": change.__class__.__name__,
+                },
             )
             try:
                 werk = load_werk(file_content=change.file.content, file_name=change.file.name)
             except Exception:
                 logger.exception(
-                    "Werk parsing failed for werk %s on branch %s on commit %s, will try to load fixup",
-                    change.file.path,
-                    args.branch,
-                    werk_commit.commit,
+                    "Werk parsing failed for werk %(werk_path)s on branch %(branch)s "
+                    "on commit %(commit)s, will try to load fixup",
+                    {
+                        "werk_path": change.file.path,
+                        "branch": args.branch,
+                        "commit": werk_commit.commit,
+                    },
                 )
                 werk = load_werk_fixup(werk_commit, change, repo, args)
                 logger.info("Successfully loaded fixup")

@@ -65,10 +65,12 @@ def _update_prediction(
 ) -> PredictionData | None:
     logger.log(
         VERBOSE,
-        "Predicting %s / %s / %s",
-        meta.metric,
-        meta.params.period,
-        meta.valid_interval[0],
+        "Predicting %(metric)s / %(period)s / %(valid_from)s",
+        {
+            "metric": meta.metric,
+            "period": meta.params.period,
+            "valid_from": meta.valid_interval[0],
+        },
     )
     if (prediction := compute_prediction(meta, get_recorded_data, now)) is None:
         return None

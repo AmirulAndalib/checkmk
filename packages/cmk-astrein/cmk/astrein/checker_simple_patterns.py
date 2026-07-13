@@ -72,6 +72,7 @@ _INCLUDED_PATHS = (
     "cmk/plugins",
     "cmk/update_config",
     "cmk/base",
+    "cmk/utils",
     "non-free/packages/cmk-update-agent",
     "non-free/packages/cmk-dcd/cmk/dcd",
     "non-free/packages/cmk-relay-engine",
