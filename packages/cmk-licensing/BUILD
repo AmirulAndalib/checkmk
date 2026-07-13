@@ -1,6 +1,8 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
@@ -39,6 +41,39 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         requirement("python-dateutil"),
     ],
+)
+
+# Not shipped. Only exists so that static analysis tools (ruff, …)
+# can discover these .py files via Bazel.
+py_library(
+    name = "cmk-update-license-usage-main",
+    srcs = ["cmk-update-license-usage.py"],
+    imports = ["."],
+    deps = [
+        ":cmk-licensing",
+        "//cmk/utils:paths",
+        "//packages/cmk-ccc:site",
+        "//packages/cmk-licensing/cmk/licensing/basics",
+    ],
+)
+
+pkg_files(
+    name = "bin",
+    srcs = [
+        "cmk-update-license-usage.py",
+    ],
+    attributes = pkg_attributes(
+        mode = "0755",
+    ),
+    prefix = "bin",
+    renames = {"cmk-update-license-usage.py": "cmk-update-license-usage"},
+)
+
+pkg_tar(
+    name = "cmk-update-license-usage_pkg_tar",
+    srcs = [":bin"],
+    stamp = 1,
+    visibility = ["//omd:__pkg__"],
 )
 
 py_wheel(

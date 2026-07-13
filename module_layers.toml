@@ -1819,9 +1819,6 @@ allows = ["@ccc", "cmk.crash", "cmk.piggyback", "cmk.utils"]
 [file_dependencies."bin/cmk-piggyback.py"]
 allows = ["@livestatus_client", "cmk.piggyback", "cmk.utils"]
 
-[file_dependencies."bin/cmk-update-license-usage.py"]
-allows = ["@ccc", "cmk.licensing", "cmk.utils"]
-
 [file_dependencies."bin/cmk-transform-inventory-trees"]
 allows = ["cmk.inventory", "cmk.utils.paths"]
 
