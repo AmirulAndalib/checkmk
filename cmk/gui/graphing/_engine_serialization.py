@@ -85,8 +85,7 @@ class QuantitySpec:
 
 class QuantityCodec:
     def __init__(self, specs: Sequence[QuantitySpec]) -> None:
-        self._specs = tuple(specs)
-        self._by_tag = {spec.tag: spec for spec in self._specs}
+        self._by_tag = {spec.tag: spec for spec in specs}
 
     def serialize(self, quantity: Quantity) -> Json:
         tag = quantity.type()
