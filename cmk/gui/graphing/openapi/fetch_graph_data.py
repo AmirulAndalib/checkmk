@@ -40,7 +40,7 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
         evaluated = evaluate_graphs(
             GraphDataRequest(
                 graph_type=body.graph_type,
-                graph=body.internal,
+                graphs=body.internal,
                 options=options,
             )
         )
