@@ -96,6 +96,7 @@ void main() {
                     disable_cache: disable_cache,
                     distro: distro,
                     docker_tag: docker_tag,
+                    version: version,
                     download_dir: checkout_dir,
                     edition: edition,
                     fake_artifacts: fake_artifacts,
