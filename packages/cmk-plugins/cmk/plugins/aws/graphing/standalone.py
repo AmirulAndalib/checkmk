@@ -550,6 +550,7 @@ metric_aws_rds_db_parameter_groups = metrics.Metric(
 
 metric_aws_rds_read_replica_per_master = metrics.Metric(
     name="aws_rds_read_replica_per_master",
+    # weblate-flags: read-only, domain-specific
     title=Title("Read replica per master"),
     unit=UNIT_NUMBER,
     color=metrics.Color.YELLOW,

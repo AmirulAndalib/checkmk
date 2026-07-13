@@ -1532,6 +1532,7 @@ def _parameter_form_spec_aws_rds_limits() -> Dictionary:
                 parameter_form=fs_aws_limits(Title("Subnet per DB subnet groups"), 20),
             ),
             "read_replica_per_master": DictElement(
+                # weblate-flags: read-only, domain-specific
                 parameter_form=fs_aws_limits(Title("Read replica per master"), 5)
             ),
             "db_clusters": DictElement(
