@@ -6537,11 +6537,9 @@ msgstr "Stări de administrare permise:"
 msgid "Allowed agent access via IP address (Linux, Windows)"
 msgstr "Accesul agentului permis prin adresa IP (Linux, Windows)"
 
-msgid ""
-"Allowed characters are word characters (letters, digits, underscores), "
-"dollar signs, spaces, at signs, dots, plus signs, and hyphens. Must start "
-"and end with a word character or dollar sign."
-msgstr ""
+#, fuzzy
+msgid "Allowed characters are letters, digits, underscores, and hyphens."
+msgstr "Folosiți aici numai litere mici, cifre și caractere de subliniere."
 
 msgid "Allowed duration since last NTPMessage"
 msgstr "Durata permisă de la ultimul mesaj NTPMessage"

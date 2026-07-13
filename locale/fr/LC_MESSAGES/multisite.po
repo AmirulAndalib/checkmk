@@ -6565,11 +6565,11 @@ msgstr "États d'administration autorisés :"
 msgid "Allowed agent access via IP address (Linux, Windows)"
 msgstr "Accès autorisé à l'agent via l'adresse IP (Linux, Windows)"
 
-msgid ""
-"Allowed characters are word characters (letters, digits, underscores), "
-"dollar signs, spaces, at signs, dots, plus signs, and hyphens. Must start "
-"and end with a word character or dollar sign."
+#, fuzzy
+msgid "Allowed characters are letters, digits, underscores, and hyphens."
 msgstr ""
+"N'utilisez ici que des lettres minuscules, des chiffres et des caractères de "
+"soulignement."
 
 msgid "Allowed duration since last NTPMessage"
 msgstr "Durée autorisée depuis le dernier NTPMessage"

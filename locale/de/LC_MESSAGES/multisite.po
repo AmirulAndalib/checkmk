@@ -4,11 +4,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
-"Report-Msgid-Bugs-To: feedback@checkmk.com\n"
+"Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2026-07-10 10:03+0000\n"
-"Language-Team: German <https://translate.checkmk.com/projects/checkmk/dev/de/"
-">\n"
+"PO-Revision-Date: 2026-07-13 13:13+0000\n"
+"Language-Team: German <https://translate.checkmk.com/projects/checkmk/dev/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,17 +19,17 @@ msgstr ""
 msgid " "
 msgstr " "
 
-#, fuzzy, python-format
+#, python-format
 msgid " %(folder)s"
-msgstr "Ordner \"%(folder)s\""
+msgstr " %(folder)s"
 
 #, python-format
 msgid " %(time)s, outage duration %(duration)s"
 msgstr " %(time)s, Dauer des Ausfalls %(duration)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid " %(title)s"
-msgstr "%(title)s"
+msgstr " %(title)s"
 
 #, python-format
 msgid " (%(count)d times)"
@@ -44,13 +44,13 @@ msgstr " (Kopie)"
 msgid " (data incomplete, maximum number of nodes reached)"
 msgstr " (Daten unvollständig, maximale Anzahl von Knoten erreicht)"
 
-#, fuzzy, python-format
+#, python-format
 msgid " (duration: %(duration)s)"
-msgstr " (Dauer: %s)"
+msgstr " (Dauer: %(duration)s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid " (duration: %(duration)s, %(size)s IO: %(io_speed)s/s)"
-msgstr " (Dauer: %s, %s E/A: %s/s)"
+msgstr " (Dauer: %(duration)s, %(size)s E/A: %(io_speed)s/s)"
 
 msgid " (in discards per second)"
 msgstr " (in Abweisungen pro Sekunde)"
@@ -178,9 +178,9 @@ msgstr " und %(item_name)s '%(item)s'"
 msgid " and the %(item_name)s '%(item)s'."
 msgstr " und %(item_name)s '%(item)s'."
 
-#, fuzzy, python-format
+#, python-format
 msgid " for %(num_success)d of %(num_recipients)d recipients."
-msgstr " für %d von %d Empfängern."
+msgstr " für %(num_success)d von %(num_recipients)d Empfängern."
 
 msgid " for all recipients."
 msgstr " für alle Empfänger."
@@ -390,9 +390,9 @@ msgstr ""
 msgid "%(connection_id)s: uses SSL"
 msgstr "%(connection_id)s: verwendet SSL"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(content_type)s"
-msgstr "Kommentartyp"
+msgstr "%(content_type)s"
 
 #, python-format
 msgid "%(count)d %(message)s."
@@ -406,11 +406,11 @@ msgstr "%(count)d %(script)s %(label)s."
 msgid "%(count)d Filter settings"
 msgstr "%(count)d Filtereinstellungen"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d changed label"
 msgid_plural "%(count)d changed labels"
-msgstr[0] "%d geändertes Label"
-msgstr[1] "%d geänderte Labels"
+msgstr[0] "%(count)d geändertes Label"
+msgstr[1] "%(count)d geänderte Labels"
 
 #, python-format
 msgid ""
@@ -424,45 +424,45 @@ msgstr ""
 msgid "%(count)d columns"
 msgstr "%(count)d Spalten"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d discovery parameter added"
 msgid_plural "%(count)d discovery parameters added"
-msgstr[0] "%d hinzugefügter Erkennungsparameter"
-msgstr[1] "%d hinzugefügte Erkennungsparameter"
+msgstr[0] "%(count)d hinzugefügter Erkennungsparameter"
+msgstr[1] "%(count)d hinzugefügte Erkennungsparameter"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d discovery parameter changed"
 msgid_plural "%(count)d discovery parameters changed"
-msgstr[0] "%d geänderter Erkennungsparameter"
-msgstr[1] "%d geänderte Erkennungsparameter"
+msgstr[0] "%(count)d geänderter Erkennungsparameter"
+msgstr[1] "%(count)d geänderte Erkennungsparameter"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d discovery parameter removed"
 msgid_plural "%(count)d discovery parameters removed"
-msgstr[0] "%d Erkennungsparameter entfernt"
-msgstr[1] "%d Erkennungsparameter entfernt"
+msgstr[0] "%(count)d entfernter Erkennungsparameter"
+msgstr[1] "%(count)d entfernte Erkennungsparameter"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d new label"
 msgid_plural "%(count)d new labels"
-msgstr[0] "%d neues Label"
-msgstr[1] "%d neue Labels"
+msgstr[0] "%(count)d neues Label"
+msgstr[1] "%(count)d neue Labels"
 
 #, python-format
 msgid "%(count)d open incompatible werks"
 msgstr "%(count)d offene inkompatible Werks"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d removed label"
 msgid_plural "%(count)d removed labels"
-msgstr[0] "%d entferntes Label"
-msgstr[1] "%d entfernte Labels"
+msgstr[0] "%(count)d entferntes Label"
+msgstr[1] "%(count)d entfernte Labels"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d site is %(site_status)s."
 msgid_plural "%(count)d sites are %(site_status)s."
-msgstr[0] "Diese Instanz ist %(status)s"
-msgstr[1] "Diese Instanz ist %(status)s"
+msgstr[0] "%(count)d Instanz ist %(site_status)s."
+msgstr[1] "%(count)d Instanzen sind %(site_status)s."
 
 #, python-format
 msgid "%(count)d sites %(state)s: %(site_ids)s"
@@ -476,11 +476,11 @@ msgstr "%(count)d Instanzen mit Fehlern: %(errors)s"
 msgid "%(count)d specific settings"
 msgstr "%(count)d spezifische Einstellungen"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d unacknowledged incompatible werk"
 msgid_plural "%(count)d unacknowledged incompatible werks"
-msgstr[0] "%d unquittiertes inkompatibles Werk"
-msgstr[1] "%d unquittierte inkompatible Werks"
+msgstr[0] "%(count)d unquittiertes inkompatibles Werk"
+msgstr[1] "%(count)d unquittierte inkompatible Werks"
 
 #, python-format
 msgid ""
@@ -512,13 +512,13 @@ msgstr "%(error_marker)s: %(reason)s"
 msgid "%(failed_notifications)d failed notifications"
 msgstr "%(failed_notifications)d fehlgeschlagene Benachrichtigungen"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(folder)s"
-msgstr "Ordner"
+msgstr "%(folder)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(group_name)s"
-msgstr "Gruppen-Name"
+msgstr "%(group_name)s"
 
 #, python-format
 msgid "%(height).1f mm"
@@ -575,17 +575,17 @@ msgid "%(job_title)s was stopped after %(duration_txt)s at %(finished_txt)s."
 msgstr ""
 "%(job_title)s wurde nach %(duration_txt)s um %(finished_txt)s gestoppt."
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(link)s"
-msgstr "%d Links"
+msgstr "%(link)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(name)s"
-msgstr "ID: %(visual_name)s"
+msgstr "%(name)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(name)s (%(dotted_string)s)"
-msgstr "pro %(per_string)s"
+msgstr "%(name)s (%(dotted_string)s)"
 
 #, python-format
 msgid "%(name)s - Dependency missing"
@@ -690,13 +690,13 @@ msgstr "%(parent)s ist Parent von %(children)s."
 msgid "%(percentage)s%% OK"
 msgstr "%(percentage)s%% OK"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(protocol)s"
-msgstr "Alle Protokolle"
+msgstr "%(protocol)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(protocol)s server"
-msgstr "Serverprotokoll"
+msgstr "%(protocol)s Server"
 
 #, python-format
 msgid "%(region_id)s | %(region_name)s"
@@ -728,13 +728,13 @@ msgstr "%(timeperiod)s"
 msgid "%(title)s"
 msgstr "%(title)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(title)s has been deleted."
-msgstr "%s wurde gelöscht."
+msgstr "%(title)s wurde gelöscht."
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(title)s is required but not specified."
-msgstr "Die Instanz ist erforderlich, wurde jedoch nicht angegeben."
+msgstr "%(title)s ist erforderlich, wurde jedoch nicht angegeben."
 
 #, python-format
 msgid "%(title)s may be missing, it must not be empty if it is set."
@@ -787,9 +787,9 @@ msgstr ""
 "%(title_entity)s verwendet eine API (%(title_api)s), die in Checkmk "
 "%(removed_version)s entfernt wurde (Datei: %(rel_path)s)."
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(topic_title)s: %(title)s"
-msgstr "Jobzustand: %s"
+msgstr "%(topic_title)s: %(title)s"
 
 #, python-format
 msgid ""
@@ -799,17 +799,17 @@ msgstr ""
 "%(used_slots)d der konfigurierten maximalen %(total_slots)d Prozesse wurden "
 "gestartet. Dies entspricht einer Auslastung von %(usage)0.2f %%."
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(user)s"
-msgstr "Benutzer"
+msgstr "%(user)s"
 
 #, python-format
 msgid "%(v)s is not an allowed value"
 msgstr "%(v)s ist kein erlaubter Wert"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%(value)s (customer missing)"
-msgstr "%s (Kunde fehlt)"
+msgstr "%(value)s (Kunde fehlt)"
 
 #, python-format
 msgid "%(value)s is not a valid Unix timestamp"
@@ -1009,9 +1009,9 @@ msgstr "(Version: %(version)s - keine Versionsänderung)"
 msgid "(built-in)"
 msgstr "(mitgeliefert)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "(default is %(port_defaults)r for %(protocol)s/TLS)"
-msgstr "(Standard ist %r für %s/TLS)"
+msgstr "(Standard ist %(port_defaults)r für %(protocol)s/TLS)"
 
 msgid "(deprecated)"
 msgstr "(veraltet)"
@@ -1562,9 +1562,9 @@ msgstr ""
 "gestartet. Bitte aktualisieren Sie Ihren DNS oder konfigurieren Sie eine IP-"
 "Adresse für den betroffenen Host."
 
-#, fuzzy, python-format
+#, python-format
 msgid "<b>Warning:</b> There are %(count)d unacknowledged incompatible werks:"
-msgstr "<b>Warnung:</b> Es gibt %d unquittierte Werks:"
+msgstr "<b>Warnung:</b> Es gibt %(count)d unquittierte, inkompatible Werks:"
 
 msgid ""
 "<b>Warning</b>: The agent installation will neither create this directory, "
@@ -1618,10 +1618,10 @@ msgstr ""
 "Andernfalls besteht die Gefahr, dass die erkannten und die geprüften "
 "Services nicht übereinstimmen."
 
-#, fuzzy, python-format
+#, python-format
 msgid "<br><br><b>Note</b>: this key was created by user <b>%(owner)s</b>"
 msgstr ""
-"<br><br><b>Hinweis</b>: Dieser Schlüssel wurde von Benutzer <b>%s</b> "
+"<br><br><b>Hinweis</b>: Dieser Schlüssel wurde von Benutzer <b>%(owner)s</b> "
 "erstellt"
 
 msgid ""
@@ -2260,9 +2260,9 @@ msgstr ""
 "lange sich eine Bedingung in einem fehlgeschlagenen Zustand befinden darf, "
 "bevor der Check Alarm schlägt."
 
-#, fuzzy, python-format
+#, python-format
 msgid "A Relay with alias '%(new_alias)s' already exists."
-msgstr "Ein Relay mit Alias '%s' existiert bereits."
+msgstr "Ein Relay mit Alias '%(new_alias)s' existiert bereits."
 
 msgid ""
 "A TNS alias as defined in the <tt>tnsnames.ora</tt> file. Requires a "
@@ -2320,9 +2320,9 @@ msgstr ""
 msgid "A connection error occurred: %(e)s"
 msgstr "Es ist ein Verbindungsfehler aufgetreten: %(e)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "A connection error occurred: %(error)s"
-msgstr "Es ist ein Verbindungsfehler aufgetreten: %(e)s"
+msgstr "Es ist ein Verbindungsfehler aufgetreten: %(error)s"
 
 msgid "A connection with the same sites already exists."
 msgstr "Es existiert bereits eine Verbindung zu den gleichen Instanzen."
@@ -2430,13 +2430,13 @@ msgstr "Eine Überschrift für die Graphen"
 msgid "A heading for the view"
 msgstr "Eine Überschrift für die Ansicht"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "A host with the name %(host_name)s already exists in the folder %(folder)s. "
 "Please choose a different host name."
 msgstr ""
-"Ein Host mit dem Namen %s existiert bereits im Ordner %s. Bitte wählen Sie "
-"einen anderen Host-Namen."
+"Ein Host mit dem Namen %(host_name)s existiert bereits im Ordner %(folder)s. "
+"Bitte wählen Sie einen anderen Host-Namen."
 
 #, python-format
 msgid ""
@@ -2783,13 +2783,13 @@ msgstr ""
 msgid "A value in seconds"
 msgstr "Ein Wert in Sekunden"
 
-#, fuzzy, python-format
+#, python-format
 msgid "A view for searching in the inventory data for %(title)s"
-msgstr "Eine Ansicht, um in den Inventurdaten nach %s zu suchen"
+msgstr "Eine Ansicht, um in den Inventurdaten nach %(title)s zu suchen"
 
-#, fuzzy, python-format
+#, python-format
 msgid "A view for the %(title)s of one host"
-msgstr "Eine Ansicht für die %s eines Hosts"
+msgstr "Eine Ansicht für die %(title)s eines Hosts"
 
 msgid "A/V Auth - bad requests received"
 msgstr "A/V Auth - ungültige Anfragen empfangen"
@@ -6326,15 +6326,9 @@ msgstr "Erlaubter Admin-Zustand:"
 msgid "Allowed agent access via IP address (Linux, Windows)"
 msgstr "Agentenzugriff über IP-Adressen beschränken (Linux, Windows)"
 
-msgid ""
-"Allowed characters are word characters (letters, digits, underscores), "
-"dollar signs, spaces, at signs, dots, plus signs, and hyphens. Must start "
-"and end with a word character or dollar sign."
-msgstr ""
-"Zulässige Zeichen sind Wortzeichen (Buchstaben, Ziffern, Unterstriche), "
-"Dollarzeichen, Leerzeichen, At-Zeichen, Punkte, Pluszeichen und "
-"Bindestriche. Muss mit einem Wortzeichen oder einem Dollarzeichen beginnen "
-"und enden."
+#, fuzzy
+msgid "Allowed characters are letters, digits, underscores, and hyphens."
+msgstr "Hier nur Kleinbuchstaben, Ziffern und Unterstriche verwenden."
 
 msgid "Allowed duration since last NTPMessage"
 msgstr "Erlaubte Dauer seit der letzten NTPMessage"
@@ -13061,6 +13055,7 @@ msgstr "Checkmk: BI: Sekunden"
 
 msgid "Checkmk: Service Risk Advisory - agent signature keys expire"
 msgstr ""
+"Checkmk: Hinweis zu Servicerisiken – Signaturschlüssel des Agenten laufen ab"
 
 #, fuzzy
 msgid "Checkmk: Setup: bytes"
@@ -16827,7 +16822,7 @@ msgstr ""
 
 #, python-format
 msgid "Created new rule pack with id %(rule_pack_id)s"
-msgstr "Neues Regelpaket mit ID %(rule_pack_id)s erstellt"
+msgstr "Neues Regelpaket mit ID %(rule_pack_id)s wurde erstellt"
 
 #, python-format
 msgid "Created new time period %(name)s"
@@ -49402,16 +49397,13 @@ msgstr "Regelmäßige Benachrichtigungen bei Service-Problemen"
 msgid "Periodic service discovery"
 msgstr "Periodische Service-Erkennung"
 
-#, fuzzy
 msgid ""
 "Periodic user attribute synchronization keeps existing user attributes "
 "(alias, email, roles, contact groups) up to date on this site."
 msgstr ""
-"Durch die regelmäßige Synchronisierung der Benutzerattribute werden die "
-"Benutzerattribute (Alias, E-Mail, Rollen, Kontaktgruppen) auf dieser Instanz "
-"auf dem neuesten Stand gehalten. Dies ist vor allem für LDAP-Verbindungen "
-"relevant. Bei SAML-Verbindungen werden die Attribute nur aktualisiert, wenn "
-"sich ein Benutzer anmeldet; daher müssen sie hier nicht aufgeführt werden."
+"Die regelmäßige Synchronisierung der Benutzerattribute sorgt dafür, dass die "
+"vorhandenen Benutzerattribute (Alias, E-Mail-Adresse, Rollen, "
+"Kontaktgruppen) auf dieser Instanz stets auf dem neuesten Stand sind."
 
 msgid "Permanent generation memory"
 msgstr "Permanent-Generation-Speicher"
@@ -53118,9 +53110,10 @@ msgstr ""
 msgid "Remote port number"
 msgstr "Remote-Portnummer"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Remote site in license state %(license_state)s is not allowed"
-msgstr "Monitoring-Zustand, wenn der Lizenzstatus nicht OK ist"
+msgstr ""
+"Eine Remote-Instanz im Lizenzstatus %(license_state)s ist nicht zulässig"
 
 msgid "Remote site usage bytes across all pools"
 msgstr "Remote-Instanz-Auslastung in Bytes über alle Pools"
@@ -62543,9 +62536,9 @@ msgstr "Symmetrische Verschlüsselung (Linux, Solaris, Windows)"
 msgid "Sync attributes for all LDAP connections"
 msgstr "Attribute aller LDAP-Verbindungen synchronisieren"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Sync attributes for: %(connections)s"
-msgstr "Attribute aller LDAP-Verbindungen synchronisieren"
+msgstr "Attribute synchronisieren für: %(connections)s"
 
 #, fuzzy
 msgid "Sync attributes only for the following LDAP connections"
@@ -65078,9 +65071,9 @@ msgstr "Der Kommentar, der bei Ad-hoc-Wartungszeiten automatisch gesendet wird"
 msgid "The complete hardware and software inventory of a host"
 msgstr "Das vollständige Hardware- und Softwareinventar eines Hosts"
 
-#, fuzzy, python-format
+#, python-format
 msgid "The configuration bundle %(bundle_id)s does not exist"
-msgstr "Das Konfigurationsbündel %s existiert nicht."
+msgstr "Das Konfigurationsbündel %(bundle_id)s existiert nicht"
 
 #, fuzzy, python-format
 msgid ""
@@ -66034,8 +66027,7 @@ msgstr "Host existiert nicht."
 
 #, python-format
 msgid "The given ldap filter \"%(filter)s\" is invalid (%(error)s)"
-msgstr ""
-"Der angegebene LDAP-Filter <tt>%(filter)s</tt> ist ungültig (%(error)s)"
+msgstr "Der angegebene LDAP-Filter \"%(filter)s\" ist ungültig (%(error)s)"
 
 msgid ""
 "The given parameters are available in scripts as NOTIFY_PARAMETER_1, "
@@ -85039,6 +85031,14 @@ msgid ""
 "Checkmk agent on these hosts can no longer be updated automatically. Please "
 "contact your Checkmk administrator to renew the agent signature keys."
 msgstr ""
+"Sie erhalten diese Benachrichtigung, da Sie eine Kontaktperson für "
+"betroffene Hosts sind.<br><br>Die Agent-Updates für einige Ihrer Hosts sind "
+"mit Agent-Signaturschlüsseln signiert, die abgelaufen sind oder bald "
+"ablaufen werden. Sobald ein Schlüssel abgelaufen ist, lehnen die betroffenen "
+"Hosts die damit signierten Agent-Updates ab, sodass der Checkmk-Agent auf "
+"diesen Hosts nicht mehr automatisch aktualisiert werden kann. Bitte wenden "
+"Sie sich an Ihren Checkmk-Administrator, um die Agent-Signaturschlüssel zu "
+"erneuern."
 
 msgid "You are trying to edit a rule which does not exist anymore."
 msgstr "Sie versuchen eine nicht mehr vorhandene Regel zu editieren."
@@ -87153,9 +87153,9 @@ msgstr "[%s] Synchronisation für Verbindung abgeschlossen"
 msgid "[%(connection_id)s] Starting sync for connection"
 msgstr "[%s] Synchronisation für Verbindung gestartet"
 
-#, fuzzy, python-format
+#, python-format
 msgid "[%(connection_id)s] exception"
-msgstr "ID: %(connection_id)s"
+msgstr "[%(connection_id)s] Exception"
 
 #, fuzzy, python-format
 msgid "[%(instance_id)s] - Quick Setup"
@@ -94299,6 +94299,16 @@ msgid ""
 msgstr ""
 "Sie können später weiterhin über Hilfe > Checkmk erlernen > Willkommensseite "
 "darauf zugreifen"
+
+#~ msgid ""
+#~ "Allowed characters are word characters (letters, digits, underscores), "
+#~ "dollar signs, spaces, at signs, dots, plus signs, and hyphens. Must start "
+#~ "and end with a word character or dollar sign."
+#~ msgstr ""
+#~ "Zulässige Zeichen sind Wortzeichen (Buchstaben, Ziffern, Unterstriche), "
+#~ "Dollarzeichen, Leerzeichen, At-Zeichen, Punkte, Pluszeichen und "
+#~ "Bindestriche. Muss mit einem Wortzeichen oder einem Dollarzeichen "
+#~ "beginnen und enden."
 
 #~ msgid ""
 #~ "A system reboot may be required after installing WSL2 before proceeding."
