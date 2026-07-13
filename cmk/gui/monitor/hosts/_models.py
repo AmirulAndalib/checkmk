@@ -25,7 +25,7 @@ class HostState(enum.IntEnum):
     UNREACHABLE = 2
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class ServiceCounts:
     total: int
     ok: int
@@ -35,7 +35,7 @@ class ServiceCounts:
     pending: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Host:
     name: str
     state: HostState
