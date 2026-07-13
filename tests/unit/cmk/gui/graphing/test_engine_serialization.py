@@ -38,10 +38,7 @@ from cmk.graphing_engine import (
     Unit,
 )
 from cmk.gui.graphing._engine_dispatch import serialize_graphs
-from cmk.gui.graphing._engine_serialization import (
-    deserialize_graph,
-    engine_quantity_codec,
-)
+from cmk.gui.graphing._engine_serialization import graph_codec
 
 _METRIC = RRDMetric(
     host_name=HostName("h"), service_name=ServiceName("svc"), metric_name=MetricName("m")
@@ -163,7 +160,7 @@ def _rich_graphs() -> Sequence[Graph]:
 
 
 def test_template_round_trip_is_lossless() -> None:
-    codec = engine_quantity_codec()
+    codec = graph_codec()
     built_graphs = _rich_graphs()
     payload = serialize_graphs(built_graphs)
     # The payload is plain JSON.
@@ -174,5 +171,5 @@ def test_template_round_trip_is_lossless() -> None:
     assert all(graph["graph_type"] == "template" for graph in serialized_graphs)
     # The round-trip is stable: deserializing and re-serializing reproduces the same payload (compared
     # as JSON, so the empty-sequence list/tuple distinction the dataclass defaults carry is irrelevant).
-    restored = [deserialize_graph(graph, codec) for graph in serialized_graphs]
+    restored = codec.deserialize_graphs(payload)
     assert serialize_graphs(restored) == payload
