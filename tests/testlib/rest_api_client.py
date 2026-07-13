@@ -1292,6 +1292,26 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def discover_template_graphs(
+        self,
+        hostname: str,
+        service_description: str,
+        site: str | None = None,
+        graph_id: str | None = None,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/discover_template_graphs/invoke",
+            body={
+                "hostname": hostname,
+                "service_description": service_description,
+                "site": site,
+                "graph_id": graph_id,
+            },
+            expect_ok=expect_ok,
+        )
+
     def discover_single_timeseries_graphs(
         self,
         hostname: str,

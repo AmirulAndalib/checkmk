@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+# Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+# This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+# conditions defined in the file COPYING, which is part of this source code package.
+
+import json
+from collections.abc import Callable, Sequence
+
+import pytest
+
+from cmk.ccc.site import SiteId
+from cmk.graphing_engine import Graph, HostName, Service, ServiceName
+from cmk.gui.graphing._engine_rrd_source import EngineRRDFetchMetricNames
+from cmk.gui.graphing.openapi import discover_template_graphs as discover_module
+from cmk.livestatus_client import MKLivestatusSocketError
+from tests.testlib.rest_api_client import ClientRegistry
+
+
+def _fake_build(graphs: Sequence[Graph]) -> Callable[..., Sequence[Graph]]:
+    def _build(**_kwargs: object) -> Sequence[Graph]:
+        return graphs
+
+    return _build
+
+
+def test_discover_template_graphs_emits_fetchable_graphs(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        discover_module,
+        "build_template_graphs",
+        _fake_build([Graph(name="g", title="t", graph_type="template")]),
+    )
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load"
+    )
+    [graph] = resp.json["graphs"]
+    assert graph["graph_type"] == "template"
+    assert graph["title"] == "t"
+
+    # The graph's opaque definition feeds straight into the fetch_data action.
+    fetch_resp = clients.Graph.fetch_data(
+        graph_type="template",
+        internal=json.loads(graph["internal"]),
+        requested_time_range={"start": 0, "end": 60, "step": 10},
+        consolidation_function="max",
+    )
+    assert fetch_resp.json["metrics"] == []
+
+
+def test_discover_template_graphs_passes_service_and_site(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: dict[str, object] = {}
+
+    def _build(**kwargs: object) -> Sequence[Graph]:
+        captured.update(kwargs)
+        return [Graph(name="g", title="t", graph_type="template")]
+
+    monkeypatch.setattr(discover_module, "build_template_graphs", _build)
+
+    clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load", site="my_site"
+    )
+    assert captured["service"] == Service(
+        host_name=HostName("my-host"), service_name=ServiceName("CPU load")
+    )
+    fetch_metric_names = captured["fetch_metric_names"]
+    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
+    assert fetch_metric_names.site_id == SiteId("my_site")
+
+    clients.Graph.discover_template_graphs(hostname="my-host", service_description="CPU load")
+    fetch_metric_names = captured["fetch_metric_names"]
+    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
+    assert fetch_metric_names.site_id is None
+
+
+def test_discover_template_graphs_filters_by_graph_id(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        discover_module,
+        "build_template_graphs",
+        _fake_build(
+            [
+                Graph(name="cpu_load", title="CPU load", graph_type="template"),
+                Graph(name="active_sessions", title="Active sessions", graph_type="template"),
+            ]
+        ),
+    )
+    # The legacy "METRIC_<name>" id addresses the engine's single-metric fallback graph "<name>".
+    for graph_id in ("active_sessions", "METRIC_active_sessions"):
+        resp = clients.Graph.discover_template_graphs(
+            hostname="my-host", service_description="CPU load", graph_id=graph_id
+        )
+        [graph] = resp.json["graphs"]
+        assert graph["title"] == "Active sessions"
+
+
+def test_discover_template_graphs_unknown_graph_id_is_404(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        discover_module,
+        "build_template_graphs",
+        _fake_build([Graph(name="cpu_load", title="CPU load", graph_type="template")]),
+    )
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host",
+        service_description="CPU load",
+        graph_id="does_not_exist",
+        expect_ok=False,
+    )
+    assert resp.status_code == 404
+
+
+def test_discover_template_graphs_no_graphs_is_404(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(discover_module, "build_template_graphs", _fake_build([]))
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load", expect_ok=False
+    )
+    assert resp.status_code == 404
+
+
+def test_discover_template_graphs_livestatus_failure_is_503(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def _raise(**_kwargs: object) -> Sequence[Graph]:
+        raise MKLivestatusSocketError("connection refused")
+
+    monkeypatch.setattr(discover_module, "build_template_graphs", _raise)
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load", expect_ok=False
+    )
+    assert resp.status_code == 503
+    assert "connection refused" in resp.json["detail"]
+
+
+def test_discover_template_graphs_invalid_hostname_is_400(clients: ClientRegistry) -> None:
+    resp = clients.Graph.discover_template_graphs(
+        hostname="not a valid host name",
+        service_description="CPU load",
+        expect_ok=False,
+    )
+    assert resp.status_code == 400

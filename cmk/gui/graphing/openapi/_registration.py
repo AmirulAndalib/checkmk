@@ -6,6 +6,7 @@ from cmk.gui.openapi.framework.registry import VersionedEndpointRegistry
 from cmk.gui.openapi.restful_objects.endpoint_family import EndpointFamilyRegistry
 
 from ._family import GRAPH_FAMILY
+from .discover_template_graphs import ENDPOINT_DISCOVER_TEMPLATE_GRAPHS
 from .fetch_graph_data import ENDPOINT_FETCH_GRAPH_DATA
 
 
@@ -14,4 +15,5 @@ def register(
     endpoint_family_registry: EndpointFamilyRegistry,
 ) -> None:
     endpoint_family_registry.register(GRAPH_FAMILY)
+    versioned_endpoint_registry.register(ENDPOINT_DISCOVER_TEMPLATE_GRAPHS)
     versioned_endpoint_registry.register(ENDPOINT_FETCH_GRAPH_DATA)
