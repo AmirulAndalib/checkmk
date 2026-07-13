@@ -49,4 +49,4 @@ def convert(legacy: Mapping[str, Any]) -> MigratedRule:
 
 
 def dump(config: GuiConfig[RawSecret]) -> dict[str, Any]:
-    return config.model_dump(exclude_defaults=True, exclude_none=True, mode="python")
+    return config.model_dump(exclude_unset=True, exclude_none=True, mode="python")
