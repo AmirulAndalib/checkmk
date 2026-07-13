@@ -907,8 +907,8 @@ class DiscoveryPageRenderer:
                 num_problem_states: int = len([s for s in states if s != 0])
                 html.h2(
                     ungettext(
-                        "Problems with %(count)d datasource detected",
-                        "Problems with %(count)d datasources detected",
+                        "Problems with %(count)d data source detected",
+                        "Problems with %(count)d data sources detected",
                         num_problem_states,
                     )
                     % {"count": num_problem_states}
