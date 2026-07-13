@@ -129,11 +129,13 @@ def _special_agent_main_core(
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
     logging.getLogger("vcr").setLevel(logging.WARNING)
-    LOGGER.info("running file %s", __file__)
+    LOGGER.info("running file %(file)s", {"file": __file__})
     LOGGER.info(
-        "using Python interpreter v%s at %s",
-        ".".join(map(str, sys.version_info)),
-        sys.executable,
+        "using Python interpreter v%(version)s at %(executable)s",
+        {
+            "version": ".".join(map(str, sys.version_info)),
+            "executable": sys.executable,
+        },
     )
 
     # Don't log args here, it may contain secrets.

@@ -103,7 +103,7 @@ class DataCache(abc.ABC):
         try:
             content = json.loads(raw_content)
         except ValueError as exc:
-            LOGGER.info("Cannot load raw content: %s", exc)
+            LOGGER.info("Cannot load raw content: %(error)s", {"error": exc})
             raise
         return content
 
@@ -113,7 +113,9 @@ class DataCache(abc.ABC):
             try:
                 return self.get_cached_data()
             except (OSError, ValueError) as exc:
-                LOGGER.info("Getting live data (failed to read from cache: %s).", exc)
+                LOGGER.info(
+                    "Getting live data (failed to read from cache: %(error)s).", {"error": exc}
+                )
                 if self.debug:
                     raise
 
@@ -121,7 +123,7 @@ class DataCache(abc.ABC):
         try:
             self._write_to_cache(live_data)
         except (OSError, TypeError) as exc:
-            LOGGER.info("Failed to write data to cache file: %s", exc)
+            LOGGER.info("Failed to write data to cache file: %(error)s", {"error": exc})
             if self.debug:
                 raise
         return live_data
