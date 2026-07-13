@@ -173,7 +173,7 @@ def form_spec() -> Dictionary:
                         ),
                         SingleChoiceElement(
                             name="cashregister",
-                            title=Title("Cash Register"),
+                            title=Title("Cash register"),
                         ),
                         SingleChoiceElement(
                             name="classical",
