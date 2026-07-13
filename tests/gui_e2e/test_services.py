@@ -82,7 +82,7 @@ def test_reschedule_active_checks(dashboard_page: MainDashboard, created_host: H
             "cpu",
             [
                 "CPU load average of last minute - {host_name} - CPU load",
-                "CPU utilization (User, system, IO wait & levels) - {host_name} - CPU utilization",
+                "CPU utilization (User, system, I/O wait & levels) - {host_name} - CPU utilization",
             ],
             id="cpu_service_filter",
         ),

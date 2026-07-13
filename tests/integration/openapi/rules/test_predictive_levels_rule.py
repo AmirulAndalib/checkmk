@@ -283,7 +283,7 @@ def test_fixed_to_predictive_conversion(site: Site) -> None:
     with managed_rule_with_levels(
         site,
         initial_fixed,
-        "API Test: Initial Fixed Levels",
+        "API Test: Initial Fixed levels",
         expected_checks=["50.0", "100.0"],
         rule_type="fixed_levels",
     ) as rule_id:
@@ -314,7 +314,7 @@ def test_fixed_to_predictive_conversion(site: Site) -> None:
         site.openapi.rules.update(
             rule_id=rule_id,
             value_raw=final_fixed,
-            properties={"comment": "API Test: Converted back to Fixed Levels"},
+            properties={"comment": "API Test: Converted back to Fixed levels"},
         )
         site.openapi.changes.activate_and_wait_for_completion()
 
