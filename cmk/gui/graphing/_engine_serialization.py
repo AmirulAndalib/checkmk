@@ -420,14 +420,6 @@ def graph_codec(additional: Sequence[QuantitySpec] = ()) -> GraphCodec:
     return GraphCodec(engine_quantity_codec(additional))
 
 
-def serialize_graph(graph: Graph, codec: QuantityCodec) -> Json:
-    return GraphCodec(codec).serialize_graph(graph)
-
-
-def deserialize_graph(data: object, codec: QuantityCodec) -> Graph:
-    return GraphCodec(codec).deserialize_graph(data)
-
-
 def consolidation_function_of(options: Mapping[str, object]) -> ConsolidationFunction:
     return ensure_type(options["consolidation_function"], ConsolidationFunction)
 
