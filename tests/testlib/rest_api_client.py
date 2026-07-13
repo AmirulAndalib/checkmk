@@ -1292,6 +1292,26 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def discover_single_timeseries_graphs(
+        self,
+        hostname: str,
+        service_description: str,
+        metric: str,
+        color: str | None = None,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/discover_single_timeseries_graphs/invoke",
+            body={
+                "hostname": hostname,
+                "service_description": service_description,
+                "metric": metric,
+                "color": color,
+            },
+            expect_ok=expect_ok,
+        )
+
 
 class CustomGraphClient(RestApiClient):
     domain: DomainType = "custom_graph"

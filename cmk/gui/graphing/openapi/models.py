@@ -2,12 +2,16 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import json
 from collections.abc import Mapping
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
 from pydantic import Json
 
+from cmk.graphing_engine import Graph
 from cmk.gui.openapi.framework.model import api_field, api_model
+
+from .._engine_dispatch import serialize_graphs
 
 type ApiConsolidation = Literal["min", "max", "avg"]
 
@@ -81,6 +85,34 @@ class ApiHorizontalLine:
     )
     value: float = api_field(description="The horizontal line value.", example=80.0)
     color: str = api_field(description="The horizontal line color.", example="#ffcc00")
+
+
+@api_model
+class ApiDiscoveredGraph:
+    """A discovered data-less graph definition."""
+
+    graph_type: str = api_field(
+        description="The graph type, selecting the engine evaluator.", example="template"
+    )
+    internal: str = api_field(
+        description=(
+            "The self-contained graph definition needed to fetch the data, as JSON. Pass it "
+            "to the fetch_data action unchanged."
+        ),
+        example="<implementation detail>",
+    )
+    title: str = api_field(
+        description="The localized graph title, for the graph header.",
+        example="CPU utilization",
+    )
+
+    @classmethod
+    def from_graph(cls, graph: Graph) -> Self:
+        return cls(
+            graph_type=graph.graph_type,
+            internal=json.dumps(serialize_graphs([graph])),
+            title=graph.title,
+        )
 
 
 @api_model
