@@ -16,6 +16,8 @@ import datetime as dt
 import enum
 from typing import assert_never, Literal, NewType
 
+from cmk.ruleset_matcher.labels import LabelSource
+
 type HostStateLabel = Literal["UP", "DOWN", "UNREACHABLE"]
 
 
@@ -57,6 +59,23 @@ class Host:
                 return "UNREACHABLE"
             case _:
                 assert_never(self.state)
+
+
+@dataclasses.dataclass(frozen=True)
+class HostLabelValue:
+    value: str
+    source: LabelSource
+
+
+@dataclasses.dataclass(frozen=True)
+class HostOverview(Host):
+    last_check: dt.datetime
+    last_state_change: dt.datetime
+    customer: str | None
+    folder: str | None
+    contact_groups: list[str] = dataclasses.field(default_factory=list)
+    tags: dict[str, str] = dataclasses.field(default_factory=dict)
+    labels: dict[str, HostLabelValue] = dataclasses.field(default_factory=dict)
 
 
 class HostSortColumn(enum.StrEnum):

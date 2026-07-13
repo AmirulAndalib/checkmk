@@ -15,5 +15,6 @@ py_library(
         "//cmk/gui/pagetypes",
         "//cmk/gui/utils:permission_verification",
         "//cmk/gui/views:command",
+        "//packages/cmk-ruleset-matcher",
     ],
 )

@@ -4598,6 +4598,19 @@ class ServiceAvailabilityClient(RestApiClient):
 class MonitorHostsClient(RestApiClient):
     default_version = APIVersion.INTERNAL
 
+    def get(
+        self,
+        hostname: str,
+        site_id: str,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "get",
+            url=f"/monitor/hosts/{hostname}",
+            query_params={"site_id": site_id},
+            expect_ok=expect_ok,
+        )
+
     def list_all(
         self,
         limit: int,

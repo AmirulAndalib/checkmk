@@ -13,7 +13,7 @@ they will return. This allows us to pass stubs when testing our applications.
 from collections.abc import Sequence
 from typing import Protocol
 
-from ._models import Host, HostFilter, HostSort
+from ._models import Host, HostFilter, HostOverview, HostSort
 
 
 class HostRepository(Protocol):
@@ -26,6 +26,10 @@ class HostRepository(Protocol):
         filters: HostFilter,
     ) -> Sequence[Host]:
         """Fetch hosts based on filter criteria."""
+        ...
+
+    def get_overview(self, *, hostname: str, site_id: str) -> HostOverview:
+        """Get host overview by identifiers."""
         ...
 
     def count_total(self) -> int:

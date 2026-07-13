@@ -3,11 +3,16 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import time
+
 import pytest
+import time_machine
 
 from cmk.ccc.user import UserId
 from cmk.livestatus_client.testing import MockLiveStatusConnection
 from tests.testlib.rest_api_client import ClientRegistry
+
+_SITE_ID = "NO_SITE"
 
 # NOTE: we are a bit contrained on what we can do with the mock livestatus fixture. For instance the
 # stats table does not get updated when adding hosts. So, the limit and meta data counts will not
@@ -251,6 +256,176 @@ class TestMonitorHostsFilters:
         ]
 
 
+class TestMonitorHostOverviewAuth:
+    def test_invalid_credentials(self, clients: ClientRegistry) -> None:
+        client = clients.MonitorHosts
+        client.set_credentials("foouser", "barpassword")
+
+        resp = client.get(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 401
+        assert "credentials" in resp.json["detail"]
+
+    def test_insufficient_permissions(
+        self, clients: ClientRegistry, with_user: tuple[UserId, str]
+    ) -> None:
+        client = clients.MonitorHosts
+        client.set_credentials(*with_user)
+
+        resp = client.get(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 403
+        assert "permission" in resp.json["detail"]
+
+
+class TestMonitorHostOverviewQueryParamValidation:
+    def test_unknown_site_is_rejected(self, clients: ClientRegistry) -> None:
+        resp = clients.MonitorHosts.get(hostname="heute", site_id="no-such-site", expect_ok=False)
+        assert resp.status_code == 400
+
+
+class TestMonitorHostOverview:
+    @time_machine.travel("2026-07-13 11:39:00+00:00", tick=False)
+    def test_get_host_overview(
+        self,
+        clients: ClientRegistry,
+        mock_livestatus: MockLiveStatusConnection,
+    ) -> None:
+        mock_livestatus.add_table(
+            "hosts",
+            [
+                {
+                    "name": "heute",
+                    "alias": "Today",
+                    "address": "127.0.0.1",
+                    "state": 0,
+                    "num_services": 10,
+                    "num_services_ok": 10,
+                    "num_services_warn": 0,
+                    "num_services_crit": 0,
+                    "num_services_unknown": 0,
+                    "num_services_pending": 0,
+                    "acknowledged": 0,
+                    "scheduled_downtime_depth": 0,
+                    "last_check": time.time() - 30,
+                    "last_state_change": time.time(),
+                    "tags": {"criticality": "prod"},
+                    "labels": {"cmk/os_family": "linux"},
+                    "label_sources": {"cmk/os_family": "discovered"},
+                    "custom_variables": {"CUSTOMER": "customer1"},
+                    "contact_groups": ["all"],
+                    "filename": "/wato/network/switches/hosts.mk",
+                }
+            ],
+        )
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_OVERVIEW_COLUMNS}",
+                "Filter: name = heute",
+            ],
+            sites=[_SITE_ID],
+        )
+
+        with mock_livestatus(expect_status_query=True):
+            resp = clients.MonitorHosts.get(hostname="heute", site_id=_SITE_ID)
+
+        assert resp.json == {
+            "name": "heute",
+            "alias": "Today",
+            "address": "127.0.0.1",
+            "state": "UP",
+            "site_id": "NO_SITE",
+            "site_alias": "Local site NO_SITE",
+            "service_counts": {
+                "total": 10,
+                "ok": 10,
+                "warn": 0,
+                "crit": 0,
+                "unknown": 0,
+                "pending": 0,
+            },
+            "modes": [],
+            "last_check": "2026-07-13T11:38:30Z",
+            "last_state_change": "2026-07-13T11:39:00Z",
+            "customer": "customer1",
+            "folder": "/network/switches",
+            "contact_groups": ["all"],
+            "tags": {"criticality": "prod"},
+            "labels": {"cmk/os_family": {"value": "linux", "source": "discovered"}},
+            "legacy_host_status_link": "view.py?view_name=hoststatus&site=NO_SITE&host=heute",
+        }
+
+    @time_machine.travel("2026-07-13 11:39:00+00:00", tick=False)
+    def test_get_host_overview_no_customer(
+        self,
+        clients: ClientRegistry,
+        mock_livestatus: MockLiveStatusConnection,
+    ) -> None:
+        mock_livestatus.add_table(
+            "hosts",
+            [
+                {
+                    "name": "heute",
+                    "alias": "Today",
+                    "address": "127.0.0.1",
+                    "state": 0,
+                    "num_services": 0,
+                    "num_services_ok": 0,
+                    "num_services_warn": 0,
+                    "num_services_crit": 0,
+                    "num_services_unknown": 0,
+                    "num_services_pending": 0,
+                    "acknowledged": 0,
+                    "scheduled_downtime_depth": 0,
+                    "last_check": time.time(),
+                    "last_state_change": time.time(),
+                    "contact_groups": [],
+                    "tags": {},
+                    "labels": {},
+                    "label_sources": {},
+                    "custom_variables": {},
+                    "filename": "",
+                }
+            ],
+        )
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_OVERVIEW_COLUMNS}",
+                "Filter: name = heute",
+            ],
+            sites=[_SITE_ID],
+        )
+
+        with mock_livestatus(expect_status_query=True):
+            resp = clients.MonitorHosts.get(hostname="heute", site_id=_SITE_ID)
+
+        assert resp.json["customer"] is None
+
+    def test_get_host_overview_not_found(
+        self,
+        clients: ClientRegistry,
+        mock_livestatus: MockLiveStatusConnection,
+    ) -> None:
+        mock_livestatus.add_table("hosts", [])
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_OVERVIEW_COLUMNS}",
+                "Filter: name = no-such-host",
+            ],
+            sites=[_SITE_ID],
+        )
+
+        with mock_livestatus(expect_status_query=True):
+            resp = clients.MonitorHosts.get(
+                hostname="no-such-host", site_id=_SITE_ID, expect_ok=False
+            )
+
+        assert resp.status_code == 404
+
+
 class TestMonitorHostsReschedule:
     def test_reschedule_sends_forced_check_command(
         self,
@@ -338,3 +513,4 @@ _HOSTS = [
     },
 ]
 _HOST_TABLE_COLUMNS = "name alias address state num_services num_services_ok num_services_warn num_services_crit num_services_unknown num_services_pending acknowledged scheduled_downtime_depth"
+_HOST_OVERVIEW_COLUMNS = "name alias address state num_services num_services_ok num_services_warn num_services_crit num_services_unknown num_services_pending acknowledged scheduled_downtime_depth last_check last_state_change contact_groups tags labels label_sources custom_variables filename"

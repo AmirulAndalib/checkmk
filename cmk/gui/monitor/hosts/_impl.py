@@ -10,7 +10,9 @@ Our application should depend only interfaces as arguments, but receive a concre
 when instantiated.
 """
 
+import datetime as dt
 from collections.abc import Sequence
+from pathlib import PurePosixPath
 
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
@@ -23,7 +25,17 @@ from cmk.livestatus_client.expressions import NothingExpression, Or, QueryExpres
 from cmk.livestatus_client.queries import detailed_connection, Query
 from cmk.livestatus_client.tables import Hosts, Status
 
-from ._models import Host, HostFilter, HostSort, HostState, RescheduleTarget, ServiceCounts
+from ._exceptions import HostNotFoundError
+from ._models import (
+    Host,
+    HostFilter,
+    HostLabelValue,
+    HostOverview,
+    HostSort,
+    HostState,
+    RescheduleTarget,
+    ServiceCounts,
+)
 from ._sorting import host_sorter
 
 
@@ -88,6 +100,64 @@ class LiveStatusHostRepository:
                 key=host_sorter(sorters),
             )
 
+    def get_overview(self, *, hostname: str, site_id: str) -> HostOverview:
+        q = Query(
+            [
+                Hosts.name,
+                Hosts.alias,
+                Hosts.address,
+                Hosts.state,
+                Hosts.num_services,
+                Hosts.num_services_ok,
+                Hosts.num_services_warn,
+                Hosts.num_services_crit,
+                Hosts.num_services_unknown,
+                Hosts.num_services_pending,
+                Hosts.acknowledged,
+                Hosts.scheduled_downtime_depth,
+                Hosts.last_check,
+                Hosts.last_state_change,
+                Hosts.contact_groups,
+                Hosts.tags,
+                Hosts.labels,
+                Hosts.label_sources,
+                Hosts.custom_variables,
+                Hosts.filename,
+            ],
+            Hosts.name == hostname,
+        )
+        try:
+            row = q.fetchone(self._connection, True, only_site=SiteId(site_id))
+        except ValueError:
+            raise HostNotFoundError(f"Host {hostname!r} not found on site {site_id!r}") from None
+        return HostOverview(
+            name=row["name"],
+            alias=row["alias"],
+            address=row["address"],
+            state=HostState(row["state"]),
+            site_id=row["site"],
+            service_counts=ServiceCounts(
+                total=row["num_services"],
+                ok=row["num_services_ok"],
+                warn=row["num_services_warn"],
+                crit=row["num_services_crit"],
+                unknown=row["num_services_unknown"],
+                pending=row["num_services_pending"],
+            ),
+            acknowledged=bool(row["acknowledged"]),
+            in_downtime=row["scheduled_downtime_depth"] > 0,
+            last_check=dt.datetime.fromtimestamp(row["last_check"], tz=dt.UTC),
+            last_state_change=dt.datetime.fromtimestamp(row["last_state_change"], tz=dt.UTC),
+            customer=row["custom_variables"].get("CUSTOMER"),
+            folder=_wato_folder_from_filename(row["filename"]),
+            contact_groups=list(row["contact_groups"]),
+            tags=dict(row["tags"]),
+            labels={
+                key: HostLabelValue(value=value, source=row["label_sources"][key])
+                for key, value in row["labels"].items()
+            },
+        )
+
     def count_total(self) -> int:
         q = Query([Status.num_hosts])
         with detailed_connection(self._connection) as conn:
@@ -126,6 +196,15 @@ class LiveStatusHostActions:
                 ),
                 SiteId(target.site_id),
             )
+
+
+def _wato_folder_from_filename(filename: str) -> str | None:
+    path = PurePosixPath(filename)
+    if path.name != "hosts.mk" or path.parts[:2] != ("/", "wato"):
+        # Not managed via Setup, e.g. added directly to the monitoring core.
+        return None
+    folder = path.relative_to("/wato").parent
+    return "/" if folder == PurePosixPath(".") else f"/{folder}"
 
 
 def _sanitize_query(q: str) -> str:
