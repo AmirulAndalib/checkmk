@@ -4,13 +4,11 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from collections.abc import Sequence
 from typing import Annotated, Self
-from urllib.parse import urlencode
 
 from annotated_types import Interval
 from pydantic import PlainValidator
 
 from cmk.gui import sites
-from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.openapi.framework.api_config import APIVersion
 from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
@@ -35,6 +33,7 @@ from .._models import (
 from .._repositories import HostRepository
 from ._family import MONITOR_HOSTS_FAMILY
 from ._filters import FilterNode, parse_as_livestatus_filter
+from ._modes import build_host_modes, ModeInfo
 from ._validators import parse_host_search_query, parse_host_sort_options
 
 # NOTE: currently hardcoding these constraints. It's to be determined where these should come from,
@@ -44,18 +43,6 @@ _MAX_NUMBER_OF_HOSTS = 5_000
 _DEFAULT_LIMIT = 1_000
 
 _DEFAULT_SORT = (HostSort(column=HostSortColumn.NAME, direction=HostSortDirection.ASC),)
-
-
-@api_model
-class ModeInfo:
-    icon_name: str = api_field(description="Icon to render for this mode", example="downtime")
-    link: str = api_field(
-        description="URL the mode icon links to",
-        example="view.py?view_name=downtimes_of_host&host=web-server-01",
-    )
-    title: str = api_field(
-        description="Tooltip shown for the mode icon", example="In scheduled downtime"
-    )
 
 
 @api_model
@@ -100,35 +87,8 @@ class HostEntry:
             num_services_crit=host.service_counts.crit,
             num_services_unknown=host.service_counts.unknown,
             num_services_pending=host.service_counts.pending,
-            modes=_build_host_modes(host),
+            modes=build_host_modes(host),
         )
-
-
-def _host_view_link(view_name: str, host: Host) -> str:
-    return "view.py?" + urlencode(
-        [("view_name", view_name), ("site", host.site_id), ("host", host.name)]
-    )
-
-
-def _build_host_modes(host: Host) -> list[ModeInfo]:
-    modes: list[ModeInfo] = []
-    if host.in_downtime:
-        modes.append(
-            ModeInfo(
-                icon_name="downtime",
-                link=_host_view_link("downtimes_of_host", host),
-                title=_("In scheduled downtime"),
-            )
-        )
-    if host.acknowledged:
-        modes.append(
-            ModeInfo(
-                icon_name="ack",
-                link=_host_view_link("host", host),
-                title=_("Problem acknowledged"),
-            )
-        )
-    return modes
 
 
 @api_model
