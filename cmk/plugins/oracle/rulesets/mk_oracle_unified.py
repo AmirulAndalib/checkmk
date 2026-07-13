@@ -259,7 +259,7 @@ def _auth_options(is_default_options: bool = True) -> Dictionary:
             "asm_auth": DictElement(
                 required=False,
                 parameter_form=Dictionary(
-                    title=Title("ASM Authentication"),
+                    title=Title("ASM authentication"),
                     help_text=Help(
                         "Separate credentials for accessing ASM. If omitted, the main "
                         "authentication above is reused."
@@ -267,7 +267,7 @@ def _auth_options(is_default_options: bool = True) -> Dictionary:
                     elements={
                         "username": DictElement(
                             parameter_form=String(
-                                title=Title("ASM Username"),
+                                title=Title("ASM username"),
                                 custom_validate=(validators.LengthInRange(min_value=1),),
                             ),
                             required=True,
