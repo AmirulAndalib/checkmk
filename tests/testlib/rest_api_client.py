@@ -1332,6 +1332,13 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def get_pin(self, expect_ok: bool = True) -> Response:
+        return self.request(
+            "get",
+            url=f"/domain-types/{self.domain}/actions/get_pin/invoke",
+            expect_ok=expect_ok,
+        )
+
     def set_pin(self, pin_time: int | None, expect_ok: bool = True) -> Response:
         return self.request(
             "post",

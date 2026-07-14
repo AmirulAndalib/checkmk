@@ -10,5 +10,10 @@ from cmk.gui.logged_in import LoggedInUser
 GRAPH_PIN_USER_FILE: Final = "graph_pin"
 
 
+def load_graph_pin(user: LoggedInUser) -> int | None:
+    raw_pin_time = user.load_file(GRAPH_PIN_USER_FILE, None)
+    return None if raw_pin_time is None else int(raw_pin_time)
+
+
 def save_graph_pin(user: LoggedInUser, pin_time: int | None) -> None:
     user.save_file(GRAPH_PIN_USER_FILE, pin_time)
