@@ -3,8 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
 
+from cmk.agent_based.v2 import Metric, Result, Service, State
 from cmk.legacy_checks import azure_ad
 
 STRING_TABLE = [
@@ -18,11 +18,12 @@ STRING_TABLE = [
 
 def test_discover_ad_users() -> None:
     parsed = azure_ad.parse_azure_ad(STRING_TABLE)
-    assert list(azure_ad.discover_ad_users(parsed)) == [(None, {})]
+    assert list(azure_ad.discover_ad_users(parsed)) == [Service()]
 
 
 def test_check_azure_users() -> None:
     parsed = azure_ad.parse_azure_ad(STRING_TABLE)
-    assert list(azure_ad.check_azure_users(None, {}, parsed)) == [
-        (0, "User accounts: 2", [("count", 2, None, None)]),
+    assert list(azure_ad.check_azure_users(parsed)) == [
+        Result(state=State.OK, summary="User accounts: 2"),
+        Metric("count", 2.0),
     ]

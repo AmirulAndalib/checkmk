@@ -3,26 +3,35 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
-
-
-# mypy: disable-error-code="var-annotated"
-
 import contextlib
 import json
 import time
 from calendar import timegm
+from collections.abc import Mapping
+from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    render,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
 from cmk.plugins.azure.lib import AZURE_AGENT_SEPARATOR
 
-check_info = {}
+type Section = Mapping[str | None, Any]
 
 
-def parse_azure_ad(string_table):
-    parsed = {}
+def parse_azure_ad(string_table: StringTable) -> Section:
+    parsed: dict[str | None, Any] = {}
     for line in string_table:
         key = line[0]
         value = AZURE_AGENT_SEPARATOR.join(line[1:])
@@ -39,7 +48,7 @@ def parse_azure_ad(string_table):
     return parsed
 
 
-def _str_to_seconds(value):
+def _str_to_seconds(value: str) -> int | None:
     try:
         return timegm(time.strptime(value, "%Y-%m-%dT%H:%M:%SZ"))
     except (ValueError, TypeError):
@@ -59,17 +68,17 @@ def _str_to_seconds(value):
 #   '----------------------------------------------------------------------'
 
 
-def discover_ad_users(parsed):
-    if None in parsed:
-        yield None, {}
+def discover_ad_users(section: Section) -> DiscoveryResult:
+    if None in section:
+        yield Service()
 
 
-def check_azure_users(item, _no_params, parsed):
-    if not (data := parsed.get(item)):
+def check_azure_users(section: Section) -> CheckResult:
+    if not (data := section.get(None)):
         return
     count = data.get("count")
     if count is not None:
-        yield check_levels(
+        yield from check_levels(
             count,
             "count",
             None,
@@ -78,9 +87,14 @@ def check_azure_users(item, _no_params, parsed):
         )
 
 
-check_info["azure_ad"] = LegacyCheckDefinition(
+agent_section_azure_ad = AgentSection(
     name="azure_ad",
     parse_function=parse_azure_ad,
+)
+
+
+check_plugin_azure_ad = CheckPlugin(
+    name="azure_ad",
     service_name="AD Users",
     discovery_function=discover_ad_users,
     check_function=check_azure_users,
@@ -100,34 +114,34 @@ check_info["azure_ad"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def discover_sync(parsed):
+def discover_sync(section: Section) -> DiscoveryResult:
     # Only discover the service if the sync is enabled
     # There are two keys important for synchronization data
     # onPremisesSyncEnabled: if the sync is enabled at all
     # onPremisesLastSyncDateTime: the actual sync data
-    return [
-        (key, {})
-        for key, data in parsed.items()
+    yield from (
+        Service(item=key)
+        for key, data in section.items()
         if key is not None and data.get("onPremisesSyncEnabled") is not None
-    ]
+    )
 
 
-def check_azure_sync(item, params, parsed):
-    if not (data := parsed.get(item)):
+def check_azure_sync(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    if not (data := section.get(item)):
         return
     sync_enabled = data.get("onPremisesSyncEnabled")
     if sync_enabled is None:
-        yield 1, "Synchronization has been disabled"
+        yield Result(state=State.WARN, summary="Synchronization has been disabled")
         return
 
     sync_time = data.get("onPremisesLastSyncDateTime_parsed")
     if sync_time is None:
-        yield 1, "Has never been synchronized"
+        yield Result(state=State.WARN, summary="Has never been synchronized")
         return
 
     time_delta = time.time() - sync_time
 
-    yield check_levels(
+    yield from check_levels(
         time_delta,
         None,
         params.get("age"),
@@ -136,7 +150,7 @@ def check_azure_sync(item, params, parsed):
     )
 
 
-check_info["azure_ad.sync"] = LegacyCheckDefinition(
+check_plugin_azure_ad_sync = CheckPlugin(
     name="azure_ad_sync",
     service_name="AD Sync %s",
     sections=["azure_ad"],

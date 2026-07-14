@@ -4,18 +4,14 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 # mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
 
 import datetime
-from collections.abc import Iterable
 from typing import Any
 
 import pytest
 import time_machine
 
-from cmk.agent_based.legacy.v0_unstable import _DiscoveredParameters
-from cmk.agent_based.v2 import StringTable
+from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.legacy_checks import azure_ad
 
 STRING_TABLE = [
@@ -43,7 +39,7 @@ STRING_TABLE_SYNC_NULL = [
 ]
 
 
-def test_parse_azure_ad_sync():
+def test_parse_azure_ad_sync() -> None:
     parsed = azure_ad.parse_azure_ad(STRING_TABLE)
     assert parsed["Standardverzeichnis"]["onPremisesLastSyncDateTime"] == "1970-02-01T00:15:01Z"
     assert parsed["Standardverzeichnis"]["onPremisesLastSyncDateTime_parsed"] == 2679301
@@ -52,31 +48,29 @@ def test_parse_azure_ad_sync():
 @pytest.mark.parametrize(
     "string_table, expected",
     [
-        pytest.param(STRING_TABLE, [("Standardverzeichnis", {})]),
+        pytest.param(STRING_TABLE, [Service(item="Standardverzeichnis")]),
         pytest.param(STRING_TABLE_SYNC_NULL, []),
         # Is it intentional that this isn't []?
-        pytest.param(STRING_TABLE_SYNC_FALSE, [("Standardverzeichnis", {})]),
+        pytest.param(STRING_TABLE_SYNC_FALSE, [Service(item="Standardverzeichnis")]),
     ],
 )
-def test_discover_sync(
-    string_table: StringTable, expected: Iterable[tuple[str | None, _DiscoveredParameters]]
-) -> None:
+def test_discover_sync(string_table: StringTable, expected: list[Service]) -> None:
     parsed_string_table = azure_ad.parse_azure_ad(string_table)
-    assert azure_ad.discover_sync(parsed_string_table) == expected
+    assert list(azure_ad.discover_sync(parsed_string_table)) == expected
 
 
 @pytest.mark.parametrize(
-    "params, expected_status, expected_message",
+    "params, expected_state, expected_summary",
     [
         pytest.param(
             {"age": (3600, 7200)},
-            2,
+            State.CRIT,
             "Time since last synchronization: 2 hours 45 minutes (warn/crit at 1 hour 0 minutes/2 hours 0 minutes)",
             id="default params",
         ),
         pytest.param(
             {"age": (None, None)},
-            0,
+            State.OK,
             "Time since last synchronization: 2 hours 45 minutes",
             id="levels disabled",
         ),
@@ -84,9 +78,9 @@ def test_discover_sync(
 )
 @time_machine.travel(datetime.datetime.fromisoformat("1970-02-01 03:00:01"))
 def test_check_azure_sync(
-    params: dict[str, Any], expected_status: int, expected_message: str
+    params: dict[str, Any], expected_state: State, expected_summary: str
 ) -> None:
     parsed = azure_ad.parse_azure_ad(STRING_TABLE)
     assert list(azure_ad.check_azure_sync("Standardverzeichnis", params, parsed)) == [
-        (expected_status, expected_message, []),
+        Result(state=expected_state, summary=expected_summary),
     ]
