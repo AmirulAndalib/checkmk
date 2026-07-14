@@ -4,11 +4,18 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import userEvent from '@testing-library/user-event'
-import { render, screen } from '@testing-library/vue'
+import { render, screen, waitFor } from '@testing-library/vue'
 
 import type { TranslatedString } from '@/lib/i18nString'
 
 import ActionsCell, { type CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'
+
+beforeAll(() => {
+  // reka-ui's menu interactions rely on pointer-capture APIs that jsdom does not implement.
+  window.HTMLElement.prototype.hasPointerCapture = () => false
+  window.HTMLElement.prototype.setPointerCapture = () => {}
+  window.HTMLElement.prototype.releasePointerCapture = () => {}
+})
 
 const ACTIONS: CellAction[] = [
   { id: 'reschedule', label: 'Reschedule check' as TranslatedString, icon: 'reload' },
@@ -16,7 +23,21 @@ const ACTIONS: CellAction[] = [
   { id: 'downtime', label: 'Schedule downtime' as TranslatedString, icon: 'downtime' }
 ]
 
-function mountCell(props: { actions: CellAction[]; maxVisible?: number }) {
+const LOADED: CellAction[] = [
+  {
+    id: 'inventory',
+    label: 'Show HW/SW inventory tree' as TranslatedString,
+    icon: 'inventory',
+    url: 'view.py?view_name=inv_host&host=web-server-01'
+  },
+  { id: 'reschedule-cmd', label: 'Reschedule active checks' as TranslatedString, icon: 'reload' }
+]
+
+function mountCell(props: {
+  actions: CellAction[]
+  maxVisible?: number
+  load?: () => Promise<CellAction[]>
+}) {
   return render(ActionsCell, { props })
 }
 
@@ -59,4 +80,79 @@ test('does not emit select for a disabled action', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Reschedule check' }))
 
   expect(emitted('select')).toBeUndefined()
+})
+
+test('renders an inline action with a url as a native link', () => {
+  mountCell({
+    actions: [
+      {
+        id: 'edit',
+        label: 'Edit host' as TranslatedString,
+        icon: 'edit',
+        url: 'wato.py?mode=edit_host&host=web-server-01'
+      }
+    ],
+    maxVisible: 2
+  })
+
+  expect(screen.getByRole('link', { name: 'Edit host' })).toHaveAttribute(
+    'href',
+    'wato.py?mode=edit_host&host=web-server-01'
+  )
+})
+
+test('shows the menu trigger when only a lazy loader is provided', () => {
+  const load = vi.fn(async () => LOADED)
+  mountCell({ actions: [], load })
+
+  expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument()
+  expect(load).not.toHaveBeenCalled()
+})
+
+test('lazily loads overflow entries on open, rendering links as anchors and commands as buttons', async () => {
+  const load = vi.fn(async () => LOADED)
+  const { emitted } = mountCell({ actions: [], load })
+
+  await userEvent.click(screen.getByRole('button', { name: 'More actions' }))
+
+  const inventory = await screen.findByRole('menuitem', { name: /Show HW\/SW inventory tree/ })
+  expect(inventory).toHaveAttribute('href', 'view.py?view_name=inv_host&host=web-server-01')
+  expect(load).toHaveBeenCalledTimes(1)
+
+  await userEvent.click(screen.getByRole('menuitem', { name: /Reschedule active checks/ }))
+  expect(emitted('select')![0]).toEqual([LOADED[1]])
+})
+
+test('shows an empty state when the loader returns nothing', async () => {
+  mountCell({ actions: [], load: async () => [] })
+
+  await userEvent.click(screen.getByRole('button', { name: 'More actions' }))
+
+  expect(await screen.findByText('No actions available')).toBeInTheDocument()
+})
+
+test('shows an error state when loading fails', async () => {
+  mountCell({
+    actions: [],
+    load: async () => {
+      throw new Error('boom')
+    }
+  })
+
+  await userEvent.click(screen.getByRole('button', { name: 'More actions' }))
+
+  expect(await screen.findByText('Could not load actions.')).toBeInTheDocument()
+})
+
+test('refetches the loader every time the menu is opened', async () => {
+  const load = vi.fn(async () => LOADED)
+  mountCell({ actions: [], load })
+
+  const trigger = screen.getByRole('button', { name: 'More actions' })
+  await userEvent.click(trigger)
+  await screen.findByRole('menuitem', { name: /Show HW\/SW inventory tree/ })
+  await userEvent.keyboard('{Escape}')
+  await userEvent.click(trigger)
+
+  await waitFor(() => expect(load).toHaveBeenCalledTimes(2))
 })

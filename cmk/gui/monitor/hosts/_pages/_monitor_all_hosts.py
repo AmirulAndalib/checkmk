@@ -61,15 +61,6 @@ def _row_actions(config: Config) -> list[RowAction]:
                 url="wato.py?mode=object_parameters&host={host}",
             )
         )
-    if user.may("wato.download_agent_output"):
-        actions.append(
-            RowAction(
-                ident="download_agent_output",
-                title=_("Download agent output"),
-                icon="download",
-                url="fetch_agent_output.py?host={host}&type=agent&_start=1",
-            )
-        )
     return actions
 
 

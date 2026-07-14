@@ -9,18 +9,29 @@ import type { TranslatedString } from '@/lib/i18nString'
 import ActionsCell, { type CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'
 
 const actions: CellAction[] = [
-  { id: 'reschedule', label: 'Reschedule check' as TranslatedString, icon: 'reload' },
   { id: 'acknowledge', label: 'Acknowledge' as TranslatedString, icon: 'acknowledge-test' },
-  { id: 'downtime', label: 'Schedule downtime' as TranslatedString, icon: 'downtime' },
-  { id: 'comment', label: 'Add comment' as TranslatedString, icon: 'comment' }
+  { id: 'downtime', label: 'Schedule downtime' as TranslatedString, icon: 'downtime' }
 ]
+
+// Lazily fetched when the dropdown opens: links (url) render as anchors, url-less ones emit select.
+async function loadMenu(): Promise<CellAction[]> {
+  return [
+    {
+      id: 'download',
+      label: 'Download agent output' as TranslatedString,
+      icon: 'download',
+      url: 'fetch_agent_output.py?host=demo&type=agent&_start=1'
+    },
+    { id: 'reschedule', label: 'Reschedule active checks' as TranslatedString, icon: 'reload' }
+  ]
+}
 </script>
 
 <template>
   <table>
     <tbody>
       <tr>
-        <ActionsCell :actions="actions" :max-visible="2" @select="() => {}" />
+        <ActionsCell :actions="actions" :max-visible="2" :load="loadMenu" @select="() => {}" />
       </tr>
     </tbody>
   </table>

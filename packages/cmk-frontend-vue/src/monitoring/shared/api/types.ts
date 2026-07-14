@@ -13,6 +13,8 @@ export type HostEntry = components['schemas']['HostEntry']
 
 export type HostMode = components['schemas']['ModeInfo']
 
+export type ActionMenuItem = components['schemas']['ActionMenuItem']
+
 export interface HostRef {
   site_id: string
   name: string

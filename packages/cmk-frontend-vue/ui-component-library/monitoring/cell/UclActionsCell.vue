@@ -20,6 +20,12 @@ export const panelConfig = {
     title: 'actions',
     initialState: 4,
     help: 'Number of actions provided to the cell (capped at the demo set).'
+  },
+  lazyMenu: {
+    type: 'boolean' as const,
+    title: 'lazy menu',
+    initialState: true,
+    help: 'Append overflow entries fetched lazily when the menu opens. Entries with a url render as links; url-less ones emit "select".'
   }
 } satisfies PanelConfig
 </script>
@@ -65,6 +71,30 @@ const actions = computed<CellAction[]>(() =>
   ALL_ACTIONS.slice(0, Math.max(0, Math.min(propState.value.actionCount, ALL_ACTIONS.length)))
 )
 
+// Lazily-loaded overflow entries: two links (rendered as anchors) and one command (url-less, emits
+// "select"). Fetched when the menu opens.
+const LAZY_ACTIONS: CellAction[] = [
+  {
+    id: 'download',
+    label: 'Download agent output' as TranslatedString,
+    icon: 'download',
+    url: 'fetch_agent_output.py?host=demo&type=agent&_start=1'
+  },
+  {
+    id: 'notes',
+    label: 'Notes' as TranslatedString,
+    icon: 'comment',
+    url: 'https://example.org/notes',
+    target: '_blank'
+  },
+  { id: 'reschedule-cmd', label: 'Reschedule active checks' as TranslatedString, icon: 'reload' }
+]
+
+async function loadMenu(): Promise<CellAction[]> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 400))
+  return LAZY_ACTIONS
+}
+
 const lastSelected = ref<string | null>(null)
 
 function onSelect(action: CellAction): void {
@@ -107,6 +137,7 @@ const columns = computed<ColumnDef<DemoRow>[]>(() => [
                 column-id="cell"
                 :actions="actions"
                 :max-visible="propState.maxVisible"
+                :load="propState.lazyMenu ? loadMenu : undefined"
                 @select="onSelect"
               />
             </template>
@@ -116,8 +147,12 @@ const columns = computed<ColumnDef<DemoRow>[]>(() => [
         <p class="ucl-actions-cell__hint">
           The first <code>{{ propState.maxVisible }}</code> action(s) render as icon buttons; the
           remaining {{ Math.max(0, actions.length - propState.maxVisible) }} appear in the
-          <code>show more</code> dropdown. Last selected action:
-          <strong>{{ lastSelected ?? '—' }}</strong>
+          <code>show more</code> dropdown.
+          <template v-if="propState.lazyMenu">
+            With <code>load</code> set, opening the dropdown lazily appends further entries — links
+            (url) open directly, url-less ones emit <code>select</code>.
+          </template>
+          Last selected action: <strong>{{ lastSelected ?? '—' }}</strong>
         </p>
       </div>
 

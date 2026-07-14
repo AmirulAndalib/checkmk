@@ -56,6 +56,7 @@ import {
 } from '../shared/components/action/actions/scheduleDowntime'
 import { createActionRegistry } from '../shared/components/action/registry'
 import { useMonitoringActions } from '../shared/services/useMonitoringActions'
+import { HostActionMenuApi } from './api/actionMenu'
 import { HostApi } from './api/hosts'
 import HostRow from './components/HostRow.vue'
 import HostOverviewTab from './components/slide-in/HostOverviewTab.vue'
@@ -78,13 +79,48 @@ const hostActions: CellAction[] = (props.actions ?? []).map((action) => ({
   icon: ACTION_ICONS[action.ident] ?? 'action'
 }))
 
-const rowActions: CellAction[] = (props.row_actions ?? []).map((action) => ({
+// Always-visible inline buttons (edit host, parameters). Their url keeps the {host} placeholder,
+// resolved per row in HostRow.
+const rowActionButtons: CellAction[] = (props.row_actions ?? []).map((action) => ({
   id: action.ident,
   label: action.title as TranslatedString,
-  icon: action.icon as SimpleIcons
+  icon: action.icon as SimpleIcons,
+  url: action.url
 }))
 
-const rowActionUrls = new Map((props.row_actions ?? []).map((action) => [action.ident, action.url]))
+// Command entries the row dropdown runs immediately with their default values (no form), acting on
+// that single host to mirror the legacy per-row action menu. Only list actions that are safe
+// without user input — form-based ones (acknowledge, downtime) carry essential per-host input and
+// must go through the action pane, not here. They carry no url, so ActionsCell emits `select`.
+const IMMEDIATE_ROW_COMMAND_IDS: readonly string[] = [RESCHEDULE_ACTION_ID]
+
+const rowCommands: CellAction[] = (props.actions ?? [])
+  .filter((action) => IMMEDIATE_ROW_COMMAND_IDS.includes(action.ident))
+  .map((action) => ({
+    id: action.ident,
+    label: action.title as TranslatedString,
+    icon: ACTION_ICONS[action.ident] ?? 'action'
+  }))
+
+const hasRowActions = rowActionButtons.length > 0 || rowCommands.length > 0
+
+const actionMenuApi = new HostActionMenuApi()
+
+// Overflow-menu entries for a host: the immediate commands (reschedule) followed by the fetched
+// legacy action-menu links (inventory, notes, topology, download, ...).
+async function loadActionMenu(host: HostRef): Promise<CellAction[]> {
+  const items = await actionMenuApi.fetchActionMenu(host)
+  return [
+    ...rowCommands,
+    ...items.map((item) => ({
+      id: `${item.title}|${item.url}`,
+      label: item.title as TranslatedString,
+      icon: item.icon_name as SimpleIcons,
+      url: item.url,
+      target: item.target
+    }))
+  ]
+}
 
 const stateFilter: CheckboxListFilter<'state'> = {
   type: 'checkbox-list',
@@ -255,11 +291,11 @@ const columns: ColumnDef<HostEntry>[] = [
     minSize: 64,
     maxSize: 90
   },
-  ...(rowActions.length > 0
+  ...(hasRowActions
     ? [
         {
           id: 'actions',
-          header: 'Actions',
+          header: _t('Actions'),
           enableSorting: false,
           minSize: 96,
           maxSize: 120,
@@ -271,7 +307,7 @@ const columns: ColumnDef<HostEntry>[] = [
 
 const columnPinning: ColumnPinningState = {
   left: ['select', 'state', 'modes', 'name'],
-  ...(rowActions.length > 0 ? { right: ['actions'] } : {})
+  ...(hasRowActions ? { right: ['actions'] } : {})
 }
 
 const hostService = new HostService(new HostApi(), getKeyShortcutServiceInstance(), {
@@ -336,13 +372,6 @@ function rowKey(row: HostEntry): string {
   return `${row.site_id}/${row.name}`
 }
 
-function onHostAction(payload: { action: CellAction; host: HostEntry }): void {
-  const urlTemplate = rowActionUrls.get(payload.action.id)
-  if (urlTemplate) {
-    window.location.href = urlTemplate.replace('{host}', encodeURIComponent(payload.host.name))
-  }
-}
-
 const slideInHost = ref<HostEntry | null>(null)
 const slideInOpen = computed(() => slideInHost.value !== null)
 
@@ -375,6 +404,16 @@ function onBulkAction(action: CellAction): void {
     return
   }
   openAction(action.id)
+}
+
+async function onRowCommand(payload: { id: string; host: HostRef }): Promise<void> {
+  const action = actionRegistry[payload.id]
+  if (!action) {
+    return
+  }
+  applyFeedback(await action.perform([payload.host], action.defaultValues()), {
+    clearSelection: false
+  })
 }
 
 function onRightPaneCollapse(collapsed: boolean): void {
@@ -483,9 +522,10 @@ function navigateToLegacy() {
               <HostRow
                 :row="row"
                 :table-row="tableRow"
-                :actions="rowActions"
-                @action="onHostAction"
+                :row-actions="rowActionButtons"
+                :load-action-menu="loadActionMenu"
                 @open="openSlideIn"
+                @command="onRowCommand"
               />
             </template>
             <template #empty-state>
