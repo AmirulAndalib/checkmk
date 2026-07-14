@@ -76,7 +76,7 @@ const ariaLabel = computed<string>(() =>
 .cmk-state-count-bar__bar {
   display: flex;
   width: 100%;
-  height: var(--dimension-x);
+  height: var(--dimension-7);
   overflow: hidden;
   border-radius: var(--border-radius);
 }

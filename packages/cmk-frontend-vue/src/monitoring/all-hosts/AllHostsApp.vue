@@ -391,14 +391,14 @@ const slideInTabs = computed<SlideInTab[]>(() => {
   if (!host) {
     return []
   }
-  const hostRef: HostRef = { site_id: host.site_id, name: host.name }
   return [
     {
       id: 'overview',
       title: _t('Overview'),
       component: markRaw(HostOverviewTab),
       skeleton: markRaw(HostOverviewSkeleton),
-      load: () => hostApi.fetchHostOverview(hostRef)
+      load: () => hostApi.fetchHostOverview({ site_id: host.site_id, name: host.name }),
+      props: { host }
     }
   ]
 })

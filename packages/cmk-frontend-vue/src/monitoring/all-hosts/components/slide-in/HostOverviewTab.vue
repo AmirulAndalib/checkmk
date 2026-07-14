@@ -9,17 +9,29 @@ import { computed } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkLink from '@/components/CmkLink.vue'
+import CmkStateCountBar, { type StateSegment } from '@/components/CmkStateCountBar.vue'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
-import type { HostOverview } from '@/monitoring/shared/api/types'
+import type { HostEntry, HostOverview } from '@/monitoring/shared/api/types'
 
 import HostOverviewChips from './HostOverviewChips.vue'
 import HostOverviewLabels from './HostOverviewLabels.vue'
 
-const props = defineProps<{ data: HostOverview }>()
+// `host` carries the synchronously available list-row data (including the
+// service counts); `data` is the detailed overview fetched by the slide-in
+// framework and handed in via the `data` prop once its `load` promise settled.
+const props = defineProps<{ host: HostEntry; data: HostOverview }>()
 
 const { _t } = usei18n()
+
+const serviceSegments = computed<StateSegment[]>(() => [
+  { label: _t('OK'), count: props.host.num_services_ok, color: 'success' },
+  { label: _t('WARN'), count: props.host.num_services_warn, color: 'warning' },
+  { label: _t('CRIT'), count: props.host.num_services_crit, color: 'danger' },
+  { label: _t('UNKNOWN'), count: props.host.num_services_unknown, color: 'unknown' },
+  { label: _t('PENDING'), count: props.host.num_services_pending, color: 'default' }
+])
 
 const tagChips = computed(() =>
   Object.entries(props.data.tags).map(([group, tag]) => `${group}: ${tag}`)
@@ -58,6 +70,11 @@ function formatTimestamp(iso: string): string {
         {{ _t('Show full host status') }}
       </CmkLink>
     </div>
+
+    <section class="monitoring-host-overview-tab__section">
+      <CmkHeading type="h3">{{ _t('Service summary') }}</CmkHeading>
+      <CmkStateCountBar :segments="serviceSegments" />
+    </section>
 
     <dl class="monitoring-host-overview-tab__grid">
       <dt>{{ _t('Host name') }}</dt>
@@ -153,6 +170,7 @@ function formatTimestamp(iso: string): string {
   margin: 0;
 }
 
+.monitoring-host-overview-tab__section,
 .monitoring-host-overview-tab__relations {
   display: flex;
   flex-direction: column;
