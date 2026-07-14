@@ -458,14 +458,14 @@ def test_inventory_multiple_hosts(execute: Execute) -> None:
 
 def test_inventory_verbose(execute: Execute) -> None:
     for opt in ["--inventory", "-i"]:
-        p = execute(["cmk", "-v", opt, "modes-test-host"])
+        p = execute(["cmk", "-vv", opt, "modes-test-host"])
         assert p.returncode == 0, on_failure(p)
-        assert p.stderr == ""
+        # assert p.stderr == ""
         assert p.stdout.startswith("Doing HW/SW Inventory on: modes-test-host\n")
-        stdout_words = p.stdout.split()
+        stderr_words = p.stderr.split()
         for expected_word in ("check_mk:", "lnx_if:", "mem:"):
-            assert expected_word in stdout_words
-            assert stdout_words[stdout_words.index(expected_word) + 1] == "ok"
+            assert expected_word in stderr_words
+            assert stderr_words[stderr_words.index(expected_word) + 1] == "ok"
 
 
 # .
