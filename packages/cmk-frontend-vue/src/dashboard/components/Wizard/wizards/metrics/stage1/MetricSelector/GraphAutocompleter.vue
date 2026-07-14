@@ -9,6 +9,8 @@ import { computed, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import type { ConfiguredFilters } from '@/components/filter'
+
 import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
 import { useLabelValueAutocomplete } from '@/dashboard/components/Wizard/components/autocompleters/useLabelValueAutocomplete'
@@ -20,32 +22,45 @@ const { _t } = usei18n()
 interface GraphAutocompleterProps {
   hostSelectionMode: ElementSelection
   serviceSelectionMode: ElementSelection
+  context: ConfiguredFilters
 }
 
 const props = defineProps<GraphAutocompleterProps>()
 const metrics = defineModel<LabelValueItem | null>('combinedMetrics', { required: true })
 
-const combinedMetricsAutocompleter = computed(() => {
-  const autocompleterId =
+const combinedMetricsAutocompleter = computed<Autocompleter>(() => {
+  // A single, specific host/service resolves to exactly one object, so its own graph templates are
+  // offered. Any broader selection is a combined graph: match the templates against the objects the
+  // configured filters select (an empty context falls back to all templates on the server side).
+  if (
     props.hostSelectionMode === ElementSelection.SPECIFIC &&
     props.serviceSelectionMode === ElementSelection.SPECIFIC
-      ? 'available_graph_templates'
-      : 'graph_template_for_combined_graph'
-
-  const autocompleter: Autocompleter = {
-    fetch_method: 'rest_autocomplete',
-    data: {
-      ident: autocompleterId,
-      params: {
-        show_independent_of_context: true,
-        escape_regex: false,
-        strict: true,
-        context: {}
+  ) {
+    return {
+      fetch_method: 'rest_autocomplete',
+      data: {
+        ident: 'available_graph_templates',
+        params: {
+          show_independent_of_context: true,
+          escape_regex: false,
+          strict: true,
+          context: {}
+        }
       }
     }
   }
 
-  return autocompleter
+  return {
+    fetch_method: 'rest_autocomplete',
+    data: {
+      ident: 'combined_graphs',
+      params: {
+        strict: true,
+        datasource: 'services',
+        context: props.context
+      }
+    }
+  }
 })
 
 const { internalValue } = useLabelValueAutocomplete(metrics, combinedMetricsAutocompleter)

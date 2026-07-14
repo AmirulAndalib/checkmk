@@ -155,6 +155,7 @@ if (!availableMetricTypes.value.includes(metricType.value)) {
       :available-metric-types="availableMetricTypes"
       :host-selection-mode="hostFilterType"
       :service-selection-mode="serviceFilterType"
+      :context="widgetConfiguredFilters"
     />
   </SectionBlock>
 

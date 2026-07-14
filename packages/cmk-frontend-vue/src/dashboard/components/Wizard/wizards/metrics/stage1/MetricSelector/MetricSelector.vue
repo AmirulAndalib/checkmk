@@ -12,6 +12,7 @@ import CmkHelpText from '@/components/CmkHelpText.vue'
 import CmkIndent from '@/components/CmkIndent.vue'
 import CmkLabel from '@/components/CmkLabel.vue'
 import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
+import type { ConfiguredFilters } from '@/components/filter'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
@@ -30,6 +31,7 @@ const { _t } = usei18n()
 interface MetricSelectorProps {
   hostSelectionMode: ElementSelection
   serviceSelectionMode: ElementSelection
+  context: ConfiguredFilters
   availableMetricTypes?: MetricSelection[]
 }
 
@@ -164,6 +166,7 @@ const _updateMetricType = (value: string) => {
             v-model:combined-metrics="handler.metric.value"
             :host-selection-mode="hostSelectionMode"
             :service-selection-mode="serviceSelectionMode"
+            :context="context"
             width="fill"
           />
           <div v-if="handler.metricValidationError.value">
