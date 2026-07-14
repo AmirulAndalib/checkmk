@@ -24,7 +24,7 @@ interface TestItem {
 
 class TestService extends MonitoringService<TestItem> {
   constructor(
-    public readonly fetchBatchMock: () => Promise<PagedResponse<TestItem>>,
+    public readonly fetchBatchMock: (signal: AbortSignal) => Promise<PagedResponse<TestItem>>,
     options: MonitoringServiceOptions<TestItem> = {},
     shortCutService: KeyShortcutService = makeKeyShortcutService(),
     serviceId: string = 'test-service'
@@ -32,8 +32,8 @@ class TestService extends MonitoringService<TestItem> {
     super(serviceId, shortCutService, options)
   }
 
-  protected fetchBatch(): Promise<PagedResponse<TestItem>> {
-    return this.fetchBatchMock()
+  protected fetchBatch(signal: AbortSignal): Promise<PagedResponse<TestItem>> {
+    return this.fetchBatchMock(signal)
   }
 }
 
@@ -204,6 +204,89 @@ describe('MonitoringService', () => {
     expect(service.items.value).toEqual([{ id: 'b', value: 2 }])
 
     service.stopPolling()
+  })
+
+  it('aborts an in-flight fetch when a new foreground fetch is triggered', async () => {
+    const signals: AbortSignal[] = []
+    const fetchBatch = vi
+      .fn()
+      .mockImplementationOnce((signal: AbortSignal) => {
+        signals.push(signal)
+        return new Promise<PagedResponse<TestItem>>(() => {})
+      })
+      .mockImplementationOnce((signal: AbortSignal) => {
+        signals.push(signal)
+        return makeResponse([{ id: 'b', value: 2 }], 1, 10)
+      })
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+    expect(signals[0]!.aborted).toBe(false)
+
+    service.updateSearch('db')
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(signals[0]!.aborted).toBe(true)
+    expect(fetchBatch).toHaveBeenCalledTimes(2)
+    expect(service.items.value).toEqual([{ id: 'b', value: 2 }])
+    expect(service.fetchState.value).toBe('idle')
+
+    service.stopPolling()
+  })
+
+  it('ignores the result of an aborted fetch and keeps the newer one', async () => {
+    let resolveFirst: (value: PagedResponse<TestItem>) => void = () => {}
+    const fetchBatch = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise<PagedResponse<TestItem>>((resolve) => {
+            resolveFirst = resolve
+          })
+      )
+      .mockImplementationOnce(() => makeResponse([{ id: 'new', value: 2 }], 1, 10))
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    service.updateSearch('db')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(service.items.value).toEqual([{ id: 'new', value: 2 }])
+
+    resolveFirst(makeResponse([{ id: 'stale', value: 1 }], 9, 9))
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(service.items.value).toEqual([{ id: 'new', value: 2 }])
+    expect(service.fetchState.value).toBe('idle')
+
+    service.stopPolling()
+  })
+
+  it('swallows an aborted fetch rejection without logging an error', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const fetchBatch = vi
+      .fn()
+      .mockImplementationOnce(
+        (signal: AbortSignal) =>
+          new Promise<PagedResponse<TestItem>>((_resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(new DOMException('Aborted', 'AbortError'))
+            })
+          })
+      )
+      .mockImplementationOnce(() => makeResponse([{ id: 'b', value: 2 }], 1, 10))
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    service.updateSearch('db')
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(service.items.value).toEqual([{ id: 'b', value: 2 }])
+    expect(service.fetchState.value).toBe('idle')
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+    service.stopPolling()
+    consoleErrorSpy.mockRestore()
   })
 
   it('returns to idle and logs when fetchBatch rejects', async () => {

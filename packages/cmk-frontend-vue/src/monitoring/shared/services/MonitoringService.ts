@@ -82,6 +82,7 @@ export abstract class MonitoringService<T> extends ServiceBase {
   private initialFetchTimer: ReturnType<typeof setTimeout> | null = null
   private tickTimer: ReturnType<typeof setInterval> | null = null
   private stopFilterWatch: WatchStopHandle | null = null
+  private currentAbort: AbortController | null = null
 
   constructor(
     serviceId: string,
@@ -134,7 +135,7 @@ export abstract class MonitoringService<T> extends ServiceBase {
     this.autoPauseCount.value = Math.max(0, this.autoPauseCount.value - 1)
   }
 
-  protected abstract fetchBatch(): Promise<PagedResponse<T>>
+  protected abstract fetchBatch(signal: AbortSignal): Promise<PagedResponse<T>>
 
   onFocusSearch(callback: () => void): void {
     this.pushCallBack('focus-search', callback)
@@ -199,6 +200,10 @@ export abstract class MonitoringService<T> extends ServiceBase {
       clearInterval(this.tickTimer)
       this.tickTimer = null
     }
+    if (this.currentAbort !== null) {
+      this.currentAbort.abort()
+      this.currentAbort = null
+    }
   }
 
   destruct(): void {
@@ -208,23 +213,36 @@ export abstract class MonitoringService<T> extends ServiceBase {
   }
 
   private async fetch(kind: FetchKind = 'foreground'): Promise<void> {
-    if (this.fetchState.value !== 'idle') {
+    if (kind === 'background' && this.fetchState.value !== 'idle') {
       return
     }
+    this.currentAbort?.abort()
+    const abort = new AbortController()
+    this.currentAbort = abort
+
     this.secondsRemaining.value = this.pollIntervalSeconds
     this.fetchState.value = kind
     const searchQueryForFetch = this.searchQuery.value
     try {
-      const response = await this.fetchBatch()
+      const response = await this.fetchBatch(abort.signal)
+      if (this.currentAbort !== abort) {
+        return
+      }
       this.items.value = response.items
       this.matched.value = response.meta.matched
       this.total.value = response.meta.total
       this.committedSearchQuery.value = searchQueryForFetch
     } catch (error: unknown) {
+      if (this.currentAbort !== abort) {
+        return
+      }
       console.error('MonitoringService: fetchBatch failed', error)
     } finally {
-      this.fetchState.value = 'idle'
-      this.hasLoaded.value = true
+      if (this.currentAbort === abort) {
+        this.currentAbort = null
+        this.fetchState.value = 'idle'
+        this.hasLoaded.value = true
+      }
     }
   }
 }

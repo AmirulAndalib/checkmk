@@ -67,10 +67,13 @@ describe('HostService', () => {
     service.updateSort([{ id: 'name', desc: false }])
     await vi.advanceTimersByTimeAsync(0)
 
-    expect(fetchHosts).toHaveBeenLastCalledWith({
-      sort: [{ id: 'name', desc: false }],
-      searchQuery: ''
-    })
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      {
+        sort: [{ id: 'name', desc: false }],
+        searchQuery: ''
+      },
+      expect.any(AbortSignal)
+    )
   })
 
   it('passes the search query to api.fetchHosts after updateSearch is called', async () => {
@@ -82,6 +85,9 @@ describe('HostService', () => {
     service.updateSearch('web01')
     await vi.advanceTimersByTimeAsync(0)
 
-    expect(fetchHosts).toHaveBeenLastCalledWith({ sort: [], searchQuery: 'web01' })
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      { sort: [], searchQuery: 'web01' },
+      expect.any(AbortSignal)
+    )
   })
 })

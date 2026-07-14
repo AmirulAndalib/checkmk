@@ -24,7 +24,10 @@ export interface HostQueryParams {
 }
 
 export class HostApi {
-  public async fetchHosts(params: HostQueryParams = {}): Promise<HostsResponse> {
+  public async fetchHosts(
+    params: HostQueryParams = {},
+    signal?: AbortSignal
+  ): Promise<HostsResponse> {
     const sort = (params.sort ?? []).map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
     const searchQuery = params.searchQuery?.trim()
     const body: HostsRequestBody = {
@@ -36,7 +39,8 @@ export class HostApi {
     return unwrap(
       await client.POST('/monitor/hosts', {
         params: { header: { 'Content-Type': 'application/json' } },
-        body
+        body,
+        ...(signal && { signal })
       })
     )
   }
