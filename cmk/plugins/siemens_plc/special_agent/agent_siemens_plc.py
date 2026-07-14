@@ -25,7 +25,7 @@ import snap7
 from snap7.type import Areas
 
 # prevent snap7 logger to log errors directly to console
-snap7.common.logger.setLevel(logging.CRITICAL + 10)
+logging.getLogger("snap7").setLevel(logging.CRITICAL + 10)
 
 DATATYPES = {
     # type-name   size(bytes) parse-function
