@@ -99,7 +99,7 @@ def _evaluate_value(
     evaluated = quantity.evaluate(
         EvaluationContext(fetched=_fetched(metric_data, {}), time_range=_TR)
     )
-    return None if evaluated is None else evaluated.value
+    return evaluated[0].value if evaluated else None
 
 
 def _evaluate_time_series(
@@ -111,7 +111,7 @@ def _evaluate_time_series(
     evaluated = quantity.evaluate(
         EvaluationContext(fetched=_fetched(metric_data, time_series), time_range=time_range)
     )
-    return None if evaluated is None else evaluated.time_series
+    return evaluated[0].time_series if evaluated else None
 
 
 # --- evaluate_value -----------------------------------------------------------------------------

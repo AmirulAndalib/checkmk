@@ -56,6 +56,7 @@ class EvaluationContext:
 class EvaluatedQuantity:
     value: float | None
     time_series: TimeSeries
+    label: str = ""
 
 
 class Quantity(Protocol):
@@ -65,7 +66,10 @@ class Quantity(Protocol):
 
     def metrics(self) -> Iterable[Metric]: ...
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None: ...
+    # A quantity evaluates to a sequence of curves: empty when absent, one for an ordinary quantity,
+    # and several when a fan-out leaf (e.g. a query matching many services) expands into one curve
+    # per matched series.
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]: ...
 
     def attributes(
         self,
@@ -138,6 +142,18 @@ def _apply_operator(
     )
 
 
+def _collapse(results: Sequence[EvaluatedQuantity]) -> EvaluatedQuantity | None:
+    # An operand of an operation must be single-valued: an absent operand is None; a fan-out operand
+    # (a quantity that expands into several curves) cannot take part in an operation.
+    match results:
+        case []:
+            return None
+        case [single]:
+            return single
+        case _:
+            raise ValueError("a fan-out quantity cannot be an operand of an operation")
+
+
 @dataclass(frozen=True)
 class Constant:
     value: int | float
@@ -152,10 +168,12 @@ class Constant:
     def metrics(self) -> Iterable[Metric]:
         return ()
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
-        return EvaluatedQuantity(
-            value=self.value, time_series=_constant_time_series(self.value, context.time_range)
-        )
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        return [
+            EvaluatedQuantity(
+                value=self.value, time_series=_constant_time_series(self.value, context.time_range)
+            )
+        ]
 
     def attributes(
         self,
@@ -181,19 +199,21 @@ class RRDMetric:
     def metrics(self) -> Iterable[Metric]:
         yield self
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
         data = context.data_of(self)
         existing = context.time_series_of(self)
         if not ((data is not None and data.value is not None) or existing is not None):
-            return None
-        return EvaluatedQuantity(
-            value=None if data is None else data.value,
-            time_series=(
-                existing
-                if existing is not None
-                else _constant_time_series(None, context.time_range)
-            ),
-        )
+            return []
+        return [
+            EvaluatedQuantity(
+                value=None if data is None else data.value,
+                time_series=(
+                    existing
+                    if existing is not None
+                    else _constant_time_series(None, context.time_range)
+                ),
+            )
+        ]
 
     def attributes(
         self,
@@ -227,9 +247,9 @@ class ScalarOf:
     def metrics(self) -> Iterable[Metric]:
         yield self.metric
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
         if (data := context.data_of(self.metric)) is None:
-            return None
+            return []
         match self.scalar_type:
             case ScalarType.WARNING:
                 value = data.warning
@@ -245,9 +265,11 @@ class ScalarOf:
                 value = data.maximum
             case _:
                 assert_never(self.scalar_type)
-        return EvaluatedQuantity(
-            value=value, time_series=_constant_time_series(value, context.time_range)
-        )
+        return [
+            EvaluatedQuantity(
+                value=value, time_series=_constant_time_series(value, context.time_range)
+            )
+        ]
 
     def attributes(
         self,
@@ -294,11 +316,11 @@ class Sum:
         for summand in self.summands:
             yield from summand.metrics()
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
-        evaluated = [summand.evaluate(context) for summand in self.summands]
-        if not evaluated or evaluated[0] is None:
-            return None
-        return _apply_operator(_op_sum, evaluated, context)
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        operands = [_collapse(summand.evaluate(context)) for summand in self.summands]
+        if not operands or operands[0] is None:
+            return []
+        return [_apply_operator(_op_sum, operands, context)]
 
     def attributes(
         self,
@@ -323,10 +345,9 @@ class Product:
         for factor in self.factors:
             yield from factor.metrics()
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
-        return _apply_operator(
-            _op_product, [factor.evaluate(context) for factor in self.factors], context
-        )
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        operands = [_collapse(factor.evaluate(context)) for factor in self.factors]
+        return [_apply_operator(_op_product, operands, context)]
 
     def attributes(
         self,
@@ -352,13 +373,12 @@ class Difference:
         yield from self.minuend.metrics()
         yield from self.subtrahend.metrics()
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
-        minuend = self.minuend.evaluate(context)
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        minuend = _collapse(self.minuend.evaluate(context))
         if minuend is None:
-            return None
-        return _apply_operator(
-            _op_difference, [minuend, self.subtrahend.evaluate(context)], context
-        )
+            return []
+        subtrahend = _collapse(self.subtrahend.evaluate(context))
+        return [_apply_operator(_op_difference, [minuend, subtrahend], context)]
 
     def attributes(
         self,
@@ -384,10 +404,10 @@ class Fraction:
         yield from self.dividend.metrics()
         yield from self.divisor.metrics()
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
-        return _apply_operator(
-            _op_fraction, [self.dividend.evaluate(context), self.divisor.evaluate(context)], context
-        )
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        dividend = _collapse(self.dividend.evaluate(context))
+        divisor = _collapse(self.divisor.evaluate(context))
+        return [_apply_operator(_op_fraction, [dividend, divisor], context)]
 
     def attributes(
         self,

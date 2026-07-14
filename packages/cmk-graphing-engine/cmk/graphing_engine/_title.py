@@ -67,7 +67,7 @@ def evaluate_title(
         if service is None or (quantity := _title_quantity(raw, service)) is None:
             return _fallback_title(title)
         evaluated = quantity.evaluate(context)
-        if evaluated is None or evaluated.value is None:
+        if not evaluated or evaluated[0].value is None:
             return _fallback_title(title)
-        title = title.replace(raw, str(int(evaluated.value)), 1)
+        title = title.replace(raw, str(int(evaluated[0].value)), 1)
     return title

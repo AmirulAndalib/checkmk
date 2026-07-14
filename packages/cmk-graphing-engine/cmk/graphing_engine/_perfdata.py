@@ -57,3 +57,6 @@ class TimeSeries:
 class FetchedData:
     performance_data: PerformanceData | None
     time_series: TimeSeries | None
+    # Identifies the fetched series when a fan-out leaf produces several of them (empty for a
+    # single series); carried through to the evaluated curve's label.
+    label: str = ""

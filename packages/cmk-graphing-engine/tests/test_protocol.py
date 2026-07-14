@@ -6,8 +6,10 @@
 """The open quantity protocol: a custom quantity kind defined entirely outside the engine
 is evaluated by the engine without any change to its code."""
 
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
+
+import pytest
 
 from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing_engine import (
@@ -24,6 +26,7 @@ from cmk.graphing_engine import (
     MetricName,
     RRDMetric,
     ServiceName,
+    Sum,
     TimeRange,
     TimeSeries,
     Unit,
@@ -68,17 +71,93 @@ class Negated:
     ) -> CurveAttributes | None:
         return self.operand.attributes(localizer, registered_metrics)
 
-    def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
-        evaluated = self.operand.evaluate(context)
-        if evaluated is None:
-            return None
-        return EvaluatedQuantity(
-            value=None if evaluated.value is None else -evaluated.value,
-            time_series=TimeSeries(
-                time_range=context.time_range,
-                values=[None if v is None else -v for v in evaluated.time_series.values],
-            ),
-        )
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        return [
+            EvaluatedQuantity(
+                value=None if evaluated.value is None else -evaluated.value,
+                time_series=TimeSeries(
+                    time_range=context.time_range,
+                    values=[None if v is None else -v for v in evaluated.time_series.values],
+                ),
+                label=evaluated.label,
+            )
+            for evaluated in self.operand.evaluate(context)
+        ]
+
+
+@dataclass(frozen=True)
+class _FanOut:
+    """A custom quantity that expands into one labelled curve per given label."""
+
+    labels: Sequence[str]
+
+    def type(self) -> str:
+        return "fan_out"
+
+    def ident(self) -> str:
+        return "fan_out"
+
+    def metrics(self) -> Iterable[Metric]:
+        return ()
+
+    def attributes(
+        self,
+        _localizer: Callable[[str], str],
+        _registered_metrics: Mapping[str, metrics_v1.Metric],
+    ) -> CurveAttributes | None:
+        return None
+
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        return [
+            EvaluatedQuantity(
+                value=float(index),
+                time_series=TimeSeries(time_range=context.time_range, values=[float(index)] * 3),
+                label=label,
+            )
+            for index, label in enumerate(self.labels)
+        ]
+
+
+def test_engine_fans_out_a_quantity_into_labelled_curves() -> None:
+    attributes = CurveAttributes(title="q", unit=_UNIT, color="#000000")
+    graph = Graph(
+        name="g",
+        title="g",
+        graph_type="test",
+        lines=[
+            Line(
+                curve=Curve(quantity=_FanOut(labels=["a", "b"]), attributes=attributes),
+                inverse=False,
+            )
+        ],
+    )
+    result = _evaluate_graph(graph, EvaluationContext(time_range=_TR))
+    # One line per fanned series: distinct ids and colours, and the per-series label folded into the
+    # base title.
+    assert [line.curve.id for line in result.lines] == ["fan_out", "fan_out#2"]
+    assert [line.curve.attributes.title for line in result.lines] == ["q - a", "q - b"]
+    assert result.lines[0].curve.attributes.color != result.lines[1].curve.attributes.color
+
+
+def test_engine_rejects_a_fan_out_quantity_as_an_operation_operand() -> None:
+    # A fan-out quantity has no single value to feed an operation, so using it as an operand is an
+    # error rather than a silent collapse.
+    graph = Graph(
+        name="g",
+        title="g",
+        graph_type="test",
+        lines=[
+            Line(
+                curve=Curve(
+                    quantity=Sum(summands=[_FanOut(labels=["a", "b"])]),
+                    attributes=CurveAttributes(title="s", unit=_UNIT, color="#000000"),
+                ),
+                inverse=False,
+            )
+        ],
+    )
+    with pytest.raises(ValueError, match="fan-out"):
+        _evaluate_graph(graph, EvaluationContext(time_range=_TR))
 
 
 def test_custom_quantity_is_accepted_as_a_quantity() -> None:

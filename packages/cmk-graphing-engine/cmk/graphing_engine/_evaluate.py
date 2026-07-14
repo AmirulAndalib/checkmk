@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import colorsys
 import enum
 from collections import Counter
 from collections.abc import Sequence
@@ -75,7 +76,7 @@ def _evaluate_bound(bound: Bound | None, context: EvaluationContext) -> float | 
     if isinstance(bound, int | float):
         return float(bound)
     evaluated = bound.evaluate(context)
-    return None if evaluated is None else evaluated.value
+    return evaluated[0].value if evaluated else None
 
 
 def _evaluate_vertical_range(
@@ -104,28 +105,55 @@ def _create_id(quantity: Quantity, *, inverse: bool, seen: Counter[str]) -> str:
     return base if seen[base] == 1 else f"{base}#{seen[base]}"
 
 
-def _evaluate_curve(
-    curve: Curve, curve_id: str, context: EvaluationContext
-) -> EvaluatedCurve | None:
-    evaluated = curve.quantity.evaluate(context)
-    if evaluated is None:
-        return None
-    return EvaluatedCurve(
-        id=curve_id,
-        attributes=curve.attributes,
-        value=evaluated.value,
-        time_series=evaluated.time_series,
+def _distinct_color(index: int) -> str:
+    # Golden-ratio hue stepping gives each fanned-out curve a visually distinct colour.
+    hue = (index * 0.618033988749895) % 1.0
+    red, green, blue = colorsys.hls_to_rgb(hue, 0.5, 0.6)
+    return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
+
+
+def _fanned_title(title: str, label: str) -> str:
+    if not label:
+        return title
+    return f"{title} - {label}" if title else label
+
+
+def _fanned_attributes(attributes: CurveAttributes, index: int, label: str) -> CurveAttributes:
+    return CurveAttributes(
+        title=_fanned_title(attributes.title, label),
+        unit=attributes.unit,
+        color=_distinct_color(index),
     )
+
+
+def _evaluate_curve(
+    curve: Curve, *, inverse: bool, seen: Counter[str], context: EvaluationContext
+) -> Sequence[EvaluatedCurve]:
+    results = curve.quantity.evaluate(context)
+    fanned = len(results) > 1
+    return [
+        EvaluatedCurve(
+            id=_create_id(curve.quantity, inverse=inverse, seen=seen),
+            attributes=(
+                _fanned_attributes(curve.attributes, index, evaluated.label)
+                if fanned
+                else curve.attributes
+            ),
+            value=evaluated.value,
+            time_series=evaluated.time_series,
+        )
+        for index, evaluated in enumerate(results)
+    ]
 
 
 def _evaluate_rule(rule: Rule, rule_id: str, context: EvaluationContext) -> EvaluatedRule | None:
     evaluated = rule.curve.quantity.evaluate(context)
-    if evaluated is None or evaluated.value is None:
+    if not evaluated or evaluated[0].value is None:
         return None
     return EvaluatedRule(
         id=rule_id,
         attributes=rule.curve.attributes,
-        value=evaluated.value,
+        value=evaluated[0].value,
         inverse=rule.inverse,
     )
 
@@ -135,41 +163,28 @@ def _evaluate_graph(graph: Graph, context: EvaluationContext) -> EvaluatedGraph:
     stacks = []
     for group in graph.stacks:
         members = [
-            curve
+            member_curve
             for member in group.members
-            if (
-                curve := _evaluate_curve(
-                    member,
-                    _create_id(member.quantity, inverse=group.inverse, seen=seen),
-                    context,
-                )
+            for member_curve in _evaluate_curve(
+                member, inverse=group.inverse, seen=seen, context=context
             )
-            is not None
         ]
-        reference = (
-            None
-            if group.reference is None
-            else _evaluate_curve(
-                group.reference,
-                _create_id(group.reference.quantity, inverse=group.inverse, seen=seen),
-                context,
+        reference = None
+        if group.reference is not None:
+            references = _evaluate_curve(
+                group.reference, inverse=group.inverse, seen=seen, context=context
             )
-        )
+            reference = references[0] if references else None
         if members:
             stacks.append(
                 EvaluatedStack(members=members, inverse=group.inverse, reference=reference)
             )
     lines = [
-        EvaluatedLine(curve=curve, inverse=line.inverse)
+        EvaluatedLine(curve=line_curve, inverse=line.inverse)
         for line in graph.lines
-        if (
-            curve := _evaluate_curve(
-                line.curve,
-                _create_id(line.curve.quantity, inverse=line.inverse, seen=seen),
-                context,
-            )
+        for line_curve in _evaluate_curve(
+            line.curve, inverse=line.inverse, seen=seen, context=context
         )
-        is not None
     ]
     rules = [
         evaluated
