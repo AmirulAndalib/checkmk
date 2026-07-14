@@ -3,36 +3,46 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-
-from collections.abc import Iterator, Mapping
+import time
+from collections.abc import Mapping
 from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import all_of, exists, SNMPTree, startswith, StringTable
-from cmk.legacy_includes.cpu_util import check_cpu_util
+from cmk.agent_based.v2 import (
+    all_of,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    exists,
+    get_value_store,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    startswith,
+    StringTable,
+)
+from cmk.plugins.lib.cpu_util import check_cpu_util
 
-check_info = {}
 
-
-def check_netapp_cpu(
-    item: None, params: Mapping[str, Any], info: StringTable
-) -> Iterator[tuple[int, str, list[Any]]]:
-    util = float(info[0][0])
-    yield from check_cpu_util(util, params)
+def check_netapp_cpu(params: Mapping[str, Any], section: StringTable) -> CheckResult:
+    util = float(section[0][0])
+    yield from check_cpu_util(
+        util=util,
+        params=params,
+        value_store=get_value_store(),
+        this_time=time.time(),
+    )
 
 
 def parse_netapp_cpu(string_table: StringTable) -> StringTable | None:
     return string_table or None
 
 
-def discover_netapp_cpu(info: StringTable) -> list[tuple[None, dict[str, object]]]:
-    return [(None, {})]
+def discover_netapp_cpu(section: StringTable) -> DiscoveryResult:
+    yield Service()
 
 
-check_info["netapp_cpu"] = LegacyCheckDefinition(
+snmp_section_netapp_cpu = SimpleSNMPSection(
     name="netapp_cpu",
-    parse_function=parse_netapp_cpu,
     detect=all_of(
         startswith(".1.3.6.1.2.1.1.1.0", "NetApp Release"), exists(".1.3.6.1.4.1.789.1.2.1.3.0")
     ),
@@ -40,6 +50,12 @@ check_info["netapp_cpu"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.789.1.2.1",
         oids=["3"],
     ),
+    parse_function=parse_netapp_cpu,
+)
+
+
+check_plugin_netapp_cpu = CheckPlugin(
+    name="netapp_cpu",
     service_name="CPU utilization",
     discovery_function=discover_netapp_cpu,
     check_function=check_netapp_cpu,
