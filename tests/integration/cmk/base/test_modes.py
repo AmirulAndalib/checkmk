@@ -547,18 +547,18 @@ def test_check(execute: Execute) -> None:
 
 
 def test_check_verbose_perfdata(execute: Execute) -> None:
-    p = execute(["cmk", "-v", "-p", "modes-test-host"])
+    p = execute(["cmk", "-vv", "-p", "modes-test-host"])
     assert p.returncode == 0, on_failure(p)
-    assert "Temperature Zone 0" in p.stdout
-    assert "temp=32.4;" in p.stdout
+    assert "Temperature Zone 0" in p.stderr
+    assert "temp=32.4;" in p.stderr
     assert "[agent] Success" in p.stdout
 
 
 def test_check_verbose_only_check(execute: Execute) -> None:
-    p = execute(["cmk", "-v", "--plugins=lnx_thermal", "modes-test-host"])
+    p = execute(["cmk", "-vv", "--plugins=lnx_thermal", "modes-test-host"])
     assert p.returncode == 0, on_failure(p)
-    assert "Temperature Zone 0" in p.stdout
-    assert "Interface 2" not in p.stdout
+    assert "Temperature Zone 0" in p.stderr
+    assert "Interface 2" not in p.stderr
     assert "[agent] Success" in p.stdout
 
 
