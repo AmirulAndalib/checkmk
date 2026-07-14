@@ -34,7 +34,7 @@ import type {
   NumericFilter,
   StringInputFilter
 } from '@/monitoring/shared/components/filter/types'
-import { HOST_LIMIT_TIERS } from '@/monitoring/shared/constants'
+import { ACTION_REFRESH_DELAY_MS, HOST_LIMIT_TIERS } from '@/monitoring/shared/constants'
 
 import MonitoringEmptyState from '../shared/components/MonitoringEmptyState.vue'
 import MonitoringLimitSelector from '../shared/components/MonitoringLimitSelector.vue'
@@ -438,6 +438,16 @@ function onSlideInActionFeedback(result: ActionFeedbackResult): void {
   feedback.value = result
   feedbackOpen.value = true
   slideInActionId.value = null
+  if (result.variant === 'success') {
+    hostService.refresh(ACTION_REFRESH_DELAY_MS)
+  }
+}
+
+function onBulkActionFeedback(result: ActionFeedbackResult): void {
+  applyFeedback(result)
+  if (result.variant === 'success') {
+    hostService.refresh(ACTION_REFRESH_DELAY_MS)
+  }
 }
 
 function onBulkAction(action: CellAction): void {
@@ -586,7 +596,7 @@ function navigateToLegacy() {
           :action-id="activeAction"
           :actions="actionRegistry"
           :targets="selectedHosts"
-          @feedback="applyFeedback"
+          @feedback="onBulkActionFeedback"
           @cancel="closeAction"
         />
       </template>

@@ -96,6 +96,7 @@ export abstract class MonitoringService<T> extends ServiceBase {
   )
 
   private initialFetchTimer: ReturnType<typeof setTimeout> | null = null
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null
   private tickTimer: ReturnType<typeof setInterval> | null = null
   private stopFilterWatch: WatchStopHandle | null = null
   private currentAbort: AbortController | null = null
@@ -209,6 +210,21 @@ export abstract class MonitoringService<T> extends ServiceBase {
     void this.fetch()
   }
 
+  refresh(delayMs = 0): void {
+    if (this.refreshTimer !== null) {
+      clearTimeout(this.refreshTimer)
+      this.refreshTimer = null
+    }
+    if (delayMs <= 0) {
+      void this.fetch('background')
+      return
+    }
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTimer = null
+      void this.fetch('background')
+    }, delayMs)
+  }
+
   /**
    * Activate a quick-filter: apply its preset filter and, if it declares one,
    * its search query.
@@ -239,6 +255,10 @@ export abstract class MonitoringService<T> extends ServiceBase {
     if (this.initialFetchTimer !== null) {
       clearTimeout(this.initialFetchTimer)
       this.initialFetchTimer = null
+    }
+    if (this.refreshTimer !== null) {
+      clearTimeout(this.refreshTimer)
+      this.refreshTimer = null
     }
     if (this.tickTimer !== null) {
       clearInterval(this.tickTimer)

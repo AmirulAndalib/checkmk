@@ -338,6 +338,64 @@ describe('MonitoringService', () => {
     service.stopPolling()
   })
 
+  it('refresh() triggers a silent background re-fetch', async () => {
+    let resolveRefresh: (value: PagedResponse<TestItem>) => void = () => {}
+    const fetchBatch = vi
+      .fn()
+      .mockResolvedValueOnce(makeResponse([], 0, 0))
+      .mockReturnValueOnce(
+        new Promise<PagedResponse<TestItem>>((resolve) => {
+          resolveRefresh = resolve
+        })
+      )
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+    service.refresh()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchBatch).toHaveBeenCalledTimes(2)
+    expect(service.fetchState.value).toBe('background')
+
+    resolveRefresh(makeResponse([{ id: 'a', value: 1 }], 1, 1))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(service.items.value).toEqual([{ id: 'a', value: 1 }])
+    expect(service.fetchState.value).toBe('idle')
+
+    service.stopPolling()
+  })
+
+  it('refresh(delayMs) defers the background re-fetch until the delay elapses', async () => {
+    const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+    service.refresh(1000)
+    await vi.advanceTimersByTimeAsync(999)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(fetchBatch).toHaveBeenCalledTimes(2)
+
+    service.stopPolling()
+  })
+
+  it('stopPolling() cancels a pending delayed refresh', async () => {
+    const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+    const service = new TestService(fetchBatch)
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+    service.refresh(1000)
+    service.stopPolling()
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(fetchBatch).toHaveBeenCalledTimes(1)
+  })
+
   it('only updates committedSearchQuery once the triggered fetch resolves', async () => {
     let resolveFetch: (value: PagedResponse<TestItem>) => void = () => {}
     const fetchBatch = vi
