@@ -3,26 +3,18 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-
-from collections.abc import Mapping, Sequence
-from typing import Any
-
-from cmk.agent_based.v2 import (
-    AgentSection,
-    CheckPlugin,
-    CheckResult,
-    DiscoveryResult,
-    Service,
-    StringTable,
-)
-from cmk.plugins.aws.lib import check_aws_elb_summary_generic, parse_aws
-
-Section = tuple[Sequence[Mapping[str, Any]], Sequence[Mapping[str, Any]]]
+# mypy: disable-error-code="no-untyped-def"
 
 
-def parse_aws_elbv2_summary(string_table: StringTable) -> Section:
-    application_lbs: list[Mapping[str, Any]] = []
-    network_lbs: list[Mapping[str, Any]] = []
+from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
+from cmk.legacy_includes.aws import check_aws_elb_summary_generic
+from cmk.plugins.aws.lib import parse_aws
+
+check_info = {}
+
+
+def parse_aws_elbv2_summary(string_table):
+    application_lbs, network_lbs = [], []
     for row in parse_aws(string_table):
         lb_type = row.get("Type")
         if lb_type == "application":
@@ -32,43 +24,40 @@ def parse_aws_elbv2_summary(string_table: StringTable) -> Section:
     return application_lbs, network_lbs
 
 
-def discover_aws_elbv2_summary_application(section: Section) -> DiscoveryResult:
-    application_lbs, _network_lbs = section
+def discover_aws_elbv2_summary_application(parsed):
+    application_lbs, _network_lbs = parsed
     if application_lbs:
-        yield Service()
+        return [(None, {})]
+    return []
 
 
-def check_aws_elbv2_summary_application(section: Section) -> CheckResult:
-    application_lbs, _network_lbs = section
-    yield from check_aws_elb_summary_generic(application_lbs)
+def check_aws_elbv2_summary_application(item, params, parsed):
+    application_lbs, _network_lbs = parsed
+    return check_aws_elb_summary_generic(item, params, application_lbs)
 
 
-agent_section_aws_elbv2_summary = AgentSection(
+check_info["aws_elbv2_summary"] = LegacyCheckDefinition(
     name="aws_elbv2_summary",
     parse_function=parse_aws_elbv2_summary,
-)
-
-
-check_plugin_aws_elbv2_summary = CheckPlugin(
-    name="aws_elbv2_summary",
     service_name="AWS/ApplicationELB Summary",
     discovery_function=discover_aws_elbv2_summary_application,
     check_function=check_aws_elbv2_summary_application,
 )
 
 
-def discover_aws_elbv2_summary_network(section: Section) -> DiscoveryResult:
-    _application_lbs, network_lbs = section
+def discover_aws_elbv2_summary_network(parsed):
+    _application_lbs, network_lbs = parsed
     if network_lbs:
-        yield Service()
+        return [(None, {})]
+    return []
 
 
-def check_aws_elbv2_summary_network(section: Section) -> CheckResult:
-    _application_lbs, network_lbs = section
-    yield from check_aws_elb_summary_generic(network_lbs)
+def check_aws_elbv2_summary_network(item, params, parsed):
+    _application_lbs, network_lbs = parsed
+    return check_aws_elb_summary_generic(item, params, network_lbs)
 
 
-check_plugin_aws_elbv2_summary_network = CheckPlugin(
+check_info["aws_elbv2_summary.network"] = LegacyCheckDefinition(
     name="aws_elbv2_summary_network",
     service_name="AWS/NetworkELB Summary",
     sections=["aws_elbv2_summary"],
