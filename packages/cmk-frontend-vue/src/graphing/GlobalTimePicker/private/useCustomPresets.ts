@@ -47,16 +47,19 @@ export function useCustomPresets(
 
   const activePresetId = ref<string | null>(null)
 
-  // The range we last wrote; anything else came from elsewhere -> highlight snaps to "Custom".
+  // The range we last wrote; anything else came from elsewhere -> re-checked against the
+  // presets below rather than assumed to be "Custom".
   let appliedRange: DateTimeRange | null = null
 
-  // Highlight the seeded default: it has no preset identity, so adopt it by matching duration once.
-  const initialPreset = endsNow(range.value)
-    ? presets.value.find((preset) => preset.totalSeconds === durationSeconds(range.value))
-    : undefined
-  if (initialPreset) {
-    appliedRange = range.value
-    activePresetId.value = initialPreset.id
+  // A range with no preset identity of its own (the seeded default, or one written by a
+  // graph zoom/pan/reset) still gets highlighted if it happens to match a preset's duration
+  // and end-near-now shape — e.g. resetting a zoom back to an original "Last 1 h" selection
+  // should re-highlight "Last 1 h" rather than fall to "Custom".
+  function matchingPreset(value: DateTimeRange): CustomPreset | undefined {
+    const duration = durationSeconds(value)
+    return endsNow(value)
+      ? presets.value.find((preset) => preset.totalSeconds === duration)
+      : undefined
   }
 
   function applyPreset(preset: CustomPreset): void {
@@ -65,11 +68,19 @@ export function useCustomPresets(
     range.value = appliedRange
   }
 
-  watch(range, (value) => {
-    if (value !== appliedRange) {
-      activePresetId.value = null
-    }
-  })
+  // `immediate` also seeds the default: the first run matches range.value against the
+  // presets exactly as any later change would.
+  watch(
+    range,
+    (value) => {
+      if (value === appliedRange) {
+        return
+      }
+      appliedRange = value
+      activePresetId.value = matchingPreset(value)?.id ?? null
+    },
+    { immediate: true }
+  )
 
   return { presets, activePresetId, applyPreset }
 }
