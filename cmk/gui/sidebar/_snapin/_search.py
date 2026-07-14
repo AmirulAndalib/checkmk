@@ -16,13 +16,12 @@ from cmk.gui.i18n import _
 from cmk.gui.log import logger
 from cmk.gui.pages import PageContext
 from cmk.gui.permissions import permission_registry
-from cmk.gui.search import (
+from cmk.gui.search.engines.monitoring import (
     ABCQuicksearchConductor,
+    get_url_builder,
     IncorrectLabelInputError,
-    QuicksearchManager,
     TooManyRowsError,
 )
-from cmk.gui.search.engines.monitoring import get_url_builder
 from cmk.gui.type_defs import (
     IconNames,
     SearchQuery,
@@ -32,6 +31,7 @@ from cmk.gui.type_defs import (
 from cmk.gui.utils.roles import UserPermissions
 
 from ._base import PageHandlers, SidebarSnapin
+from ._quicksearch_manager import SnapinQuicksearchManager
 
 
 def _maybe_strip(param: str | None) -> str | None:
@@ -92,11 +92,11 @@ class QuicksearchSnapin(SidebarSnapin):
 
         search_objects: list[ABCQuicksearchConductor] = []
         try:
-            search_objects = quicksearch_manager._determine_search_objects(
+            search_objects = quicksearch_manager.determine_search_objects(
                 livestatus.lqencode(query),
                 UserPermissions.from_config(ctx.config, permission_registry),
             )
-            quicksearch_manager._conduct_search(search_objects)
+            quicksearch_manager.conduct_search(search_objects)
 
         except TooManyRowsError as e:
             html.show_warning(str(e))
@@ -117,7 +117,7 @@ class QuicksearchSnapin(SidebarSnapin):
         if not search_objects:
             return
 
-        results = quicksearch_manager._evaluate_results(search_objects)
+        results = quicksearch_manager.evaluate_results(search_objects)
 
         _render_quicksearch_results(results, query)
 
@@ -135,12 +135,11 @@ class QuicksearchSnapin(SidebarSnapin):
         raise HTTPRedirect(search_url)
 
 
-def _build_quicksearch_manager_from_context(ctx: PageContext) -> QuicksearchManager:
-    return QuicksearchManager(
+def _build_quicksearch_manager_from_context(ctx: PageContext) -> SnapinQuicksearchManager:
+    return SnapinQuicksearchManager(
         row_limit=ctx.config.quicksearch_dropdown_limit,
         search_order=ctx.config.quicksearch_search_order,
         build_url=get_url_builder(ctx.request),
-        raise_too_many_rows_error=True,
     )
 
 
