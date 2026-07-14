@@ -2052,20 +2052,6 @@ def _mode_automation(app: CheckmkBaseApp, args: list[str]) -> int:
     if not args:
         raise MKAutomationError("You need to provide arguments")
 
-    # At least for the automation calls that buffer and handle the stdout/stderr on their own
-    # we can now enable this. In the future we should remove this call for all automations calls and
-    # handle the output in a common way.
-    if args[0] not in [
-        "restart",
-        "reload",
-        "start",
-        "create-diagnostics-dump",
-        "service-discovery-preview",
-    ]:
-        log.logger.handlers[:] = []
-        log.logger.addHandler(logging.NullHandler())
-        log.logger.setLevel(logging.INFO)
-
     name, automation_args = AutomationID(args[0]), args[1:]
     automations = Automations(discover_automations())
     with tracer.span(
