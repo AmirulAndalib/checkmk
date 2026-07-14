@@ -85,6 +85,7 @@ import UclCmkPerfometer from './system-feedback/CmkPerfometer/UclCmkPerfometer.v
 import UclCmkPopup from './system-feedback/CmkPopup/UclCmkPopup.vue'
 import UclCmkPopupDialog from './system-feedback/CmkPopupDialog/UclCmkPopupDialog.vue'
 import UclCmkSkeleton from './system-feedback/CmkSkeleton/UclCmkSkeleton.vue'
+import UclCmkStateCountBar from './system-feedback/CmkStateCountBar/UclCmkStateCountBar.vue'
 import UclCmkTooltip from './system-feedback/CmkTooltip/UclCmkTooltip.vue'
 import UclCmkProgressCircle from './system-feedback/progress/UclCmkProgressCircle.vue'
 import UclCmkProgressbar from './system-feedback/progress/UclCmkProgressbar.vue'
@@ -188,6 +189,7 @@ const systemFeedbackPages = [
     new Page('CmkProgressCircle', UclCmkProgressCircle)
   ]),
   new Page('CmkSkeleton', UclCmkSkeleton),
+  new Page('CmkStateCountBar', UclCmkStateCountBar),
   new Page('CmkTooltip', UclCmkTooltip)
 ]
 export const roots = [
