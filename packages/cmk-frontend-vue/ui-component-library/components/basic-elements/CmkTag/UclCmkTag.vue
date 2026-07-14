@@ -34,7 +34,10 @@ export const panelConfig = {
       { title: 'Success', name: 'success' },
       { title: 'Warning', name: 'warning' },
       { title: 'Unknown', name: 'unknown' },
-      { title: 'Danger', name: 'danger' }
+      { title: 'Danger', name: 'danger' },
+      { title: 'Discovered', name: 'discovered' },
+      { title: 'Explicit', name: 'explicit' },
+      { title: 'Ruleset', name: 'ruleset' }
     ] satisfies Options<Colors>[],
     initialState: 'default' as const
   },
