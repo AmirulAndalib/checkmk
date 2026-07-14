@@ -39,7 +39,9 @@ import MonitoringEmptyState from '../shared/components/MonitoringEmptyState.vue'
 import MonitoringResultsCount from '../shared/components/MonitoringResultsCount.vue'
 import MonitoringTable from '../shared/components/MonitoringTable.vue'
 import RefreshCountdown from '../shared/components/RefreshCountdown.vue'
-import ActionFeedback from '../shared/components/action/ActionFeedback.vue'
+import ActionFeedback, {
+  type ActionFeedback as ActionFeedbackResult
+} from '../shared/components/action/ActionFeedback.vue'
 import MonitoringActionBar from '../shared/components/action/MonitoringActionBar.vue'
 import MonitoringActionPane from '../shared/components/action/MonitoringActionPane.vue'
 import {
@@ -60,6 +62,7 @@ import { HostActionMenuApi } from './api/actionMenu'
 import { HostApi } from './api/hosts'
 import HostRow from './components/HostRow.vue'
 import HostOverviewTab from './components/slide-in/HostOverviewTab.vue'
+import HostSlideInActions from './components/slide-in/HostSlideInActions.vue'
 import HostSlideInHeader from './components/slide-in/HostSlideInHeader.vue'
 import { HostService } from './services/HostService'
 
@@ -374,6 +377,11 @@ function rowKey(row: HostEntry): string {
 
 const slideInHost = ref<HostEntry | null>(null)
 const slideInOpen = computed(() => slideInHost.value !== null)
+const slideInActionId = ref<string | null>(null)
+
+const slideInTargets = computed<HostRef[]>(() =>
+  slideInHost.value ? [{ site_id: slideInHost.value.site_id, name: slideInHost.value.name }] : []
+)
 
 const slideInTabs = computed<SlideInTab[]>(() => {
   const host = slideInHost.value
@@ -392,11 +400,29 @@ const slideInTabs = computed<SlideInTab[]>(() => {
 })
 
 function openSlideIn(host: HostEntry): void {
+  slideInActionId.value = null
   slideInHost.value = host
 }
 
 function closeSlideIn(): void {
   slideInHost.value = null
+  slideInActionId.value = null
+}
+
+function openSlideInAction(actionId: string): void {
+  if (actionId in actionRegistry) {
+    slideInActionId.value = actionId
+  }
+}
+
+function closeSlideInAction(): void {
+  slideInActionId.value = null
+}
+
+function onSlideInActionFeedback(result: ActionFeedbackResult): void {
+  feedback.value = result
+  feedbackOpen.value = true
+  slideInActionId.value = null
 }
 
 function onBulkAction(action: CellAction): void {
@@ -548,11 +574,29 @@ function navigateToLegacy() {
     <CmkSlideInTabbed
       :open="slideInOpen"
       :tabs="slideInTabs"
-      :header="{ title: slideInHost?.name ?? '', closeButton: true }"
+      :override-active="slideInActionId !== null"
+      :header="{ title: _t('Host details'), closeButton: true }"
       @close="closeSlideIn"
     >
       <template #above-tabs>
         <HostSlideInHeader v-if="slideInHost" :host="slideInHost" />
+      </template>
+      <template #actions>
+        <HostSlideInActions @select="openSlideInAction" />
+      </template>
+      <template #override>
+        <MonitoringActionPane
+          v-if="slideInActionId"
+          :action-id="slideInActionId"
+          :actions="actionRegistry"
+          :targets="slideInTargets"
+          back-button
+          indent
+          :show-count="false"
+          @back="closeSlideInAction"
+          @cancel="closeSlideInAction"
+          @feedback="onSlideInActionFeedback"
+        />
       </template>
     </CmkSlideInTabbed>
   </div>

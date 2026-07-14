@@ -45,6 +45,38 @@ test('shows an error with a retry that reloads the tab', async () => {
   expect(load).toHaveBeenCalledTimes(2)
 })
 
+test('renders the actions slot alongside the tabs by default', async () => {
+  const tabs: SlideInTab[] = [{ id: 'a', title: 'A', component: tabBody }]
+
+  render(CmkSlideInTabbed, {
+    props: { open: true, tabs, header },
+    slots: {
+      actions: () => h('div', { 'data-testid': 'actions' }, 'action buttons'),
+      override: () => h('div', { 'data-testid': 'override' }, 'override view')
+    }
+  })
+
+  await screen.findByTestId('actions')
+  expect(screen.getByRole('tab', { name: 'A' })).toBeInTheDocument()
+  expect(screen.queryByTestId('override')).not.toBeInTheDocument()
+})
+
+test('replaces the tabs and actions with the override slot when active', async () => {
+  const tabs: SlideInTab[] = [{ id: 'a', title: 'A', component: tabBody }]
+
+  render(CmkSlideInTabbed, {
+    props: { open: true, tabs, header, overrideActive: true },
+    slots: {
+      actions: () => h('div', { 'data-testid': 'actions' }, 'action buttons'),
+      override: () => h('div', { 'data-testid': 'override' }, 'override view')
+    }
+  })
+
+  await screen.findByTestId('override')
+  expect(screen.queryByTestId('actions')).not.toBeInTheDocument()
+  expect(screen.queryByRole('tab', { name: 'A' })).not.toBeInTheDocument()
+})
+
 test('caches loaded tabs and re-fetches only on reopen', async () => {
   const loadA = vi.fn().mockResolvedValue('a-data')
   const loadB = vi.fn().mockResolvedValue('b-data')

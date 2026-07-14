@@ -11,7 +11,7 @@ import type { SlideInVariants } from '@/components/CmkSlideIn'
 
 import codeExample from './UclCmkSlideInTabbedCodeExample.vue?raw'
 
-type OmittedProps = 'tabs' | 'header' | 'defaultTabId'
+type OmittedProps = 'tabs' | 'header' | 'defaultTabId' | 'overrideActive'
 type CmkSlideInTabbedDemoProps = PanelConfigFor<typeof CmkSlideInTabbed, OmittedProps> & {
   title: StringPropDef
   showCloseButton: BoolPropDef

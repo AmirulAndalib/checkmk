@@ -57,4 +57,11 @@ export interface CmkSlideInTabbedProps {
   borderColor?: SlideInVariants['borderColor']
   /** Id of the tab shown first; defaults to the first tab. */
   defaultTabId?: string | undefined
+  /**
+   * When true, the tabs (and the `actions` slot) are hidden and the `override`
+   * slot is rendered in their place. The `above-tabs` slot stays visible, so a
+   * page can swap the tabbed body for a focused sub-view (e.g. an action form)
+   * while keeping the panel header.
+   */
+  overrideActive?: boolean | undefined
 }
