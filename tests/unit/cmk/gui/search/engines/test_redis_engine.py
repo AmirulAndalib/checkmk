@@ -15,27 +15,20 @@ from fakeredis import FakeRedis
 from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
 from redis import Redis
-from werkzeug.test import create_environ
-
-from livestatus import SiteConfigurations
 
 import cmk.gui.search.engines.redis
 from cmk.automations.results import GetConfigurationResult
-from cmk.ccc.hostaddress import HostName
-from cmk.ccc.site import SiteId
-from cmk.ccc.version import Edition
 from cmk.gui.config import Config
-from cmk.gui.http import Request
 from cmk.gui.i18n import localize
-from cmk.gui.logged_in import LoggedInNobody, user
+from cmk.gui.logged_in import LoggedInNobody
 from cmk.gui.search import ABCMatchItemGenerator, MatchItem, MatchItemGeneratorRegistry, MatchItems
 from cmk.gui.search.engines.redis import (
     _SearchResultWithVisibilityCheck,
     IndexBuilder,
     IndexNotFoundException,
     IndexSearcher,
-    PermissionsHandler,
 )
+from cmk.gui.search.permissions import SearchPermissionsHandler, VisibilityCheck
 from cmk.gui.session_context import _UserContext
 from cmk.gui.type_defs import SearchResult
 from cmk.gui.utils.roles import UserPermissions
@@ -45,19 +38,17 @@ from cmk.gui.wato._omd_configuration import (
     ConfigDomainRRDCached,
 )
 from cmk.gui.watolib.config_domains import ConfigDomainOMD
-from cmk.gui.watolib.hosts_and_folders import folder_tree
-from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.livestatus_client.testing import MockLiveStatusConnection
 
 
-def _noop_pending_changes() -> PendingChanges:
-    return PendingChanges(
-        activation_sites=SiteConfigurations({}),
-        local_site=SiteId("NO_SITE"),
-        acting_user=None,
-        store=NoopPendingChangesStore(),
-        hooks=(),
-    )
+class _FakePermissionsHandler:
+    """Always-permit stand-in for the real, GUI-coupled `PermissionsHandler`."""
+
+    def may_see_category(self, category: str) -> bool:
+        return True
+
+    def get_visibility_check(self, category: str) -> VisibilityCheck:
+        return lambda _url: True
 
 
 @pytest.fixture(scope="function")
@@ -219,23 +210,16 @@ def fixture_config() -> Config:
     return Config()
 
 
-@pytest.fixture(name="http_request")
-def fixture_http_request() -> Request:
-    return Request(create_environ())
-
-
 @pytest.fixture(name="permissions_handler")
-def fixture_permissions_handler(
-    config: Config, http_request: Request, test_edition: Edition
-) -> PermissionsHandler:
-    return PermissionsHandler(test_edition, config, http_request)
+def fixture_permissions_handler() -> SearchPermissionsHandler:
+    return _FakePermissionsHandler()
 
 
 @pytest.fixture(name="index_searcher")
 def fixture_index_searcher(
     config: Config,
     clean_redis_client: "Redis",
-    permissions_handler: PermissionsHandler,
+    permissions_handler: SearchPermissionsHandler,
 ) -> IndexSearcher:
     return IndexSearcher(config, clean_redis_client, permissions_handler)
 
@@ -358,79 +342,13 @@ class TestIndexBuilderAndSearcher:
         return list(grouped.items())
 
 
-class TestPermissionHandler:
-    @pytest.fixture(name="created_host_url")
-    def fixture_created_host_url(self) -> str:
-        folder = folder_tree().root_folder()
-        folder.create_hosts(
-            [(HostName("host"), {}, [])],
-            pprint_value=False,
-            pending_changes=_noop_pending_changes(),
-            acting_user=user,
-        )
-        return "wato.py?folder=&host=host&mode=edit_host"
-
-    @pytest.mark.usefixtures("with_admin_login")
-    def test_may_see_category(
-        self, config: Config, http_request: Request, test_edition: Edition
-    ) -> None:
-        permissions_handler = PermissionsHandler(test_edition, config, http_request)
-        for category in permissions_handler._category_permissions:
-            assert permissions_handler.may_see_category(category)
-
-    @pytest.mark.usefixtures("request_context")
-    def test_may_see_url_false(
-        self, config: Config, http_request: Request, test_edition: Edition
-    ) -> None:
-        permissions_handler = PermissionsHandler(test_edition, config, http_request)
-        visibility_check = permissions_handler.get_visibility_check("setup")
-        assert not visibility_check("wato.py?folder=&mode=service_groups")
-
-    @pytest.mark.usefixtures("with_admin_login")
-    def test_may_see_url_true(
-        self, config: Config, http_request: Request, test_edition: Edition
-    ) -> None:
-        permissions_handler = PermissionsHandler(test_edition, config, http_request)
-        visibility_check = permissions_handler.get_visibility_check("setup")
-        assert visibility_check("wato.py?folder=&mode=service_groups")
-
-    @pytest.mark.usefixtures("with_admin_login")
-    def test_may_see_url_host_true(
-        self, config: Config, created_host_url: str, test_edition: Edition
-    ) -> None:
-        # NOTE: unfortunately, a test request fixture is difficult to create here since the host and
-        # folders code relies heavily on adapting the global request proxy. For now, we will just
-        # import the global proxy here explicitly as it's implicitly shared by the
-        # `created_host_url` fixture.
-        from cmk.gui.http import request
-
-        permissions_handler = PermissionsHandler(test_edition, config, request)
-        visibility_check = permissions_handler.get_visibility_check("setup")
-        assert visibility_check(created_host_url)
-
-    @pytest.mark.usefixtures("with_admin_login")
-    def test_may_see_url_host_false(
-        self,
-        config: Config,
-        http_request: Request,
-        created_host_url: str,
-        test_edition: Edition,
-    ) -> None:
-        # NOTE: the created host is not visible because it was not created with the passed request
-        # context. This is because the host and folders code relies heavily on adapting the global
-        # request proxy.
-        permissions_handler = PermissionsHandler(test_edition, config, http_request)
-        visibility_check = permissions_handler.get_visibility_check("setup")
-        assert not visibility_check(created_host_url)
-
-
 class TestIndexSearcher:
     @pytest.mark.usefixtures("with_admin_login", "inline_background_jobs", "allow_redis")
     def test_search_no_index(
         self,
         config: Config,
         clean_redis_client: "Redis",
-        permissions_handler: PermissionsHandler,
+        permissions_handler: SearchPermissionsHandler,
         mocker: MockerFixture,
     ) -> None:
         get_config = mocker.patch(
