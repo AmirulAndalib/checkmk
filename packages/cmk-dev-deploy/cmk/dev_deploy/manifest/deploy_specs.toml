@@ -215,3 +215,13 @@ services = ["cmc:restart"]
 name = "deploy_svc_cmk_core_helpers"
 package_target = "//non-free/packages/cmk-core-helpers:wheel"
 services = ["apache:reload", "cmc:restart"]
+
+# The MCP server is a standalone uvicorn daemon (etc/init.d/mcp-server) that
+# imports cmk.mcp once at startup; nothing else on the site imports it and no
+# apache proxy fronts it.  Restart only that daemon so a reinstalled wheel's
+# new tools become visible -- the wheel-convention default (apache/
+# automation-helper/cmc) would never restart it, leaving the daemon stale.
+[[service]]
+name = "deploy_svc_cmk_mcp"
+package_target = "//non-free/packages/cmk-mcp:wheel"
+services = ["mcp-server:restart"]

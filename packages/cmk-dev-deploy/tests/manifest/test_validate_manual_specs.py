@@ -16,6 +16,7 @@ from cmk.dev_deploy.manifest.update import (
     _validate_manual_specs,
     specs_path,
 )
+from cmk.dev_deploy.types import Service
 
 
 def _workspace_root() -> Path | None:
@@ -54,3 +55,30 @@ def test_real_deploy_specs_point_at_existing_paths() -> None:
         pytest.skip("workspace root not accessible (sandbox run)")
     manual = _load_specs_from_toml(specs_path(), (repo_root / "non-free").is_dir())
     _validate_manual_specs(manual, repo_root)
+
+
+def test_cmk_mcp_wheel_restarts_the_mcp_server_daemon() -> None:
+    """Deploying the cmk-mcp wheel restarts the standalone mcp-server daemon.
+
+    The daemon imports cmk.mcp once at startup, so a reinstalled wheel is only
+    picked up after a restart.
+    """
+    repo_root = _workspace_root()
+    if repo_root is None:
+        pytest.skip("workspace root not accessible (sandbox run)")
+    if not (repo_root / "non-free").is_dir():
+        pytest.skip("cmk-mcp is a non-free package; not present in this checkout")
+
+    manual = _load_specs_from_toml(specs_path(), is_nonfree_checkout=True)
+    mcp = next(
+        (
+            s
+            for s in manual["service_specs"]
+            if s["package_target"] == "//non-free/packages/cmk-mcp:wheel"
+        ),
+        None,
+    )
+
+    assert mcp is not None, "no [[service]] entry for the cmk-mcp wheel"
+    assert mcp["services"] == ["mcp-server:restart"]
+    assert Service("mcp-server") is Service.MCP_SERVER

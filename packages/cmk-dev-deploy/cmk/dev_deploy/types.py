@@ -277,6 +277,7 @@ class Service(StrEnum):
     MKEVENTD = "mkeventd"
     AGENT_RECEIVER = "agent-receiver"
     DCD = "dcd"
+    MCP_SERVER = "mcp-server"
 
 
 @dataclass(frozen=True)
