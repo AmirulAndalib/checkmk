@@ -61,6 +61,7 @@ import { useMonitoringActions } from '../shared/services/useMonitoringActions'
 import { HostActionMenuApi } from './api/actionMenu'
 import { HostApi } from './api/hosts'
 import HostRow from './components/HostRow.vue'
+import HostOverviewSkeleton from './components/slide-in/HostOverviewSkeleton.vue'
 import HostOverviewTab from './components/slide-in/HostOverviewTab.vue'
 import HostSlideInActions from './components/slide-in/HostSlideInActions.vue'
 import HostSlideInHeader from './components/slide-in/HostSlideInHeader.vue'
@@ -313,7 +314,9 @@ const columnPinning: ColumnPinningState = {
   ...(hasRowActions ? { right: ['actions'] } : {})
 }
 
-const hostService = new HostService(new HostApi(), getKeyShortcutServiceInstance(), {
+const hostApi = new HostApi()
+
+const hostService = new HostService(hostApi, getKeyShortcutServiceInstance(), {
   pollIntervalMs: props.poll_interval_ms,
   columns,
   quickFilters: [
@@ -394,7 +397,8 @@ const slideInTabs = computed<SlideInTab[]>(() => {
       id: 'overview',
       title: _t('Overview'),
       component: markRaw(HostOverviewTab),
-      props: { host: hostRef }
+      skeleton: markRaw(HostOverviewSkeleton),
+      load: () => hostApi.fetchHostOverview(hostRef)
     }
   ]
 })

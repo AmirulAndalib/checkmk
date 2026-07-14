@@ -118,8 +118,12 @@ watch(activeTab, (id) => {
         </template>
         <template #tab-contents>
           <CmkTabContent v-for="tab in tabs" :id="tab.id" :key="tab.id">
+            <component
+              :is="tab.skeleton"
+              v-if="(!tabState[tab.id] || tabState[tab.id]?.status === 'loading') && tab.skeleton"
+            />
             <div
-              v-if="!tabState[tab.id] || tabState[tab.id]?.status === 'loading'"
+              v-else-if="!tabState[tab.id] || tabState[tab.id]?.status === 'loading'"
               class="cmk-slide-in-tabbed__loading"
             >
               <CmkLoading />

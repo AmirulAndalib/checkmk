@@ -7,7 +7,13 @@ import type { SortingState } from '@tanstack/vue-table'
 
 import client, { unwrap } from '@/lib/rest-api-client/client'
 
-import type { FilterNode, HostsRequestBody, HostsResponse } from '../../shared/api/types'
+import type {
+  FilterNode,
+  HostOverview,
+  HostRef,
+  HostsRequestBody,
+  HostsResponse
+} from '../../shared/api/types'
 import { DEFAULT_BATCH_SIZE } from '../../shared/constants'
 
 export interface HostQueryParams {
@@ -31,6 +37,17 @@ export class HostApi {
       await client.POST('/monitor/hosts', {
         params: { header: { 'Content-Type': 'application/json' } },
         body
+      })
+    )
+  }
+
+  public async fetchHostOverview(host: HostRef): Promise<HostOverview> {
+    return unwrap(
+      await client.GET('/monitor/hosts/{hostname}', {
+        params: {
+          path: { hostname: host.name },
+          query: { site_id: host.site_id }
+        }
       })
     )
   }

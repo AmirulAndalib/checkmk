@@ -16,7 +16,7 @@ import type { HostApi } from '../api/hosts'
 
 export class HostService extends MonitoringService<HostEntry> {
   constructor(
-    private readonly api: HostApi,
+    private readonly api: Pick<HostApi, 'fetchHosts'>,
     shortCutService: KeyShortcutService,
     options: MonitoringServiceOptions<HostEntry> = {}
   ) {
