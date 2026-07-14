@@ -3,8 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
 # netappFiler(1)
 # netappClusteredFiler(3)
 #                sysStat(2) cf(3)     cfSettings(1)
@@ -21,32 +19,40 @@
 # SNMPv2-SMI::enterprises.789.1.2.3.8.0 = INTEGER: 4
 
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import all_of, contains, SNMPTree, startswith, StringTable
-
-check_info = {}
-
-
-def discover_netapp_cluster(info):
-    inventory = []
-    if info:
-        (
-            cfSettings,
-            _cfState,
-            _cfCannotTakeoverCause,
-            _cfPartnerStatus,
-            cfPartnerName,
-            _cfInterconnectStatus,
-        ) = info[0]
-        # only inventorizes clusters that dont have takeover disabled.
-        if int(cfSettings) not in [1, 3]:
-            # Include the cluster partner name in inventory (value added data)
-            inventory.append((cfPartnerName, None))
-        return inventory
-    return []
+from cmk.agent_based.v2 import (
+    all_of,
+    CheckPlugin,
+    CheckResult,
+    contains,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    startswith,
+    State,
+    StringTable,
+)
 
 
-def check_netapp_cluster(item, _no_params, info):
+def discover_netapp_cluster(section: StringTable) -> DiscoveryResult:
+    if not section:
+        return
+    (
+        cfSettings,
+        _cfState,
+        _cfCannotTakeoverCause,
+        _cfPartnerStatus,
+        cfPartnerName,
+        _cfInterconnectStatus,
+    ) = section[0]
+    # only inventorizes clusters that dont have takeover disabled.
+    if int(cfSettings) not in [1, 3]:
+        # Include the cluster partner name in inventory (value added data)
+        yield Service(item=cfPartnerName)
+
+
+def check_netapp_cluster(item: str, section: StringTable) -> CheckResult:
     (
         cfSettings,
         cfState,
@@ -54,26 +60,32 @@ def check_netapp_cluster(item, _no_params, info):
         cfPartnerStatus,
         cfPartnerName,
         cfInterconnectStatus,
-    ) = info[0]
+    ) = section[0]
 
     # first handle all critical states.
     # "dead" and "thisNodeDead"
     if cfState == "1" or cfSettings == "5":
-        return (2, "Node is declared dead by cluster")
-    if cfPartnerStatus in [1, 3]:
-        return (2, "Partner Status is dead or maybeDown")
+        yield Result(state=State.CRIT, summary="Node is declared dead by cluster")
+        return
+    if cfPartnerStatus in ["1", "3"]:
+        yield Result(state=State.CRIT, summary="Partner Status is dead or maybeDown")
+        return
     if cfInterconnectStatus == "2":
-        return (2, "Cluster Interconnect failure")
+        yield Result(state=State.CRIT, summary="Cluster Interconnect failure")
+        return
 
     # then handle warnings.
-    if cfSettings in [3, 4] or cfState == "3":
-        return (1, "Cluster takeover is disabled")
+    if cfSettings in ["3", "4"] or cfState == "3":
+        yield Result(state=State.WARN, summary="Cluster takeover is disabled")
+        return
     if cfInterconnectStatus == "partialFailure":
-        return (1, "Cluster interconnect partially failed")
+        yield Result(state=State.WARN, summary="Cluster interconnect partially failed")
+        return
 
     # if the partner name has changed, we'd like to issue a warning
     if cfPartnerName != item:
-        return 1, f"Partner Name {cfPartnerName} instead of {item}"
+        yield Result(state=State.WARN, summary=f"Partner Name {cfPartnerName} instead of {item}")
+        return
 
     # OK - Cluster enabled, Cluster can takeover and the partner is OK and the
     # infiniband interconnect is working.
@@ -86,19 +98,20 @@ def check_netapp_cluster(item, _no_params, info):
             cfInterconnectStatus == "4",
         )
     ):
-        return (0, "Cluster Status is OK")
+        yield Result(state=State.OK, summary="Cluster Status is OK")
+        return
 
     # if we reach here, we hit an unknown case.
-    return (3, "Got unhandled information")
+    yield Result(state=State.UNKNOWN, summary="Got unhandled information")
+    return
 
 
 def parse_netapp_cluster(string_table: StringTable) -> StringTable:
     return string_table
 
 
-check_info["netapp_cluster"] = LegacyCheckDefinition(
+snmp_section_netapp_cluster = SimpleSNMPSection(
     name="netapp_cluster",
-    parse_function=parse_netapp_cluster,
     detect=all_of(
         contains(".1.3.6.1.2.1.1.1.0", "netapp release"),
         startswith(".1.3.6.1.2.1.1.2.0", ".1.3.6.1.4.1.789"),
@@ -107,6 +120,12 @@ check_info["netapp_cluster"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.789.1.2.3",
         oids=["1", "2", "3", "4", "6", "8"],
     ),
+    parse_function=parse_netapp_cluster,
+)
+
+
+check_plugin_netapp_cluster = CheckPlugin(
+    name="netapp_cluster",
     service_name="metrocluster_w_%s",
     discovery_function=discover_netapp_cluster,
     check_function=check_netapp_cluster,
