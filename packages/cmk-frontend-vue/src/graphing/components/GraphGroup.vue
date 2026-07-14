@@ -38,8 +38,9 @@ const props = withDefaults(
   { figure_width: 800 }
 )
 
-// Seeded from the backend-provided initial range, then follows the page's
-// global time picker; brush zooms on individual panels write to it directly.
+// Seeded from the backend-provided initial range, then follows the page's global time picker;
+// brush interactions, time zooms and pans on individual panels write to it directly, and that
+// write is published back to the global time picker so other graphs/groups on the page follow.
 const requestedTimeRange = useRequestedTimeRange({
   start: props.initial_time_range_start,
   end: props.initial_time_range_end
@@ -56,7 +57,13 @@ const { graphs, isLoading, error } = useGraphData(
 
 <template>
   <div class="graphing-graph-group">
-    <div v-if="isLoading" class="graphing-graph-group__loading">{{ _t('Loading graphs…') }}</div>
+    <!--
+      Only the very first load (no graphs yet) shows the full placeholder. A refetch
+      triggered later (zoom, pan, brush, global picker) must not unmount the panels below.
+    -->
+    <div v-if="isLoading && graphs.length === 0" class="graphing-graph-group__loading">
+      {{ _t('Loading graphs…') }}
+    </div>
     <div v-else-if="error" class="graphing-graph-group__error">{{ error }}</div>
     <template v-else>
       <GraphPanel
@@ -71,6 +78,8 @@ const { graphs, isLoading, error } = useGraphData(
         :show-timestamp="true"
         :show-burger-menu="true"
         :show-legend="true"
+        :show-brush="true"
+        :overview="{ metrics: graph.metrics, timeRange: graph.timeRange }"
         :horizontal-lines="graph.horizontalLines"
         :figure-width="figure_width"
         @update:requested-time-range="requestedTimeRange = $event"

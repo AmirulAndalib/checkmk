@@ -3,9 +3,10 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { ref, watch } from 'vue'
+import { type Ref, computed, ref, watch } from 'vue'
 
 import type { PinPayload, TimeRange, ZoomMode, ZoomPayload } from '../components/TimeSeriesGraph'
+import type { RequestedTimeRange } from '../types'
 import { useGlobalPin } from './useGlobalPin'
 import { useGraphView } from './useGraphView'
 
@@ -13,17 +14,23 @@ import { useGraphView } from './useGraphView'
 // their renderer on their own timeRange, so this view is never rendered.
 const EMPTY_TIME_RANGE: TimeRange = { start: 0, end: 0, step: 1 }
 
+function sameRange(a: RequestedTimeRange, b: RequestedTimeRange): boolean {
+  return a.start === b.start && a.end === b.end
+}
+
 // The per-graph interaction owner: the renderer is view-only (emit-and-wait) and this
 // composable holds everything that moves it — the view state machine, the zoom mode,
 // and the pin — plus the handlers that route the renderer's intents into the machine.
 export function useGraphInteraction(
   getBaseline: () => TimeRange | undefined,
-  getShowPin: () => boolean = () => false
+  getShowPin: () => boolean = () => false,
+  getRequestedTimeRange?: () => RequestedTimeRange,
+  onTimeRangeCommit?: (timeRange: TimeRange) => void
 ) {
   const {
     timeRange: viewTimeRange,
     valueRange: viewValueRange,
-    inspectionActive,
+    inspectionActive: viewInspectionActive,
     handleIntent
   } = useGraphView(() => getBaseline() ?? EMPTY_TIME_RANGE)
 
@@ -41,22 +48,72 @@ export function useGraphInteraction(
     { immediate: true }
   )
 
+  // Tracks the current committing zoom/pan session: resetTarget is the range that was in
+  // effect right before it started (consumed by onReset), lastCommittedRequest is the range
+  // this session last asked onTimeRangeCommit to publish. The two always start and end
+  // together, hence one nullable object rather than two separately-nullable refs.
+  const zoomSession: Ref<{
+    resetTarget: TimeRange
+    lastCommittedRequest: RequestedTimeRange
+  } | null> = ref(null)
+  const inspectionActive = computed(() => viewInspectionActive.value || zoomSession.value !== null)
+
   watch(getBaseline, (baseline) => {
     if (baseline !== undefined) {
       handleIntent({ kind: 'rangeCommit', timeRange: baseline })
     }
   })
 
+  // A new requested time range that doesn't equal the last request committed from within this
+  // composable indicates an outer change, i.e. triggered through the global time picker.
+  // In this case we abandon the current zoom session - setting it to null.
+  if (getRequestedTimeRange) {
+    watch(getRequestedTimeRange, (current) => {
+      if (
+        zoomSession.value !== null &&
+        !sameRange(current, zoomSession.value.lastCommittedRequest)
+      ) {
+        zoomSession.value = null
+      }
+    })
+  }
+
+  function commitTimeRange(timeRange: TimeRange): void {
+    // Canvas drag inverts pixels through a continuous scale, so the raw payload is usually
+    // fractional, while the shared requestedTimeRange (and the backend) deal only with integers.
+    const rounded: RequestedTimeRange = {
+      start: Math.round(timeRange.start),
+      end: Math.round(timeRange.end)
+    }
+    if (zoomSession.value === null) {
+      const baseline = getBaseline()
+      if (baseline !== undefined) {
+        zoomSession.value = { resetTarget: baseline, lastCommittedRequest: rounded }
+      }
+    } else {
+      zoomSession.value = { ...zoomSession.value, lastCommittedRequest: rounded }
+    }
+    onTimeRangeCommit?.({ ...timeRange, ...rounded })
+  }
+
   function onZoom(payload: ZoomPayload): void {
     handleIntent({ kind: 'zoomTransient', ...payload })
+    if (!payload.valueRange) {
+      commitTimeRange(payload.timeRange)
+    }
   }
 
   function onPan(payload: { timeRange: TimeRange }): void {
     handleIntent({ kind: 'pan', timeRange: payload.timeRange })
+    commitTimeRange(payload.timeRange)
   }
 
   function onReset(): void {
     handleIntent({ kind: 'reset' })
+    if (zoomSession.value !== null) {
+      onTimeRangeCommit?.(zoomSession.value.resetTarget)
+    }
+    zoomSession.value = null
   }
 
   function onPinCreate(payload: PinPayload): void {

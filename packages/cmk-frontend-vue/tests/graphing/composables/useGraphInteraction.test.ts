@@ -9,6 +9,7 @@ import { nextTick, ref } from 'vue'
 import type { TimeRange } from '@/graphing/components/TimeSeriesGraph'
 import { useGlobalPin } from '@/graphing/composables/useGlobalPin'
 import { useGraphInteraction } from '@/graphing/composables/useGraphInteraction'
+import type { RequestedTimeRange } from '@/graphing/types'
 
 vi.mock('@/graphing/composables/useGlobalPin', async () => {
   const { computed, ref: createRef } = await import('vue')
@@ -77,7 +78,7 @@ describe('useGraphInteraction', () => {
     expect(graph.inspectionActive.value).toBe(false)
   })
 
-  test('a changed baseline commits and clears an active inspection', async () => {
+  test('a changed baseline updates the view but does not clear the reset target', async () => {
     const baseline = ref<TimeRange>(BASELINE)
     const graph = useGraphInteraction(() => baseline.value)
     graph.onZoom({ timeRange: ZOOMED })
@@ -86,8 +87,11 @@ describe('useGraphInteraction', () => {
     baseline.value = committed
     await nextTick()
 
+    // The local inspection overlay clears (rangeCommit) so the fresh baseline shows through...
     expect(graph.viewTimeRange.value).toEqual(committed)
-    expect(graph.inspectionActive.value).toBe(false)
+    // ...but inspectionActive stays true: a baseline change alone never clears the reset
+    // target (only onReset() or, when wired, an unrelated requestedTimeRange change does).
+    expect(graph.inspectionActive.value).toBe(true)
   })
 
   test('a baseline arriving after an initial undefined becomes the view', async () => {
@@ -148,4 +152,157 @@ describe('useGraphInteraction', () => {
 
     expect(useGlobalPin().ensurePinLoaded).toHaveBeenCalled()
   })
+})
+
+test('a time-zoom commits the new time range', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+
+  graph.onZoom({ timeRange: ZOOMED })
+
+  expect(onTimeRangeCommit).toHaveBeenCalledExactlyOnceWith(ZOOMED)
+})
+
+test('a fractional zoom payload is rounded before it is committed', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+
+  graph.onZoom({ timeRange: { start: 1200.6, end: 1499.4, step: 60 } })
+
+  expect(onTimeRangeCommit).toHaveBeenCalledExactlyOnceWith({ start: 1201, end: 1499, step: 60 })
+})
+
+test('the reset control survives the baseline settling at the rounded (not raw) committed range', async () => {
+  const baseline = ref<TimeRange>(BASELINE)
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => baseline.value, undefined, undefined, onTimeRangeCommit)
+
+  graph.onZoom({ timeRange: { start: 1200.6, end: 1499.4, step: 60 } })
+
+  // Without a getRequestedTimeRange source, the session is never cleared by a baseline
+  // change alone (only an explicit reset clears it) — this just confirms that still holds
+  // once the baseline settles at the rounded value the zoom actually committed.
+  baseline.value = { start: 1201, end: 1499, step: 60 }
+  await nextTick()
+
+  expect(graph.inspectionActive.value).toBe(true)
+})
+
+test('a value-zoom does not commit a time range', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+
+  graph.onZoom({ timeRange: BASELINE, valueRange: { min: 0, max: 10 } })
+
+  expect(onTimeRangeCommit).not.toHaveBeenCalled()
+})
+
+test('a pan commits the new time range', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+  const shifted: TimeRange = { start: 1100, end: 2100, step: 60 }
+
+  graph.onPan({ timeRange: shifted })
+
+  expect(onTimeRangeCommit).toHaveBeenCalledExactlyOnceWith(shifted)
+})
+
+test('a reset commits the baseline time range', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+  graph.onZoom({ timeRange: ZOOMED })
+  onTimeRangeCommit.mockClear()
+
+  graph.onReset()
+
+  expect(onTimeRangeCommit).toHaveBeenCalledExactlyOnceWith(BASELINE)
+})
+
+test('a reset does not commit when there is no baseline yet', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => undefined, undefined, undefined, onTimeRangeCommit)
+
+  graph.onReset()
+
+  expect(onTimeRangeCommit).not.toHaveBeenCalled()
+})
+
+test('a reset does not commit after only a value-zoom, since nothing was ever committed', () => {
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => BASELINE, undefined, undefined, onTimeRangeCommit)
+  graph.onZoom({ timeRange: BASELINE, valueRange: { min: 0, max: 10 } })
+
+  graph.onReset()
+
+  expect(onTimeRangeCommit).not.toHaveBeenCalled()
+})
+
+test('inspection (and thus the reset control) stays active after the baseline catches up to a committed zoom, and a reset then commits the pre-zoom range', async () => {
+  const baseline = ref<TimeRange>(BASELINE)
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(() => baseline.value, undefined, undefined, onTimeRangeCommit)
+
+  graph.onZoom({ timeRange: ZOOMED })
+  onTimeRangeCommit.mockClear()
+
+  // Simulates the refetch that the zoom's own commit triggered actually completing:
+  // the baseline itself becomes the zoomed range, which would otherwise clear the
+  // inspection overlay and hide the reset control right away.
+  baseline.value = ZOOMED
+  await nextTick()
+  expect(graph.inspectionActive.value).toBe(true)
+
+  graph.onReset()
+
+  expect(onTimeRangeCommit).toHaveBeenCalledExactlyOnceWith(BASELINE)
+  expect(graph.inspectionActive.value).toBe(false)
+})
+
+test('a requestedTimeRange change matching our own commit (inner) keeps the reset target', async () => {
+  const baseline = ref<TimeRange>(BASELINE)
+  const requestedTimeRange = ref<RequestedTimeRange>({ start: BASELINE.start, end: BASELINE.end })
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(
+    () => baseline.value,
+    undefined,
+    () => requestedTimeRange.value,
+    onTimeRangeCommit
+  )
+
+  graph.onZoom({ timeRange: ZOOMED })
+  // Let the zoom's own commit settle first, clearing the local inspection overlay — what's
+  // left active afterward must come purely from the reset target (zoomSession), not the
+  // transient overlay, otherwise this would pass even if zoomSession were wrongly cleared.
+  baseline.value = ZOOMED
+  await nextTick()
+  // Echoes straight back, exactly as GraphGroup would when it applies our own emitted
+  // update:requestedTimeRange — no backend round trip involved, so no rounding drift.
+  requestedTimeRange.value = { start: ZOOMED.start, end: ZOOMED.end }
+  await nextTick()
+
+  expect(graph.inspectionActive.value).toBe(true)
+})
+
+test('an unrelated requestedTimeRange change (e.g. the global picker) drops the reset target', async () => {
+  const baseline = ref<TimeRange>(BASELINE)
+  const requestedTimeRange = ref<RequestedTimeRange>({ start: BASELINE.start, end: BASELINE.end })
+  const onTimeRangeCommit = vi.fn()
+  const graph = useGraphInteraction(
+    () => baseline.value,
+    undefined,
+    () => requestedTimeRange.value,
+    onTimeRangeCommit
+  )
+
+  graph.onZoom({ timeRange: ZOOMED })
+  // Let the zoom's own commit settle first, clearing the local inspection overlay — same
+  // reasoning as above, isolating what's being tested to zoomSession's own clearing logic.
+  baseline.value = ZOOMED
+  await nextTick()
+  expect(graph.inspectionActive.value).toBe(true)
+
+  requestedTimeRange.value = { start: 5000, end: 6000 }
+  await nextTick()
+
+  expect(graph.inspectionActive.value).toBe(false)
 })

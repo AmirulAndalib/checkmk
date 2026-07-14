@@ -3,7 +3,12 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
+import {
+  CalendarDateTime,
+  type ZonedDateTime,
+  getLocalTimeZone,
+  toZoned
+} from '@internationalized/date'
 import { nextTick } from 'vue'
 
 import type { DateTimeRange } from '@/components/date-time'
@@ -75,5 +80,67 @@ describe('useRequestedTimeRange', () => {
     const requested = useRequestedTimeRange(INITIAL)
     requested.value = { start: 5_000, end: 6_000 }
     expect(requested.value).toEqual({ start: 5_000, end: 6_000 })
+  })
+
+  test('publishes a local update to the global picker', async () => {
+    useGlobalTimeRange().setActiveTimeRange(range(9, 10))
+    const requested = useRequestedTimeRange(INITIAL)
+    await nextTick()
+
+    requested.value = { start: 5_000, end: 6_000 }
+    await nextTick()
+
+    const published = useGlobalTimeRange().activeTimeRange.value
+    expect(published).not.toBeNull()
+    expect(epochSeconds(published!.from)).toBe(5_000)
+    expect(epochSeconds(published!.to)).toBe(6_000)
+  })
+
+  test('reuses the active range timezone when publishing a local update', async () => {
+    useGlobalTimeRange().setActiveTimeRange(range(9, 10))
+    const requested = useRequestedTimeRange(INITIAL)
+    await nextTick()
+
+    requested.value = { start: 5_000, end: 6_000 }
+    await nextTick()
+
+    const published = useGlobalTimeRange().activeTimeRange.value
+    expect(published!.from.timeZone).toBe(TZ)
+    expect(published!.to.timeZone).toBe(TZ)
+  })
+
+  test('falls back to the local timezone when publishing without a prior picker range', async () => {
+    const requested = useRequestedTimeRange(INITIAL)
+
+    requested.value = { start: 5_000, end: 6_000 }
+    await nextTick()
+
+    const published = useGlobalTimeRange().activeTimeRange.value
+    expect(published!.from.timeZone).toBe(getLocalTimeZone())
+  })
+
+  test('propagates a local update to another consumer sharing the same picker', async () => {
+    const first = useRequestedTimeRange(INITIAL)
+    const second = useRequestedTimeRange(INITIAL)
+    await nextTick()
+
+    first.value = { start: 5_000, end: 6_000 }
+    await nextTick()
+
+    expect(second.value).toEqual({ start: 5_000, end: 6_000 })
+  })
+
+  test('settles instead of bouncing indefinitely once a local update round-trips back', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const requested = useRequestedTimeRange(INITIAL)
+
+    requested.value = { start: 5_000, end: 6_000 }
+    await nextTick()
+    await nextTick()
+    await nextTick()
+
+    expect(requested.value).toEqual({ start: 5_000, end: 6_000 })
+    expect(errorSpy).not.toHaveBeenCalled()
+    errorSpy.mockRestore()
   })
 })

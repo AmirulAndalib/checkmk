@@ -17,14 +17,22 @@ vi.mock('@/graphing/components/TimeSeriesGraph', () => ({
   default: {
     inheritAttrs: false,
     props: ['metrics', 'time_range', 'inspecting'],
-    emits: ['zoom', 'reset'],
+    emits: ['zoom', 'pan', 'reset'],
     template: `<div data-testid="time-series-graph">
       <span>{{ metrics.map((m) => m.metadata.title).join(",") }}</span>
       <span data-testid="view-start">{{ time_range.start }}</span>
       <span data-testid="inspecting">{{ inspecting }}</span>
       <span
-        data-testid="emit-zoom"
+        data-testid="emit-time-zoom"
         @click="$emit('zoom', { timeRange: { start: 100, end: 200, step: 10 } })"
+      />
+      <span
+        data-testid="emit-value-zoom"
+        @click="$emit('zoom', { timeRange: time_range, valueRange: { min: 0, max: 10 } })"
+      />
+      <span
+        data-testid="emit-pan"
+        @click="$emit('pan', { timeRange: { start: 300, end: 400, step: 10 } })"
       />
       <span data-testid="emit-reset" @click="$emit('reset')" />
     </div>`
@@ -150,17 +158,61 @@ test('a zoom intent from the renderer overlays the view and activates inspection
     props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
 
-  await fireEvent.click(screen.getByTestId('emit-zoom'))
+  await fireEvent.click(screen.getByTestId('emit-time-zoom'))
 
   expect(screen.getByTestId('view-start')).toHaveTextContent('100')
   expect(screen.getByTestId('inspecting')).toHaveTextContent('true')
+})
+
+test('a zoom intent from the renderer also publishes a requested time range update', async () => {
+  const { emitted } = render(GraphPanel, {
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  await fireEvent.click(screen.getByTestId('emit-time-zoom'))
+
+  expect(emitted()['update:requestedTimeRange']).toEqual([[{ start: 100, end: 200 }]])
+})
+
+test('a value-zoom intent from the renderer does not publish a requested time range update', async () => {
+  const { emitted } = render(GraphPanel, {
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  await fireEvent.click(screen.getByTestId('emit-value-zoom'))
+
+  expect(emitted()['update:requestedTimeRange']).toBeUndefined()
+})
+
+test('a pan intent from the renderer also publishes a requested time range update', async () => {
+  const { emitted } = render(GraphPanel, {
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+
+  await fireEvent.click(screen.getByTestId('emit-pan'))
+
+  expect(emitted()['update:requestedTimeRange']).toEqual([[{ start: 300, end: 400 }]])
+})
+
+test('a reset intent from the renderer also publishes a requested time range update', async () => {
+  const { emitted } = render(GraphPanel, {
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+  })
+  await fireEvent.click(screen.getByTestId('emit-time-zoom'))
+
+  await fireEvent.click(screen.getByTestId('emit-reset'))
+
+  expect(emitted()['update:requestedTimeRange']).toEqual([
+    [{ start: 100, end: 200 }],
+    [{ start: TIME_RANGE.start, end: TIME_RANGE.end }]
+  ])
 })
 
 test('a reset intent from the renderer restores the baseline view', async () => {
   render(GraphPanel, {
     props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
-  await fireEvent.click(screen.getByTestId('emit-zoom'))
+  await fireEvent.click(screen.getByTestId('emit-time-zoom'))
 
   await fireEvent.click(screen.getByTestId('emit-reset'))
 

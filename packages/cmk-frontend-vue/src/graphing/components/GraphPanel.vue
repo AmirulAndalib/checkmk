@@ -42,7 +42,16 @@ const {
   onReset,
   onPinCreate,
   clearPin
-} = useGraphInteraction(() => props.dataTimeRange)
+} = useGraphInteraction(
+  () => props.dataTimeRange, // getBaseline
+  () => true, // getShowPin; TODO: make this a prop to allow disabling pinning
+  () => props.requestedTimeRange, // getRequestedTimeRange
+  (timeRange) =>
+    updateTimeRange({
+      start: timeRange.start,
+      end: timeRange.end
+    }) // onTimeRangeCommit
+)
 
 const {
   hiddenMetricNames,
