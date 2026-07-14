@@ -3190,7 +3190,7 @@ class BiAggregationClient(RestApiClient):
     ) -> Response:
         url = f"/domain-types/{self.domain}/actions/aggregation_state/invoke"
         if query_params is not None:
-            url += f"?{urllib.parse.urlencode(_only_set_keys(query_params))}"
+            url += f"?{urllib.parse.urlencode(_only_set_keys(query_params), doseq=True)}"
 
         return self.request(
             "get",
