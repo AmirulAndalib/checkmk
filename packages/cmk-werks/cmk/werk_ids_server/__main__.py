@@ -15,7 +15,7 @@ from cmk.werk_ids_server.server import app
 
 _DB = Path("/var/lib/cmk-werk-ids/werk_ids.db")
 _SECRET_FILE = Path("/etc/cmk-werk-ids/secret")
-_START = 22_222
+_START = 22_003
 
 
 class _Server(BaseApplication):
