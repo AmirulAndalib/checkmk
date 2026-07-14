@@ -220,7 +220,7 @@ from cmk.server_side_calls_backend import (
     SpecialAgent,
     SpecialAgentCommandLine,
 )
-from cmk.utils import config_warnings, ip_lookup, log, man_pages
+from cmk.utils import config_warnings, ip_lookup, man_pages
 from cmk.utils.auto_queue import AutoQueue
 from cmk.utils.caching import cache_manager
 from cmk.utils.encoding import ensure_str_with_fallback
@@ -2555,10 +2555,9 @@ def _execute_silently(
         env.loaded_config, env.ruleset_matcher, env.label_manager
     )
     hosts_config = rctx.hosts_config
+    # Config generation logic writes directly to STDOUT. We discard it here.
+    # TODO: Should we not capture and forward it to the logs?
     with redirect_stdout(open(os.devnull, "w")):
-        # The IP lookup used to write to stdout, that is not the case anymore.
-        # The redirect might not be needed anymore.
-        log.setup_console_logging()
         try:
             do_restart(
                 config_cache,
