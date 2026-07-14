@@ -628,8 +628,8 @@ def test_create_diagnostics_dump(execute: Execute) -> None:
 def test_update_dns_cache(execute: Execute) -> None:
     p = execute(["cmk", "--update-dns-cache", "-vvv"])
     for hostname in ["modes-test-host", "modes-test-host2", "modes-test-host3"]:
-        assert hostname in p.stdout
-    assert "lookup failed" not in p.stdout
+        assert hostname in p.stderr
+    assert "lookup failed" not in p.stderr
 
 
 @pytest.mark.parametrize("opt", ["--nagios-config", "-N"])
