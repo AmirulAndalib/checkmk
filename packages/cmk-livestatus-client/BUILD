@@ -1,7 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
-load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
@@ -91,22 +90,14 @@ py_library(
     ],
 )
 
-# The livedump command line tool. Not part of the cmk.livestatus_client
-# library or its wheel; it is shipped as bin/livedump via the package tar.
+# Keep __main__.py in a separate target to avoid mypy errors on the standalone package.
 py_library(
-    name = "livedump",
-    srcs = ["livedump.py"],
+    name = "cmk-livestatus-client-main",
+    srcs = ["cmk/livestatus_client/__main__.py"],
     imports = ["."],
+    tags = ["no-mypy"],
+    visibility = ["//cmk:__pkg__"],
     deps = [":cmk-livestatus-client"],
-)
-
-pkg_files(
-    name = "livedump_bin",
-    srcs = ["livedump.py"],
-    attributes = pkg_attributes(
-        mode = "0755",
-    ),
-    renames = {"livedump.py": "bin/livedump"},
 )
 
 py_doc_test(
@@ -134,6 +125,7 @@ py_wheel(
     visibility = ["//visibility:public"],
     deps = [
         ":cmk-livestatus-client",
+        ":cmk-livestatus-client-main",
         ":cmk_livestatus_client_py_typed",
         ":livestatus-api",
         ":livestatus-connection",
@@ -170,7 +162,6 @@ filegroup(
 
 package_wheel(
     name = "cmk_livestatus_client_pkg_tar",
-    additional_files = [":livedump_bin"],
     visibility = ["//visibility:public"],
     whl = "cmk-livestatus-client_whl",
 )
@@ -194,7 +185,6 @@ py_requirements_test(
     libs = [
         ":cmk-livestatus-client",
         ":examples",
-        ":livedump",
     ],
     requirements_in = "requirements.in",
 )
