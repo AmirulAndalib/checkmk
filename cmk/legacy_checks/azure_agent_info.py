@@ -3,22 +3,30 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="index"
-# mypy: disable-error-code="var-annotated"
-
-from __future__ import annotations
-
 import contextlib
 import json
 import time
-from collections.abc import Generator, Iterable, Mapping
+from collections.abc import Mapping
 from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition, LegacyResult
-from cmk.agent_based.v2 import get_value_store, StringTable
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    get_value_store,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
 from cmk.plugins.azure.lib import AZURE_AGENT_SEPARATOR
 
-check_info = {}
+type Section = Mapping[str, Any]
 
 
 def _update_remaining_reads(parsed: dict[str, Any], value: str) -> None:
@@ -40,11 +48,11 @@ def _update_remaining_reads(parsed: dict[str, Any], value: str) -> None:
         pass
 
 
-def parse_azure_agent_info(string_table: StringTable) -> dict[str, Any]:
+def parse_azure_agent_info(string_table: StringTable) -> Section:
     parsed: dict[str, Any] = {}
     for row in string_table:
         key = row[0]
-        value = AZURE_AGENT_SEPARATOR.join(row[1:])
+        value: Any = AZURE_AGENT_SEPARATOR.join(row[1:])
 
         if key == "remaining-reads":
             _update_remaining_reads(parsed, value)
@@ -67,13 +75,11 @@ def parse_azure_agent_info(string_table: StringTable) -> dict[str, Any]:
     return parsed
 
 
-def discovery_azure_agent_info(
-    parsed: dict[str, Any],
-) -> Iterable[tuple[None, dict[str, Any]]]:
-    yield None, {"discovered_resources": parsed.get("monitored-resources", [])}
+def discovery_azure_agent_info(section: Section) -> DiscoveryResult:
+    yield Service(parameters={"discovered_resources": section.get("monitored-resources", [])})
 
 
-def agent_bailouts(bailouts: list[tuple[int, str]]) -> Generator[LegacyResult]:
+def agent_bailouts(bailouts: list[tuple[int, str]]) -> CheckResult:
     now = time.time()
     value_store = get_value_store()
     for status, text in bailouts:
@@ -83,15 +89,19 @@ def agent_bailouts(bailouts: list[tuple[int, str]]) -> Generator[LegacyResult]:
             first_seen = value_store.get(text, now)
             value_store[text] = first_seen
             status = 0 if (now - first_seen < 3600) else status
-        yield status, text
+        yield Result(state=State(status), summary=text)
 
 
-def remaining_api_reads(reads: int | str, params: Mapping[str, Any]) -> LegacyResult:
+def remaining_api_reads(reads: int | str, params: Mapping[str, Any]) -> CheckResult:
     if not isinstance(reads, int):
-        return params["remaining_reads_unknown_state"], "Remaining API reads: %s" % reads
+        yield Result(
+            state=State(params["remaining_reads_unknown_state"]),
+            summary=f"Remaining API reads: {reads}",
+        )
+        return
 
     levels = (None, None) + params.get("remaining_reads_levels_lower", (None, None))
-    return check_levels(
+    yield from check_levels(
         reads,
         "remaining_reads",
         levels,
@@ -111,67 +121,70 @@ def resource_pinning(present_resources: list[str], params: Mapping[str, Any]) ->
 
     missing = sorted(set(discovered) - set(present_resources))
     new = sorted(set(present_resources) - set(discovered))
-    short_output = []
-    long_output = []
+    short_output: list[str] = []
+    long_output: list[str] = []
 
     if missing:
-        short_output.append("Missing resources: %d" % len(missing))
-        long_output.extend("Missing resource: %r(!)" % r for r in missing)
+        short_output.append(f"Missing resources: {len(missing)}")
+        long_output.extend(f"Missing resource: {r!r}(!)" for r in missing)
     if new:
-        short_output.append("New resources: %d" % len(new))
-        long_output.extend("New resource: %r(!)" % r for r in new)
+        short_output.append(f"New resources: {len(new)}")
+        long_output.extend(f"New resource: {r!r}(!)" for r in new)
 
     return ", ".join(short_output), "\n".join(long_output)
 
 
-def agent_issues(
-    issues: dict[str, list[dict[str, Any]]], params: Mapping[str, Any]
-) -> Generator[LegacyResult]:
+def agent_issues(issues: dict[str, list[dict[str, Any]]], params: Mapping[str, Any]) -> CheckResult:
     for type_ in ("warning", "exception"):
         count = len(issues.get(type_, ()))
-        yield check_levels(
+        yield from check_levels(
             count,
             None,
-            params.get("%s_levels" % type_),
+            params.get(f"{type_}_levels"),
             human_readable_func=lambda i: "%d" % i,
-            infoname="%ss" % type_.title(),
+            infoname=f"{type_.title()}s",
         )
 
     for i in sorted(issues.get("exception", []), key=lambda x: x["msg"]):
-        yield 0, "\nIssue in {}: Exception: {} (!!)".format(i["issued_by"], i["msg"])
+        yield Result(
+            state=State.OK, notice=f"Issue in {i['issued_by']}: Exception: {i['msg']} (!!)"
+        )
     for i in sorted(issues.get("warning", []), key=lambda x: x["msg"]):
-        yield 0, "\nIssue in {}: Warning: {} (!)".format(i["issued_by"], i["msg"])
+        yield Result(state=State.OK, notice=f"Issue in {i['issued_by']}: Warning: {i['msg']} (!)")
     for i in sorted(issues.get("info", []), key=lambda x: x["msg"]):
-        yield 0, "\nIssue in {}: Info: {}".format(i["issued_by"], i["msg"])
+        yield Result(state=State.OK, notice=f"Issue in {i['issued_by']}: Info: {i['msg']}")
 
 
-def check_azure_agent_info(
-    _no_item: None, params: Mapping[str, Any], parsed: dict[str, Any]
-) -> Generator[LegacyResult]:
-    yield from agent_bailouts(parsed.get("agent-bailout", []))
+def check_azure_agent_info(params: Mapping[str, Any], section: Section) -> CheckResult:
+    yield from agent_bailouts(section.get("agent-bailout", []))
 
-    reads = parsed.get("remaining-reads")
+    reads = section.get("remaining-reads")
     if reads is not None:
-        yield remaining_api_reads(reads, params)
+        yield from remaining_api_reads(reads, params)
 
-    groups = parsed.get("monitored-groups")
+    groups = section.get("monitored-groups")
     if groups:
-        yield 0, "Monitored groups: %s" % ", ".join(groups)
+        yield Result(state=State.OK, summary=f"Monitored groups: {', '.join(groups)}")
 
-    resources = parsed.get("monitored-resources", [])
+    resources = section.get("monitored-resources", [])
     resource_infos = resource_pinning(resources, params)
     if resource_infos[0]:
-        yield 1, resource_infos[0]
+        yield Result(state=State.WARN, summary=resource_infos[0])
 
-    yield from agent_issues(parsed.get("issues", {}), params)
+    yield from agent_issues(section.get("issues", {}), params)
 
     if resource_infos[1]:
-        yield 0, "\n%s" % resource_infos[1]
+        yield Result(state=State.OK, notice=resource_infos[1])
 
 
-check_info["azure_agent_info"] = LegacyCheckDefinition(
+agent_section_azure_agent_info = AgentSection(
     name="azure_agent_info",
     parse_function=parse_azure_agent_info,
+)
+
+
+check_plugin_azure_agent_info = CheckPlugin(
+    name="azure_agent_info",
     service_name="Azure Agent Info",
     discovery_function=discovery_azure_agent_info,
     check_function=check_azure_agent_info,
