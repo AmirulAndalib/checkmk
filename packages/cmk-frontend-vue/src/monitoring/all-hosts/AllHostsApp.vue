@@ -185,7 +185,7 @@ const columns: ColumnDef<HostEntry>[] = [
   },
   {
     accessorKey: 'num_services',
-    header: _t('Total'),
+    header: _t('All services'),
     sortDescFirst: true,
     meta: {
       justify: 'right',
@@ -279,7 +279,7 @@ const hostService = new HostService(new HostApi(), getKeyShortcutServiceInstance
   columns,
   quickFilters: [
     {
-      label: _t('Unhandled Problems'),
+      label: _t('Unhandled host problems'),
       filter: {
         type: 'and',
         children: [
