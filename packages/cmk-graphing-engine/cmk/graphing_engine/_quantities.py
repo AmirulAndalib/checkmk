@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import enum
 import math
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import assert_never, Protocol
 
@@ -22,7 +22,8 @@ from ._units import CurveAttributes
 # The leaves a graph fetches data for: the keys of EvaluationContext.fetched and the elements
 # Quantity.metrics() yields. A metric is identified by its metric_name - that is what sets it apart
 # from a plain Quantity (an expression node) - and tagged by kind() like any serialized quantity.
-class Metric(Protocol):
+# It must be hashable: the evaluation context keys its fetched data by the metric leaf.
+class Metric(Hashable, Protocol):
     def kind(self) -> str: ...
 
     @property
@@ -56,7 +57,10 @@ class EvaluationContext:
 class EvaluatedQuantity:
     value: float | None
     time_series: TimeSeries
+    # Per-series display carried by a fan-out leaf's results: the label tells the fanned curves apart
+    # (folded into the title), and a non-empty color overrides the index-based distinct colour.
     label: str = ""
+    color: str = ""
 
 
 class Quantity(Protocol):
