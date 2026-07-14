@@ -83,17 +83,9 @@ void fetch_package(Map args) {
             omit_build_venv: true,  // do not check or build a venv first
             relative_job_name: relative_job_name,
         ];
-        def custom_git_ref = cmd_output("git rev-parse HEAD");
-        if (args.rebase_onto) {
-            this_parameters.build_params += [
-                CIPARAM_GATED_REBASE_ONTO: args.rebase_onto,
-                CUSTOM_GIT_REF: params.CUSTOM_GIT_REF,
-            ];
-        } else {
-            this_parameters.build_params += [
-                CUSTOM_GIT_REF: custom_git_ref,
-            ];
-        }
+        this_parameters.build_params += [
+            CUSTOM_GIT_REF: cmd_output("git rev-parse HEAD"),
+        ];
         if (args.version) {
             // Pin the match to the exact upstream VERSION (e.g. an RC like "2.5.0p9-rc2").
             // Without this, ci-artifacts may match a different same-commit build (e.g. a
@@ -107,7 +99,7 @@ void fetch_package(Map args) {
             // using the dot operator does not do this
             this_parameters.build_params += [CIPARAM_PATH_HASH: args.dependency_paths];
             this_parameters.build_params_no_check += [
-                CUSTOM_GIT_REF: args.rebase_onto ? params.CUSTOM_GIT_REF : cmd_output("git rev-parse HEAD")
+                CUSTOM_GIT_REF: cmd_output("git rev-parse HEAD")
             ];
         }
         if (args.klaus_spezial) {

@@ -11,7 +11,6 @@
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        "CIPARAM_GATED_REBASE_ONTO",     // git rev of target branch tip; if set, rebase workspace onto it
         "CIPARAM_OVERRIDE_DOCKER_TAG_BUILD",
         "DISABLE_CACHE",
         ["DISTRO", true],
@@ -36,7 +35,6 @@ void main() {
     def edition = params.EDITION;
     def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
     def version = params.VERSION;
 
     def bazel_log_prefix = "bazel_log_";
@@ -116,7 +114,6 @@ void main() {
                     DISABLE_CACHE: disable_cache,
                     DISABLE_CMK_DISTRO_PACKAGE_SIGNING: disable_signing,
                     FAKE_ARTIFACTS: fake_artifacts,
-                    CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                     CIPARAM_OVERRIDE_DOCKER_TAG_BUILD: params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,
                 ],
                 build_params_no_check: [
@@ -147,7 +144,6 @@ void main() {
                     DISTRO: distro,
                     DISABLE_CACHE: disable_cache,
                     FAKE_ARTIFACTS: fake_artifacts,
-                    CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
                 build_params_no_check: [
                     CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,

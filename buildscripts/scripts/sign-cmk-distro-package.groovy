@@ -8,7 +8,6 @@
 // groovylint-disable MethodSize
 void main() {
     check_job_parameters([
-        "CIPARAM_GATED_REBASE_ONTO",     // accepted for parameter consistency; no rebase needed (downloads pre-built artifacts)
         "DISABLE_CACHE",
         ["DISTRO", true],
         ["EDITION", true],
@@ -33,7 +32,6 @@ void main() {
     def disable_cache = params.DISABLE_CACHE;
     def distro = params.DISTRO;
     def edition = params.EDITION;
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
     def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
 
@@ -59,19 +57,10 @@ void main() {
         |fake_artifacts:........... │${fake_artifacts}│
         |force_build:.............. │${force_build}│
         |package_type:............. │${package_type}│
-        |rebase_onto:.............. |${rebase_onto}|
         |safe_branch_name:......... │${safe_branch_name}│
         |triggerd_by:.............. │${triggerd_by}│
         |===================================================
         """.stripMargin());
-
-    smart_stage(
-        name: "Rebase",
-        condition: "${rebase_onto}" != "",
-        raiseOnError: true,
-    ) {
-        versioning.rebase_workspace(safe_branch_name, rebase_onto);
-    }
 
     dir("${checkout_dir}") {
         container("deb-package-signer") {
@@ -102,7 +91,6 @@ void main() {
                     fake_artifacts: fake_artifacts,
                     force_build: force_build,
                     no_remove_others: true,
-                    rebase_onto: rebase_onto,
                     relative_job_name: "builders/build-cmk-distro-package",
                     safe_branch_name: safe_branch_name,
                 );

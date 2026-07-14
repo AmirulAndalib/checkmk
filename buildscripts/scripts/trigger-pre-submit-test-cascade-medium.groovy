@@ -2,11 +2,24 @@
 
 /// file: trigger-pre-submit-test-cascade-medium.groovy
 
+// @NonCPS: runs outside Jenkins CPS so HttpURLConnection (non-Serializable) is safe to hold.
+// Uses POST /a/changes/{id}/rebase:chain which rebases the full ancestor chain in one call
+// (Gerrit 3.9+). Returns [status: int, body: String].
+@NonCPS
+Map gerritRebaseChain(String patchset_revision, String auth_header) {
+    def conn = new URL("https://review.lan.tribe29.com/a/changes/${patchset_revision}/rebase:chain?o=CURRENT_REVISION").openConnection();
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Authorization", auth_header);
+    def http_status = conn.responseCode;
+    def body = (http_status >= 200 && http_status < 300) ? conn.inputStream.text : (conn.errorStream?.text ?: "");
+    return [status: http_status, body: body];
+}
+
 List getRelatedChanges(Map args) {
     def allChanges = [];
 
     allChanges = sh(returnStdout: true, script: """
-        git log --format=%H "${env.GERRIT_PATCHSET_REVISION}" ^origin/"${args.safe_branch_name}"
+        git log --format=%H "${args.patchset_revision}" ^origin/"${args.safe_branch_name}"
     """).trim().split("\n");
 
     return allChanges;
@@ -55,8 +68,7 @@ void main() {
         "test-composition-${edition_medium_chain}",
         "test-integration-${edition_medium_chain}",
     ];
-    // rebase_onto: tip of target branch, computed below if CIPARAM_GATED_TRIGGER_REBASE is set.
-    def rebase_onto = "";
+    def new_patchset_revision = effective_git_ref;
 
     print(
         """
@@ -78,14 +90,14 @@ void main() {
     inside_container_minimal(safe_branch_name: safe_branch_name) {
         // silent-start is enabled on this trigger to prevent Verified=0 being cast
         // at build start. Post the build URL manually instead.
-        if (env.GERRIT_PATCHSET_REVISION) {
+        if (new_patchset_revision) {
             withGerritSshKey {
                 sh("""
                     ssh -i "\${GERRIT_SSH_KEY}" -o StrictHostKeyChecking=no \
                         -p 29418 jenkins@review.lan.tribe29.com \
                         gerrit review \
                         --message "'Build started: ${env.BUILD_URL}'" \
-                        ${env.GERRIT_PATCHSET_REVISION}
+                        ${new_patchset_revision}
                 """);
 
                 // pull changes, but do not yet rebase. Required to get all commits in the chain compared to base branch
@@ -98,18 +110,48 @@ void main() {
                                 refs/heads/${safe_branch_name}:refs/remotes/origin/${safe_branch_name}
                         """);
                     }
-                    all_commits_in_chain = getRelatedChanges([safe_branch_name: safe_branch_name]);
+                    all_commits_in_chain = getRelatedChanges([
+                        safe_branch_name: safe_branch_name,
+                        patchset_revision: new_patchset_revision,
+                    ]);
                     println("Commits in chain: ${all_commits_in_chain}");
                 }
             }
         }
 
         smart_stage(
-            name: "Compute rebase anchors",
+            name: "Rebase chain on latest commit in Gerrit",
             condition: do_rebase,
             raiseOnError: true,
         ) {
-            rebase_onto = versioning.compute_rebase_onto(safe_branch_name);
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'sheriff_http_credentials_for_gerrit',
+                    usernameVariable: 'GERRIT_USER',
+                    passwordVariable: 'GERRIT_PASSWORD',
+                ),
+            ]) {
+                // POST /a/changes/{id}/rebase:chain rebases the full ancestor chain in one
+                // server-side call. Response is a list of ChangeInfo (oldest→newest); the
+                // last entry is the tip change with its new current_revision.
+                def auth_header = "Basic " + "${GERRIT_USER}:${GERRIT_PASSWORD}".bytes.encodeBase64().toString();
+                def result = gerritRebaseChain(new_patchset_revision, auth_header);
+                if (result.status >= 200 && result.status < 300) {
+                    // Strip Gitiles XSS protection prefix (5 bytes) before parsing.
+                    // rebase:chain returns RebaseChainInfo {rebased_changes: [ChangeInfo...]}.
+                    def rebase_info = new groovy.json.JsonSlurper().parseText(result.body.drop(5));
+                    def rebased_revision = rebase_info.rebased_changes?.last()?.current_revision;
+                    if (!rebased_revision) {
+                        error("rebase:chain response missing rebased_changes or current_revision: ${result.body}");
+                    }
+                    new_patchset_revision = rebased_revision;
+                } else if (result.status == 409 && result.body.contains("already up to date")) {
+                    println("Chain is already up to date, continuing with ${new_patchset_revision}");
+                } else {
+                    error("Gerrit rebase failed (HTTP ${result.status}): ${result.body}");
+                }
+            }
+            println("New Patchset revision after Gerrit rebase: ${new_patchset_revision}");
         }
 
         smart_stage(
@@ -122,13 +164,12 @@ void main() {
                 force_build: force_build,
                 relative_job_name: "${branch_base_folder}/builders/trigger-cmk-distro-package",
                 build_params: [
-                    CUSTOM_GIT_REF: effective_git_ref,
+                    CUSTOM_GIT_REF: new_patchset_revision,
                     EDITION: edition_medium_chain,
                     DISTRO: distro_medium_chain,
                     DISABLE_CACHE: force_build,
                     DISABLE_CMK_DISTRO_PACKAGE_SIGNING: disable_signing,
                     FAKE_ARTIFACTS: fake_artifacts,
-                    CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
                 build_params_no_check: [
                     CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
@@ -153,7 +194,7 @@ void main() {
                     force_build: force_build,
                     relative_job_name: "${branch_base_folder}/cv/${job_name}",
                     build_params: [
-                        CUSTOM_GIT_REF: effective_git_ref,
+                        CUSTOM_GIT_REF: new_patchset_revision,
                         EDITION: edition_medium_chain,
                         DISTRO: distro_medium_chain,
                         DISABLE_CACHE: force_build,
@@ -166,7 +207,6 @@ void main() {
                         // Remember to quote a chain of filters to prevent word splitting
                         // Setting "-m medium_test_chain" will cause special handling in "test-integration-single.groovy"
                         TEST_FILTER: '-m medium_test_chain',
-                        CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                     ],
                     build_params_no_check: [
                         CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
@@ -213,7 +253,7 @@ void main() {
                         println("changeInfo: ${changeInfo}");
                         all_change_info[commit] = changeInfo;
 
-                        if ("${changeInfo.commit}" == "${env.GERRIT_PATCHSET_REVISION}") {
+                        if ("${changeInfo.commit}" == "${new_patchset_revision}") {
                             println("Vote yourself +2");
                             voteGerrit(vote: 2, identifier: "${changeInfo.commit}");
                         } else {
@@ -230,7 +270,7 @@ void main() {
 
                     // Try submit; if submit fails roll back all votes to 0.
                     try {
-                        voteGerrit(vote: 2, submit: true, identifier: env.GERRIT_PATCHSET_REVISION);
+                        voteGerrit(vote: 2, submit: true, identifier: new_patchset_revision);
                     } catch (e) {
                         for (commit in all_commits_in_chain) {
                             def changeInfo = all_change_info.get(commit);
@@ -247,7 +287,7 @@ void main() {
                 }
             }
         } else {
-            voteGerrit(identifier: env.GERRIT_PATCHSET_REVISION);
+            voteGerrit(identifier: new_patchset_revision);
         }
     }
 }

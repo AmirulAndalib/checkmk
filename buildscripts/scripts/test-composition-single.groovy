@@ -4,7 +4,6 @@
 
 void main() {
     check_job_parameters([
-        "CIPARAM_GATED_REBASE_ONTO",     // git rev of target branch tip; if set, rebase workspace onto it
         "CIPARAM_OVERRIDE_DOCKER_TAG_BUILD",  // the docker tag to use for building and testing, forwarded to packages build job
         ["DISTRO", true],  // the testees package distro string (e.g. 'ubuntu-24.04')
         ["EDITION", true],  // the testees package long edition string (e.g. 'pro')
@@ -22,7 +21,6 @@ void main() {
 
     def single_tests = load("${checkout_dir}/buildscripts/scripts/utils/single_tests.groovy");
     def helper = load("${checkout_dir}/buildscripts/scripts/utils/test_helper.groovy");
-    def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
 
     def disable_cache = params.DISABLE_CACHE;
     def disable_signing = params.DISABLE_CMK_DISTRO_PACKAGE_SIGNING;
@@ -31,7 +29,6 @@ void main() {
     def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
     def use_case = (params.USE_CASE == "fips") ? params.USE_CASE : "daily_tests";
-    def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
 
     helper.assert_fips_testing(use_case, NODE_LABELS);
 
@@ -45,14 +42,6 @@ void main() {
         docker_tag: params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD
     );
 
-    smart_stage(
-        name: "Rebase",
-        condition: "${rebase_onto}" != "",
-        raiseOnError: true,
-    ) {
-        versioning.rebase_workspace(setup_values.safe_branch_name, rebase_onto);
-    }
-
     dir("${checkout_dir}") {
         stage("Fetch Checkmk package") {
             single_tests.fetch_package(
@@ -65,7 +54,6 @@ void main() {
                 edition: edition,
                 fake_artifacts: fake_artifacts,
                 force_build: force_build,
-                rebase_onto: rebase_onto,
                 safe_branch_name: setup_values.safe_branch_name,
             );
         }
