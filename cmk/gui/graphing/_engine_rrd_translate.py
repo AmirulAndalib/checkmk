@@ -73,14 +73,14 @@ def normalize_check_command(
 
 def _specs_for_command(
     check_command: str,
-    translations: Sequence[translations_v1.Translation],
+    registered_translations: Sequence[translations_v1.Translation],
 ) -> Mapping[str, _TranslationSpec]:
     if not check_command:
         return {}
 
     def _matches(candidate: str) -> Mapping[str, _TranslationSpec]:
         merged: dict[str, _TranslationSpec] = {}
-        for translation in translations:
+        for translation in registered_translations:
             if candidate in (normalize_check_command(cmd) for cmd in translation.check_commands):
                 merged.update(translation.translations)
         return merged
@@ -151,9 +151,9 @@ def _deprecated_originals(
 def originals_for_metric_name(
     metric_name: MetricName,
     check_command: str,
-    translations: Sequence[translations_v1.Translation],
+    registered_translations: Sequence[translations_v1.Translation],
 ) -> Sequence[RRDOriginal]:
-    specs = _specs_for_command(check_command, translations)
+    specs = _specs_for_command(check_command, registered_translations)
     return [
         RRDOriginal(metric_name=metric_name, scale=1.0),
         *_deprecated_originals(metric_name, specs, {metric_name}),
@@ -163,9 +163,9 @@ def originals_for_metric_name(
 def translate_metric_names(
     check_command: str,
     raw_metric_names: Sequence[MetricName],
-    translations: Sequence[translations_v1.Translation],
+    registered_translations: Sequence[translations_v1.Translation],
 ) -> frozenset[MetricName]:
-    specs = _specs_for_command(check_command, translations)
+    specs = _specs_for_command(check_command, registered_translations)
     names: set[MetricName] = set()
     for metric_name in raw_metric_names:
         prefix, bare_name = _split_predict_prefix(metric_name)
@@ -181,9 +181,9 @@ def _scaled(value: float | None, scale: float) -> float | None:
 def translate_performance_data(
     check_command: str,
     raw_values: Mapping[MetricName, RawPerformanceValue],
-    translations: Sequence[translations_v1.Translation],
+    registered_translations: Sequence[translations_v1.Translation],
 ) -> Mapping[MetricName, PerformanceData]:
-    specs = _specs_for_command(check_command, translations)
+    specs = _specs_for_command(check_command, registered_translations)
     scaled_by_name: dict[MetricName, tuple[RawPerformanceValue, float]] = {}
     for original_name, raw_value in raw_values.items():
         prefix, bare_name = _split_predict_prefix(original_name)
