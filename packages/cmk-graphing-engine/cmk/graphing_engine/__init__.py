@@ -10,7 +10,7 @@ from ._evaluate import (
     EvaluatedLine,
     EvaluatedStack,
     EvaluatedVerticalRange,
-    VerticalRangeType,
+    VerticalRangeKind,
 )
 from ._from_api import build_curve
 from ._graph import (
@@ -115,7 +115,7 @@ __all__ = [
     "TimeRange",
     "TimeSeries",
     "Unit",
-    "VerticalRangeType",
+    "VerticalRangeKind",
     "build_matched_graphs",
     "build_curve",
     "evaluate_graphs",

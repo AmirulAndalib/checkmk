@@ -48,14 +48,14 @@ class EvaluatedRule:
     inverse: bool
 
 
-class VerticalRangeType(enum.StrEnum):
+class VerticalRangeKind(enum.StrEnum):
     MINIMAL = "minimal"
     FIXED = "fixed"
 
 
 @dataclass(frozen=True, kw_only=True)
 class EvaluatedVerticalRange:
-    range_type: VerticalRangeType
+    range_kind: VerticalRangeKind
     lower: float | None
     upper: float | None
 
@@ -87,13 +87,13 @@ def _evaluate_vertical_range(
         case None:
             return None
         case MinimalRange():
-            range_type = VerticalRangeType.MINIMAL
+            range_kind = VerticalRangeKind.MINIMAL
         case FixedRange():
-            range_type = VerticalRangeType.FIXED
+            range_kind = VerticalRangeKind.FIXED
         case _:
             assert_never(vertical_range)
     return EvaluatedVerticalRange(
-        range_type=range_type,
+        range_kind=range_kind,
         lower=_evaluate_bound(vertical_range.lower, context),
         upper=_evaluate_bound(vertical_range.upper, context),
     )

@@ -37,7 +37,7 @@ from cmk.graphing_engine import (
     TimeRange,
     TimeSeries,
     Unit,
-    VerticalRangeType,
+    VerticalRangeKind,
 )
 from cmk.graphing_engine._evaluate import _evaluate_graph, EvaluatedRule
 from cmk.graphing_engine._perfdata import PerformanceData
@@ -412,7 +412,7 @@ def test_evaluate_graph_evaluates_a_fixed_range_of_constants() -> None:
         name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=100)
     )
     assert _evaluate_graph(graph, _context({}, {})).vertical_range == EvaluatedVerticalRange(
-        range_type=VerticalRangeType.FIXED, lower=0.0, upper=100.0
+        range_kind=VerticalRangeKind.FIXED, lower=0.0, upper=100.0
     )
 
 
@@ -422,7 +422,7 @@ def test_evaluate_graph_evaluates_a_fixed_range_with_an_open_upper_bound() -> No
         name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=None)
     )
     assert _evaluate_graph(graph, _context({}, {})).vertical_range == EvaluatedVerticalRange(
-        range_type=VerticalRangeType.FIXED, lower=0.0, upper=None
+        range_kind=VerticalRangeKind.FIXED, lower=0.0, upper=None
     )
 
 
@@ -434,7 +434,7 @@ def test_evaluate_graph_resolves_a_minimal_range_bound_expression() -> None:
     )
     result = _evaluate_graph(graph, _context({a: _data(value=42.0)}, {}))
     assert result.vertical_range == EvaluatedVerticalRange(
-        range_type=VerticalRangeType.MINIMAL, lower=0.0, upper=42.0
+        range_kind=VerticalRangeKind.MINIMAL, lower=0.0, upper=42.0
     )
 
 
@@ -447,7 +447,7 @@ def test_evaluate_graph_range_bound_of_a_missing_metric_is_none() -> None:
     )
     result = _evaluate_graph(graph, _context({}, {}))
     assert result.vertical_range == EvaluatedVerticalRange(
-        range_type=VerticalRangeType.MINIMAL, lower=0.0, upper=None
+        range_kind=VerticalRangeKind.MINIMAL, lower=0.0, upper=None
     )
 
 
