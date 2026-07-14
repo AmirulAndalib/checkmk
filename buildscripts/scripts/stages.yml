@@ -208,7 +208,7 @@ STAGES:
           exit $make_rc
       TEXT_ON_SKIP: "No Werk files changed"
       RESULT_CHECK_TYPE: "JUNIT"
-      RESULT_CHECK_FILE_PATTERN: "results/werks/**/test.xml"
+      RESULT_CHECK_FILE_PATTERN: "results/werks/tests/**/test.xml"
       JENKINS_TEST_RESULT_PATH: "testReport/"
 
     - NAME: "Bazel Lint"
