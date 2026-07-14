@@ -30,8 +30,8 @@ from cmk.graphing_engine import (
     Quantity,
     RRDMetric,
     Rule,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     ServiceName,
     SINotation,
     Stack,
@@ -198,7 +198,7 @@ def _scalar_of_to_json(quantity: Quantity, codec: QuantityCodec) -> Json:
     quantity = ensure_type(quantity, ScalarOf)
     return {
         "metric": codec.serialize(quantity.metric),
-        "scalar_type": str(quantity.scalar_type),
+        "scalar_kind": str(quantity.scalar_kind),
         "color": quantity.color,
     }
 
@@ -209,7 +209,7 @@ def _scalar_of_from_json(data: Mapping[str, object], codec: QuantityCodec) -> Sc
         raise TypeError(f"expected a string or None, got {type(color).__name__}")
     return ScalarOf(
         metric=ensure_type(codec.deserialize(data["metric"]), RRDMetric),
-        scalar_type=ScalarType(ensure_type(data["scalar_type"], str)),
+        scalar_kind=ScalarKind(ensure_type(data["scalar_kind"], str)),
         color=color,
     )
 

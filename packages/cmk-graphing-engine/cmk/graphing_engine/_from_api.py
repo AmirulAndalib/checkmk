@@ -27,8 +27,8 @@ from ._quantities import (
     Product,
     Quantity,
     RRDMetric,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     Sum,
 )
 from ._units import CurveAttributes
@@ -151,31 +151,31 @@ def _parse_quantity(quantity: _ApiQuantity, context: _ParseContext) -> Quantity:
         case metrics_v2_unstable.LowerWarningOf():
             return ScalarOf(
                 metric=context.scalar(quantity.metric_name),
-                scalar_type=ScalarType.LOWER_WARNING,
+                scalar_kind=ScalarKind.LOWER_WARNING,
             )
         case metrics_v2_unstable.LowerCriticalOf():
             return ScalarOf(
                 metric=context.scalar(quantity.metric_name),
-                scalar_type=ScalarType.LOWER_CRITICAL,
+                scalar_kind=ScalarKind.LOWER_CRITICAL,
             )
         case metrics_v1.WarningOf():
             return ScalarOf(
-                metric=context.scalar(quantity.metric_name), scalar_type=ScalarType.WARNING
+                metric=context.scalar(quantity.metric_name), scalar_kind=ScalarKind.WARNING
             )
         case metrics_v1.CriticalOf():
             return ScalarOf(
-                metric=context.scalar(quantity.metric_name), scalar_type=ScalarType.CRITICAL
+                metric=context.scalar(quantity.metric_name), scalar_kind=ScalarKind.CRITICAL
             )
         case metrics_v1.MinimumOf():
             return ScalarOf(
                 metric=context.scalar(quantity.metric_name),
-                scalar_type=ScalarType.MINIMUM,
+                scalar_kind=ScalarKind.MINIMUM,
                 color=parse_color(quantity.color),
             )
         case metrics_v1.MaximumOf():
             return ScalarOf(
                 metric=context.scalar(quantity.metric_name),
-                scalar_type=ScalarType.MAXIMUM,
+                scalar_kind=ScalarKind.MAXIMUM,
                 color=parse_color(quantity.color),
             )
         case metrics_v1.Sum():

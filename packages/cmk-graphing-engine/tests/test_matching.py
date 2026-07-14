@@ -26,8 +26,8 @@ from cmk.graphing_engine import (
     Quantity,
     RRDMetric,
     Rule,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     Service,
     ServiceName,
     Stack,
@@ -84,10 +84,10 @@ def _dline(quantity: Quantity) -> Line:
 
 
 _FALLBACK_RULE_TYPES = (
-    ScalarType.WARNING,
-    ScalarType.CRITICAL,
-    ScalarType.LOWER_WARNING,
-    ScalarType.LOWER_CRITICAL,
+    ScalarKind.WARNING,
+    ScalarKind.CRITICAL,
+    ScalarKind.LOWER_WARNING,
+    ScalarKind.LOWER_CRITICAL,
 )
 
 
@@ -103,11 +103,11 @@ def _fallback(name: MetricName) -> Graph:
         rules=[
             Rule(
                 curve=build_curve(
-                    ScalarOf(metric=_rrd(name), scalar_type=scalar_type), _id, _METRICS
+                    ScalarOf(metric=_rrd(name), scalar_kind=scalar_kind), _id, _METRICS
                 ),
                 inverse=False,
             )
-            for scalar_type in _FALLBACK_RULE_TYPES
+            for scalar_kind in _FALLBACK_RULE_TYPES
         ],
     )
 
@@ -578,8 +578,8 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
     # ScalarOf quantities, their labels / colours resolved from the scalar type.
     [graph] = [g for g in graphs if g.name == cpu_user]
     assert [rule.curve.quantity for rule in graph.rules] == [
-        ScalarOf(metric=_rrd(cpu_user), scalar_type=scalar_type)
-        for scalar_type in _FALLBACK_RULE_TYPES
+        ScalarOf(metric=_rrd(cpu_user), scalar_kind=scalar_kind)
+        for scalar_kind in _FALLBACK_RULE_TYPES
     ]
 
 

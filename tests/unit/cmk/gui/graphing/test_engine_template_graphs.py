@@ -20,8 +20,8 @@ from cmk.graphing_engine import (
     MetricName,
     PerformanceData,
     RRDMetric,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     Service,
     ServiceName,
     TimeRange,
@@ -93,14 +93,14 @@ def test_template_lifecycle_discover_and_update() -> None:
     )
     [fallback] = [graph for graph in graphs if graph.name == _METRIC]
     assert [
-        rule.curve.quantity.scalar_type
+        rule.curve.quantity.scalar_kind
         for rule in fallback.rules
         if isinstance(rule.curve.quantity, ScalarOf)
     ] == [
-        ScalarType.WARNING,
-        ScalarType.CRITICAL,
-        ScalarType.LOWER_WARNING,
-        ScalarType.LOWER_CRITICAL,
+        ScalarKind.WARNING,
+        ScalarKind.CRITICAL,
+        ScalarKind.LOWER_WARNING,
+        ScalarKind.LOWER_CRITICAL,
     ]
     # Discovery fetches performance data only, never the time series.
     assert fetch_data.requested_ranges == []

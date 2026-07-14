@@ -19,7 +19,7 @@ from ._from_api import (
 )
 from ._graph import Graph, Line, Rule, Stack
 from ._perfdata import MetricName, Service
-from ._quantities import Quantity, RRDMetric, ScalarOf, ScalarType
+from ._quantities import Quantity, RRDMetric, ScalarKind, ScalarOf
 from ._source import RRDFetchMetricNames
 
 _PREDICT_PREFIX = "predict_"
@@ -134,11 +134,11 @@ type _GraphPlugin = (
 )
 
 
-_FALLBACK_SCALAR_TYPES = (
-    ScalarType.WARNING,
-    ScalarType.CRITICAL,
-    ScalarType.LOWER_WARNING,
-    ScalarType.LOWER_CRITICAL,
+_FALLBACK_SCALAR_KINDS = (
+    ScalarKind.WARNING,
+    ScalarKind.CRITICAL,
+    ScalarKind.LOWER_WARNING,
+    ScalarKind.LOWER_CRITICAL,
 )
 
 
@@ -206,11 +206,11 @@ def build_matched_graphs(
         return [
             Rule(
                 curve=build_curve(
-                    ScalarOf(metric=metric, scalar_type=scalar_type), localizer, registered_metrics
+                    ScalarOf(metric=metric, scalar_kind=scalar_kind), localizer, registered_metrics
                 ),
                 inverse=False,
             )
-            for scalar_type in _FALLBACK_SCALAR_TYPES
+            for scalar_kind in _FALLBACK_SCALAR_KINDS
         ]
 
     for plugin in registered_graphs:

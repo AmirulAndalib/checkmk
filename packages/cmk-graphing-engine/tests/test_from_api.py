@@ -26,8 +26,8 @@ from cmk.graphing_engine import (
     Quantity,
     RRDMetric,
     Rule,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     Service,
     ServiceName,
     SINotation,
@@ -132,7 +132,7 @@ def test_parse_graph_from_api_collapses_compound_lines_into_single_stack_group()
         stacks=[_stack(_curve(_rrd("a")), _curve(_rrd("b")))],
         lines=[_line(_rrd("c"))],
         # The scalar threshold becomes a horizontal rule, not a drawn line.
-        rules=[_rule(ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.WARNING), _WARN_ATTRS)],
+        rules=[_rule(ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.WARNING), _WARN_ATTRS)],
     )
 
 
@@ -198,10 +198,10 @@ def test_parse_graph_from_api_routes_scalars_to_rules_without_display() -> None:
     parsed = parse_graph_from_api(graph, [_SERVICE], _id, _METRICS, graph_type=_KIND)
     assert parsed.lines == []
     assert [rule.curve.quantity for rule in parsed.rules] == [
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.WARNING),
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.CRITICAL),
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.MINIMUM, color="#15d1a0"),
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.MAXIMUM, color="#ed3b3b"),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.WARNING),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.CRITICAL),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.MINIMUM, color="#15d1a0"),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.MAXIMUM, color="#ed3b3b"),
     ]
 
 
@@ -216,8 +216,8 @@ def test_parse_graph_from_api_maps_lower_warning_and_critical() -> None:
     )
     parsed = parse_graph_from_api(graph, [_SERVICE], _id, _METRICS, graph_type=_KIND)
     assert [rule.curve.quantity for rule in parsed.rules] == [
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.LOWER_WARNING),
-        ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.LOWER_CRITICAL),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.LOWER_WARNING),
+        ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.LOWER_CRITICAL),
     ]
 
 
@@ -459,19 +459,19 @@ def test_parse_resolves_resolves_threshold_rules_from_the_scalar_type() -> None:
     # author-chosen colour (GREEN / RED), carried on the ScalarOf.
     assert concrete.rules == [
         _rule(
-            ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.WARNING),
+            ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.WARNING),
             CurveAttributes(title="Warning", unit=_DECIMAL, color=_WARN_COLOR),
         ),
         _rule(
-            ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.CRITICAL),
+            ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.CRITICAL),
             CurveAttributes(title="Critical", unit=_DECIMAL, color=_CRIT_COLOR),
         ),
         _rule(
-            ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.MINIMUM, color="#15d1a0"),
+            ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.MINIMUM, color="#15d1a0"),
             CurveAttributes(title="Minimum", unit=_DECIMAL, color="#15d1a0"),
         ),
         _rule(
-            ScalarOf(metric=_rrd("a"), scalar_type=ScalarType.MAXIMUM, color="#ed3b3b"),
+            ScalarOf(metric=_rrd("a"), scalar_kind=ScalarKind.MAXIMUM, color="#ed3b3b"),
             CurveAttributes(title="Maximum", unit=_DECIMAL, color="#ed3b3b"),
         ),
     ]
@@ -500,7 +500,7 @@ def test_parse_resolves_uses_the_fallback_colour_for_an_undefined_metric() -> No
     # The WARN colour still applies; only the unit falls back to the dimensionless default.
     assert concrete.rules == [
         _rule(
-            ScalarOf(metric=_rrd("u"), scalar_type=ScalarType.WARNING),
+            ScalarOf(metric=_rrd("u"), scalar_kind=ScalarKind.WARNING),
             CurveAttributes(title="Warning", unit=_DECIMAL, color=_WARN_COLOR),
         )
     ]

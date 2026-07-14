@@ -17,8 +17,8 @@ from cmk.graphing_engine import (
     MetricName,
     RRDMetric,
     Rule,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     ServiceName,
     Stack,
     Sum,
@@ -43,7 +43,7 @@ def _comprehensive_graph() -> Graph:
         title="Title %(x)s",
         graph_type="template",
         vertical_range=FixedRange(
-            lower=0, upper=ScalarOf(metric=rrd, scalar_type=ScalarType.MAXIMUM, color="#mx")
+            lower=0, upper=ScalarOf(metric=rrd, scalar_kind=ScalarKind.MAXIMUM, color="#mx")
         ),
         stacks=[
             Stack(
@@ -73,7 +73,7 @@ def _comprehensive_graph() -> Graph:
         lines=[
             Line(
                 curve=Curve(
-                    quantity=ScalarOf(metric=rrd, scalar_type=ScalarType.WARNING, color="#w"),
+                    quantity=ScalarOf(metric=rrd, scalar_kind=ScalarKind.WARNING, color="#w"),
                     attributes=attrs,
                 ),
                 inverse=False,
@@ -82,7 +82,7 @@ def _comprehensive_graph() -> Graph:
         rules=[
             Rule(
                 curve=Curve(
-                    quantity=ScalarOf(metric=rrd, scalar_type=ScalarType.MAXIMUM, color="#mx"),
+                    quantity=ScalarOf(metric=rrd, scalar_kind=ScalarKind.MAXIMUM, color="#mx"),
                     attributes=attrs,
                 ),
                 inverse=True,

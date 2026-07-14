@@ -48,8 +48,8 @@ from ._quantities import (
     Product,
     Quantity,
     RRDMetric,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     Sum,
 )
 from ._source import (
@@ -103,7 +103,7 @@ __all__ = [
     "Rule",
     "EngineeringScientificNotation",
     "SINotation",
-    "ScalarType",
+    "ScalarKind",
     "ScalarOf",
     "ServiceName",
     "Service",

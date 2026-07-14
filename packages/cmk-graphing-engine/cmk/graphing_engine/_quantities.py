@@ -223,7 +223,7 @@ class RRDMetric:
         return metric_display_attributes(self.metric_name, localizer, registered_metrics)
 
 
-class ScalarType(enum.StrEnum):
+class ScalarKind(enum.StrEnum):
     WARNING = "warning"
     CRITICAL = "critical"
     LOWER_WARNING = "lower_warning"
@@ -235,14 +235,14 @@ class ScalarType(enum.StrEnum):
 @dataclass(frozen=True)
 class ScalarOf:
     metric: RRDMetric
-    scalar_type: ScalarType
+    scalar_kind: ScalarKind
     color: str | None = None
 
     def kind(self) -> str:
         return "scalar_of"
 
     def ident(self) -> str:
-        return f"{self.kind()}({self.scalar_type},{self.metric.ident()})"
+        return f"{self.kind()}({self.scalar_kind},{self.metric.ident()})"
 
     def metrics(self) -> Iterable[Metric]:
         yield self.metric
@@ -250,21 +250,21 @@ class ScalarOf:
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
         if (data := context.data_of(self.metric)) is None:
             return []
-        match self.scalar_type:
-            case ScalarType.WARNING:
+        match self.scalar_kind:
+            case ScalarKind.WARNING:
                 value = data.warning
-            case ScalarType.CRITICAL:
+            case ScalarKind.CRITICAL:
                 value = data.critical
-            case ScalarType.LOWER_WARNING:
+            case ScalarKind.LOWER_WARNING:
                 value = data.lower_warning
-            case ScalarType.LOWER_CRITICAL:
+            case ScalarKind.LOWER_CRITICAL:
                 value = data.lower_critical
-            case ScalarType.MINIMUM:
+            case ScalarKind.MINIMUM:
                 value = data.minimum
-            case ScalarType.MAXIMUM:
+            case ScalarKind.MAXIMUM:
                 value = data.maximum
             case _:
-                assert_never(self.scalar_type)
+                assert_never(self.scalar_kind)
         return [
             EvaluatedQuantity(
                 value=value, time_series=_constant_time_series(value, context.time_range)
@@ -279,21 +279,21 @@ class ScalarOf:
         attributes = self.metric.attributes(localizer, registered_metrics)
         label: str
         type_color: str | None
-        match self.scalar_type:
-            case ScalarType.WARNING:
+        match self.scalar_kind:
+            case ScalarKind.WARNING:
                 label, type_color = "Warning", "#ffd000"
-            case ScalarType.CRITICAL:
+            case ScalarKind.CRITICAL:
                 label, type_color = "Critical", "#ff3232"
-            case ScalarType.LOWER_WARNING:
+            case ScalarKind.LOWER_WARNING:
                 label, type_color = "Warning (lower)", "#ffd000"
-            case ScalarType.LOWER_CRITICAL:
+            case ScalarKind.LOWER_CRITICAL:
                 label, type_color = "Critical (lower)", "#ff3232"
-            case ScalarType.MINIMUM:
+            case ScalarKind.MINIMUM:
                 label, type_color = "Minimum", None
-            case ScalarType.MAXIMUM:
+            case ScalarKind.MAXIMUM:
                 label, type_color = "Maximum", None
             case _:
-                assert_never(self.scalar_type)
+                assert_never(self.scalar_kind)
         return CurveAttributes(
             title=localizer(label),
             unit=attributes.unit,

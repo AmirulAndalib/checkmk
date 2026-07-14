@@ -8,17 +8,17 @@ import re
 from collections.abc import Iterable, Iterator, Mapping
 
 from ._perfdata import MetricName, Service
-from ._quantities import EvaluationContext, Metric, Quantity, RRDMetric, ScalarOf, ScalarType
+from ._quantities import EvaluationContext, Metric, Quantity, RRDMetric, ScalarKind, ScalarOf
 
 _TITLE_EXPRESSION_PREFIX = "_EXPRESSION:"
 _TITLE_EXPRESSION_PATTERN = re.compile(re.escape(_TITLE_EXPRESSION_PREFIX) + r"\{.*?\}")
-_TITLE_SCALAR_TYPES: Mapping[str, ScalarType] = {
-    "warn": ScalarType.WARNING,
-    "crit": ScalarType.CRITICAL,
-    "warn_lower": ScalarType.LOWER_WARNING,
-    "crit_lower": ScalarType.LOWER_CRITICAL,
-    "min": ScalarType.MINIMUM,
-    "max": ScalarType.MAXIMUM,
+_TITLE_SCALAR_KINDS: Mapping[str, ScalarKind] = {
+    "warn": ScalarKind.WARNING,
+    "crit": ScalarKind.CRITICAL,
+    "warn_lower": ScalarKind.LOWER_WARNING,
+    "crit_lower": ScalarKind.LOWER_CRITICAL,
+    "min": ScalarKind.MINIMUM,
+    "max": ScalarKind.MAXIMUM,
 }
 
 
@@ -40,9 +40,9 @@ def _title_quantity(raw: str, service: Service) -> Quantity | None:
     )
     if (scalar := expression.get("scalar")) is None:
         return metric
-    if (scalar_type := _TITLE_SCALAR_TYPES.get(scalar)) is None:
+    if (scalar_kind := _TITLE_SCALAR_KINDS.get(scalar)) is None:
         return None
-    return ScalarOf(metric=metric, scalar_type=scalar_type)
+    return ScalarOf(metric=metric, scalar_kind=scalar_kind)
 
 
 def title_metrics(title: str, drawn_metrics: Iterable[Metric]) -> Iterator[Metric]:

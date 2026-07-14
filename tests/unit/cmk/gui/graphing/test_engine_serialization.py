@@ -26,8 +26,8 @@ from cmk.graphing_engine import (
     Product,
     RRDMetric,
     Rule,
+    ScalarKind,
     ScalarOf,
-    ScalarType,
     ServiceName,
     SINotation,
     Stack,
@@ -112,7 +112,7 @@ def _rich_graphs() -> Sequence[Graph]:
             rules=[
                 Rule(
                     curve=Curve(
-                        quantity=ScalarOf(metric=_METRIC, scalar_type=ScalarType.WARNING),
+                        quantity=ScalarOf(metric=_METRIC, scalar_kind=ScalarKind.WARNING),
                         attributes=si,
                     ),
                     inverse=False,
@@ -120,7 +120,7 @@ def _rich_graphs() -> Sequence[Graph]:
                 Rule(
                     curve=Curve(
                         quantity=ScalarOf(
-                            metric=_METRIC, scalar_type=ScalarType.MAXIMUM, color="#00ff00"
+                            metric=_METRIC, scalar_kind=ScalarKind.MAXIMUM, color="#00ff00"
                         ),
                         attributes=iec,
                     ),
