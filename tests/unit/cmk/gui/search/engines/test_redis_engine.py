@@ -19,6 +19,7 @@ from werkzeug.test import create_environ
 
 from livestatus import SiteConfigurations
 
+import cmk.gui.search.engines.redis
 from cmk.automations.results import GetConfigurationResult
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
@@ -28,8 +29,8 @@ from cmk.gui.http import Request
 from cmk.gui.i18n import localize
 from cmk.gui.logged_in import LoggedInNobody, user
 from cmk.gui.search import ABCMatchItemGenerator, MatchItem, MatchItemGeneratorRegistry, MatchItems
-from cmk.gui.search.engines import redis as search
 from cmk.gui.search.engines.redis import (
+    _SearchResultWithVisibilityCheck,
     IndexBuilder,
     IndexNotFoundException,
     IndexSearcher,
@@ -177,7 +178,7 @@ class MatchItemGeneratorChangeDep(ABCMatchItemGenerator):
 @pytest.fixture(name="get_languages", scope="function", autouse=True)
 def fixture_get_languages(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(
-        search,
+        cmk.gui.search.engines.redis,
         "get_languages",
         lambda: [
             ("en", "English"),
@@ -264,12 +265,12 @@ class TestIndexBuilder:
             localize(lang)
 
         monkeypatch.setattr(
-            search,
+            cmk.gui.search.engines.redis,
             "localize",
             localize_with_memory,
         )
         monkeypatch.setattr(
-            search,
+            cmk.gui.search.engines.redis,
             "get_current_language",
             lambda: current_lang,
         )
@@ -450,31 +451,31 @@ class TestIndexSearcher:
             IndexSearcher._sort_search_results(
                 {
                     "Hosts": [
-                        search._SearchResultWithVisibilityCheck(
+                        _SearchResultWithVisibilityCheck(
                             SearchResult(title="host", url=""),
                             fake_permissions_check,
                         )
                     ],
                     "Setup": [
-                        search._SearchResultWithVisibilityCheck(
+                        _SearchResultWithVisibilityCheck(
                             SearchResult(title="setup_menu_entry", url=""),
                             fake_permissions_check,
                         )
                     ],
                     "Global settings": [
-                        search._SearchResultWithVisibilityCheck(
+                        _SearchResultWithVisibilityCheck(
                             SearchResult(title="global_setting", url=""),
                             fake_permissions_check,
                         )
                     ],
                     "Other topic": [
-                        search._SearchResultWithVisibilityCheck(
+                        _SearchResultWithVisibilityCheck(
                             SearchResult(title="other_item", url=""),
                             fake_permissions_check,
                         )
                     ],
                     "Another topic": [
-                        search._SearchResultWithVisibilityCheck(
+                        _SearchResultWithVisibilityCheck(
                             SearchResult(title="another_item", url=""),
                             fake_permissions_check,
                         )
@@ -485,7 +486,7 @@ class TestIndexSearcher:
             (
                 "Setup",
                 [
-                    search._SearchResultWithVisibilityCheck(
+                    _SearchResultWithVisibilityCheck(
                         SearchResult(title="setup_menu_entry", url=""),
                         fake_permissions_check,
                     )
@@ -494,7 +495,7 @@ class TestIndexSearcher:
             (
                 "Hosts",
                 [
-                    search._SearchResultWithVisibilityCheck(
+                    _SearchResultWithVisibilityCheck(
                         SearchResult(title="host", url=""),
                         fake_permissions_check,
                     )
@@ -503,7 +504,7 @@ class TestIndexSearcher:
             (
                 "Another topic",
                 [
-                    search._SearchResultWithVisibilityCheck(
+                    _SearchResultWithVisibilityCheck(
                         SearchResult(title="another_item", url=""),
                         fake_permissions_check,
                     )
@@ -512,7 +513,7 @@ class TestIndexSearcher:
             (
                 "Other topic",
                 [
-                    search._SearchResultWithVisibilityCheck(
+                    _SearchResultWithVisibilityCheck(
                         SearchResult(title="other_item", url=""),
                         fake_permissions_check,
                     )
@@ -521,7 +522,7 @@ class TestIndexSearcher:
             (
                 "Global settings",
                 [
-                    search._SearchResultWithVisibilityCheck(
+                    _SearchResultWithVisibilityCheck(
                         SearchResult(title="global_setting", url=""),
                         fake_permissions_check,
                     )
@@ -619,7 +620,7 @@ class TestRealisticSearch:
             yield
 
         monkeypatch.setattr(
-            search,
+            cmk.gui.search.engines.redis,
             "SuperUserContext",
             SuperUserContext,
         )
