@@ -155,7 +155,7 @@ async function pickAttributeKind(pill: HTMLElement, label: string): Promise<void
 }
 
 test('picking a known key applies key and inferred attributeKind in one mutation', async () => {
-  const { model } = renderForm(makeModel(), (key) => (key === 'http.method' ? 'datapoint' : null))
+  const { model } = renderForm(makeModel(), (key) => (key === 'http.method' ? 'data_point' : null))
   // The pill emits only `update:key`; the parent owns the resolver and merges
   // the inferred attributeKind into the same model mutation. A regression that
   // re-splits this into two sequential emits would let the second write
@@ -166,7 +166,7 @@ test('picking a known key applies key and inferred attributeKind in one mutation
   expect(conditions[0]).toMatchObject({
     id: 'pill-a',
     key: 'http.method',
-    attributeKind: 'datapoint'
+    attributeKind: 'data_point'
   })
   // Pill B must be untouched — guards against any cross-row contamination
   // that a sloppier identity strategy could introduce.
@@ -195,7 +195,7 @@ test('manual attributeKind change persists on the targeted row', async () => {
   await pickAttributeKind(pillsInOrder()[1]!, 'Data point')
 
   const conditions = conditionsOf(model.value!)
-  expect(conditions[1]!.attributeKind).toBe('datapoint')
+  expect(conditions[1]!.attributeKind).toBe('data_point')
   expect(conditions[0]!.attributeKind).toBe(null)
 })
 
@@ -260,7 +260,7 @@ test('picking a key with no resolver hit auto-opens the type dropdown', async ()
 })
 
 test('picking a key with a resolver hit does not auto-open the type dropdown', async () => {
-  renderForm(makeModel(), (key) => (key === 'http.method' ? 'datapoint' : null))
+  renderForm(makeModel(), (key) => (key === 'http.method' ? 'data_point' : null))
   const pillA = pillsInOrder()[0]!
   await pickKey(pillA, 'http.method')
 
@@ -271,7 +271,7 @@ test('picking a key with a resolver hit does not auto-open the type dropdown', a
 })
 
 test('picking a key with a resolver hit auto-opens the value dropdown', async () => {
-  renderForm(makeModel(), (key) => (key === 'http.method' ? 'datapoint' : null))
+  renderForm(makeModel(), (key) => (key === 'http.method' ? 'data_point' : null))
   const pillA = pillsInOrder()[0]!
   await pickKey(pillA, 'http.method')
 

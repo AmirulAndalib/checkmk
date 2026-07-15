@@ -70,13 +70,13 @@ const dataPointAttributes = defineModel<GraphLineQueryAttributes>('dataPointAttr
 const LOCATION_TO_KIND: Record<string, AttributeKindKey> = {
   resource_attributes: 'resource',
   scope_attributes: 'scope',
-  data_point_attributes: 'datapoint'
+  data_point_attributes: 'data_point'
 }
 
 const SECTION_TITLES: Record<AttributeKindKey, TranslatedString> = {
   resource: _t('Resource'),
   scope: _t('Scope'),
-  datapoint: _t('Data point')
+  data_point: _t('Data point')
 }
 
 // The flat pill model is the single source of truth; the three list models are
@@ -86,7 +86,7 @@ const filterModel = ref<AttributeFilterModel>(
     {
       resource: resourceAttributes.value,
       scope: scopeAttributes.value,
-      datapoint: dataPointAttributes.value
+      data_point: dataPointAttributes.value
     },
     () => randomId()
   )
@@ -125,8 +125,8 @@ watch(
     if (!attributesEqual(lists.scope, scopeAttributes.value)) {
       scopeAttributes.value = lists.scope
     }
-    if (!attributesEqual(lists.datapoint, dataPointAttributes.value)) {
-      dataPointAttributes.value = lists.datapoint
+    if (!attributesEqual(lists.data_point, dataPointAttributes.value)) {
+      dataPointAttributes.value = lists.data_point
     }
   },
   { deep: true }

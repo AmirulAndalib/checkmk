@@ -18,7 +18,9 @@ test('attribute-kind prefix is rendered', () => {
   expect(pillLabel(makeCondition(null, 'eq', 'GET'))).toBe('http.method is GET')
   expect(pillLabel(makeCondition('resource', 'eq', 'GET'))).toBe('[Resource] http.method is GET')
   expect(pillLabel(makeCondition('scope', 'eq', 'GET'))).toBe('[Scope] http.method is GET')
-  expect(pillLabel(makeCondition('datapoint', 'eq', 'GET'))).toBe('[Data point] http.method is GET')
+  expect(pillLabel(makeCondition('data_point', 'eq', 'GET'))).toBe(
+    '[Data point] http.method is GET'
+  )
 })
 
 test('all string operators render with their human phrase', () => {

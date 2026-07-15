@@ -4,7 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 
-export type AttributeKind = 'resource' | 'scope' | 'datapoint' | null
+export type AttributeKind = 'resource' | 'scope' | 'data_point' | null
 
 export const STRING_OPERATORS = [
   'eq',

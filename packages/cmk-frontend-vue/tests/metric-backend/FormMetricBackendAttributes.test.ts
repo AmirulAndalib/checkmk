@@ -17,7 +17,7 @@ import { KEY_IDENTS } from '@/metric-backend/attributeFilterAdapter'
 const KEY_SUGGESTIONS: Record<string, string[]> = {
   [KEY_IDENTS.resource]: ['service.name'],
   [KEY_IDENTS.scope]: ['otel.library.name'],
-  [KEY_IDENTS.datapoint]: ['http.method']
+  [KEY_IDENTS.data_point]: ['http.method']
 }
 
 const API_BASE = `${location.protocol}//${location.host}/api/1.0`
@@ -42,18 +42,18 @@ afterAll(() => server.close())
 interface Models {
   resource: ReturnType<typeof ref<GraphLineQueryAttributes>>
   scope: ReturnType<typeof ref<GraphLineQueryAttributes>>
-  datapoint: ReturnType<typeof ref<GraphLineQueryAttributes>>
+  data_point: ReturnType<typeof ref<GraphLineQueryAttributes>>
 }
 
 function renderAttributes(initial: {
   resource?: GraphLineQueryAttributes
   scope?: GraphLineQueryAttributes
-  datapoint?: GraphLineQueryAttributes
+  data_point?: GraphLineQueryAttributes
 }): Models {
   const models: Models = {
     resource: ref(initial.resource ?? []),
     scope: ref(initial.scope ?? []),
-    datapoint: ref(initial.datapoint ?? [])
+    data_point: ref(initial.data_point ?? [])
   }
   const wrapper = defineComponent({
     components: { FormMetricBackendAttributes },
@@ -65,7 +65,7 @@ function renderAttributes(initial: {
         <FormMetricBackendAttributes
           v-model:resource-attributes="models.resource.value"
           v-model:scope-attributes="models.scope.value"
-          v-model:data-point-attributes="models.datapoint.value"
+          v-model:data-point-attributes="models.data_point.value"
         />
       </tbody></table>
     `
@@ -109,7 +109,7 @@ test('renders all preloaded attributes as pills', () => {
   renderAttributes({
     resource: [{ key: 'service.name', value: 'frontend' }],
     scope: [{ key: 'otel.library.name', value: 'http' }],
-    datapoint: [{ key: 'http.method', value: 'GET' }]
+    data_point: [{ key: 'http.method', value: 'GET' }]
   })
 
   const labels = pillLabels()
@@ -127,7 +127,7 @@ test('removing a pill removes it and leaves the other pills untouched', async ()
   renderAttributes({
     resource: [{ key: 'service.name', value: 'frontend' }],
     scope: [{ key: 'otel.library.name', value: 'http' }],
-    datapoint: [{ key: 'http.method', value: 'GET' }]
+    data_point: [{ key: 'http.method', value: 'GET' }]
   })
 
   await userEvent.click(

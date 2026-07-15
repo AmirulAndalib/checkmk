@@ -12,7 +12,7 @@ import type { AttributeCondition, AttributeKind, Operator } from './types'
 export const ATTRIBUTE_KIND_LABELS: Record<Exclude<AttributeKind, null>, string> = {
   resource: 'Resource',
   scope: 'Scope',
-  datapoint: 'Data point'
+  data_point: 'Data point'
 }
 
 function attributeKindPrefixes(): Record<Exclude<AttributeKind, null>, TranslatedString> {
@@ -20,7 +20,7 @@ function attributeKindPrefixes(): Record<Exclude<AttributeKind, null>, Translate
   return {
     resource: _t('[Resource]'),
     scope: _t('[Scope]'),
-    datapoint: _t('[Data point]')
+    data_point: _t('[Data point]')
   }
 }
 

@@ -130,7 +130,7 @@ const dummyKeySections: TypedSection[] = [
     ]
   },
   {
-    attributeKind: 'datapoint',
+    attributeKind: 'data_point',
     title: 'Data point',
     suggestions: [
       { name: 'http.method', title: 'http.method' },

@@ -194,7 +194,7 @@ const attributeKindOptions = computed(() => ({
   suggestions: [
     { name: 'resource', title: _t('Resource') },
     { name: 'scope', title: _t('Scope') },
-    { name: 'datapoint', title: _t('Data point') }
+    { name: 'data_point', title: _t('Data point') }
   ]
 }))
 

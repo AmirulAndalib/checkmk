@@ -9,24 +9,24 @@ import type { AttributeFilterModel, AttributeKind, Condition } from './attribute
 
 export type AttributeKindKey = Exclude<AttributeKind, null>
 
-export const ATTRIBUTE_KIND_ORDER: AttributeKindKey[] = ['resource', 'scope', 'datapoint']
+export const ATTRIBUTE_KIND_ORDER: AttributeKindKey[] = ['resource', 'scope', 'data_point']
 
 export const KEY_IDENTS: Record<AttributeKindKey, string> = {
   resource: 'monitored_resource_attributes_keys_backend',
   scope: 'monitored_scope_attributes_keys_backend',
-  datapoint: 'monitored_data_point_attributes_keys_backend'
+  data_point: 'monitored_data_point_attributes_keys_backend'
 }
 
 export const VALUE_IDENTS: Record<AttributeKindKey, string> = {
   resource: 'monitored_resource_attributes_values_backend',
   scope: 'monitored_scope_attributes_values_backend',
-  datapoint: 'monitored_data_point_attributes_values_backend'
+  data_point: 'monitored_data_point_attributes_values_backend'
 }
 
 export interface ThreeLists {
   resource: GraphLineQueryAttributes
   scope: GraphLineQueryAttributes
-  datapoint: GraphLineQueryAttributes
+  data_point: GraphLineQueryAttributes
 }
 
 export function toModel(lists: ThreeLists, newId: () => string): AttributeFilterModel {
@@ -47,7 +47,7 @@ export function toModel(lists: ThreeLists, newId: () => string): AttributeFilter
 
 // The three lists cannot express OR, so all groups flatten together.
 export function fromModel(model: AttributeFilterModel): ThreeLists {
-  const lists: ThreeLists = { resource: [], scope: [], datapoint: [] }
+  const lists: ThreeLists = { resource: [], scope: [], data_point: [] }
   for (const condition of model.flatMap((group) => group.conditions)) {
     // Skip key-less conditions (a pill still being created).
     if (condition.attributeKind === null || !condition.key) {
@@ -79,7 +79,7 @@ type AttrsKey = 'resource_attributes' | 'scope_attributes' | 'data_point_attribu
 const CONTEXT_KEYS: Record<AttributeKindKey, AttrsKey> = {
   resource: 'resource_attributes',
   scope: 'scope_attributes',
-  datapoint: 'data_point_attributes'
+  data_point: 'data_point_attributes'
 }
 
 // Exclude the condition being edited (excludeId) so it does not constrain its own

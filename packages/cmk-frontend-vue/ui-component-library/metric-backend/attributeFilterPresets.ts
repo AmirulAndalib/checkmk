@@ -34,7 +34,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'individual-2',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
@@ -46,7 +46,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'individual-3',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'
@@ -67,14 +67,14 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
         },
         {
           id: 'gx-g1-b',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
         },
         {
           id: 'gx-g1-c',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'
@@ -93,14 +93,14 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
         },
         {
           id: 'gx-g2-b',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.method',
           operator: 'eq',
           value: 'POST'
         },
         {
           id: 'gx-g2-c',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.status_code',
           operator: 'eq',
           value: '500'
@@ -140,21 +140,21 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
         },
         {
           id: 'single-3',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
         },
         {
           id: 'single-4',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.route',
           operator: 'starts_with',
           value: '/api'
         },
         {
           id: 'single-5',
-          attributeKind: 'datapoint',
+          attributeKind: 'data_point',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'

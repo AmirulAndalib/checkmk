@@ -24,27 +24,27 @@ function group(...conditions: Condition[]): AttributeFilterModel {
 const lists: ThreeLists = {
   resource: [{ key: 'service.name', value: 'frontend' }],
   scope: [{ key: 'otel.library.name', value: 'http' }],
-  datapoint: [
+  data_point: [
     { key: 'http.method', value: 'GET' },
     { key: 'http.route', value: '/api' }
   ]
 }
 
 describe('toModel', () => {
-  test('concatenates resource -> scope -> datapoint into one AND group', () => {
+  test('concatenates resource -> scope -> data_point into one AND group', () => {
     const model = toModel(lists, newId)
 
     expect(model).toHaveLength(1)
     expect(model[0]!.conditions.map((c) => [c.attributeKind, c.key, c.value, c.operator])).toEqual([
       ['resource', 'service.name', 'frontend', 'eq'],
       ['scope', 'otel.library.name', 'http', 'eq'],
-      ['datapoint', 'http.method', 'GET', 'eq'],
-      ['datapoint', 'http.route', '/api', 'eq']
+      ['data_point', 'http.method', 'GET', 'eq'],
+      ['data_point', 'http.route', '/api', 'eq']
     ])
   })
 
   test('produces an empty model for empty lists', () => {
-    expect(toModel({ resource: [], scope: [], datapoint: [] }, newId)).toEqual([])
+    expect(toModel({ resource: [], scope: [], data_point: [] }, newId)).toEqual([])
   })
 })
 
@@ -63,7 +63,7 @@ describe('fromModel', () => {
     expect(fromModel(model)).toEqual({
       resource: [],
       scope: [{ key: 'otel.library.name', value: 'http' }],
-      datapoint: []
+      data_point: []
     })
   })
 
@@ -105,8 +105,8 @@ describe('buildAutocompleteContext', () => {
 
   test('excludes the condition being edited via excludeId', () => {
     const model = group(
-      { id: 'self', attributeKind: 'datapoint', key: 'http.method', operator: 'eq', value: 'GET' },
-      { id: 'other', attributeKind: 'datapoint', key: 'http.route', operator: 'eq', value: '/api' }
+      { id: 'self', attributeKind: 'data_point', key: 'http.method', operator: 'eq', value: 'GET' },
+      { id: 'other', attributeKind: 'data_point', key: 'http.route', operator: 'eq', value: '/api' }
     )
 
     expect(
