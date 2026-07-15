@@ -22,7 +22,7 @@ from cmk.gui.utils import permission_verification as permissions
 from cmk.livestatus_client import MKLivestatusException
 
 from .._engine_plugins import registered_graphs, registered_metrics, registered_translations
-from .._engine_rrd_source import EngineRRDFetchMetricNames
+from .._engine_rrd import EngineRRDFetchMetricNames
 from .._engine_template_graphs import build_template_graphs
 from ._family import GRAPH_FAMILY
 from .models import ApiDiscoveredGraph

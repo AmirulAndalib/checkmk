@@ -3,15 +3,16 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-
 from __future__ import annotations
 
 import contextlib
 import re
 import shlex
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
+from statistics import fmean
+from typing import assert_never
 
 from cmk.ccc.site import SiteId
 from cmk.graphing.v1 import translations as translations_v1
@@ -24,6 +25,7 @@ from cmk.graphing_engine import (
     RRDMetric,
     Service,
     TimeRange,
+    TimeSeries,
 )
 from cmk.graphing_engine import (
     TimeSeries as EngineTimeSeries,
@@ -32,14 +34,284 @@ from cmk.gui import sites
 from cmk.gui.log import logger
 from cmk.livestatus_client import lqencode, MKLivestatusNotFoundError
 
-from ._engine_rrd_resample import merge_series, resample, scaled_series
-from ._engine_rrd_translate import (
-    originals_for_metric_name,
-    RawPerformanceData,
-    RawPerformanceValue,
-    translate_metric_names,
-    translate_performance_data,
+
+def _timestamps(time_range: TimeRange) -> Sequence[int]:
+    if time_range.step <= 0:
+        return []
+    return [t + time_range.step for t in range(time_range.start, time_range.end, time_range.step)]
+
+
+def _aggregate(
+    values: Sequence[float | None], consolidation_function: ConsolidationFunction
+) -> float | None:
+    present = [value for value in values if value is not None]
+    if not present:
+        return None
+    match consolidation_function:
+        case ConsolidationFunction.MIN:
+            return min(present)
+        case ConsolidationFunction.MAX:
+            return max(present)
+        case ConsolidationFunction.AVERAGE:
+            return fmean(present)
+
+
+def _downsample(
+    time_series: TimeSeries,
+    time_range: TimeRange,
+    consolidation_function: ConsolidationFunction,
+) -> Sequence[float | None]:
+    desired = _timestamps(time_range)
+    resampled: list[float | None] = []
+    bucket: list[float | None] = []
+    index = 0
+    for timestamp, value in zip(_timestamps(time_series.time_range), time_series.values):
+        if index < len(desired) and timestamp > desired[index]:
+            resampled.append(_aggregate(bucket, consolidation_function))
+            bucket = []
+            index += 1
+        bucket.append(value)
+    if (missing := len(desired) - len(resampled)) > 0:
+        resampled.append(_aggregate(bucket, consolidation_function))
+        resampled += [None] * (missing - 1)
+    return resampled
+
+
+def _forward_fill(time_series: TimeSeries, time_range: TimeRange) -> Sequence[float | None]:
+    source = time_series.time_range
+    last = len(time_series.values) - 1
+    return [
+        time_series.values[max(0, min((timestamp - source.start) // source.step, last))]
+        for timestamp in range(time_range.start, time_range.end, time_range.step)
+    ]
+
+
+def resample(
+    time_series: TimeSeries,
+    time_range: TimeRange,
+    consolidation_function: ConsolidationFunction,
+) -> TimeSeries:
+    if time_series.time_range == time_range:
+        return time_series
+    if not time_series.values or time_series.time_range.step <= 0:
+        return TimeSeries(time_range=time_range, values=[None] * len(_timestamps(time_range)))
+    values = (
+        _downsample(time_series, time_range, consolidation_function)
+        if time_range.step >= time_series.time_range.step
+        else _forward_fill(time_series, time_range)
+    )
+    return TimeSeries(time_range=time_range, values=values)
+
+
+def scaled_series(time_series: TimeSeries, scale: float) -> TimeSeries:
+    if scale == 1.0:
+        return time_series
+    return TimeSeries(
+        time_range=time_series.time_range,
+        values=[None if value is None else value * scale for value in time_series.values],
+    )
+
+
+def merge_series(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeries:
+    return TimeSeries(
+        time_range=time_range,
+        values=[
+            next((value for value in point if value is not None), None)
+            for point in zip(*(member.values for member in time_series))
+        ],
+    )
+
+
+@dataclass(frozen=True, kw_only=True)
+class RawPerformanceValue:
+    value: float
+    warning: float | None = None
+    critical: float | None = None
+    lower_warning: float | None = None
+    lower_critical: float | None = None
+    minimum: float | None = None
+    maximum: float | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class RawPerformanceData:
+    check_command: str
+    values: Mapping[MetricName, RawPerformanceValue]
+
+
+_PREDICT_PREFIXES = ("predict_lower_", "predict_")
+
+type _TranslationSpec = (
+    translations_v1.RenameTo | translations_v1.ScaleBy | translations_v1.RenameToAndScaleBy
 )
+
+
+@dataclass(frozen=True, kw_only=True)
+class RRDOriginal:
+    metric_name: MetricName
+    scale: float
+
+
+def normalize_check_command(
+    check_command: (
+        translations_v1.PassiveCheck
+        | translations_v1.ActiveCheck
+        | translations_v1.HostCheckCommand
+        | translations_v1.NagiosPlugin
+    ),
+) -> str:
+    match check_command:
+        case translations_v1.PassiveCheck():
+            name = check_command.name
+            return name if name.startswith("check_mk-") else f"check_mk-{name}"
+        case translations_v1.ActiveCheck():
+            name = check_command.name
+            return name if name.startswith("check_mk_active-") else f"check_mk_active-{name}"
+        case translations_v1.HostCheckCommand():
+            name = check_command.name
+            return name if name.startswith("check-mk-") else f"check-mk-{name}"
+        case translations_v1.NagiosPlugin():
+            name = (
+                check_command.name
+                if check_command.name.startswith("check_")
+                else f"check_{check_command.name}"
+            )
+            return name.replace(".", "_")
+        case _:
+            assert_never(check_command)
+
+
+def _specs_for_command(
+    check_command: str,
+    registered_translations: Sequence[translations_v1.Translation],
+) -> Mapping[str, _TranslationSpec]:
+    if not check_command:
+        return {}
+
+    def _matches(candidate: str) -> Mapping[str, _TranslationSpec]:
+        merged: dict[str, _TranslationSpec] = {}
+        for translation in registered_translations:
+            if candidate in (normalize_check_command(cmd) for cmd in translation.check_commands):
+                merged.update(translation.translations)
+        return merged
+
+    if direct := _matches(check_command):
+        return direct
+    if check_command.startswith("check_mk-mgmt_"):
+        return _matches(check_command.replace("check_mk-mgmt_", "check_mk-", 1))
+    return {}
+
+
+def _name_and_scale(old_name: MetricName, spec: _TranslationSpec) -> tuple[MetricName, float]:
+    match spec:
+        case translations_v1.RenameTo():
+            return MetricName(spec.metric_name), 1.0
+        case translations_v1.ScaleBy():
+            return old_name, spec.factor
+        case translations_v1.RenameToAndScaleBy():
+            return MetricName(spec.metric_name), spec.factor
+        case _:
+            assert_never(spec)
+
+
+def _split_predict_prefix(metric_name: str) -> tuple[str, str]:
+    for prefix in _PREDICT_PREFIXES:
+        if metric_name.startswith(prefix):
+            return prefix, metric_name[len(prefix) :]
+    return "", metric_name
+
+
+def _find_name_and_scale(
+    metric_name: MetricName,
+    specs: Mapping[str, _TranslationSpec],
+) -> tuple[MetricName, float]:
+    if (spec := specs.get(metric_name)) is not None:
+        return _name_and_scale(metric_name, spec)
+    for pattern, spec in specs.items():
+        if pattern.startswith("~") and re.compile(pattern[1:]).match(metric_name):
+            return _name_and_scale(metric_name, spec)
+    return metric_name, 1.0
+
+
+def _reverse_names(
+    canonical_name: MetricName,
+    specs: Mapping[str, _TranslationSpec],
+) -> Mapping[MetricName, float]:
+    result: dict[MetricName, float] = {}
+    for old_name, spec in specs.items():
+        if old_name.startswith("~"):
+            continue
+        name, scale = _name_and_scale(MetricName(old_name), spec)
+        if name == canonical_name:
+            result[MetricName(old_name)] = scale
+    return result
+
+
+def _deprecated_originals(
+    metric_name: MetricName,
+    specs: Mapping[str, _TranslationSpec],
+    present: Collection[MetricName],
+) -> Iterator[RRDOriginal]:
+    prefix, bare_name = _split_predict_prefix(metric_name)
+    for old_name, scale in _reverse_names(MetricName(bare_name), specs).items():
+        if (column := MetricName(f"{prefix}{old_name}")) not in present:
+            yield RRDOriginal(metric_name=column, scale=scale)
+
+
+def originals_for_metric_name(
+    metric_name: MetricName,
+    check_command: str,
+    registered_translations: Sequence[translations_v1.Translation],
+) -> Sequence[RRDOriginal]:
+    specs = _specs_for_command(check_command, registered_translations)
+    return [
+        RRDOriginal(metric_name=metric_name, scale=1.0),
+        *_deprecated_originals(metric_name, specs, {metric_name}),
+    ]
+
+
+def translate_metric_names(
+    check_command: str,
+    raw_metric_names: Sequence[MetricName],
+    registered_translations: Sequence[translations_v1.Translation],
+) -> frozenset[MetricName]:
+    specs = _specs_for_command(check_command, registered_translations)
+    names: set[MetricName] = set()
+    for metric_name in raw_metric_names:
+        prefix, bare_name = _split_predict_prefix(metric_name)
+        name, _scale = _find_name_and_scale(MetricName(bare_name), specs)
+        names.add(MetricName(f"{prefix}{name}"))
+    return frozenset(names)
+
+
+def _scaled(value: float | None, scale: float) -> float | None:
+    return None if value is None else value * scale
+
+
+def translate_performance_data(
+    check_command: str,
+    raw_values: Mapping[MetricName, RawPerformanceValue],
+    registered_translations: Sequence[translations_v1.Translation],
+) -> Mapping[MetricName, PerformanceData]:
+    specs = _specs_for_command(check_command, registered_translations)
+    scaled_by_name: dict[MetricName, tuple[RawPerformanceValue, float]] = {}
+    for original_name, raw_value in raw_values.items():
+        prefix, bare_name = _split_predict_prefix(original_name)
+        name, scale = _find_name_and_scale(MetricName(bare_name), specs)
+        scaled_by_name[MetricName(f"{prefix}{name}")] = (raw_value, scale)
+    return {
+        name: PerformanceData(
+            value=_scaled(raw_value.value, scale),
+            lower_warning=_scaled(raw_value.lower_warning, scale),
+            lower_critical=_scaled(raw_value.lower_critical, scale),
+            warning=_scaled(raw_value.warning, scale),
+            critical=_scaled(raw_value.critical, scale),
+            minimum=_scaled(raw_value.minimum, scale),
+            maximum=_scaled(raw_value.maximum, scale),
+        )
+        for name, (raw_value, scale) in scaled_by_name.items()
+    }
+
 
 _VALUE_AND_UNIT = re.compile(r"([0-9.,-]*)(.*)")
 

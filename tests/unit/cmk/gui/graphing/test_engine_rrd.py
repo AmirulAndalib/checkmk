@@ -3,7 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from cmk.gui.graphing._engine_rrd_source import parse_performance_data
+from cmk.gui.graphing._engine_rrd import parse_performance_data
 
 
 def test_parse_performance_data_merges_rrd_only_metrics() -> None:

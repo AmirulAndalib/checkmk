@@ -36,7 +36,7 @@ from cmk.gui.graphing import (
     resolve_user_size,
     vs_graph_render_options,
 )
-from cmk.gui.graphing._engine_rrd_source import EngineRRDFetchMetricNames
+from cmk.gui.graphing._engine_rrd import EngineRRDFetchMetricNames
 from cmk.gui.graphing._engine_template_graphs import build_template_graphs
 from cmk.gui.graphing._frontend import default_time_range_seconds, to_cmk_time_series_graph
 from cmk.gui.htmllib.generator import HTMLWriter

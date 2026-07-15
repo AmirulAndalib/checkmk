@@ -10,7 +10,7 @@ import pytest
 
 from cmk.ccc.site import SiteId
 from cmk.graphing_engine import Graph, HostName, Service, ServiceName
-from cmk.gui.graphing._engine_rrd_source import EngineRRDFetchMetricNames
+from cmk.gui.graphing._engine_rrd import EngineRRDFetchMetricNames
 from cmk.gui.graphing.openapi import discover_template_graphs as discover_module
 from cmk.livestatus_client import MKLivestatusSocketError
 from tests.testlib.rest_api_client import ClientRegistry

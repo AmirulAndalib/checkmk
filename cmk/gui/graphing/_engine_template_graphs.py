@@ -29,7 +29,7 @@ from ._engine_dispatch import (
     GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
-from ._engine_rrd_source import EngineRRDFetchData
+from ._engine_rrd import EngineRRDFetchData
 from ._engine_serialization import (
     consolidation_function_of,
     graph_codec,
