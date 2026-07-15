@@ -8,12 +8,14 @@ from ._evaluate import (
     EvaluatedCurve,
     EvaluatedGraph,
     EvaluatedLine,
+    EvaluatedRule,
     EvaluatedStack,
     EvaluatedVerticalRange,
     VerticalRangeKind,
 )
-from ._from_api import build_curve
+from ._from_api import build_curve, parse_graph_from_api, QuantityBuilder
 from ._graph import (
+    Bound,
     Curve,
     FixedRange,
     Graph,
@@ -21,6 +23,7 @@ from ._graph import (
     MinimalRange,
     Rule,
     Stack,
+    VerticalRange,
 )
 from ._matching import (
     build_matched_graphs,
@@ -62,6 +65,8 @@ from ._units import (
     DecimalNotation,
     EngineeringScientificNotation,
     IECNotation,
+    Notation,
+    Precision,
     SINotation,
     StandardScientificNotation,
     StrictPrecision,
@@ -71,6 +76,7 @@ from ._units import (
 
 __all__ = [
     "AutoPrecision",
+    "Bound",
     "FetchedData",
     "Graph",
     "ConsolidationFunction",
@@ -83,6 +89,7 @@ __all__ = [
     "EvaluatedGraph",
     "EvaluatedLine",
     "EvaluatedQuantity",
+    "EvaluatedRule",
     "EvaluatedStack",
     "EvaluatedVerticalRange",
     "EvaluationContext",
@@ -95,8 +102,11 @@ __all__ = [
     "Line",
     "MetricName",
     "MinimalRange",
+    "Notation",
+    "Precision",
     "Product",
     "Quantity",
+    "QuantityBuilder",
     "RRDMetric",
     "PerformanceData",
     "RRDFetchData",
@@ -115,8 +125,10 @@ __all__ = [
     "TimeRange",
     "TimeSeries",
     "Unit",
+    "VerticalRange",
     "VerticalRangeKind",
     "build_matched_graphs",
     "build_curve",
     "evaluate_graphs",
+    "parse_graph_from_api",
 ]
