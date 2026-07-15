@@ -5,9 +5,10 @@
 
 from collections.abc import Mapping
 
-from cmk.gui.search.matchers import MatchItemGeneratorRegistry
-from cmk.gui.search.type_defs import SearchPermissionsHandler, VisibilityCheck
 from cmk.shared_typing.unified_search import ProviderName
+
+from .matchers import MatchItemGeneratorRegistry
+from .type_defs import SearchPermissionsHandler, VisibilityCheck
 
 
 class CompositePermissionsHandler:
