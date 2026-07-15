@@ -16,7 +16,7 @@ from .engines.redis import (
     PermissionsHandler,
     RedisSearchEngine,
 )
-from .match_items import (
+from .matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
     MatchItem,

@@ -15,7 +15,7 @@ from cmk.gui.watolib.rulespecs import rulespec_registry, RulespecGroupRegistry
 from .engines import livestatus as livestatus_engine
 from .engines.livestatus import MatchPluginRegistry
 from .engines.redis import launch_requests_processing_background, SearchIndexBackgroundJob
-from .match_items import MatchItemGeneratorRegistry
+from .matchers import MatchItemGeneratorRegistry
 from .pages import PageUnifiedSearch
 
 

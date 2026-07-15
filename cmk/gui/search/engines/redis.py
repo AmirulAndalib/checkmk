@@ -55,7 +55,7 @@ from cmk.utils.setup_search_index import (
 )
 
 from ..legacy_helpers import transform_legacy_results_to_unified
-from ..match_items import (
+from ..matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
     MatchItemGeneratorRegistry,

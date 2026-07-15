@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterable
 from typing import Literal
 
 from cmk.gui.main_menu import get_main_menu_items_prefixed_by_segment
-from cmk.gui.search.match_items import ABCMatchItemGenerator, MatchItem, MatchItems
+from cmk.gui.search.matchers import ABCMatchItemGenerator, MatchItem, MatchItems
 from cmk.gui.utils.loading_transition import LoadingTransition
 from cmk.gui.utils.roles import UserPermissions
 from cmk.shared_typing.main_menu import NavItemTopic

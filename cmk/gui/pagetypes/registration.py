@@ -8,7 +8,7 @@ from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
 from cmk.gui.openapi.framework.registry import VersionedEndpointRegistry
 from cmk.gui.openapi.restful_objects.endpoint_family import EndpointFamilyRegistry
 from cmk.gui.permissions import declare_dynamic_permissions
-from cmk.gui.search.match_items import MatchItemGeneratorRegistry
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 
 from ._core import (
     _customize_menu_topics,

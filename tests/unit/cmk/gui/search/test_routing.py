@@ -9,7 +9,7 @@ from typing import get_args
 
 import pytest
 
-from cmk.gui.search.match_items import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItemGeneratorRegistry,
     MatchItems,

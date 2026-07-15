@@ -241,7 +241,7 @@ py_library(
     ],
     deps = [
         ":page_toolkit",
-        "//cmk/gui/search:match_items",
+        "//cmk/gui/search:matchers",
         "//cmk/gui/utils:loading_transition",
         "//cmk/gui/utils:roles",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",

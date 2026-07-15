@@ -2,8 +2,8 @@ load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 
 py_library(
-    name = "match_items",
-    srcs = ["match_items.py"],
+    name = "matchers",
+    srcs = ["matchers.py"],
     imports = ["../../.."],
     visibility = [
         "//cmk:__subpackages__",
@@ -20,7 +20,7 @@ py_library(
     name = "search",
     srcs = glob(
         include = ["**/*.py"],
-        exclude = ["match_items.py"],
+        exclude = ["matchers.py"],
     ),
     imports = ["../../.."],
     visibility = [
@@ -28,7 +28,7 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        ":match_items",
+        ":matchers",
         "//cmk/gui:config",
         "//cmk/gui:core_toolkit",
         "//cmk/gui:page_toolkit",
