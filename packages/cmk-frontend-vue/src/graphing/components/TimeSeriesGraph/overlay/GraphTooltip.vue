@@ -85,8 +85,8 @@ const anchorStyle = computed(() => ({
   max-height: 360px;
   overflow-y: auto;
   padding: var(--spacing);
-  background: var(--default-tooltip-background-color);
-  border: 1px solid var(--ux-theme-6);
+  background: var(--color-white-100);
+  border: 1px solid var(--color-conference-grey-100);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
   font-family: Inter, Verdana, Arial, Helvetica, sans-serif;
@@ -96,6 +96,11 @@ const anchorStyle = computed(() => ({
   letter-spacing: 0.36px;
   color: color-mix(in srgb, var(--default-tooltip-text-color) 93%, transparent);
   pointer-events: none;
+}
+
+body[data-theme='modern-dark'] .graphing-graph-tooltip {
+  background: var(--color-conference-grey-100);
+  border-color: var(--color-white-100);
 }
 
 .graphing-graph-tooltip__time {

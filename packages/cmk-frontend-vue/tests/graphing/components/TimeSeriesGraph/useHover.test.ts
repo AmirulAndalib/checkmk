@@ -36,7 +36,7 @@ function constantPoints(value: number | null): (number | null)[] {
   return Array.from({ length: 11 }, () => value)
 }
 
-function mountHover(metrics: Metric[]): ReturnType<typeof useHover> {
+function mountHover(metrics: Metric[], dataRange = TIME_RANGE): ReturnType<typeof useHover> {
   const xScale = scaleTime()
     .domain([new Date(TIME_RANGE.start * 1000), new Date(TIME_RANGE.end * 1000)])
     .range([0, PLOT_WIDTH])
@@ -58,8 +58,8 @@ function mountHover(metrics: Metric[]): ReturnType<typeof useHover> {
   render(harness)
   const buckets = metrics.map((metric) =>
     downsampleToColumns(
-      m4(metric.data_points, TIME_RANGE, 4000),
-      [TIME_RANGE.start, TIME_RANGE.end],
+      m4(metric.data_points, dataRange, 4000),
+      [dataRange.start, dataRange.end],
       PLOT_WIDTH
     )
   )
@@ -119,6 +119,35 @@ describe('useHover — hit-test', () => {
     hover.moveHoverTo({ x: -1, y: 50 })
 
     expect(hover.hoverState.value).toBeNull()
+  })
+
+  test('a cursor past the data extent shows n/a samples snapped to the cursor', () => {
+    const hover = mountHover([makeLineMetric('low', constantPoints(10))], {
+      start: 0,
+      end: 50,
+      step: 10
+    })
+
+    hover.moveHoverTo({ x: 80, y: 85 })
+
+    const state = hover.hoverState.value!
+    expect(state.samples[0]).toMatchObject({
+      metricName: 'low',
+      formattedValue: 'n/a',
+      pixelY: null,
+      isClosest: false
+    })
+    expect(Math.abs(state.snapX - 80)).toBeLessThanOrEqual(1)
+  })
+
+  test('a column where no metric has a drawn sample keeps the crosshair at the cursor', () => {
+    const hover = mountHover([makeLineMetric('empty', constantPoints(null))])
+
+    hover.moveHoverTo({ x: 50, y: 85 })
+
+    const state = hover.hoverState.value!
+    expect(state.samples[0]).toMatchObject({ formattedValue: 'n/a', isClosest: false })
+    expect(Math.abs(state.snapX - 50)).toBeLessThanOrEqual(1)
   })
 })
 

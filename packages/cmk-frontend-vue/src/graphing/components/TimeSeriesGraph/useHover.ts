@@ -20,6 +20,8 @@ const HOVER_CLEAR_DELAY_MS = 150
 
 const bucketCentre = (bucket: M4Bucket): number => (bucket.startTime + bucket.endTime) / 2
 const bisectBucket = bisector<M4Bucket, number>(bucketCentre).center
+const bucketContains = (bucket: M4Bucket, time: number): boolean =>
+  time >= bucket.startTime && time <= bucket.endTime
 
 export interface HoverOptions {
   metrics: () => Metric[]
@@ -75,6 +77,10 @@ export function useHover(options: HoverOptions) {
       }
       const bucketIdx = Math.min(bisectBucket(buckets, cursorTime), buckets.length - 1)
       const bucket = buckets[bucketIdx]!
+      if (!bucketContains(bucket, cursorTime)) {
+        hitDistances.push(null)
+        return sampleWithoutValue
+      }
       const value = selectConsolidatedValue(bucket, options.consolidation())
       const band = bands[bucketIdx]
       if (!Number.isFinite(value) || !band) {
