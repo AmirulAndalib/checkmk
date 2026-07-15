@@ -6,8 +6,6 @@
 from .engines.livestatus import (
     IncorrectLabelInputError,
     LivestatusSearchEngine,
-    match_plugin_registry,
-    MatchPluginRegistry,
 )
 from .engines.redis import (
     IndexBuilder,
@@ -19,9 +17,11 @@ from .engines.redis import (
 from .matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
+    match_plugin_registry,
     MatchItem,
     MatchItemGeneratorRegistry,
     MatchItems,
+    MatchPluginRegistry,
 )
 from .type_defs import SearchPermissionsHandler
 from .unified import UnifiedSearch

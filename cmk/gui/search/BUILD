@@ -12,7 +12,6 @@ py_library(
     deps = [
         "//cmk/gui/utils:loading_transition",
         "//cmk/gui/utils:roles",
-        "//packages/cmk-ccc:plugin-registry",
     ],
 )
 
@@ -44,7 +43,6 @@ py_library(
         "//cmk/utils",
         "//cmk/utils:redis",
         "//packages/cmk-ccc:exceptions",
-        "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:version",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         requirement("pydantic"),

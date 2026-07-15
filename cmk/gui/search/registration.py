@@ -13,9 +13,8 @@ from cmk.gui.watolib.rule_match_item_generator import MatchItemGeneratorRules
 from cmk.gui.watolib.rulespecs import rulespec_registry, RulespecGroupRegistry
 
 from .engines import livestatus as livestatus_engine
-from .engines.livestatus import MatchPluginRegistry
 from .engines.redis import launch_requests_processing_background, SearchIndexBackgroundJob
-from .matchers import MatchItemGeneratorRegistry
+from .matchers import MatchItemGeneratorRegistry, MatchPluginRegistry
 from .pages import PageUnifiedSearch
 
 

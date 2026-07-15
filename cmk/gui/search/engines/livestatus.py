@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from typing import override, Protocol
 
-import cmk.ccc.plugin_registry
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.gui import sites
 from cmk.gui.config import active_config, Config
@@ -44,6 +43,7 @@ from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.shared_typing.unified_search import ProviderName, UnifiedSearchResultItem
 
 from ..legacy_helpers import transform_legacy_results_to_unified
+from ..matchers import ABCMatchPlugin, match_plugin_registry, MatchPluginRegistry
 
 #   .--Quicksearch---------------------------------------------------------.
 #   |         ___        _      _                            _             |
@@ -331,8 +331,9 @@ class LivestatusQuicksearchConductor(ABCQuicksearchConductor):
     def _get_used_search_plugins(self) -> list["ABCLivestatusMatchPlugin"]:
         return [
             plugin
-            for plugin in match_plugin_registry.get_livestatus_match_plugins()
-            if plugin.is_used_for_table(self.livestatus_table, self._used_filters)
+            for plugin in match_plugin_registry.values()
+            if isinstance(plugin, ABCLivestatusMatchPlugin)
+            and plugin.is_used_for_table(self.livestatus_table, self._used_filters)
         ]
 
     def _determine_livestatus_table(self) -> None:
@@ -705,22 +706,6 @@ class QuicksearchManager:
 #   '----------------------------------------------------------------------'
 
 
-class ABCMatchPlugin(abc.ABC):
-    """Base class for all match plugins"""
-
-    def __init__(self, name: str) -> None:
-        super().__init__()
-        self._name = name
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @abc.abstractmethod
-    def get_match_topic(self) -> str:
-        raise NotImplementedError
-
-
 class ABCBasicMatchPlugin(ABCMatchPlugin):
     """Base class for all non livestatus based match plugins"""
 
@@ -780,18 +765,6 @@ class ABCLivestatusMatchPlugin(ABCMatchPlugin):
         rows: Rows,
     ) -> Matches:
         raise NotImplementedError
-
-
-class MatchPluginRegistry(cmk.ccc.plugin_registry.Registry[ABCMatchPlugin]):
-    @override
-    def plugin_name(self, instance: ABCMatchPlugin) -> str:
-        return instance.name
-
-    def get_livestatus_match_plugins(self) -> list[ABCLivestatusMatchPlugin]:
-        return [p for p in self.values() if isinstance(p, ABCLivestatusMatchPlugin)]
-
-
-match_plugin_registry = MatchPluginRegistry()
 
 
 class GroupMatchPlugin(ABCLivestatusMatchPlugin):

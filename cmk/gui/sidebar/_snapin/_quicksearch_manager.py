@@ -9,13 +9,13 @@ from collections.abc import Iterable
 
 from cmk.ccc.exceptions import MKException
 from cmk.gui.i18n import _
+from cmk.gui.search import match_plugin_registry
 from cmk.gui.search.engines.livestatus import (
     ABCLivestatusMatchPlugin,
     ABCQuicksearchConductor,
     BasicPluginQuicksearchConductor,
     FilterBehaviour,
     LivestatusQuicksearchConductor,
-    match_plugin_registry,
     sanitize_and_validate_regex,
     UrlBuilder,
     UsedFilters,

@@ -80,3 +80,28 @@ class MatchItemGeneratorRegistry(Registry[ABCMatchItemGenerator]):
 
 
 match_item_generator_registry = MatchItemGeneratorRegistry()
+
+
+class ABCMatchPlugin(ABC):
+    """Base class for all match plugins"""
+
+    def __init__(self, name: str) -> None:
+        super().__init__()
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @abstractmethod
+    def get_match_topic(self) -> str:
+        raise NotImplementedError
+
+
+class MatchPluginRegistry(Registry[ABCMatchPlugin]):
+    @override
+    def plugin_name(self, instance: ABCMatchPlugin) -> str:
+        return instance.name
+
+
+match_plugin_registry = MatchPluginRegistry()
