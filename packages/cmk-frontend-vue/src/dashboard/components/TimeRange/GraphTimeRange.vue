@@ -7,7 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import type { Ref } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch.ts'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
 import usei18n, { untranslated } from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
@@ -83,7 +83,7 @@ const customDateOptionTitle = _t('Date range')
 async function loadApiDurationGraphTimeranges(): Promise<GraphTimerangeApiResult[]> {
   const API_ROOT = 'api/unstable'
   const url = `${API_ROOT}/domain-types/graph_timerange/collections/all`
-  const response = await fetchRestAPI(url, 'GET')
+  const response = await fetchRestAPIDeprecated(url, 'GET')
   await response.raiseForStatus()
   const data = await response.json()
   return data.value

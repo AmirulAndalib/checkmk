@@ -113,6 +113,14 @@ export class CmkFetchResponse {
   }
 }
 
+/**
+ * Low-level fetch wrapper that returns a `CmkFetchResponse`.
+ *
+ * **Legacy use only.** Use this only for legacy AJAX requests or page endpoint
+ * calls where backwards-compatibility requires it. Do not use for new
+ * development — prefer the typed REST API client in
+ * `@/lib/rest-api-client/client.ts` instead.
+ */
 export async function cmkFetch(
   url: FetchParams[0],
   options: FetchParams[1]
@@ -121,7 +129,15 @@ export async function cmkFetch(
   return new CmkFetchResponse(response, options)
 }
 
-export async function fetchRestAPI<Payload>(
+/**
+ * @deprecated Use the typed REST API client in `@/lib/rest-api-client/client.ts` instead.
+ *
+ * This function is a thin wrapper around `cmkFetch` that pre-fills REST API
+ * headers. It predates the typed OpenAPI-based client and should not be used
+ * in new code. Existing callers have been kept for backwards-compatibility but
+ * no new calls should be added.
+ */
+export async function fetchRestAPIDeprecated<Payload>(
   url: string,
   method: string,
   body?: Payload,

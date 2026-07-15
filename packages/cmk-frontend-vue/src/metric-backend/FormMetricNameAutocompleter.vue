@@ -6,7 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { watch } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 import type { CmkError } from '@/lib/error'
 import usei18n, { untranslated } from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
@@ -68,7 +68,7 @@ async function querySuggestions(
 ): Promise<ErrorResponse | WarningResponse | Response> {
   let result: MetricNamesResponse
   try {
-    const response = await fetchRestAPI(METRIC_NAMES_API, 'POST', { value: query })
+    const response = await fetchRestAPIDeprecated(METRIC_NAMES_API, 'POST', { value: query })
     await response.raiseForStatus()
     result = (await response.json()) as MetricNamesResponse
   } catch (e: unknown) {

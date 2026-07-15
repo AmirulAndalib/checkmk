@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { CmkFetchError, fetchRestAPI } from '@/lib/cmkFetch.ts'
+import { CmkFetchError, fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
 import usei18n from '@/lib/i18n'
 
 import { configEntityAPI } from '@/form/configuration_entity'
@@ -98,7 +98,7 @@ export function errorFromUnknown(err: unknown, fallbackTitle: string): PostSaveE
  * before any mutation is made.
  */
 async function isCollectorEnabled(siteId: string): Promise<boolean> {
-  const response = await fetchRestAPI(
+  const response = await fetchRestAPIDeprecated(
     `api/internal/domain-types/otel_collector/actions/get/invoke?site_id=${encodeURIComponent(siteId)}`,
     'GET'
   )
@@ -113,7 +113,7 @@ async function isCollectorEnabled(siteId: string): Promise<boolean> {
  * before any mutation is made.
  */
 async function isMetricBackendEnabled(siteId: string): Promise<boolean> {
-  const response = await fetchRestAPI(
+  const response = await fetchRestAPIDeprecated(
     `api/internal/domain-types/metric_backend/actions/get/invoke?site_id=${encodeURIComponent(siteId)}`,
     'GET'
   )
@@ -132,7 +132,7 @@ async function isMetricBackendEnabled(siteId: string): Promise<boolean> {
 async function createTelemetryFolderAction(): Promise<PostSaveResult> {
   const deleteFolder = async () => {
     // The folder_config DELETE endpoint enforces ETag locking — see IF_MATCH_ANY.
-    await fetchRestAPI(
+    await fetchRestAPIDeprecated(
       'api/1.0/objects/folder_config/~telemetry',
       'DELETE',
       undefined,
@@ -140,7 +140,7 @@ async function createTelemetryFolderAction(): Promise<PostSaveResult> {
     )
   }
   try {
-    const response = await fetchRestAPI(
+    const response = await fetchRestAPIDeprecated(
       'api/1.0/domain-types/folder_config/collections/all',
       'POST',
       { title: 'Telemetry', parent: '/', name: 'telemetry' }
@@ -150,7 +150,7 @@ async function createTelemetryFolderAction(): Promise<PostSaveResult> {
     }
     // POST failed — the folder may already exist. Check the actual state
     // instead of parsing the error body.
-    const check = await fetchRestAPI('api/1.0/objects/folder_config/~telemetry', 'GET')
+    const check = await fetchRestAPIDeprecated('api/1.0/objects/folder_config/~telemetry', 'GET')
     if (check.status === 200) {
       // Pre-existing folder: succeed, but without a rollback so we never delete
       // a folder this run did not create.
@@ -166,7 +166,7 @@ async function createTelemetryFolderAction(): Promise<PostSaveResult> {
 async function createDCDConnector(ctx: PostSaveContext): Promise<PostSaveResult> {
   try {
     const dcdId = `quick_setup_${ctx.configName}`
-    const response = await fetchRestAPI(
+    const response = await fetchRestAPIDeprecated(
       'api/internal/domain-types/dcd_metric_backend/collections/all',
       'POST',
       {
@@ -188,7 +188,7 @@ async function createDCDConnector(ctx: PostSaveContext): Promise<PostSaveResult>
       ok: true,
       rollback: async () => {
         // The dcd_metric_backend DELETE endpoint enforces ETag locking — see IF_MATCH_ANY.
-        await fetchRestAPI(
+        await fetchRestAPIDeprecated(
           `api/internal/objects/dcd_metric_backend/${encodeURIComponent(dcdId)}`,
           'DELETE',
           undefined,
@@ -254,7 +254,7 @@ export const enableCollectorAction: PostSaveAction = {
   execute: async (ctx) => {
     try {
       const wasEnabled = await isCollectorEnabled(ctx.siteId)
-      const response = await fetchRestAPI(
+      const response = await fetchRestAPIDeprecated(
         'api/internal/domain-types/otel_collector/actions/update/invoke',
         'PUT',
         {
@@ -269,7 +269,7 @@ export const enableCollectorAction: PostSaveAction = {
       return {
         ok: true,
         rollback: async () => {
-          await fetchRestAPI(
+          await fetchRestAPIDeprecated(
             'api/internal/domain-types/otel_collector/actions/update/invoke',
             'PUT',
             { site_id: ctx.siteId, activation: { mode: 'disabled' } }
@@ -295,7 +295,7 @@ export const enableMetricBackendAction: PostSaveAction = {
   execute: async (ctx) => {
     try {
       const wasEnabled = await isMetricBackendEnabled(ctx.siteId)
-      const response = await fetchRestAPI(
+      const response = await fetchRestAPIDeprecated(
         'api/internal/domain-types/metric_backend/actions/update/invoke',
         'PATCH',
         {
@@ -310,7 +310,7 @@ export const enableMetricBackendAction: PostSaveAction = {
       return {
         ok: true,
         rollback: async () => {
-          await fetchRestAPI(
+          await fetchRestAPIDeprecated(
             'api/internal/domain-types/metric_backend/actions/update/invoke',
             'PATCH',
             { site_id: ctx.siteId, config: { type: 'disabled' } }
@@ -452,7 +452,7 @@ function buildProtocolBody(input: OTelReceiverProtocolInput): OTelProtocolConfig
 function deletePasswords(ids: readonly string[]): Promise<unknown> {
   return Promise.all(
     ids.map((id) =>
-      fetchRestAPI(
+      fetchRestAPIDeprecated(
         `api/1.0/objects/password/${encodeURIComponent(id)}`,
         'DELETE',
         undefined,
@@ -547,7 +547,7 @@ export function createOTelReceiverConfigAction(input: OTelReceiverConfigInput): 
       }
       const { createdIds } = saved
       try {
-        const response = await fetchRestAPI(
+        const response = await fetchRestAPIDeprecated(
           OTEL_RECEIVERS_COLLECTION,
           'POST',
           buildReceiverBody(input)
@@ -557,7 +557,7 @@ export function createOTelReceiverConfigAction(input: OTelReceiverConfigInput): 
           ok: true,
           rollback: async () => {
             // The receiver DELETE endpoint enforces ETag locking — see IF_MATCH_ANY.
-            await fetchRestAPI(
+            await fetchRestAPIDeprecated(
               `api/internal/objects/otel_collector_config_receivers/${encodeURIComponent(input.id)}`,
               'DELETE',
               undefined,
@@ -622,13 +622,13 @@ export function createPrometheusScrapeConfigAction(
         ]
       }
       try {
-        const response = await fetchRestAPI(PROM_SCRAPE_COLLECTION, 'POST', body)
+        const response = await fetchRestAPIDeprecated(PROM_SCRAPE_COLLECTION, 'POST', body)
         await response.raiseForStatus()
         return {
           ok: true,
           rollback: async () => {
             // The prom-scrape DELETE endpoint enforces ETag locking — see IF_MATCH_ANY.
-            await fetchRestAPI(
+            await fetchRestAPIDeprecated(
               `api/internal/objects/otel_collector_config_prom_scrape/${encodeURIComponent(input.id)}`,
               'DELETE',
               undefined,
@@ -662,7 +662,7 @@ export function createOTelBundleAction(input: OTelBundleInput): PostSaveAction {
     hidden: true,
     execute: async () => {
       try {
-        const response = await fetchRestAPI(OTEL_BUNDLES_COLLECTION, 'POST', {
+        const response = await fetchRestAPIDeprecated(OTEL_BUNDLES_COLLECTION, 'POST', {
           title: input.configName,
           site: input.siteId,
           otel_config_id: input.configName,
@@ -678,7 +678,7 @@ export function createOTelBundleAction(input: OTelBundleInput): PostSaveAction {
         return {
           ok: true,
           rollback: async () => {
-            await fetchRestAPI(
+            await fetchRestAPIDeprecated(
               `api/internal/objects/otel_collector_config_bundles/${encodeURIComponent(bundleId)}`,
               'DELETE'
             )

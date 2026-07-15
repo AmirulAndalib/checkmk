@@ -5,7 +5,7 @@
  */
 import { type UserFrontendConfig } from 'cmk-shared-typing/typescript/user_frontend_config'
 
-import { fetchRestAPI } from './cmkFetch'
+import { fetchRestAPIDeprecated } from './cmkFetch'
 import { CmkSimpleError } from './error'
 
 const CONFIG_COOKIE = 'user_frontend_config'
@@ -35,9 +35,13 @@ export function isWarningDismissed(warning: string, deflt: boolean): boolean {
 // Notifies the server to record the dismissal. The server updates the
 // user_frontend_config cookie, which isWarningDismissed reads on next load.
 export async function persistWarningDismissal(warning: string) {
-  await fetchRestAPI('api/1.0/domain-types/user_config/actions/dismiss-warning/invoke', 'POST', {
-    warning: warning
-  })
+  await fetchRestAPIDeprecated(
+    'api/1.0/domain-types/user_config/actions/dismiss-warning/invoke',
+    'POST',
+    {
+      warning: warning
+    }
+  )
 }
 
 function _getCookie(cookieName: string): string | null {

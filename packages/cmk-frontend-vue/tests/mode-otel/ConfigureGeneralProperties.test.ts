@@ -30,7 +30,7 @@ function makeFetchResponse(data: unknown): cmkFetch.CmkFetchResponse {
 }
 
 function mockFetchAPI(handler: (url: string) => cmkFetch.CmkFetchResponse | Promise<never>) {
-  return vi.spyOn(cmkFetch, 'fetchRestAPI').mockImplementation(async (url: string) => {
+  return vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockImplementation(async (url: string) => {
     return handler(url)
   })
 }
@@ -46,7 +46,7 @@ function mockSitesResponse(sites: RawSite[], existingConfigs: unknown[] = []) {
 }
 
 function mockSitesError() {
-  vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network error'))
+  vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network error'))
 }
 
 /**
@@ -203,7 +203,7 @@ describe('ConfigureGeneralProperties', () => {
   describe('loading state', () => {
     test('validate() returns false while sites are still loading', async () => {
       // Never-resolving promise keeps isLoading true
-      vi.spyOn(cmkFetch, 'fetchRestAPI').mockReturnValue(new Promise(() => {}))
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockReturnValue(new Promise(() => {}))
 
       const { compRef } = renderComponent('valid_name', null)
       await waitFor(() => expect(compRef.value).toBeDefined())

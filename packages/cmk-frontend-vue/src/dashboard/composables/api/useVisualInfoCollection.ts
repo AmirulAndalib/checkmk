@@ -5,7 +5,7 @@
  */
 import { computed } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 
 import type { VisualInfoCollectionModel, VisualInfoModel } from '@/dashboard/types/api.ts'
 
@@ -17,7 +17,7 @@ export type UseVisualInfoCollection = ReturnType<typeof useVisualInfoCollection>
 
 export function useVisualInfoCollection() {
   const loader = useAPILoader<VisualInfoCollectionModel>({
-    fetcher: () => fetchRestAPI<VisualInfoCollectionModel>(API, 'GET')
+    fetcher: () => fetchRestAPIDeprecated<VisualInfoCollectionModel>(API, 'GET')
   })
   const list = computed<VisualInfoModel[]>(() => {
     const items = loader.state.value?.value ?? []

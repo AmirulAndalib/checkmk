@@ -5,7 +5,7 @@
  */
 import { computed } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 
 import type { DataSourceCollectionModel, DataSourceModel } from '@/dashboard/types/api'
 
@@ -15,7 +15,7 @@ const API = 'api/internal/objects/constant/data_source/collections/all'
 
 export function useDataSourcesCollection() {
   const loader = useAPILoader<DataSourceCollectionModel>({
-    fetcher: () => fetchRestAPI<DataSourceCollectionModel>(API, 'GET')
+    fetcher: () => fetchRestAPIDeprecated<DataSourceCollectionModel>(API, 'GET')
   })
 
   const list = computed<DataSourceModel[]>(() => loader.state.value?.value ?? [])

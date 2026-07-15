@@ -38,7 +38,7 @@ export function nextAvailableConfigName(existingIds: string[], prefix: string): 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch.ts'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
 import usei18n, { untranslated } from '@/lib/i18n'
 import useId from '@/lib/useId'
 
@@ -92,7 +92,7 @@ async function loadSites(): Promise<void> {
 
   isLoading.value = true
   try {
-    const response = await fetchRestAPI(
+    const response = await fetchRestAPIDeprecated(
       `${API_ROOT}/domain-types/site_connection/collections/all`,
       'GET'
     )
@@ -111,7 +111,7 @@ async function fetchConfigList(skipCache = false): Promise<OTelConfigEntry[]> {
   if (!skipCache && cachedConfigs?.endpoint === props.configListEndpoint) {
     return cachedConfigs.entries
   }
-  const response = await fetchRestAPI(props.configListEndpoint, 'GET')
+  const response = await fetchRestAPIDeprecated(props.configListEndpoint, 'GET')
   await response.raiseForStatus()
   const data = await response.json()
   const entries = data.value as OTelConfigEntry[]

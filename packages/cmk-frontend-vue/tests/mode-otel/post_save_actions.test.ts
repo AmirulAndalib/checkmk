@@ -67,7 +67,7 @@ describe('POST_SAVE_ACTIONS', () => {
   describe('enableCollector.execute', () => {
     test('PUTs to the collector update endpoint with the selected site', async () => {
       const spy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { activation: { mode: 'disabled' } }))
         .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -83,7 +83,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns no rollback when the collector was already enabled', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI')
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { activation: { mode: 'enabled' } }))
         .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -98,7 +98,7 @@ describe('POST_SAVE_ACTIONS', () => {
 
     test('returns a rollback that disables the collector when it was previously disabled', async () => {
       const spy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { activation: { mode: 'disabled' } }))
         .mockResolvedValueOnce(makeFetchResponse(204))
         .mockResolvedValueOnce(makeFetchResponse(204))
@@ -119,7 +119,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns a structured error when the endpoint returns a REST problem', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValue(
         makeFetchResponse(400, { title: 'Bad request', detail: 'Site does not exist' })
       )
 
@@ -135,7 +135,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns a generic error for unexpected failures', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network down'))
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network down'))
 
       const action = POST_SAVE_ACTIONS.find((a) => a.key === 'enableCollector')!
       const result = await action.execute({ siteId: 'prod', configName: 'test-config' })
@@ -152,7 +152,7 @@ describe('POST_SAVE_ACTIONS', () => {
   describe('enableMetricBackend.execute', () => {
     test('PATCHes the metric backend update endpoint with the selected site', async () => {
       const spy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { type: 'disabled' }))
         .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -168,7 +168,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns no rollback when the metric backend was already enabled', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI')
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { type: 'enabled' }))
         .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -183,7 +183,7 @@ describe('POST_SAVE_ACTIONS', () => {
 
     test('returns a rollback that disables the metric backend when it was previously disabled', async () => {
       const spy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValueOnce(makeFetchResponse(200, { type: 'disabled' }))
         .mockResolvedValueOnce(makeFetchResponse(204))
         .mockResolvedValueOnce(makeFetchResponse(204))
@@ -204,7 +204,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns a structured error when the endpoint returns a REST problem', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValue(
         makeFetchResponse(400, { title: 'Bad request', detail: 'Site does not exist' })
       )
 
@@ -219,7 +219,7 @@ describe('POST_SAVE_ACTIONS', () => {
     })
 
     test('returns a generic error for unexpected failures', async () => {
-      vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network down'))
+      vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network down'))
 
       const action = POST_SAVE_ACTIONS.find((a) => a.key === 'enableMetricBackend')!
       const result = await action.execute({ siteId: 'prod', configName: 'test-config' })
@@ -253,7 +253,9 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('omits both receiver protocols when neither is configured', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createOTelReceiverConfigAction({
       id: 'cfg1',
@@ -274,7 +276,9 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('sends the cloud body shape when extended options are absent', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createOTelReceiverConfigAction({
       id: 'cloud_cfg',
@@ -304,7 +308,9 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('sends the ultimate body shape with custom socket address, encryption and event console', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createOTelReceiverConfigAction({
       id: 'ult_cfg',
@@ -357,7 +363,9 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('sends the default-IPv4 socket address as a marker without address or port', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createOTelReceiverConfigAction({
       id: 'ult_cfg',
@@ -392,7 +400,9 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('sends the default-IPv6 socket address as a marker without address or port', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createOTelReceiverConfigAction({
       id: 'ult_cfg',
@@ -427,7 +437,7 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('returns a structured error when the endpoint returns a REST problem', async () => {
-    vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(
+    vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValue(
       makeFetchResponse(409, { title: 'Object already exists', detail: 'ID cfg1 in use' })
     )
 
@@ -448,7 +458,7 @@ describe('createOTelReceiverConfigAction', () => {
   })
 
   test('returns a generic error for unexpected failures', async () => {
-    vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network down'))
+    vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network down'))
 
     const action = createOTelReceiverConfigAction({
       id: 'cfg1',
@@ -468,7 +478,7 @@ describe('createOTelReceiverConfigAction', () => {
 
   test('returns a rollback that DELETEs the receiver config on success', async () => {
     const spy = vi
-      .spyOn(cmkFetch, 'fetchRestAPI')
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
       .mockResolvedValueOnce(makeFetchResponse(200, {}))
       .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -499,7 +509,9 @@ describe('createOTelReceiverConfigAction', () => {
     // Simulates the user's scenario: the receiver config (incl. passwords)
     // succeeds, then a later step (e.g. the DCD connector) fails and the
     // FinalizeConfiguration state machine invokes this action's rollback.
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(204))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(204))
     vi.spyOn(configEntityAPI, 'createEntity').mockResolvedValue({
       type: 'success',
       entity: { ident: 'pw_id_a', description: 'My password', hide_edit: false }
@@ -529,7 +541,7 @@ describe('createOTelReceiverConfigAction', () => {
   describe('password store handling', () => {
     test('persists each pending password before the receiver POST', async () => {
       const fetchSpy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValue(makeFetchResponse(200, {}))
       const createSpy = vi.spyOn(configEntityAPI, 'createEntity').mockResolvedValue({
         type: 'success',
@@ -562,7 +574,7 @@ describe('createOTelReceiverConfigAction', () => {
 
     test('skips the receiver POST when a password fails and surfaces a password-specific error', async () => {
       const fetchSpy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValue(makeFetchResponse(200, {}))
       vi.spyOn(configEntityAPI, 'createEntity').mockResolvedValue({
         type: 'error',
@@ -596,7 +608,7 @@ describe('createOTelReceiverConfigAction', () => {
 
     test('rolls back already-created passwords and returns an error when a later password throws', async () => {
       const fetchSpy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValue(makeFetchResponse(200, {}))
       // First password saves; the second throws (e.g. network / 5xx, which
       // `createEntity` surfaces as a throw rather than a `type: 'error'`).
@@ -636,7 +648,7 @@ describe('createOTelReceiverConfigAction', () => {
 
     test('runs the receiver POST normally when there are no pending passwords', async () => {
       const fetchSpy = vi
-        .spyOn(cmkFetch, 'fetchRestAPI')
+        .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
         .mockResolvedValue(makeFetchResponse(200, {}))
       const createSpy = vi.spyOn(configEntityAPI, 'createEntity')
 
@@ -678,7 +690,9 @@ describe('createPrometheusScrapeConfigAction', () => {
   })
 
   test('POSTs the prom-scrape body with a default scrape_interval of 60s', async () => {
-    const spy = vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(makeFetchResponse(200, {}))
+    const spy = vi
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
+      .mockResolvedValue(makeFetchResponse(200, {}))
 
     const action = createPrometheusScrapeConfigAction({
       id: 'p1',
@@ -710,7 +724,7 @@ describe('createPrometheusScrapeConfigAction', () => {
 
   test('returns a rollback that DELETEs the prom-scrape config with an If-Match header', async () => {
     const spy = vi
-      .spyOn(cmkFetch, 'fetchRestAPI')
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
       .mockResolvedValueOnce(makeFetchResponse(200, {}))
       .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -740,7 +754,7 @@ describe('createPrometheusScrapeConfigAction', () => {
   })
 
   test('returns a structured error when the endpoint returns a REST problem', async () => {
-    vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue(
+    vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValue(
       makeFetchResponse(400, { title: 'Site conflict', detail: 'already configured' })
     )
 
@@ -763,7 +777,7 @@ describe('createPrometheusScrapeConfigAction', () => {
   })
 
   test('returns a generic error for unexpected failures', async () => {
-    vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network down'))
+    vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network down'))
 
     const action = createPrometheusScrapeConfigAction({
       id: 'p1',
@@ -791,7 +805,7 @@ describe('createOTelBundleAction', () => {
 
   test('returns a rollback that DELETEs the bundle when the response contains a bundle_id', async () => {
     const spy = vi
-      .spyOn(cmkFetch, 'fetchRestAPI')
+      .spyOn(cmkFetch, 'fetchRestAPIDeprecated')
       .mockResolvedValueOnce(makeFetchResponse(200, { extensions: { bundle_id: 'bnd-42' } }))
       .mockResolvedValueOnce(makeFetchResponse(204))
 
@@ -810,7 +824,7 @@ describe('createOTelBundleAction', () => {
   })
 
   test('returns no rollback when the response does not contain a bundle_id', async () => {
-    vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValueOnce(makeFetchResponse(200, {}))
+    vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValueOnce(makeFetchResponse(200, {}))
 
     const action = createOTelBundleAction({ configName: 'my-cfg', siteId: 'prod', passwordIds: [] })
     const result = await action.execute({ siteId: 'prod', configName: 'my-cfg' })

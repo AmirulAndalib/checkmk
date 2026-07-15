@@ -19,14 +19,14 @@ import type {
 import type { PasswordConfig } from '@/mode-otel/otel-configuration-steps/password_store_password.types.ts'
 
 function mockPasswordsResponse(passwords: { id: string; title: string }[] = []) {
-  return vi.spyOn(cmkFetch, 'fetchRestAPI').mockResolvedValue({
+  return vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockResolvedValue({
     raiseForStatus: vi.fn().mockResolvedValue(undefined),
     json: vi.fn().mockResolvedValue({ value: passwords })
   } as unknown as cmkFetch.CmkFetchResponse)
 }
 
 function mockPasswordsError() {
-  vi.spyOn(cmkFetch, 'fetchRestAPI').mockRejectedValue(new Error('Network error'))
+  vi.spyOn(cmkFetch, 'fetchRestAPIDeprecated').mockRejectedValue(new Error('Network error'))
 }
 
 function renderComponent(

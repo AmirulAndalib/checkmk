@@ -13,7 +13,7 @@ import {
 const mockFetchRestAPI = vi.hoisted(() => vi.fn())
 
 vi.mock('@/lib/cmkFetch.ts', () => ({
-  fetchRestAPI: mockFetchRestAPI
+  fetchRestAPIDeprecated: mockFetchRestAPI
 }))
 
 function mockSuccessResponse(data: { value: Array<{ id: string; title: string }> }) {

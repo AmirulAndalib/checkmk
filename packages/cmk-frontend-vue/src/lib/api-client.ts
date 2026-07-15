@@ -14,6 +14,17 @@ export interface ApiOptions {
   signal?: AbortSignal
 }
 
+/**
+ * Legacy HTTP client for AJAX and page-endpoint requests.
+ *
+ * **Legacy use only.** This client pre-dates the typed REST API client and
+ * should not be used for new development. It is permitted only when sending
+ * legacy AJAX requests (responses with a `result`/`result_code` envelope) or
+ * talking to page endpoints where backwards-compatibility is required.
+ *
+ * For new REST API calls use the typed client in
+ * `@/lib/rest-api-client/client.ts`.
+ */
 export class Api {
   public constructor(
     protected baseUrl: string | null = null,

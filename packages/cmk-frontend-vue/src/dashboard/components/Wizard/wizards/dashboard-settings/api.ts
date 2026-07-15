@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { fetchRestAPI } from '@/lib/cmkFetch.ts'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
 
 import type { DualListElement } from '@/components/CmkDualList'
 
@@ -15,7 +15,7 @@ interface ResponseValueType {
 }
 
 const _getData = async (url: string): Promise<DualListElement[]> => {
-  const response = await fetchRestAPI(url, 'GET')
+  const response = await fetchRestAPIDeprecated(url, 'GET')
   await response.raiseForStatus()
   const data = await response.json()
   return data.value.map((contactGroup: ResponseValueType) => ({

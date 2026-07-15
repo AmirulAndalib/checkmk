@@ -5,7 +5,7 @@
  */
 import { computed } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 
 import type { ViewCollectionModel, ViewModel } from '@/dashboard/types/api'
 
@@ -17,7 +17,7 @@ export type UseViewsCollection = ReturnType<typeof useViewsCollection>
 
 export function useViewsCollection() {
   const loader = useAPILoader<ViewCollectionModel>({
-    fetcher: () => fetchRestAPI(API, 'GET')
+    fetcher: () => fetchRestAPIDeprecated(API, 'GET')
   })
 
   const list = computed<ViewModel[]>(() => {

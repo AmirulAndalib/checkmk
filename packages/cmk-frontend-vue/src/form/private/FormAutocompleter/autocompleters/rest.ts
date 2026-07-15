@@ -8,7 +8,7 @@ import type {
   AutocompleterData
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
 
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 import type { CmkError } from '@/lib/error'
 import { untranslated } from '@/lib/i18n'
 import { API_ROOT } from '@/lib/rest-api-client/constants'
@@ -37,7 +37,7 @@ export async function fetchtData(
 
   const url = AUTOCOMPLETER_API.replace('{autocompleter}', data.ident)
 
-  const response = await fetchRestAPI(url, 'POST', payload)
+  const response = await fetchRestAPIDeprecated(url, 'POST', payload)
 
   await response.raiseForStatus()
   const ajaxResponse = (await response.json()) as RestAutocompleterResponse

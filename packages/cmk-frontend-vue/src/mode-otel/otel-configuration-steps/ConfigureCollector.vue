@@ -6,7 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { fetchRestAPI } from '@/lib/cmkFetch.ts'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
@@ -76,7 +76,7 @@ function createdSuggestion(id: string, title: string): Suggestion {
 
 onMounted(async () => {
   try {
-    const response = await fetchRestAPI(
+    const response = await fetchRestAPIDeprecated(
       'api/v1/domain-types/passwordstore_password/collections/passwordstore_password',
       'GET'
     )

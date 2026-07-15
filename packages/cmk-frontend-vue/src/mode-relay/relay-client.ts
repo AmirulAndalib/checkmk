@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { fetchRestAPI } from '@/lib/cmkFetch'
+import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 
 export interface Relay {
   id: string
@@ -30,7 +30,7 @@ interface ApiRelay {
 export async function getRelayCollection(): Promise<Relay[]> {
   const API_ROOT = 'api/unstable'
   const url = `${API_ROOT}/domain-types/relay/collections/all`
-  const response = await fetchRestAPI(url, 'GET')
+  const response = await fetchRestAPIDeprecated(url, 'GET')
   await response.raiseForStatus()
   const data = await response.json()
 
