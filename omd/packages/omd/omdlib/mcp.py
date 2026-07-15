@@ -43,6 +43,37 @@ ProxyPassReverse "/{site_name}/check_mk/mcp" "unix://{sock}|http://localhost/"
 # ("AH01146: Ignoring parameter ... because of worker sharing" at startup).
 ProxyPass "{prm}" "unix://{sock}|http://localhost{prm}"
 ProxyPassReverse "{prm}" "unix://{sock}|http://localhost{prm}"
+
+# Browser-based MCP clients (MCP Inspector, web IDEs) send CORS preflights, so
+# OPTIONS must reach the MCP endpoint, the OAuth discovery/registration/token
+# endpoints and the RFC 9728 well-known path. These live here, gated by the
+# MCP_SERVER hook, not in the always-shipped security.conf: they only make sense
+# when the MCP server runs. mcp.conf sorts before security.conf under
+# conf.d/*.conf, so this [L] short-circuits security.conf's OPTIONS->405 rewrite.
+# oauth_authorize.py is deliberately NOT exempted (top-level navigation, never
+# preflights). The RFC 8414 authorization-server well-known path arrives here as
+# /<site>/check_mk/oauth_authorization_server.py (rewritten by the system apache,
+# see omdlib.system_apache), so it is matched under that name.
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteCond %{{REQUEST_METHOD}} =OPTIONS
+  RewriteCond %{{REQUEST_URI}} ^/[^/]+/check_mk/(mcp/?$|oauth_(authorization_server|token|client_registration)\\.py$) [OR]
+  RewriteCond %{{REQUEST_URI}} ^/\\.well-known/oauth-protected-resource/
+  RewriteRule .* - [L]
+</IfModule>
+
+# CORS for the GUI-served OAuth endpoints consumed by browser-based MCP clients:
+# the responses need Access-Control-Allow-Origin for the browser to expose them,
+# and the preflight (a bare 200 from the GUI routing) needs the Allow-* set. The
+# MCP endpoint and the RFC 9728 document are NOT listed: the MCP server sends its
+# own CORS headers, and doubling them up would make browsers reject the response.
+<IfModule mod_headers.c>
+  <LocationMatch "^/[^/]+/check_mk/oauth_(authorization_server|token|client_registration)\\.py$">
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Authorization, Content-Type, Mcp-Protocol-Version"
+  </LocationMatch>
+</IfModule>
 """
         )
     else:
