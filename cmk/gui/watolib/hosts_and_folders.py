@@ -130,6 +130,25 @@ _ContactgroupName = str
 SearchCriteria = Mapping[str, Any]
 
 
+class FolderTreeConfigSource(Protocol):
+    """A config object carrying the values a folder tree is built from.
+
+    Satisfied by the GUI's Config as well as narrowed per-subsystem configs
+    like the REST API's ApiConfig."""
+
+    @property
+    def wato_hide_folders_without_read_permissions(self) -> bool: ...
+
+    @property
+    def wato_host_attrs(self) -> Sequence[CustomHostAttrSpec]: ...
+
+    @property
+    def tags(self) -> TagConfig: ...
+
+    @property
+    def sites(self) -> SiteConfigurations: ...
+
+
 @dataclass(frozen=True)
 class HostsAndFoldersConfig:
     """Configuration needed by the hosts_and_folders module."""
@@ -140,7 +159,7 @@ class HostsAndFoldersConfig:
     sites: dict[SiteId, SiteConfiguration]
 
     @classmethod
-    def from_config(cls, config: Config) -> HostsAndFoldersConfig:
+    def from_config(cls, config: FolderTreeConfigSource) -> HostsAndFoldersConfig:
         return cls(
             wato_hide_folders_without_read_permissions=config.wato_hide_folders_without_read_permissions,
             wato_host_attrs=config.wato_host_attrs,
@@ -1330,7 +1349,7 @@ class FolderTree:
         self._root_dir = _ensure_trailing_slash(root_dir)
 
 
-def make_folder_tree(config: Config) -> FolderTree:
+def make_folder_tree(config: FolderTreeConfigSource) -> FolderTree:
     return FolderTree(config=HostsAndFoldersConfig.from_config(config))
 
 

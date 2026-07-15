@@ -19,6 +19,7 @@ from cmk.gui.role_types import BuiltInUserRole, CustomUserRole
 from cmk.gui.token_auth import AuthToken
 from cmk.gui.type_defs import (
     AgentControllerCertificates,
+    CustomHostAttrSpec,
     CustomUserAttrSpec,
     GraphTimerange,
     PasswordPolicy,
@@ -27,7 +28,7 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_connection_config_types import ConfigurableUserConnectionSpec
 from cmk.gui.utils.roles import UserPermissions
 from cmk.livestatus_client import SiteConfigurations
-from cmk.ruleset_matcher.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagConfig
 
 from .api_config import APIVersion
 
@@ -85,8 +86,10 @@ class ApiConfig:
     graph_timeranges: list[GraphTimerange]
     password_policy: PasswordPolicy
     sites: SiteConfigurations
-    tag_groups: list[TagGroup]
+    tags: TagConfig
     ui_theme: str
+    wato_hide_folders_without_read_permissions: bool
+    wato_host_attrs: Sequence[CustomHostAttrSpec]
     wato_icon_categories: list[tuple[str, str]]
     wato_max_snapshots: int
     wato_pprint_config: bool
@@ -106,8 +109,10 @@ class ApiConfig:
             graph_timeranges=config.graph_timeranges,
             password_policy=config.password_policy,
             sites=config.sites,
-            tag_groups=config.tags.tag_groups,
+            tags=config.tags,
             ui_theme=config.ui_theme,
+            wato_hide_folders_without_read_permissions=config.wato_hide_folders_without_read_permissions,
+            wato_host_attrs=config.wato_host_attrs,
             wato_icon_categories=config.wato_icon_categories,
             wato_max_snapshots=config.wato_max_snapshots,
             wato_pprint_config=config.wato_pprint_config,
