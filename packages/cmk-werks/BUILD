@@ -183,8 +183,8 @@ filegroup(
 # and not the editable sources from the repo which are included via sitecustomize.py
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {"werk": "cmk.werks.tool.cli:main"},
     distribution = "cmk-werks-entrypoint",
+    entry_points = {"console_scripts": ["werk = cmk.werks.tool.cli:main"]},
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [],
