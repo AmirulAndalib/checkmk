@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { StageInformation, WelcomeCards } from 'cmk-shared-typing/typescript/welcome'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkBadge from '@/components/CmkBadge.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import StepsProgressBar from '../StepsProgressBar.vue'
 import { totalSteps } from '../steps/stepComponents'

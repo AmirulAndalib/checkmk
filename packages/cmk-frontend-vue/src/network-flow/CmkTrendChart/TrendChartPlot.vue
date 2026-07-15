@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { scaleLinear } from 'd3-scale'
 import { area, curveMonotoneX, line } from 'd3-shape'
 import { computed, ref, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import { chartColorCss } from '../colors'
 import type { TrendChartDisplayMode, TrendChartSeriesWithColor } from './types'

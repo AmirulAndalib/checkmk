@@ -7,12 +7,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import axios from 'axios'
 import { type I18NPingHost, type ModeHostSite } from 'cmk-shared-typing/typescript/mode_host'
+import CmkAlertBox, { type Variants } from 'cmk-ui-library/components/CmkAlertBox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import { type Ref, computed, onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import CmkAlertBox, { type Variants } from '@/components/CmkAlertBox.vue'
 
 const props = defineProps<{
   i18n: I18NPingHost

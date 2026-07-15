@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { CalendarDate } from '@internationalized/date'
+import type { TriggerAria } from 'cmk-ui-library/components/CmkFlyout'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, useTemplateRef } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { TriggerAria } from '@/components/CmkFlyout'
 
 import type { DateFormatParts, DateTimePartsDraft, HourCycle, TimeValue } from '../../types'
 import FieldBox from './FieldBox.vue'

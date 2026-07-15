@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import FieldBox from 'cmk-ui-library/components/date-time/private/input/FieldBox.vue'
 import { describe, expect, test } from 'vitest'
-
-import FieldBox from '@/components/date-time/private/input/FieldBox.vue'
 
 describe('FieldBox', () => {
   test('open adds the open modifier class', () => {

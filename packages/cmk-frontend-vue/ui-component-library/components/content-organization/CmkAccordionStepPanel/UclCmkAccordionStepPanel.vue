@@ -76,10 +76,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkAccordionStepPanel from '@/components/CmkAccordionStepPanel/CmkAccordionStepPanel.vue'
-import CmkAccordionStepPanelItem from '@/components/CmkAccordionStepPanel/CmkAccordionStepPanelItem.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
+import CmkAccordionStepPanel from 'cmk-ui-library/components/CmkAccordionStepPanel/CmkAccordionStepPanel.vue'
+import CmkAccordionStepPanelItem from 'cmk-ui-library/components/CmkAccordionStepPanel/CmkAccordionStepPanelItem.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

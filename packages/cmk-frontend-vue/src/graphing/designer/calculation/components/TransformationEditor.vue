@@ -4,13 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import type { ItemId } from '../../types'
 

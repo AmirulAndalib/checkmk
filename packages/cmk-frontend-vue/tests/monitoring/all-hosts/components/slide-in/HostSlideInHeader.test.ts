@@ -5,8 +5,7 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import HostSlideInHeader from '@/monitoring/all-hosts/components/slide-in/HostSlideInHeader.vue'
 import type { HostEntry } from '@/monitoring/shared/api/types'

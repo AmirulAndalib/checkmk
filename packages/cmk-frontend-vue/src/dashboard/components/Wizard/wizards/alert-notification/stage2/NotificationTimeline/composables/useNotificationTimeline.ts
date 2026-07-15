@@ -3,14 +3,12 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { type Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
 import { type Ref, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { useDebounceFn } from '@/lib/useDebounce'
-
-import { type Suggestions } from '@/components/CmkSuggestions'
-import type { ConfiguredFilters } from '@/components/filter'
 
 import { type GraphTimerange } from '@/dashboard/components/TimeRange/GraphTimeRange.vue'
 import { useTimeRange } from '@/dashboard/components/TimeRange/useTimeRange'

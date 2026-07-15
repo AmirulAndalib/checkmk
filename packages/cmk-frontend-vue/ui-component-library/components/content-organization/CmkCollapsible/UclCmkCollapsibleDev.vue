@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
 import { ref } from 'vue'
-
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkIndent from '@/components/CmkIndent.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

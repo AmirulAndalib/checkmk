@@ -9,11 +9,10 @@ import type {
   String,
   TwoColumnDictionary
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ValidationMessages } from '@/form'
 import FormEdit from '@/form/FormEdit.vue'

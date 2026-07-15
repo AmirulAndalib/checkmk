@@ -4,13 +4,12 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import '@testing-library/jest-dom/vitest'
+import { dummyT, dummyTn, dummyTnp, dummyTp } from 'cmk-ui-library/lib/i18n/i18nDummy'
 import { afterEach, beforeEach, vi } from 'vitest'
 import failOnConsole from 'vitest-fail-on-console'
 import { ref } from 'vue'
 
-import { dummyT, dummyTn, dummyTnp, dummyTp } from '@/lib/i18n/i18nDummy'
-
-vi.mock('@/lib/i18n', () => ({
+vi.mock('cmk-ui-library/lib/i18n', () => ({
   default: () => ({
     _t: dummyT,
     _tn: dummyTn,

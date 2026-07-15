@@ -33,7 +33,7 @@ import {
   roundHalfToEven,
   sanitize,
   withThousandsSeparator
-} from '@/lib/unit-format/notationFormatterInternals'
+} from 'cmk-ui-library/lib/unit-format/notationFormatterInternals'
 
 export type Precision = { type: 'auto' | 'strict'; digits: number }
 

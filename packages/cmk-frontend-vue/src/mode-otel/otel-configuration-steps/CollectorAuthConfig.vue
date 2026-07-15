@@ -4,19 +4,17 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import type { Suggestion } from '@/components/CmkSuggestions'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import type { AuthConfig } from './otelTypes'
 import { isValidPasswordIdForEnvVar } from './validation.ts'

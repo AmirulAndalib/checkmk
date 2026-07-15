@@ -10,10 +10,9 @@ import {
   isWeekend,
   startOfWeek
 } from '@internationalized/date'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type MaybeRefOrGetter, computed, reactive, toValue } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import { makeLongDateFormatter, makeMonthYearFormatter } from './dateTimeUtils'
 import type {

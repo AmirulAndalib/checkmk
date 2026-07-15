@@ -16,10 +16,8 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
-import usei18n from '@/lib/i18n'
-
-import CmkStateCountBar, { type StateSegment } from '@/components/CmkStateCountBar.vue'
+import CmkStateCountBar, { type StateSegment } from 'cmk-ui-library/components/CmkStateCountBar.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import UclCmkStateCountBarDev from './UclCmkStateCountBarDev.vue'
 

@@ -27,9 +27,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkButton from '@/components/CmkButton'
-import CmkPopup from '@/components/CmkPopup.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkPopup from 'cmk-ui-library/components/CmkPopup.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

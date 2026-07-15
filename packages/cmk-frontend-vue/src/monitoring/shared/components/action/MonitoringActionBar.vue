@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
 import type { CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'
 

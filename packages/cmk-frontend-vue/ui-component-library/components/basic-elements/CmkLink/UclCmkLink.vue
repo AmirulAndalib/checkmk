@@ -38,8 +38,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkLink from '@/components/CmkLink.vue'
+import CmkLink from 'cmk-ui-library/components/CmkLink.vue'
 
 import codeExampleCmkLink from './UclCmkLinkCodeExample.vue?raw'
 import UclCmkLinkDev from './UclCmkLinkDev.vue'

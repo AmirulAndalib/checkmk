@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useNowTicker } from 'cmk-ui-library/components/date-time/useNowTicker'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { type EffectScope, type Ref, effectScope, nextTick, ref } from 'vue'
-
-import { useNowTicker } from '@/components/date-time/useNowTicker'
 
 // :10:23.400 — 23.4s into the minute, so the next minute boundary is 36.6s away.
 const NOW = new Date('2026-06-10T10:10:23.400Z')

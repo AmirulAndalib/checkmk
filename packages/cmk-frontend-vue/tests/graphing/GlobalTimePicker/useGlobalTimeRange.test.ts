@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { nextTick, watch } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import { useGlobalTimeRange } from '@/graphing/GlobalTimePicker/useGlobalTimeRange'
 

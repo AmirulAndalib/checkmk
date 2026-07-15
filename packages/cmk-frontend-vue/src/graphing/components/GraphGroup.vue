@@ -11,9 +11,8 @@ Registered as the cmk-graph-group custom element via defineCmkComponent in main.
 
 <script setup lang="ts">
 import type { CmkTimeSeriesGraph } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
 
 import { type GraphCombinationMode, useGraphData } from '../composables/useGraphData'
 import { useRequestedTimeRange } from '../composables/useRequestedTimeRange'

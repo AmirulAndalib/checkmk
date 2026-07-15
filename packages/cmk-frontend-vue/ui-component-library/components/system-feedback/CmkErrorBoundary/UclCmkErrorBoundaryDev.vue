@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import { CmkError } from 'cmk-ui-library/lib/error.ts'
 import { defineComponent } from 'vue'
-
-import { CmkError } from '@/lib/error.ts'
-
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 
 const props = defineProps<{ screenshotMode: boolean }>()
 

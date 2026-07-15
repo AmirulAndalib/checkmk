@@ -27,8 +27,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkSwitch from '@/components/CmkSwitch.vue'
+import CmkSwitch from 'cmk-ui-library/components/CmkSwitch.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

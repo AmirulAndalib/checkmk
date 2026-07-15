@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type Sizes, type Variants } from '@/components/CmkAlertBox.vue'
+import { type Sizes, type Variants } from 'cmk-ui-library/components/CmkAlertBox.vue'
 
 import codeExample from './UclCmkAlertBoxCodeExample.vue?raw'
 
@@ -73,9 +72,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkAlertBox, { type CmkAlertBoxProps } from 'cmk-ui-library/components/CmkAlertBox.vue'
 import { computed } from 'vue'
-
-import CmkAlertBox, { type CmkAlertBoxProps } from '@/components/CmkAlertBox.vue'
 
 import UclCmkAlertBoxDev from './UclCmkAlertBoxDev.vue'
 

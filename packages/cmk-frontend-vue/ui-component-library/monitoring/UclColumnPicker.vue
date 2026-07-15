@@ -56,9 +56,8 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, provide, ref, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
 
 import ColumnPicker from '@/monitoring/shared/components/ColumnPicker.vue'
 import { MONITORING_SERVICE } from '@/monitoring/shared/components/MonitoringTableContext'

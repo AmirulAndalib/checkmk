@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkGhostWidth from 'cmk-ui-library/components/CmkGhostWidth.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 
 import type {
   DateFormatParts,

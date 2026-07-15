@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 

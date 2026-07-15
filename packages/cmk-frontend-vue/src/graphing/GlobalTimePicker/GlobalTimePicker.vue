@@ -5,11 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { GlobalTimePickerProps } from 'cmk-shared-typing/typescript/global_time_picker'
-
-import usei18n from '@/lib/i18n'
-
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import { CmkTimeRangeDisplay, CmkTimeRangePicker, type DateTimeRange } from '@/components/date-time'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import {
+  CmkTimeRangeDisplay,
+  CmkTimeRangePicker,
+  type DateTimeRange
+} from 'cmk-ui-library/components/date-time'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import DynamicPresets from './private/DynamicPresets.vue'
 import TimeRangeChip from './private/TimeRangeChip.vue'

@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkList from 'cmk-ui-library/components/CmkList/CmkList.vue'
 import { defineComponent } from 'vue'
-
-import CmkList from '@/components/CmkList/CmkList.vue'
 
 test('CmkList does not submit form when clicking drag button', async () => {
   const submitHandler = vi.fn((e) => e.preventDefault())

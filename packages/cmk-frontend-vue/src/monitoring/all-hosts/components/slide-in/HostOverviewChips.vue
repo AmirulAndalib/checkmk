@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkTag from '@/components/CmkTag.vue'
 
 const DEFAULT_LIMIT = 5
 

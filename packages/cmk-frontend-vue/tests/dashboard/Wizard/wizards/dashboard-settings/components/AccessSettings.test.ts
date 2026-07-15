@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen, within } from '@testing-library/vue'
+import { CmkFetchError } from 'cmk-ui-library/lib/cmkFetch'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
-
-import { CmkFetchError } from '@/lib/cmkFetch'
 
 import AccessSettings from '@/dashboard/components/Wizard/wizards/components/AccessSettings.vue'
 import type { DashboardPermissions } from '@/dashboard/types/page'

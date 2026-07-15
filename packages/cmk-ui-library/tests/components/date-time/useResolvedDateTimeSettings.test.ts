@@ -4,11 +4,10 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import * as intl from '@internationalized/date'
+import type { DateTimeSettings } from 'cmk-ui-library/components/date-time/types'
+import { useResolvedDateTimeSettings } from 'cmk-ui-library/components/date-time/useResolvedDateTimeSettings'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { ref } from 'vue'
-
-import type { DateTimeSettings } from '@/components/date-time/types'
-import { useResolvedDateTimeSettings } from '@/components/date-time/useResolvedDateTimeSettings'
 
 vi.mock('@internationalized/date', async (importOriginal) => {
   const actual = await importOriginal<typeof intl>()

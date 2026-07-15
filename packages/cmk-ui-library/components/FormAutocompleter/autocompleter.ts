@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import type { ErrorResponse, Response } from '@/components/CmkSuggestions'
+import type { ErrorResponse, Response } from 'cmk-ui-library/components/CmkSuggestions'
 
 import { fetchSuggestions as fetchSuggestionsViaAjax } from './autocompleters/ajax'
 import { fetchSuggestions as fetchSuggestionsViaRest } from './autocompleters/rest'

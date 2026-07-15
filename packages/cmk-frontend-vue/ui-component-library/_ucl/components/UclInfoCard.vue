@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkIcon from '@/components/CmkIcon'
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 interface UclInfoCardProps {
   iconName?: SimpleIcons | undefined

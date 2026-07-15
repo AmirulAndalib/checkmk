@@ -28,10 +28,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkGhostWidth from 'cmk-ui-library/components/CmkGhostWidth.vue'
 import { computed, ref } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

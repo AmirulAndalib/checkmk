@@ -6,13 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { ConfigEntityType } from 'cmk-shared-typing/typescript/configuration_entity'
 import type { SingleChoiceEditable } from 'cmk-shared-typing/typescript/vue_formspec_components'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
 import CmkSlideInDropdown, {
   type CmkSlideInDropdownChoice
-} from '@/components/user-input/CmkSlideInDropdown'
+} from 'cmk-ui-library/components/user-input/CmkSlideInDropdown'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import FormEditAsync from '@/form/FormEditAsync.vue'
 import { type EntityDescription, type Payload, configEntityAPI } from '@/form/configuration_entity'

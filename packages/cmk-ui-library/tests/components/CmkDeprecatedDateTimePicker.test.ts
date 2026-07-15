@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkDeprecatedDateTimePicker from 'cmk-ui-library/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkDeprecatedDateTimePicker from '@/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 
 test('CmkDeprecatedDateTimePicker renders date and time in datetime mode', () => {
   render(

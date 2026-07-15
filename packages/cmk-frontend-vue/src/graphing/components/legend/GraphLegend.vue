@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { useResizeObserver } from '@/lib/useResizeObserver'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import type { HorizontalLine, Metric } from '../TimeSeriesGraph'
 import {

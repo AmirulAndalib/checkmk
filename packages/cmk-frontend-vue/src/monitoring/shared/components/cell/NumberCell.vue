@@ -5,11 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkTag, {
+  type Colors,
+  type Sizes,
+  type Variants
+} from 'cmk-ui-library/components/CmkTag.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkTag, { type Colors, type Sizes, type Variants } from '@/components/CmkTag.vue'
 
 import { type ColumnJustify, justifyToFlex } from '../MonitoringTableContext'
 import BaseCell, { type CellLink } from './BaseCell.vue'

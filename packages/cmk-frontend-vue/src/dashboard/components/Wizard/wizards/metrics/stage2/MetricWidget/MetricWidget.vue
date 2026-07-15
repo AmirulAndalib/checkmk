@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkIndent from '@/components/CmkIndent.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import DashboardPreviewContent from '@/dashboard/components/DashboardPreviewContent.vue'

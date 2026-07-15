@@ -4,11 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import TimeSelectorColumn from 'cmk-ui-library/components/date-time/private/time-selector/TimeSelectorColumn.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import TimeSelectorColumn from '@/components/date-time/private/time-selector/TimeSelectorColumn.vue'
 
 const label = 'Hour' as TranslatedString
 const pad = (value: string | number): string => value.toString().padStart(2, '0')

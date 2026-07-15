@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { type Ref, effectScope, nextTick, ref } from 'vue'
-
-import { useResizeObserver } from '@/lib/useResizeObserver'
 
 // jsdom has no ResizeObserver, so stub one that records its observe/unobserve/disconnect calls.
 class FakeResizeObserver {

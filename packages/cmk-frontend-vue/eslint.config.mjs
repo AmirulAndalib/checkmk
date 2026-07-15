@@ -46,7 +46,7 @@ export default [
         {
           selector: "MemberExpression[property.name='randomUUID']",
           message:
-            "crypto.randomUUID() is not available in all environments. Use randomId from '@/lib/randomId' instead."
+            "crypto.randomUUID() is not available in all environments. Use randomId from 'cmk-ui-library/lib/randomId' instead."
         }
       ],
       curly: 'error',

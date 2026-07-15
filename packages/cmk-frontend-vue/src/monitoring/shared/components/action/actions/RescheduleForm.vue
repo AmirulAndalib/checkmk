@@ -11,13 +11,11 @@ export interface RescheduleValues {
 </script>
 
 <script setup lang="ts">
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 const model = defineModel<RescheduleValues>({ required: true })
 

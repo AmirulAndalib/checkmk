@@ -5,10 +5,9 @@
  */
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
 
 const helpTextComp = `<CmkHelpText :help="'some help'" />`
 

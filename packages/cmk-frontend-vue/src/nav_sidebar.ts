@@ -8,7 +8,7 @@
 // these in their own small bundle decouples them from the large `main.ts`
 // bundle, so they can be registered and become interactive without waiting for
 // the heavy content apps (dashboard, forms, ...) to download and execute.
-import defineCmkComponent from '@/lib/web-component/defineCmkComponent'
+import defineCmkComponent from 'cmk-ui-library/lib/web-component/defineCmkComponent'
 
 import '@/assets/variables.css'
 

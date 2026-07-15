@@ -4,17 +4,16 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
 import {
   CmkAddFilterMessage,
   CmkFilterInputItem,
   CmkRemoveFilterButton,
   type ConfiguredValues,
   useFilterDefinitions
-} from '@/components/filter'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
+} from 'cmk-ui-library/components/filter'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'

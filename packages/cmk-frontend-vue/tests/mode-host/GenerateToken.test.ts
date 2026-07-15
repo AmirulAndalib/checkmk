@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/vue'
-
-import { Api } from '@/lib/api-client'
+import { Api } from 'cmk-ui-library/lib/api-client'
 
 import GenerateToken from '@/mode-host/agent-connection-test/components/GenerateToken.vue'
 

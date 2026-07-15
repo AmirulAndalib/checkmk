@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import type { EventConsoleConfig } from './otelTypes'
 

@@ -14,11 +14,9 @@ the component works with the extracted string array for checkbox rendering and
 produces a typed `one_of` condition when the selection changes.
 -->
 <script setup lang="ts" generic="F extends FilterField">
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 

@@ -14,12 +14,11 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
+import CmkChip from 'cmk-ui-library/components/CmkChip.vue'
+import CmkChipSelect from 'cmk-ui-library/components/CmkChipSelect.vue'
+import type { Suggestion, Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { CmkTimeRangeTooltip } from 'cmk-ui-library/components/date-time'
 import { ref } from 'vue'
-
-import CmkChip from '@/components/CmkChip.vue'
-import CmkChipSelect from '@/components/CmkChipSelect.vue'
-import type { Suggestion, Suggestions } from '@/components/CmkSuggestions'
-import { CmkTimeRangeTooltip } from '@/components/date-time'
 
 defineProps<{ screenshotMode: boolean }>()
 

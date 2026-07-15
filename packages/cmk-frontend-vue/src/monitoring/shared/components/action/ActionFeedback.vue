@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAlertBox, { type CmkAlertBoxProps } from 'cmk-ui-library/components/CmkAlertBox.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkAlertBox, { type CmkAlertBoxProps } from '@/components/CmkAlertBox.vue'
 
 export interface ActionFeedback {
   variant: 'success' | 'error'

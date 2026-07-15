@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fromDate, getLocalTimeZone } from '@internationalized/date'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { type Ref, ref, watch } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import { useGlobalTimeRange } from '../GlobalTimePicker/useGlobalTimeRange'
 import type { RequestedTimeRange } from '../types'

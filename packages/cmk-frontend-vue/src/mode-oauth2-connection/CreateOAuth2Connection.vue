@@ -7,11 +7,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { type Oauth2ConnectionConfig } from 'cmk-shared-typing/typescript/mode_oauth2_connection'
 import type { FormSpec } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkWizard from 'cmk-ui-library/components/CmkWizard'
+import { immediateWatch } from 'cmk-ui-library/lib/watch.ts'
 import { ref } from 'vue'
-
-import { immediateWatch } from '@/lib/watch.ts'
-
-import CmkWizard from '@/components/CmkWizard'
 
 import type { ValidationMessages } from '@/form'
 

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type inputSizes } from '@/components/user-input/sizes'
+import { type inputSizes } from 'cmk-ui-library/components/user-input/sizes'
 
 import codeExample from './UclCmkInputCodeExample.vue?raw'
 
@@ -90,8 +89,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkInput from '@/components/user-input/CmkInput.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

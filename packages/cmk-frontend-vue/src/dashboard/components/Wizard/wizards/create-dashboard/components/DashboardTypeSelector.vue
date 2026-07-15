@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import { DashboardType } from '../../../components/DashboardSettings/types'
 

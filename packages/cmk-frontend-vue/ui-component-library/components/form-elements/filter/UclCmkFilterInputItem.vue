@@ -14,13 +14,12 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-import { ref } from 'vue'
-
 import {
   CmkFilterInputItem,
   type ConfiguredFilters,
   useProvideFilterDefinitions
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import { ref } from 'vue'
 
 import { SAMPLE_FILTER_DEFINITIONS } from './sampleFilterDefinitions'
 

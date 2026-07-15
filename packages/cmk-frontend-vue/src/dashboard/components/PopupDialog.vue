@@ -4,17 +4,15 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkButton'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot } from 'reka-ui'
 import { computed, nextTick, ref, useSlots, watch } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { ButtonVariants } from '@/components/CmkButton'
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import ContentSpacer from './ContentSpacer.vue'
 

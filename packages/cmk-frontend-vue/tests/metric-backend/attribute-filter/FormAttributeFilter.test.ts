@@ -5,9 +5,8 @@
  */
 import { userEvent } from '@testing-library/user-event'
 import { render, screen, waitFor, within } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions/suggestions'
 import { defineComponent, ref } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions/suggestions'
 
 import FormAttributeFilter from '@/metric-backend/attribute-filter/FormAttributeFilter.vue'
 import { pillLabel } from '@/metric-backend/attribute-filter/pill-label'

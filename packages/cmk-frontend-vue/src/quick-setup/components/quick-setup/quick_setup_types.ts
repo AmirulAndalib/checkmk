@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
 import type { Ref, VNode } from 'vue'
-
-import type { SimpleIcons } from '@/components/CmkIcon'
 
 import type { WizardMode } from './useWizard'
 

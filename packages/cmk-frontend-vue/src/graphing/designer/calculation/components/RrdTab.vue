@@ -4,21 +4,19 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import useId from '@/lib/useId'
-
-import CmkButton from '@/components/CmkButton'
-import CmkColorPicker from '@/components/CmkColorPicker.vue'
-import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkColorPicker from 'cmk-ui-library/components/CmkColorPicker.vue'
+import CmkGhostWidth from 'cmk-ui-library/components/CmkGhostWidth.vue'
 import CmkToggleButtonGroup, {
   type ToggleButtonOption
-} from '@/components/CmkToggleButtonGroup.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
+} from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useId from 'cmk-ui-library/lib/useId'
+import { computed, nextTick, ref } from 'vue'
 
 import { type Domain, type FormulaDraft, type GraphItem, type ItemId, isFormula } from '../../types'
 import { type RefVisibility, useCalculationEditor } from '../composables/useCalculationEditor'

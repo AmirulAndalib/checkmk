@@ -5,8 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import type { Colors, FontColors, Sizes } from '@/components/progress/CmkProgressCircle.vue'
+import type {
+  Colors,
+  FontColors,
+  Sizes
+} from 'cmk-ui-library/components/progress/CmkProgressCircle.vue'
 
 import codeExample from './UclCmkProgressCircleCodeExample.vue?raw'
 
@@ -63,8 +66,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkProgressCircle from '@/components/progress/CmkProgressCircle.vue'
+import CmkProgressCircle from 'cmk-ui-library/components/progress/CmkProgressCircle.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

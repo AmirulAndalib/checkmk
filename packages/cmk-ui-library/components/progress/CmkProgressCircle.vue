@@ -6,9 +6,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed } from 'vue'
-
-import useId from '@/lib/useId'
 
 import useProgressLabel, { type ProgressLabel } from './useProgressLabel'
 

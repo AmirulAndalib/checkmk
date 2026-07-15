@@ -6,15 +6,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { ColumnDef, RowSelectionState } from '@tanstack/vue-table'
 import type { TitleMacroGroup } from 'cmk-shared-typing/typescript/custom_graph_designer'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import { CmkAddDropdown } from 'cmk-ui-library/components/CmkDropdown'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import { CmkAddDropdown } from '@/components/CmkDropdown'
-import CmkIcon from '@/components/CmkIcon'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import type { CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'

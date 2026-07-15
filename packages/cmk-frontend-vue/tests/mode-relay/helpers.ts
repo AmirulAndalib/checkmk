@@ -4,10 +4,12 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import {
+  type WizardContext,
+  wizardContextProvider
+} from 'cmk-ui-library/components/CmkWizard/utils.ts'
 import { vi } from 'vitest'
 import type { Component } from 'vue'
-
-import { type WizardContext, wizardContextProvider } from '@/components/CmkWizard/utils.ts'
 
 /**
  * Mount a step component with a synthetic wizard context.

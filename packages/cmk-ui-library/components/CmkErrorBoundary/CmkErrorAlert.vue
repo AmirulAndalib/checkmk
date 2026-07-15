@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import { formatError } from 'cmk-ui-library/lib/error.ts'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import { formatError } from '@/lib/error.ts'
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
 
 const { _t } = usei18n()
 

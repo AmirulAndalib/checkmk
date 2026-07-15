@@ -11,11 +11,9 @@ export interface CommentValues {
 </script>
 
 <script setup lang="ts">
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 const model = defineModel<CommentValues>({ required: true })
 

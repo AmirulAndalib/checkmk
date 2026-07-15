@@ -8,12 +8,11 @@ import type {
   CustomGraphDesigner,
   CustomGraphDesignerMode
 } from 'cmk-shared-typing/typescript/custom_graph_designer'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkBreadcrumb, { type BreadcrumbItem } from 'cmk-ui-library/components/CmkBreadcrumb'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import { useProvideFilterDefinitions } from 'cmk-ui-library/components/filter'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkBreadcrumb, { type BreadcrumbItem } from '@/components/CmkBreadcrumb'
-import CmkIcon from '@/components/CmkIcon'
-import { useProvideFilterDefinitions } from '@/components/filter'
 
 import { GlobalRefreshControl, useGlobalRefresh } from '../GlobalRefreshControl'
 import { rollingRange, useGlobalTimeRange } from '../GlobalTimePicker'

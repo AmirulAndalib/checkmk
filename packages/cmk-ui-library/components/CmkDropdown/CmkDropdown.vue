@@ -4,16 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot } from 'reka-ui'
-import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import useClickOutside from '@/lib/useClickOutside'
-import { useFloatingTarget } from '@/lib/useFloatingTarget'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkLoading from '@/components/CmkLoading.vue'
+import CmkLoading from 'cmk-ui-library/components/CmkLoading.vue'
 import CmkSuggestions, {
   ErrorResponse,
   NoSelection,
@@ -23,9 +14,16 @@ import CmkSuggestions, {
   type SuggestionValue,
   type Suggestions,
   flattenSuggestions
-} from '@/components/CmkSuggestions'
-import ArrowDown from '@/components/graphics/ArrowDown.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import ArrowDown from 'cmk-ui-library/components/graphics/ArrowDown.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
+import { useFloatingTarget } from 'cmk-ui-library/lib/useFloatingTarget'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
+import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot } from 'reka-ui'
+import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 
 import CmkInlineValidation from '../user-input/CmkInlineValidation.vue'
 import CmkDropdownButton, { type ButtonVariants } from './CmkDropdownButton.vue'

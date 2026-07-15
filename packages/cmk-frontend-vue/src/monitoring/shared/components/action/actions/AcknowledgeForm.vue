@@ -17,15 +17,13 @@ export interface AcknowledgeValues {
 </script>
 
 <script setup lang="ts">
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkDateTimePicker from 'cmk-ui-library/components/date-time/CmkDateTimePicker.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkDateTimePicker from '@/components/date-time/CmkDateTimePicker.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 const model = defineModel<AcknowledgeValues>({ required: true })
 

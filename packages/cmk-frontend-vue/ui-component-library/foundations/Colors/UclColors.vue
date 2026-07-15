@@ -24,10 +24,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui'
 import { computed, nextTick, onMounted, ref } from 'vue'
-
-import CmkCopy from '@/components/CmkCopy.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

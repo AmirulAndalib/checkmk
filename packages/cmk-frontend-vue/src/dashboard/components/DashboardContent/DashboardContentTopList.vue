@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkPerfometer from 'cmk-ui-library/components/CmkPerfometer.vue'
+import { type AjaxResponseError, cmkAjax } from 'cmk-ui-library/lib/ajax'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Ref, computed, onBeforeMount, ref, watch } from 'vue'
-
-import { type AjaxResponseError, cmkAjax } from '@/lib/ajax'
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkPerfometer from '@/components/CmkPerfometer.vue'
 
 import { useInjectCmkToken } from '@/dashboard/composables/useCmkToken'
 import { useInjectIsPublicDashboard } from '@/dashboard/composables/useIsPublicDashboard'

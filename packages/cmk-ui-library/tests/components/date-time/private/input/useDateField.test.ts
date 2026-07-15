@@ -4,12 +4,11 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDate } from '@internationalized/date'
+import { useDateField } from 'cmk-ui-library/components/date-time/private/input/useDateField'
+import type { SegmentText } from 'cmk-ui-library/components/date-time/private/input/useSegmentedField'
+import type { DateFormatParts } from 'cmk-ui-library/components/date-time/types'
 import { describe, expect, test } from 'vitest'
 import { ref } from 'vue'
-
-import { useDateField } from '@/components/date-time/private/input/useDateField'
-import type { SegmentText } from '@/components/date-time/private/input/useSegmentedField'
-import type { DateFormatParts } from '@/components/date-time/types'
 
 import { DMY, MONTH_NAMES_EN, YMD } from '../../dateTimeTestFixtures'
 

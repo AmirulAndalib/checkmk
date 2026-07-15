@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAccordion from 'cmk-ui-library/components/CmkAccordion/CmkAccordion.vue'
+import CmkAccordionItem from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItem.vue'
+import CmkAccordionItemStateIndicator from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { ref } from 'vue'
-
-import CmkAccordion from '@/components/CmkAccordion/CmkAccordion.vue'
-import CmkAccordionItem from '@/components/CmkAccordion/CmkAccordionItem.vue'
-import CmkAccordionItemStateIndicator from '@/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
-import CmkIcon from '@/components/CmkIcon'
 
 const openedItems = ref(['item-1'])
 </script>

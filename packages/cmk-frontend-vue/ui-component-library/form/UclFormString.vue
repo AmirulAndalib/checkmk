@@ -6,12 +6,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { useMswWorker } from '@ucl/_ucl/composables/useMswWorker'
 import type { String } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import { randomId } from 'cmk-ui-library/lib/randomId'
 import { HttpResponse, http, passthrough } from 'msw'
 import { ref } from 'vue'
-
-import { randomId } from '@/lib/randomId'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import FormEdit from '@/form/FormEdit.vue'
 

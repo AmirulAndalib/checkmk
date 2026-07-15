@@ -47,10 +47,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkButton from '@/components/CmkButton'
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIconButton from '@/components/CmkIconButton.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
 
 import UclCmkCopyDev from './UclCmkCopyDev.vue'
 

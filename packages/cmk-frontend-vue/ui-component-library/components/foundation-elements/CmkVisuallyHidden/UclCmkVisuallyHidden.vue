@@ -38,8 +38,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkVisuallyHidden from '@/components/CmkVisuallyHidden.vue'
+import CmkVisuallyHidden from 'cmk-ui-library/components/CmkVisuallyHidden.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
 import { computed, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import { useDebounceFn } from '@/lib/useDebounce'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import IconSelector from '../IconSelector/IconSelector.vue'
 import FieldComponent from '../TableForm/FieldComponent.vue'

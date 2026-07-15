@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import type { QuerySuggestionsFn } from 'cmk-ui-library/components/CmkSuggestions/types'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import { randomId } from 'cmk-ui-library/lib/randomId'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { computed, nextTick, ref, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import { randomId } from '@/lib/randomId'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import type { QuerySuggestionsFn } from '@/components/CmkSuggestions/types'
 
 import AttributeFilterPill from './AttributeFilterPill.vue'
 import { handleArrowNav } from './focus-nav'

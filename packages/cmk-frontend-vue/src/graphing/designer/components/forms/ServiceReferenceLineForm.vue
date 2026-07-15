@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import useId from '@/lib/useId'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkLabel from '@/components/CmkLabel.vue'
 
 import type { GraphItemsStore } from '../../composables/useGraphItems'
 import { type DraftScalarItem, scalarColor } from '../../drafts'

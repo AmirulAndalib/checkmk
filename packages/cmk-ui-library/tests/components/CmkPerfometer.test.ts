@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
-
-import CmkPerfometer from '@/components/CmkPerfometer.vue'
+import CmkPerfometer from 'cmk-ui-library/components/CmkPerfometer.vue'
 
 function getRandomValueAndRange(): { value: number; min: number; max: number } {
   // Ranges possible between [0, 2000] (widest) and [999, 1000] (most narrow)

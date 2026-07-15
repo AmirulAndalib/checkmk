@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkRadioButton from 'cmk-ui-library/components/user-input/CmkRadioButton/CmkRadioButton.vue'
+import CmkRadioGroup from 'cmk-ui-library/components/user-input/CmkRadioButton/CmkRadioGroup.vue'
 import { defineComponent } from 'vue'
-
-import CmkRadioButton from '@/components/user-input/CmkRadioButton/CmkRadioButton.vue'
-import CmkRadioGroup from '@/components/user-input/CmkRadioButton/CmkRadioGroup.vue'
 
 test('CmkRadioGroup enforces mutual exclusion and updates its v-model on selection', async () => {
   render(

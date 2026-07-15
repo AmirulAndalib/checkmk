@@ -4,20 +4,18 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { watch } from 'vue'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
-import type { CmkError } from '@/lib/error'
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
 import {
   ErrorResponse,
   Response,
   type Suggestion,
   WarningResponse
-} from '@/components/CmkSuggestions'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch'
+import type { CmkError } from 'cmk-ui-library/lib/error'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { watch } from 'vue'
 
 const { _t } = usei18n()
 

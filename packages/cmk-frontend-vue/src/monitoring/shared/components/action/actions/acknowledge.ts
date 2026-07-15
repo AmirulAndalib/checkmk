@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import usei18n from '@/lib/i18n'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import { AcknowledgeApi } from '@/monitoring/shared/api/actions/acknowledge'
 import type { HostRef } from '@/monitoring/shared/api/types'

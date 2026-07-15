@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
-
-import type { DualListElement } from '@/components/CmkDualList'
+import type { DualListElement } from 'cmk-ui-library/components/CmkDualList'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch.ts'
 
 const API_ROOT = 'api/unstable'
 

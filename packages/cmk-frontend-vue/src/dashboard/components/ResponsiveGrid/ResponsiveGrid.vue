@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { GridLayout } from 'grid-layout-plus'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 
 import type { ContentPropsRecord } from '@/dashboard/components/DashboardContent/types'
 import { useInjectDashboardConstants } from '@/dashboard/composables/useProvideDashboardConstants'

@@ -7,23 +7,21 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
-import { ref, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { randomId } from '@/lib/randomId'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkIndent from '@/components/CmkIndent.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
 import {
   ErrorResponse,
   Response,
   type Section,
   type Suggestion,
   flattenSuggestions
-} from '@/components/CmkSuggestions'
-import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
-import FormValidation from '@/components/user-input/CmkInlineValidation.vue'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchSuggestions } from 'cmk-ui-library/components/FormAutocompleter/autocompleter'
+import FormValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { randomId } from 'cmk-ui-library/lib/randomId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
+import { ref, watch } from 'vue'
 
 import type { ValidationMessages } from '@/form'
 

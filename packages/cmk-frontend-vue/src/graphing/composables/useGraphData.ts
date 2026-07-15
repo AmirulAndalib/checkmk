@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { CmkTimeSeriesGraph } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
 import { type Ref, readonly, ref, watch } from 'vue'
-
-import client, { unwrap } from '@/lib/rest-api-client/client'
-import { useDebounceFn } from '@/lib/useDebounce'
 
 import type { HorizontalLine, Metric, TimeRange } from '../components/TimeSeriesGraph'
 import type { ConsolidationFn } from '../components/consolidation'

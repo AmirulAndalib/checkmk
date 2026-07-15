@@ -5,18 +5,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { CmkWizardStepProps } from 'cmk-ui-library/components/CmkWizard'
+import { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, ref } from 'vue'
-
-import useId from '@/lib/useId'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import type { CmkWizardStepProps } from '@/components/CmkWizard'
-import { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 defineProps<CmkWizardStepProps>()
 

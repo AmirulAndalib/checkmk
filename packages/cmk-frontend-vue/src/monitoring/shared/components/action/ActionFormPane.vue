@@ -5,13 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Component, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
 
 const props = defineProps<{
   title: TranslatedString

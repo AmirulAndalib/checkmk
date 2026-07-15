@@ -6,9 +6,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { NavItemIdEnum, NavItemTopicEntry } from 'cmk-shared-typing/typescript/main_menu'
-
-import CmkDynamicIcon from '@/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkDynamicIcon from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 import { getInjectedMainMenu } from '@/main-menu/provider/main-menu'
 

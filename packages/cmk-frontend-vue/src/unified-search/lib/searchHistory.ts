@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { UnifiedSearchResultItem } from 'cmk-shared-typing/typescript/unified_search'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import type { Ref } from 'vue'
-
-import usePersistentRef from '@/lib/usePersistentRef'
 
 import type { UnifiedSearchQueryLike } from '@/unified-search/providers/search-utils.types'
 

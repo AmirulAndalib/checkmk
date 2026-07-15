@@ -7,8 +7,7 @@
  * Get guided stages or overview stages
  */
 import axios, { isAxiosError } from 'axios'
-
-import { API_ROOT } from '@/lib/rest-api-client/constants'
+import { API_ROOT } from 'cmk-ui-library/lib/rest-api-client/constants'
 
 import type { BackgroundJobSpawnResponse } from './background-job/response_schemas'
 import { argumentError } from './errors'

@@ -5,16 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import type { CmkWizardStepProps } from 'cmk-ui-library/components/CmkWizard'
+import { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkCode from '@/components/CmkCode.vue'
-import type { CmkWizardStepProps } from '@/components/CmkWizard'
-import { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import GenerateToken from '@/mode-host/agent-connection-test/components/GenerateToken.vue'
 

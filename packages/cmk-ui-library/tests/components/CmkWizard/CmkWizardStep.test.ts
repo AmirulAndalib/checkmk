@@ -5,11 +5,10 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CmkWizard from 'cmk-ui-library/components/CmkWizard/CmkWizard.vue'
+import CmkWizardButton from 'cmk-ui-library/components/CmkWizard/CmkWizardButton.vue'
+import CmkWizardStep from 'cmk-ui-library/components/CmkWizard/CmkWizardStep.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkWizard from '@/components/CmkWizard/CmkWizard.vue'
-import CmkWizardButton from '@/components/CmkWizard/CmkWizardButton.vue'
-import CmkWizardStep from '@/components/CmkWizard/CmkWizardStep.vue'
 
 /** Minimal two-step wizard for testing mechanics. */
 const twoStepOverviewWizard = defineComponent({

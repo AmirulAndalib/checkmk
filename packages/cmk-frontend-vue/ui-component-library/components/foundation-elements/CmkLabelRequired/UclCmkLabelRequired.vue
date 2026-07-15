@@ -34,12 +34,10 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import useId from '@/lib/useId'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import useId from 'cmk-ui-library/lib/useId'
 
 defineProps<{ screenshotMode: boolean }>()
 

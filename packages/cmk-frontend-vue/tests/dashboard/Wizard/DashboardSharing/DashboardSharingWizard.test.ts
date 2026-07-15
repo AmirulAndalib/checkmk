@@ -21,7 +21,7 @@ const exampleToken: DashboardTokenModel = markRaw({
 })
 
 // CmkSlideIn uses Radix-Vue DialogPortal which doesn't work in jsdom.
-vi.mock('@/components/CmkSlideIn', () => ({
+vi.mock('cmk-ui-library/components/CmkSlideIn', () => ({
   default: defineComponent({
     name: 'CmkSlideIn',
     setup(_, { slots }) {

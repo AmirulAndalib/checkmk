@@ -15,8 +15,7 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
-import ArrowDown from '@/components/graphics/ArrowDown.vue'
+import ArrowDown from 'cmk-ui-library/components/graphics/ArrowDown.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

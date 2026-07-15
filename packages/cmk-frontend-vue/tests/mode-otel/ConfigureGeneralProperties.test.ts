@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { cleanup, render, screen, waitFor } from '@testing-library/vue'
+import * as cmkFetch from 'cmk-ui-library/lib/cmkFetch'
 import { defineComponent, ref } from 'vue'
-
-import * as cmkFetch from '@/lib/cmkFetch'
 
 import ConfigureGeneralProperties, {
   _resetCaches,

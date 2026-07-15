@@ -9,10 +9,9 @@ import type {
   DualListChoiceI18N,
   MultipleChoiceElement
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { type DualListElement } from 'cmk-ui-library/components/CmkDualList/index.ts'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import { type DualListElement } from '@/components/CmkDualList/index.ts'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ValidationMessages } from '@/form'
 import FormDualListChoice from '@/form/private/forms/FormDualListChoice.vue'

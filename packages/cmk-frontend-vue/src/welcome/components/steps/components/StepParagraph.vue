@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 </script>
 
 <template>

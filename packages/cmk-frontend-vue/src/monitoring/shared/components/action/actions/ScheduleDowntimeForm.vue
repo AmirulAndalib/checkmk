@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script lang="ts">
 import { getLocalTimeZone, now } from '@internationalized/date'
-
-import type { DateTimeRange } from '@/components/date-time/types'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time/types'
 
 export type DurationSelection = 'custom' | 'adhoc' | '4h' | '24h' | '10d'
 
@@ -74,19 +73,17 @@ export function downtimeWindow(
 </script>
 
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkCollapsible from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsible.vue'
+import CmkCollapsibleTitle from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsibleTitle.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import CmkTimeRangePicker from 'cmk-ui-library/components/date-time/CmkTimeRangePicker.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkCollapsible from '@/components/CmkCollapsible/CmkCollapsible.vue'
-import CmkCollapsibleTitle from '@/components/CmkCollapsible/CmkCollapsibleTitle.vue'
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import CmkTimeRangePicker from '@/components/date-time/CmkTimeRangePicker.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 const model = defineModel<ScheduleDowntimeFormValues>({ required: true })
 

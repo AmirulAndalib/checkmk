@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { markRaw } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import type { HostRef } from '@/monitoring/shared/api/types'
 import type { ActionFeedback } from '@/monitoring/shared/components/action/ActionFeedback.vue'

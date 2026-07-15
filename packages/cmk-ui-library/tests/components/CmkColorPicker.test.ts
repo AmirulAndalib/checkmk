@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkColorPicker from 'cmk-ui-library/components/CmkColorPicker.vue'
 import { h } from 'vue'
-
-import CmkColorPicker from '@/components/CmkColorPicker.vue'
 
 const DARK_TEXT = 'rgb(30, 38, 46)'
 const LIGHT_TEXT = 'rgb(255, 255, 255)'

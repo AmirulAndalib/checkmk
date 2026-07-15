@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import StackLayout from 'cmk-ui-library/components/date-time/private/display/StackLayout.vue'
 import { describe, expect, test } from 'vitest'
-
-import StackLayout from '@/components/date-time/private/display/StackLayout.vue'
 
 describe('StackLayout', () => {
   test('default direction is column', () => {

@@ -4,14 +4,13 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { iconSearchLabels } from '@ucl/foundations/Icons/iconSearchLabels'
-import { describe, expect, it } from 'vitest'
-
 import {
   oneColorIcons,
   themedIcons,
   twoColorIcons,
   unthemedIcons
-} from '@/components/CmkIcon/icons.constants'
+} from 'cmk-ui-library/components/CmkIcon/icons.constants'
+import { describe, expect, it } from 'vitest'
 
 // Every icon name the UclIcons foundation page can render, derived from the
 // same registry sources the page reads. <CmkIcon> shows the union of the

@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 import DropdownCell from '@/monitoring/shared/components/cell/DropdownCell.vue'
 

@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import ArrowDown from 'cmk-ui-library/components/graphics/ArrowDown.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import ArrowDown from '@/components/graphics/ArrowDown.vue'
 
 import type { DashboardMetadata } from '@/dashboard/types/dashboard.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'

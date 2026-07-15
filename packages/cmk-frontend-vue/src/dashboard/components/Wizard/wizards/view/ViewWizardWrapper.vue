@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { onMounted, ref } from 'vue'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import ViewWizardInner from '@/dashboard/components/Wizard/wizards/view/ViewWizardInner.vue'
 import { useDataSourcesCollection } from '@/dashboard/composables/api/useDataSourcesCollection'

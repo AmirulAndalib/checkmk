@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import { useFilterDefinitions } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { randomId } from 'cmk-ui-library/lib/randomId'
 import { computed, h, nextTick, ref, watchEffect } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { randomId } from '@/lib/randomId'
-
-import type { ConfiguredFilters } from '@/components/filter'
-import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import AddFilters from '@/dashboard/components/Wizard/components/AddFilters/AddFilters.vue'

@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { FilterDefinitions } from '@/components/filter'
+import type { FilterDefinitions } from 'cmk-ui-library/components/filter'
 
 /**
  * A small selection of filter definitions as served by the visual_filter REST

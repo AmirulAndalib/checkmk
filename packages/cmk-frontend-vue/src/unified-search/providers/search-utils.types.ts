@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { ProviderName } from 'cmk-shared-typing/typescript/unified_search'
-
-import type { SimpleIcons } from '@/components/CmkIcon'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
 
 export interface UnifiedSearchQueryLike {
   input: string

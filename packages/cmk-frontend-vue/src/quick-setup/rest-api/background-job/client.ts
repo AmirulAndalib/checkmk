@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import axios from 'axios'
-
-import { API_ROOT } from '@/lib/rest-api-client/constants'
+import { API_ROOT } from 'cmk-ui-library/lib/rest-api-client/constants'
 
 import type { BackgroundJobSnapshotObject } from './response_schemas'
 

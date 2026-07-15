@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { computed, nextTick, ref, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIconButton from '@/components/CmkIconButton.vue'
 
 const { _t } = usei18n()
 const vClickOutside = useClickOutside()

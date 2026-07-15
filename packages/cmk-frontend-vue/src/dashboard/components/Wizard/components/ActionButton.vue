@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { ButtonVariants } from '@/components/CmkButton'
-import CmkButton from '@/components/CmkButton'
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon'
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkButton'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 interface ActionButtonIcon {
   name: SimpleIcons

@@ -4,13 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkIcon from '@/components/CmkIcon'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 const { _t } = usei18n()
 

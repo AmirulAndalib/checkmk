@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import type { CmkKeyboardKeyProps, Sizes } from '@/components/CmkKeyboardKey.vue'
+import type { CmkKeyboardKeyProps, Sizes } from 'cmk-ui-library/components/CmkKeyboardKey.vue'
 
 import codeExample from './UclCmkKeyboardKeyCodeExample.vue?raw'
 
@@ -52,8 +51,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkKeyboardKey from '@/components/CmkKeyboardKey.vue'
+import CmkKeyboardKey from 'cmk-ui-library/components/CmkKeyboardKey.vue'
 
 import UclCmkKeyboardKeyDev from './UclCmkKeyboardKeyDev.vue'
 

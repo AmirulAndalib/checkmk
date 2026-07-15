@@ -4,10 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { UnbakedFallback } from 'cmk-shared-typing/typescript/agent_slideout'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { SimpleIcons } from '@/components/CmkIcon'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 export interface AgentSlideOutSubTab {
   id: string

@@ -5,9 +5,8 @@
  */
 import { userEvent } from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions/suggestions'
 import { defineComponent, ref } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions/suggestions'
 
 import AttributeFilterPill from '@/metric-backend/attribute-filter/AttributeFilterPill.vue'
 import type { Condition, Operator } from '@/metric-backend/attribute-filter/types'

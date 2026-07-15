@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { TwoFactorAuth } from 'cmk-shared-typing/typescript/two_factor_auth'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, nextTick, onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
 
 import TwoFactorAuthBackupInput from './components/TwoFactorAuthBackupInput.vue'
 import TwoFactorAuthHeader from './components/TwoFactorAuthHeader.vue'

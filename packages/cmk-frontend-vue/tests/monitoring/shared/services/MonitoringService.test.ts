@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { SortingState } from '@tanstack/vue-table'
+import type { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import type { KeyShortcutService } from '@/lib/keyShortcuts'
 
 import { POLL_INTERVAL_MS } from '@/monitoring/shared/constants'
 import {

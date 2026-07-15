@@ -4,13 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
 import {
   CATEGORY_DEFINITIONS,
   CmkFilterSelection,
@@ -18,9 +14,11 @@ import {
   parseFilterTypes,
   useFilterDefinitions,
   useFilters
-} from '@/components/filter'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+} from 'cmk-ui-library/components/filter'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { computed, ref } from 'vue'
 
 import type {
   FilterSettingsEmits,

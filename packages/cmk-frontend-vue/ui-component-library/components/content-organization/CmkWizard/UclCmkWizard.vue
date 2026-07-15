@@ -63,15 +63,14 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-import { computed } from 'vue'
-
 import CmkWizard, {
   CmkWizardButton,
   CmkWizardModeToggle,
   CmkWizardStep
-} from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+} from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import { computed } from 'vue'
 
 import UclCmkWizardDev from './UclCmkWizardDev.vue'
 

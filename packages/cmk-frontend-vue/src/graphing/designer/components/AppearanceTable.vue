@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import BaseCell from '@/monitoring/shared/components/cell/BaseCell.vue'

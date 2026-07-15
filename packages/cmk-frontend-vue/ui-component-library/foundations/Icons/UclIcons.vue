@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type PanelConfig, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import { type PanelState } from '@ucl/_ucl/types/prop-panel'
-
-import { type IconSizeNames } from '@/components/CmkIcon'
+import { type IconSizeNames } from 'cmk-ui-library/components/CmkIcon'
 
 // Titles for every CmkIcon size. Keyed by IconSizeNames so adding or removing a
 // size in the registry forces this list to be updated (it cannot silently drift).
@@ -74,23 +73,21 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui'
-import { computed, ref } from 'vue'
-
-import { useTheme } from '@/lib/useTheme'
-
-import CmkCopy from '@/components/CmkCopy.vue'
-import type { CmkMultitoneIconNames } from '@/components/CmkIcon'
-import CmkIcon, { type SimpleIcons } from '@/components/CmkIcon'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import type { CmkMultitoneIconNames } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon, { type SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
 import {
   iconSizes,
   oneColorIcons,
   themedIcons,
   twoColorIcons,
   unthemedIcons
-} from '@/components/CmkIcon/icons.constants'
-import { getIconPath } from '@/components/CmkIcon/utils'
+} from 'cmk-ui-library/components/CmkIcon/icons.constants'
+import { getIconPath } from 'cmk-ui-library/components/CmkIcon/utils'
+import { useTheme } from 'cmk-ui-library/lib/useTheme'
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui'
+import { computed, ref } from 'vue'
 
 import { iconSearchLabels } from './iconSearchLabels'
 

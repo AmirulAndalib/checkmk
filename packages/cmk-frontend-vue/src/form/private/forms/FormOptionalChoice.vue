@@ -5,15 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import FormIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { ref, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import FormIndent from '@/components/CmkIndent.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import { type ValidationMessages } from '@/form/private/validation'

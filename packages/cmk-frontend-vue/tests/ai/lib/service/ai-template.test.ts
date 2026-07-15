@@ -16,12 +16,12 @@ import {
 } from '@/ai/lib/service/ai-template'
 
 vi.mock('@/ai/lib/ai-api-client')
-vi.mock('@/lib/keyShortcuts', () => ({
+vi.mock('cmk-ui-library/lib/keyShortcuts', () => ({
   KeyShortcutService: vi.fn().mockImplementation(function () {
     return { on: vi.fn(), remove: vi.fn() }
   })
 }))
-vi.mock('@/lib/usePersistentRef', () => ({
+vi.mock('cmk-ui-library/lib/usePersistentRef', () => ({
   default: vi.fn().mockReturnValue({ value: false })
 }))
 

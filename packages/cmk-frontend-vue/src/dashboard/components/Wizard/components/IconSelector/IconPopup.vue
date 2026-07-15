@@ -5,13 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { DynamicIcon } from 'cmk-shared-typing/typescript/icon'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkButton from '@/components/CmkButton'
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
 
 import IconGallery from './IconGallery.vue'
 import type { IconCategory } from './types'

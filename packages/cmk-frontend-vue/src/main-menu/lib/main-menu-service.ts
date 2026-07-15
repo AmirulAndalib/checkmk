@@ -15,10 +15,9 @@ import type {
   NavItems,
   NavLinkItem
 } from 'cmk-shared-typing/typescript/main_menu'
+import { type KeyShortcut, KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
+import { ServiceBase } from 'cmk-ui-library/lib/service/base'
 import { type Ref, ref } from 'vue'
-
-import { type KeyShortcut, KeyShortcutService } from '@/lib/keyShortcuts'
-import { ServiceBase } from '@/lib/service/base'
 
 import { MainMenuApiClient } from './main-menu-api-client'
 import type {

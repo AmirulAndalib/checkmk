@@ -5,13 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
 import {
   type CmkIconVariants,
   type IconEmblems,
   type IconSizeNames,
   type SimpleIcons
-} from '@/components/CmkIcon/types'
+} from 'cmk-ui-library/components/CmkIcon/types'
 
 import codeExample from './UclCmkIconEmblemCodeExample.vue?raw'
 
@@ -98,9 +97,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconEmblem from 'cmk-ui-library/components/CmkIcon/CmkIconEmblem.vue'
 
 import UclCmkIconEmblemDev from './UclCmkIconEmblemDev.vue'
 

@@ -3,11 +3,10 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import defineCmkComponent from '@/lib/web-component/defineCmkComponent'
-
-import DynamicIconApp from '@/components/CmkIcon/CmkDynamicIcon/DynamicIconApp.vue'
-import IconApp from '@/components/CmkIcon/IconApp.vue'
-import RnbwApp from '@/components/graphics/RnbwApp.vue'
+import DynamicIconApp from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/DynamicIconApp.vue'
+import IconApp from 'cmk-ui-library/components/CmkIcon/IconApp.vue'
+import RnbwApp from 'cmk-ui-library/components/graphics/RnbwApp.vue'
+import defineCmkComponent from 'cmk-ui-library/lib/web-component/defineCmkComponent'
 
 import { FormApp } from '@/form'
 import { initializeComponentRegistry } from '@/form/private/FormEditDispatcher/dispatch'

@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import { allIconOptions } from '@ucl/_ucl/lib/icon'
-
-import { type SimpleIcons } from '@/components/CmkIcon'
+import { type SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
 
 import codeExample from './UclCmkPopupDialogCodeExample.vue?raw'
 
@@ -66,9 +65,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkButton from '@/components/CmkButton'
-import CmkPopupDialog from '@/components/CmkPopupDialog.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkPopupDialog from 'cmk-ui-library/components/CmkPopupDialog.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

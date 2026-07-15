@@ -5,16 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkButton'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, onUnmounted, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { ButtonVariants } from '@/components/CmkButton'
-import CmkButton from '@/components/CmkButton'
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
 import CmkHeading from './typography/CmkHeading.vue'
 

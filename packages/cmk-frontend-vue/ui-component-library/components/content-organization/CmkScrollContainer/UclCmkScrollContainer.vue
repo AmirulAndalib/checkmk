@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type ScrollContainerVariants } from '@/components/CmkScrollContainer.vue'
+import { type ScrollContainerVariants } from 'cmk-ui-library/components/CmkScrollContainer.vue'
 
 import codeExample from './UclCmkScrollContainerCodeExample.vue?raw'
 
@@ -51,8 +50,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

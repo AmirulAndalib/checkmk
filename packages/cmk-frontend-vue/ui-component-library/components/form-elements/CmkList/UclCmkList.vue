@@ -64,9 +64,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkList from 'cmk-ui-library/components/CmkList/CmkList.vue'
 import { ref } from 'vue'
-
-import CmkList from '@/components/CmkList/CmkList.vue'
 
 import UclCmkListDev from './UclCmkListDev.vue'
 

@@ -6,10 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { type AgentSlideout } from 'cmk-shared-typing/typescript/agent_slideout'
 import { type AgentDownloadServerPerSite } from 'cmk-shared-typing/typescript/setup'
+import {
+  DEFAULT_AGENT_RECEIVER_PORT,
+  fetchAgentReceiverPort
+} from 'cmk-ui-library/lib/agentReceiverPort'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { onMounted, ref } from 'vue'
-
-import { DEFAULT_AGENT_RECEIVER_PORT, fetchAgentReceiverPort } from '@/lib/agentReceiverPort'
-import usei18n from '@/lib/i18n'
 
 import AgentDownloadDialog from '@/setup/AgentDownloadDialog.vue'
 

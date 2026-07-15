@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import FieldComponent from '../TableForm/FieldComponent.vue'
 import FieldDescription from '../TableForm/FieldDescription.vue'

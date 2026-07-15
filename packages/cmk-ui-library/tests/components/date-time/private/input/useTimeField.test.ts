@@ -3,12 +3,11 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { SegmentText } from 'cmk-ui-library/components/date-time/private/input/useSegmentedField'
+import { useTimeField } from 'cmk-ui-library/components/date-time/private/input/useTimeField'
+import type { HourCycle, TimeValue } from 'cmk-ui-library/components/date-time/types'
 import { describe, expect, test } from 'vitest'
 import { ref } from 'vue'
-
-import type { SegmentText } from '@/components/date-time/private/input/useSegmentedField'
-import { useTimeField } from '@/components/date-time/private/input/useTimeField'
-import type { HourCycle, TimeValue } from '@/components/date-time/types'
 
 const timeField = (hourCycle: HourCycle = 24) => useTimeField(() => hourCycle).value
 

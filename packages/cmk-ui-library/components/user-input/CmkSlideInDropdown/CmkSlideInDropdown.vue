@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 export interface CmkSlideInDropdownChoice {
   name: string

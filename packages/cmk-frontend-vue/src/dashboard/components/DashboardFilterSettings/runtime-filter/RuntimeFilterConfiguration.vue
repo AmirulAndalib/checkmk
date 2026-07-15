@@ -4,21 +4,19 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkLabel from '@/components/CmkLabel.vue'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
 import {
   type ConfiguredFilters,
   type ConfiguredValues,
   type FilterDefinition,
   type Filters,
   isFullyConfiguredFilter
-} from '@/components/filter'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
+} from 'cmk-ui-library/components/filter'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { computed, ref, watch } from 'vue'
 
 import { RuntimeFilterMode } from '@/dashboard/types/filter.ts'
 

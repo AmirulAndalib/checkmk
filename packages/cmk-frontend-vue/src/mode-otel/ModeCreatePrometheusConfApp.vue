@@ -5,18 +5,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
 import CmkWizard, {
   CmkWizardButton,
   CmkWizardModeToggle,
   CmkWizardStep
-} from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+} from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
 import ConfigureGeneralProperties from './otel-configuration-steps/ConfigureGeneralProperties.vue'
 import ConfigurePrometheusScraper from './otel-configuration-steps/ConfigurePrometheusScraper.vue'

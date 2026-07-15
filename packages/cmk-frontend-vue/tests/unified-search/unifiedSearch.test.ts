@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { Api } from '@/lib/api-client'
+import { Api } from 'cmk-ui-library/lib/api-client'
 
 import { UnifiedSearchProvider } from '@/unified-search/lib/providers/unified'
 import { UnifiedSearch } from '@/unified-search/lib/unified-search'

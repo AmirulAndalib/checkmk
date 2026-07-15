@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
 
 beforeEach(() => {
   vi.useFakeTimers()

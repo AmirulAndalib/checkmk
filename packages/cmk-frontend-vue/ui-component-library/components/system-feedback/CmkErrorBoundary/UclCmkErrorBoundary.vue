@@ -38,10 +38,9 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
 import { ref, watch } from 'vue'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 
 import UclCmkErrorBoundaryDev from './UclCmkErrorBoundaryDev.vue'
 

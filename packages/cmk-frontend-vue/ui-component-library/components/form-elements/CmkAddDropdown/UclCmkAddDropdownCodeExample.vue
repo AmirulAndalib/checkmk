@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAddDropdown from 'cmk-ui-library/components/CmkDropdown/CmkAddDropdown.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
 import { ref } from 'vue'
-
-import CmkAddDropdown from '@/components/CmkDropdown/CmkAddDropdown.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 const added = ref<string[]>([])
 const options: Suggestions = {

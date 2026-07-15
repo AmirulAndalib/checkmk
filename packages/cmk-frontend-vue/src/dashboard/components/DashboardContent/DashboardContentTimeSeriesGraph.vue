@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
+import { staticAssertNever } from 'cmk-ui-library/lib/typeUtils'
 import { computed, onMounted, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import client, { unwrap } from '@/lib/rest-api-client/client'
-import { staticAssertNever } from '@/lib/typeUtils'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIcon from '@/components/CmkIcon'
 
 import type {
   AverageScatterplotContent,

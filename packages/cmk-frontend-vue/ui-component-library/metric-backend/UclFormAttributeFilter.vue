@@ -90,10 +90,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions/suggestions'
+import type { Section } from 'cmk-ui-library/components/CmkSuggestions/types'
 import { computed, ref, watch } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions/suggestions'
-import type { Section } from '@/components/CmkSuggestions/types'
 
 import FormAttributeFilter from '@/metric-backend/attribute-filter/FormAttributeFilter.vue'
 import type {

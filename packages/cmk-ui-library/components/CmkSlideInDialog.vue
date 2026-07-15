@@ -4,13 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon, { type CmkIconProps } from 'cmk-ui-library/components/CmkIcon'
+import CmkSlideIn, {
+  type Focusable,
+  type SlideInVariants
+} from 'cmk-ui-library/components/CmkSlideIn'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { DialogClose, DialogTitle } from 'reka-ui'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkIcon, { type CmkIconProps } from '@/components/CmkIcon'
-import CmkSlideIn, { type Focusable, type SlideInVariants } from '@/components/CmkSlideIn'
 
 import CmkScrollContainer from './CmkScrollContainer.vue'
 import CmkHeading from './typography/CmkHeading.vue'

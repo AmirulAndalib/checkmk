@@ -14,10 +14,8 @@ import {
   startOfWeek,
   startOfYear
 } from '@internationalized/date'
-
-import usei18n from '@/lib/i18n'
-
-import type { RangePreset } from '@/components/date-time'
+import type { RangePreset } from 'cmk-ui-library/components/date-time'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 function startOfDay(at: ZonedDateTime): ZonedDateTime {
   return at.set({ hour: 0, minute: 0, second: 0, millisecond: 0 })

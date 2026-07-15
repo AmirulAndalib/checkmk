@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkFlyout, { type FlyoutSlots } from '@/components/CmkFlyout'
+import CmkFlyout, { type FlyoutSlots } from 'cmk-ui-library/components/CmkFlyout'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import type { DateTimeSaveSlots } from '../../types'
 import DateTimeFlyoutFooter from './DateTimeFlyoutFooter.vue'

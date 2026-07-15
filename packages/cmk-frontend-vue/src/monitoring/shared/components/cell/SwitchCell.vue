@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkSwitch from '@/components/CmkSwitch.vue'
+import CmkSwitch from 'cmk-ui-library/components/CmkSwitch.vue'
 
 import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 

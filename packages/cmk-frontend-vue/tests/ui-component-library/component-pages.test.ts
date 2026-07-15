@@ -71,7 +71,7 @@ vi.mock('msw/browser', () => ({
 
 // The REST API client singleton captures globalThis.fetch at import time, before any
 // msw/node server patches it. Re-create it with a lazy fetch so MSW can intercept.
-vi.mock('@/lib/rest-api-client/client', async (importOriginal) => {
+vi.mock('cmk-ui-library/lib/rest-api-client/client', async (importOriginal) => {
   const mod = await importOriginal<Record<string, unknown>>()
   const createClientImpl = (await import('openapi-fetch')).default
   return {

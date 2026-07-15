@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { staticAssertNever } from 'cmk-ui-library/lib/typeUtils'
 import { computed, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { staticAssertNever } from '@/lib/typeUtils'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import { HistoryEntry } from '@/unified-search/lib/searchHistory'
 import { getSearchUtils } from '@/unified-search/providers/search-utils'

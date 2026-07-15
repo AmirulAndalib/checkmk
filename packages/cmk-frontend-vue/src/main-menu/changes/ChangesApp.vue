@@ -13,20 +13,18 @@ import type {
   Site,
   SitesAndChanges
 } from 'cmk-shared-typing/typescript/changes'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import { Api } from 'cmk-ui-library/lib/api-client'
+import { CmkFetchError } from 'cmk-ui-library/lib/cmkFetch'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { untranslated } from 'cmk-ui-library/lib/i18n/i18n'
+import { useDismissDialog } from 'cmk-ui-library/lib/useDismissDialog'
 import { computed, onMounted, ref } from 'vue'
-
-import { Api } from '@/lib/api-client'
-import { CmkFetchError } from '@/lib/cmkFetch'
-import usei18n from '@/lib/i18n'
-import { untranslated } from '@/lib/i18n/i18n'
-import { useDismissDialog } from '@/lib/useDismissDialog'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import { useSiteStatus } from '@/main-menu/changes/useSiteStatus'
 

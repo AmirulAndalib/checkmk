@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type Colors, type Sizes, type Variants } from '@/components/CmkTag.vue'
+import { type Colors, type Sizes, type Variants } from 'cmk-ui-library/components/CmkTag.vue'
 
 import codeExample from './UclCmkTagCodeExample.vue?raw'
 
@@ -65,8 +64,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkTag from '@/components/CmkTag.vue'
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
 
 import UclCmkTagDev from './UclCmkTagDev.vue'
 

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { NotificationStats } from 'cmk-shared-typing/typescript/notifications'
-
-import CmkIcon from '@/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 
 defineProps<{
   notification_stats: NotificationStats

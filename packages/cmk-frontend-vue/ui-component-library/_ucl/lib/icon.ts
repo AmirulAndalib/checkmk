@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { type IconNames } from 'cmk-shared-typing/typescript/icon'
-
-import { themedIcons, unthemedIcons } from '@/components/CmkIcon/icons.constants'
+import { themedIcons, unthemedIcons } from 'cmk-ui-library/components/CmkIcon/icons.constants'
 
 export const allIconNames: IconNames[] = [
   ...new Set([...Object.keys(unthemedIcons), ...Object.keys(themedIcons.light)])

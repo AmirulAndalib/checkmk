@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { paths } from 'cmk-shared-typing/typescript/openapi_internal'
+import { CmkApiError } from 'cmk-ui-library/lib/error'
+import type { MaybeRestApiCrashReport, MaybeRestApiError } from 'cmk-ui-library/lib/types'
 import createClientImpl from 'openapi-fetch'
-
-import { CmkApiError } from '@/lib/error'
-import type { MaybeRestApiCrashReport, MaybeRestApiError } from '@/lib/types'
 
 const API_ROOT = 'api/internal'
 

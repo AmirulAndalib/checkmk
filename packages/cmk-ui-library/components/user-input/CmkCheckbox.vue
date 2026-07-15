@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts" generic="AllowIndeterminate extends boolean = false">
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useId from 'cmk-ui-library/lib/useId'
 import { CheckboxIndicator, CheckboxRoot } from 'reka-ui'
 import { computed } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-import useId from '@/lib/useId'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 defineOptions({ inheritAttrs: false })
 

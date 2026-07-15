@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { Label } from 'reka-ui'
 import { computed, useAttrs } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
 
 defineOptions({
   inheritAttrs: false

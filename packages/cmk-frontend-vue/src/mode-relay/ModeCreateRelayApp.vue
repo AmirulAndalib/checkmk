@@ -6,13 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { CreateRelay } from 'cmk-shared-typing/typescript/create_relay'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import CmkWizard from 'cmk-ui-library/components/CmkWizard'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
-import CmkWizard from '@/components/CmkWizard'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import DownloadMsiInstaller from './add-relay-configuration-steps/DownloadMsiInstaller.vue'
 import ExecuteInstallationScript from './add-relay-configuration-steps/ExecuteInstallationScript.vue'

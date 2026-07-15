@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 </script>
 
 <template>

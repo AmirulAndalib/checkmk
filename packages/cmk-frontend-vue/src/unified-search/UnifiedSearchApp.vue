@@ -10,11 +10,10 @@ import type {
   UnifiedSearchProps,
   UnifiedSearchResultItem
 } from 'cmk-shared-typing/typescript/unified_search'
+import { Api } from 'cmk-ui-library/lib/api-client'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { onMounted, ref } from 'vue'
-
-import { Api } from '@/lib/api-client'
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import DefaultPopup from '@/main-menu/changes/components/DefaultPopup.vue'
 import { getInjectedMainMenu } from '@/main-menu/provider/main-menu'

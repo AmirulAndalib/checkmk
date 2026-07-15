@@ -3,9 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import usei18n, { untranslated } from '@/lib/i18n'
-import { selectOrdinalForm } from '@/lib/i18n/pluralForm'
-import type { TranslatedString } from '@/lib/i18nString'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import { selectOrdinalForm } from 'cmk-ui-library/lib/i18n/pluralForm'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import { type Formula, isArithmetic, serializeFormula } from '../calculation/formula'
 import type { GraphItem, ScalarItem } from '../types'

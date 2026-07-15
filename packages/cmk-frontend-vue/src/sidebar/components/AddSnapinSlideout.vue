@@ -6,13 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { SidebarSnapin } from 'cmk-shared-typing/typescript/sidebar'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
 
 import type { TSidebarSnapin } from '@/sidebar/lib/type-defs'
 import { getInjectedSidebar } from '@/sidebar/provider/sidebar'

@@ -5,8 +5,7 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
 
 describe('CmkHelpText', () => {
   test('renders help tooltip when click on trigger', async () => {

@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import { type Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch.ts'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import type { Ref } from 'vue'
 import { computed, onMounted, ref, watch } from 'vue'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import { type Suggestion } from '@/components/CmkSuggestions'
 
 import DateRangeFields from './DateRangeFields.vue'
 import DurationFields from './DurationFields.vue'

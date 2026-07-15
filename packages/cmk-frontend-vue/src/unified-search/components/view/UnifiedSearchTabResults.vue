@@ -9,18 +9,16 @@ import {
   type UnifiedSearchApiResponse,
   type UnifiedSearchResultItem
 } from 'cmk-shared-typing/typescript/unified_search'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkDynamicIcon from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
+import CmkKeyboardKey from 'cmk-ui-library/components/CmkKeyboardKey.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { type Ref, onBeforeUnmount, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkDynamicIcon from '@/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
-import CmkKeyboardKey from '@/components/CmkKeyboardKey.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import ResultItem from '@/unified-search/components/result/ResultItem.vue'
 import ResultList from '@/unified-search/components/result/ResultList.vue'

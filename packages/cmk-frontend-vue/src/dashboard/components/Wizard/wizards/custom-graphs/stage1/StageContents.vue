@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, toValue } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import type { ConfiguredFilters } from '@/components/filter'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import type { DashboardKey } from '@/dashboard/types/dashboard'

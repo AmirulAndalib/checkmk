@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
+import FormIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
 import { computed, ref } from 'vue'
-
-import FormIndent from '@/components/CmkIndent.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
 
 import { type ValidationMessages } from '@/form/private/validation'
 

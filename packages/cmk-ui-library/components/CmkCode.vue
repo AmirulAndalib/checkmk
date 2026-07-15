@@ -4,17 +4,15 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkButton from '@/components/CmkButton'
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 const { _t } = usei18n()
 

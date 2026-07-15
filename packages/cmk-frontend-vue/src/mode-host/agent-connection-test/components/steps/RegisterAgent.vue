@@ -4,22 +4,20 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkCollapsible from 'cmk-ui-library/components/CmkCollapsible'
+import CmkCollapsibleTitle from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsibleTitle.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import { CmkWizardButton } from 'cmk-ui-library/components/CmkWizard'
+import CmkWizardStep from 'cmk-ui-library/components/CmkWizard/CmkWizardStep.vue'
+import { getWizardContext } from 'cmk-ui-library/components/CmkWizard/utils.ts'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkCode from '@/components/CmkCode.vue'
-import CmkCollapsible from '@/components/CmkCollapsible'
-import CmkCollapsibleTitle from '@/components/CmkCollapsible/CmkCollapsibleTitle.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
-import { CmkWizardButton } from '@/components/CmkWizard'
-import CmkWizardStep from '@/components/CmkWizard/CmkWizardStep.vue'
-import { getWizardContext } from '@/components/CmkWizard/utils.ts'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import type { AgentSlideOutTabs } from '../../lib/type_def'
 import GenerateToken from '../GenerateToken.vue'

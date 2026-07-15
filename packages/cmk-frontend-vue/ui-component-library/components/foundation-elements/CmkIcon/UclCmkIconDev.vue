@@ -5,11 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import type { IconSizeNames, SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import { type CmkIconVariants } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { type Ref, ref } from 'vue'
-
-import type { IconSizeNames, SimpleIcons } from '@/components/CmkIcon'
-import { type CmkIconVariants } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon'
 
 defineProps<{ screenshotMode: boolean }>()
 

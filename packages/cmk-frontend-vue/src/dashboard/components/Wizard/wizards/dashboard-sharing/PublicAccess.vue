@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type Reactive, computed, reactive, ref, toRef, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import CmkCode from '@/components/CmkCode.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import PopupDialog, { type PopupDialogProps } from '@/dashboard/components/PopupDialog.vue'

@@ -5,8 +5,7 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
-
-import CmkSplitPane from '@/components/CmkSplitPane.vue'
+import CmkSplitPane from 'cmk-ui-library/components/CmkSplitPane.vue'
 
 const slots = {
   left: '<div>Left content</div>',

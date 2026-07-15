@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import { allIconOptions } from '@ucl/_ucl/lib/icon'
-
-import type { CmkIconVariants, IconSizeNames, SimpleIcons } from '@/components/CmkIcon'
+import type { CmkIconVariants, IconSizeNames, SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
 
 import codeExample from './UclCmkIconCodeExample.vue?raw'
 
@@ -59,8 +58,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkIcon from '@/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 
 import UclCmkIconDev from './UclCmkIconDev.vue'
 

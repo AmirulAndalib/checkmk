@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
 import { defineComponent } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions'
 
 import {
   type TransformationEditor,

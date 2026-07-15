@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { type Ref, defineComponent, h, nextTick, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
 
 import type { CustomPreset } from '@/graphing/GlobalTimePicker/private/useCustomPresets'
 import {

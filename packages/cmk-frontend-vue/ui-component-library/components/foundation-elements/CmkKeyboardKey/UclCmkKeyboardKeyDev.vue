@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkKeyboardKey from '@/components/CmkKeyboardKey.vue'
+import CmkKeyboardKey from 'cmk-ui-library/components/CmkKeyboardKey.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

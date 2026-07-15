@@ -5,16 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import useId from '@/lib/useId'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
-import type { ConfiguredFilters } from '@/components/filter'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 const {
   modelValue,

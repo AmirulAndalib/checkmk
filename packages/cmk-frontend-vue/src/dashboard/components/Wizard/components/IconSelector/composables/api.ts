@@ -5,8 +5,7 @@
  */
 import type { UserIcon } from 'cmk-shared-typing/typescript/icon'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
-
-import client, { unwrap } from '@/lib/rest-api-client/client'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 
 import type { IconCategory, IconsWithCategory } from '../types'
 

@@ -11,11 +11,10 @@ import {
 } from '@internationalized/date'
 import * as intl from '@internationalized/date'
 import { fireEvent } from '@testing-library/vue'
+import CmkDateTimePicker from 'cmk-ui-library/components/date-time/CmkDateTimePicker.vue'
+import type { DateTimePickerSettings } from 'cmk-ui-library/components/date-time/types'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { nextTick } from 'vue'
-
-import CmkDateTimePicker from '@/components/date-time/CmkDateTimePicker.vue'
-import type { DateTimePickerSettings } from '@/components/date-time/types'
 
 import { TZ_UTC } from './dateTimeTestFixtures'
 import { lastValue, renderModelPicker } from './pickerTestHarness'

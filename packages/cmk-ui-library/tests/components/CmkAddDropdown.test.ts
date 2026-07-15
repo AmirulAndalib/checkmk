@@ -4,12 +4,10 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import CmkAddDropdown from 'cmk-ui-library/components/CmkDropdown/CmkAddDropdown.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { defineComponent, h } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkAddDropdown from '@/components/CmkDropdown/CmkAddDropdown.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 const OPTIONS: Suggestions = {
   type: 'fixed',

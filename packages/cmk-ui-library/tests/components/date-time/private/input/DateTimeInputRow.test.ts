@@ -5,12 +5,10 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import { fireEvent, render, screen } from '@testing-library/vue'
+import DateTimeInputRow from 'cmk-ui-library/components/date-time/private/input/DateTimeInputRow.vue'
+import type { DateTimePartsDraft } from 'cmk-ui-library/components/date-time/types'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import DateTimeInputRow from '@/components/date-time/private/input/DateTimeInputRow.vue'
-import type { DateTimePartsDraft } from '@/components/date-time/types'
 
 import { DMY, MONTH_NAMES_EN, WEEKDAY_NAMES_SHORT_EN } from '../../dateTimeTestFixtures'
 

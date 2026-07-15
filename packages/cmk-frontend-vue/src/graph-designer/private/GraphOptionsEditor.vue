@@ -10,12 +10,10 @@ import type {
   GraphOptionUnitCustom,
   GraphOptions
 } from 'cmk-shared-typing/typescript/graph_designer'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, useTemplateRef, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import ExplicitVerticalRangeEditor from '@/graph-designer/private/ExplicitVerticalRangeEditor.vue'
 import UnitEditor from '@/graph-designer/private/UnitEditor.vue'

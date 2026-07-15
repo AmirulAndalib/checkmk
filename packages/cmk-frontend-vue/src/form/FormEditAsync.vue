@@ -9,19 +9,17 @@ import type {
   FormSpec,
   ValidationMessage
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import { type SetDataResult } from 'cmk-ui-library/lib/configuration_entity_types'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { useDismissDialog } from 'cmk-ui-library/lib/useDismissDialog'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { onUnmounted, ref, toRaw } from 'vue'
-
-import { type SetDataResult } from '@/lib/configuration_entity_types'
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { useDismissDialog } from '@/lib/useDismissDialog'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
-import CmkIcon from '@/components/CmkIcon'
-import CmkSpace from '@/components/CmkSpace.vue'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 

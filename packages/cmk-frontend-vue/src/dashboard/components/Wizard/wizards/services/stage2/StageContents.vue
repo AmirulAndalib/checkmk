@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, toValue } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import type { ConfiguredFilters } from '@/components/filter'
 
 import type { ElementSelection, UseWidgetHandler } from '@/dashboard/components/Wizard/types'
 import { DashboardFeatures, type DashboardKey } from '@/dashboard/types/dashboard'

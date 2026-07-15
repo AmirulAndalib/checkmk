@@ -24,8 +24,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkIndent from '@/components/CmkIndent.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

@@ -5,11 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { useLegacyCss } from '@ucl/_ucl/composables/useLegacyCss'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkSwitch from '@/components/CmkSwitch.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkSwitch from 'cmk-ui-library/components/CmkSwitch.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 const { isLegacyCssEnabled } = useLegacyCss()
 </script>

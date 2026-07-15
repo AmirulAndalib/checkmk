@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts" generic="F extends FilterField">
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
 import { ref } from 'vue'
-
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import type { ColumnFilterNode, FilterField } from '../../api/types'
 import type { StringInputFilter } from './types'

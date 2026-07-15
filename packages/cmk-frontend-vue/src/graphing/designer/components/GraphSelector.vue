@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import type { Section, Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, onMounted, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import type { Section, Suggestions } from '@/components/CmkSuggestions'
 
 import { listCustomGraphMetadata } from '../api'
 

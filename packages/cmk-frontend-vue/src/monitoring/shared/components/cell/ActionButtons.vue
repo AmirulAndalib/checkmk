@@ -5,6 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon/types'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,16 +21,6 @@ import {
   DropdownMenuTrigger
 } from 'reka-ui'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import type { SimpleIcons } from '@/components/CmkIcon/types'
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
 
 export interface CellAction {
   id: string

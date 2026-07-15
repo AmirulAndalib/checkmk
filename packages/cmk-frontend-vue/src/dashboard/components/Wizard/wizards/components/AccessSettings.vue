@@ -4,18 +4,16 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
-import { CmkFetchError } from '@/lib/cmkFetch'
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { DualListElement } from '@/components/CmkDualList'
-import CmkDualList from '@/components/CmkDualList/CmkDualList.vue'
+import type { DualListElement } from 'cmk-ui-library/components/CmkDualList'
+import CmkDualList from 'cmk-ui-library/components/CmkDualList/CmkDualList.vue'
 import CmkToggleButtonGroup, {
   type ToggleButtonOption
-} from '@/components/CmkToggleButtonGroup.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
+} from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { CmkFetchError } from 'cmk-ui-library/lib/cmkFetch'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { computed, ref } from 'vue'
 
 import type { DashboardPermissions } from '@/dashboard/types/page'
 import { type DashboardShare } from '@/dashboard/types/shared'

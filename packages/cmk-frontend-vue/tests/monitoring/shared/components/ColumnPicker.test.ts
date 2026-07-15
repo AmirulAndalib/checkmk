@@ -6,9 +6,8 @@
 import type { VisibilityState } from '@tanstack/vue-table'
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { defineComponent, h, provide, ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import ColumnPicker from '@/monitoring/shared/components/ColumnPicker.vue'
 import { MONITORING_SERVICE } from '@/monitoring/shared/components/MonitoringTableContext'

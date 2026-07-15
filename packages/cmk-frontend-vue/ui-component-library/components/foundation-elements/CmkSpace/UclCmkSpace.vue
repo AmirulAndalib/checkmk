@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import type { CmkSpaceVariants } from '@/components/CmkSpace.vue'
+import type { CmkSpaceVariants } from 'cmk-ui-library/components/CmkSpace.vue'
 
 import codeExample from './UclCmkSpaceCodeExample.vue?raw'
 
@@ -33,9 +32,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkButton from '@/components/CmkButton'
-import CmkSpace from '@/components/CmkSpace.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

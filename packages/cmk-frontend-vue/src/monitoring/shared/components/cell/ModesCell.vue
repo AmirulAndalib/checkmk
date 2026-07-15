@@ -5,8 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import type { SimpleIcons } from '@/components/CmkIcon/types'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon/types'
 
 import type { HostMode } from '../../api/types'
 import BaseCell from './BaseCell.vue'

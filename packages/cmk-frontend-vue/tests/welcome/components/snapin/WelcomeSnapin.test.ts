@@ -10,7 +10,7 @@ import { defineComponent, h, ref } from 'vue'
 import WelcomeSnapin from '@/welcome/components/snapin/WelcomeSnapin.vue'
 
 // Mock CmkSlideInDialog to avoid Radix-Vue portal issues in test environment
-vi.mock('@/components/CmkSlideInDialog.vue', () => ({
+vi.mock('cmk-ui-library/components/CmkSlideInDialog.vue', () => ({
   default: defineComponent({
     name: 'CmkSlideInDialog',
     props: {

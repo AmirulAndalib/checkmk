@@ -4,13 +4,11 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/vue'
-import { h } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
 import CmkSlideInDropdown, {
   type CmkSlideInDropdownChoice
-} from '@/components/user-input/CmkSlideInDropdown'
+} from 'cmk-ui-library/components/user-input/CmkSlideInDropdown'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { h } from 'vue'
 
 const choices: Array<CmkSlideInDropdownChoice> = [
   { name: 'entity-1', title: untranslated('Entity One') },

@@ -5,9 +5,8 @@
  */
 import { userEvent } from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 test('CmkInput can be labelled on component', async () => {
   render(

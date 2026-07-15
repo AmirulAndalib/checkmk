@@ -10,9 +10,8 @@ import type {
   Integer,
   SimplePassword
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import FormEdit from '@/form/FormEdit.vue'
 

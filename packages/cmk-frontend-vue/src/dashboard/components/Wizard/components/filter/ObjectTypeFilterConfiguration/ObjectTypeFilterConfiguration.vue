@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import type { ConfiguredValues } from '@/components/filter'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import type { ConfiguredValues } from 'cmk-ui-library/components/filter'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import CatalogPanelHeader from '@/dashboard/components/Wizard/components/CatalogPanelHeader.vue'
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'

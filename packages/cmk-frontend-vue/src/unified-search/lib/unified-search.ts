@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { Api } from 'cmk-ui-library/lib/api-client'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Ref, ref } from 'vue'
-
-import type { Api } from '@/lib/api-client'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import type { UnifiedSearchQueryLike } from '@/unified-search/providers/search-utils.types'
 

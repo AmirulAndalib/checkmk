@@ -43,10 +43,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkTimeSpan from 'cmk-ui-library/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
+import { type Magnitude } from 'cmk-ui-library/components/user-input/CmkTimeSpan/timeSpan'
 import { computed, ref } from 'vue'
-
-import CmkTimeSpan from '@/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
-import { type Magnitude } from '@/components/user-input/CmkTimeSpan/timeSpan'
 
 defineProps<{ screenshotMode: boolean }>()
 

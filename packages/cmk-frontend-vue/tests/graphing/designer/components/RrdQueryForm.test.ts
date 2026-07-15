@@ -4,11 +4,13 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
+import {
+  type FilterDefinitions,
+  useProvideFilterDefinitions
+} from 'cmk-ui-library/components/filter'
 import { expect, test, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions'
-import { type FilterDefinitions, useProvideFilterDefinitions } from '@/components/filter'
 
 import RrdQueryForm from '@/graphing/designer/components/forms/RrdQueryForm.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
@@ -16,13 +18,16 @@ import { type DraftRRDQueryItem, newRrdQueryDraft } from '@/graphing/designer/dr
 
 const mocks = vi.hoisted(() => ({ fetchSuggestions: vi.fn() }))
 
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal()
-  return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
-})
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal()
+    return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
+  }
+)
 
 // Stub the filter editor/remove widgets so the test drives the sync logic, not the widgets.
-vi.mock(import('@/components/filter'), async (importOriginal) => {
+vi.mock(import('cmk-ui-library/components/filter'), async (importOriginal) => {
   const mod = await importOriginal()
   return {
     ...mod,

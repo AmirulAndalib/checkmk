@@ -5,10 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { TwoFactorAuth } from 'cmk-shared-typing/typescript/two_factor_auth'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import type { AuthMode } from '../twoFactorAuth'
 

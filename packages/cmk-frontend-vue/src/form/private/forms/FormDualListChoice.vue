@@ -5,15 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type DualListChoice } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDualList from 'cmk-ui-library/components/CmkDualList'
+import type { DualListElement } from 'cmk-ui-library/components/CmkDualList'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import { fetchData } from 'cmk-ui-library/components/FormAutocompleter/autocompleters/ajax'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type Ref } from 'vue'
 import { onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDualList from '@/components/CmkDualList'
-import type { DualListElement } from '@/components/CmkDualList'
-import CmkIcon from '@/components/CmkIcon'
-import { fetchData } from '@/components/FormAutocompleter/autocompleters/ajax'
 
 import { type ValidationMessages, useValidation } from '../validation'
 

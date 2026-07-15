@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type * as typing from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type Ref, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
 import { type ValidationMessages } from '@/form/private/validation'
 

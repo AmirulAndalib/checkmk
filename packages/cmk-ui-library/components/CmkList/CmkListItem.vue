@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
-
-import usei18n from '@/lib/i18n'
-
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 const { _t } = usei18n()
 

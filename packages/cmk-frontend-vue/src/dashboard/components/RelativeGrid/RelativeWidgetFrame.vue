@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIconButton from '@/components/CmkIconButton.vue'
 
 import DashboardContent from '@/dashboard/components/DashboardContent/DashboardContent.vue'
 import type { ContentProps } from '@/dashboard/components/DashboardContent/types'

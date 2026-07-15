@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import { useProvideFilterDefinitions } from 'cmk-ui-library/components/filter'
 import { expect, test } from 'vitest'
 import { defineComponent, h } from 'vue'
-
-import { useProvideFilterDefinitions } from '@/components/filter'
 
 import RrdForm from '@/graphing/designer/components/forms/RrdForm.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'

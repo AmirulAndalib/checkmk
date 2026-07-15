@@ -29,14 +29,12 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
+import CmkAddDropdown from 'cmk-ui-library/components/CmkDropdown/CmkAddDropdown.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { h, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkAddDropdown from '@/components/CmkDropdown/CmkAddDropdown.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import ActionsCell, { type CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'

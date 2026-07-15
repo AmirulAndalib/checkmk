@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Components, TopicElement } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { onMounted, ref, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import useId from '@/lib/useId'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import FormRequired from '@/form/private/FormRequired.vue'

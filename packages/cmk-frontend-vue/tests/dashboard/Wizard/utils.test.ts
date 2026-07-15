@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
 import { describe, expect, it } from 'vitest'
-
-import type { ConfiguredFilters } from '@/components/filter'
 
 import { extractConfiguredFilters, isUrl } from '@/dashboard/components/Wizard/utils'
 

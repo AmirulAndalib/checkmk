@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { SidebarSnapin } from 'cmk-shared-typing/typescript/sidebar'
+import type { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
-
-import type { KeyShortcutService } from '@/lib/keyShortcuts'
 
 import { SidebarService } from '@/sidebar/lib/sidebar'
 

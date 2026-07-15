@@ -6,13 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { type ConsolidationFunction as WireConsolidationFunction } from 'cmk-shared-typing/typescript/graph_designer'
 import type { MetricBackendCustomQuery } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import { type ValidationMessages } from '@/form'
 import FormHelp from '@/form/private/FormHelp.vue'

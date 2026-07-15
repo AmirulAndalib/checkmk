@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
 import { defineComponent } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
 
 const submitHandler = vi.fn((e) => e.preventDefault())
 

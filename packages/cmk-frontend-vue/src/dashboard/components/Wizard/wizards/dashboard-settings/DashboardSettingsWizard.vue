@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, reactive, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import { type DashboardGeneralSettings } from '@/dashboard/types/dashboard'

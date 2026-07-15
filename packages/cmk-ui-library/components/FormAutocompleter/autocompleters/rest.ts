@@ -7,13 +7,11 @@ import type {
   Autocompleter,
   AutocompleterData
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
-import type { CmkError } from '@/lib/error'
-import { untranslated } from '@/lib/i18n'
-import { API_ROOT } from '@/lib/rest-api-client/constants'
-
-import { ErrorResponse, Response, WarningResponse } from '@/components/CmkSuggestions'
+import { ErrorResponse, Response, WarningResponse } from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch'
+import type { CmkError } from 'cmk-ui-library/lib/error'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { API_ROOT } from 'cmk-ui-library/lib/rest-api-client/constants'
 
 const AUTOCOMPLETER_API = `${API_ROOT}/objects/autocomplete/{autocompleter}`
 

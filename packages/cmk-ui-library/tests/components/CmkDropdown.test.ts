@@ -5,11 +5,10 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import { ErrorResponse, Response, WarningResponse } from 'cmk-ui-library/components/CmkSuggestions'
 import { defineComponent, nextTick, ref } from 'vue'
 import type { ComponentProps } from 'vue-component-type-helpers'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import { ErrorResponse, Response, WarningResponse } from '@/components/CmkSuggestions'
 
 test('dropdown shows options', async () => {
   const user = userEvent.setup()

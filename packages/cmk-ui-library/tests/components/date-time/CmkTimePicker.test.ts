@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, within } from '@testing-library/vue'
+import CmkTimePicker from 'cmk-ui-library/components/date-time/CmkTimePicker.vue'
+import type { TimeValue } from 'cmk-ui-library/components/date-time/types'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import CmkTimePicker from '@/components/date-time/CmkTimePicker.vue'
-import type { TimeValue } from '@/components/date-time/types'
 
 import { lastValue, renderModelPicker } from './pickerTestHarness'
 

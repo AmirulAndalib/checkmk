@@ -6,10 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { Site } from 'cmk-shared-typing/typescript/changes'
-
-import CmkBadge from '@/components/CmkBadge.vue'
-import CmkProgressbar from '@/components/progress/CmkProgressbar.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
+import CmkProgressbar from 'cmk-ui-library/components/progress/CmkProgressbar.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 
 import SiteStatusIcons from './SiteStatusIcons.vue'
 

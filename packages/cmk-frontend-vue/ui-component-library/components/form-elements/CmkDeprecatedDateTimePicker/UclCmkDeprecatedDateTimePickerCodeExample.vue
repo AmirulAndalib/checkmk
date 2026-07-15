@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDeprecatedDateTimePicker from 'cmk-ui-library/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 import { ref } from 'vue'
-
-import CmkDeprecatedDateTimePicker from '@/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 
 const date = ref('2026-03-15')
 const time = ref('14:30')

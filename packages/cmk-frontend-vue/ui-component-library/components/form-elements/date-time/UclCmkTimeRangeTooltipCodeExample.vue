@@ -4,8 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkChip from '@/components/CmkChip.vue'
-import { CmkTimeRangeTooltip } from '@/components/date-time'
+import CmkChip from 'cmk-ui-library/components/CmkChip.vue'
+import { CmkTimeRangeTooltip } from 'cmk-ui-library/components/date-time'
 </script>
 
 <template>

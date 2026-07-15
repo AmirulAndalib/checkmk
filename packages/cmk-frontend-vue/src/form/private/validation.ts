@@ -7,9 +7,8 @@ import type {
   ValidationMessage,
   Validator
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { type Ref, type WritableComputedRef, computed, ref } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
 
 /**
  * Hook to handle validation messages and update date if invalid value is provided

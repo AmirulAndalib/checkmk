@@ -5,8 +5,7 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import MonitoringActionBar from '@/monitoring/shared/components/action/MonitoringActionBar.vue'
 import type { CellAction } from '@/monitoring/shared/components/cell/ActionsCell.vue'

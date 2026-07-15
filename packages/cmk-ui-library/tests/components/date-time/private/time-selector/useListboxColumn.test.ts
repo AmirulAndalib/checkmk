@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useListboxColumn } from 'cmk-ui-library/components/date-time/private/time-selector/useListboxColumn'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { type Ref, nextTick, ref } from 'vue'
-
-import { useListboxColumn } from '@/components/date-time/private/time-selector/useListboxColumn'
 
 const keyEvent = (key: string): KeyboardEvent =>
   ({ key, preventDefault: vi.fn() }) as unknown as KeyboardEvent

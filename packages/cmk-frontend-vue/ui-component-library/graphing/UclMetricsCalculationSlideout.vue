@@ -10,9 +10,8 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
 import { computed, ref } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
 
 import { MetricsCalculationSlideout, type RefVisibility } from '@/graphing/designer/calculation'
 import DeleteWithDependentsPopup from '@/graphing/designer/components/DeleteWithDependentsPopup.vue'

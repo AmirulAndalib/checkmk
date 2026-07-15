@@ -9,9 +9,7 @@
     "types": ["vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
-      "@/lib/i18nString": ["./weaki18nString.d.ts"],
-      "@/lib/*": ["./lib/*"],
-      "@/components/*": ["./components/*"],
+      "cmk-ui-library/lib/i18nString": ["./weaki18nString.d.ts"],
       "cmk-ui-library/*": ["./*"],
       "*": ["./node_modules/*", "../../bazel-bin/packages/cmk-ui-library/node_modules/*"]
     }

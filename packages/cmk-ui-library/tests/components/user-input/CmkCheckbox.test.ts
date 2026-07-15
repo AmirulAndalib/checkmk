@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { defineComponent } from 'vue'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 test('CmkCheckbox can be appended with standard props', async () => {
   render(

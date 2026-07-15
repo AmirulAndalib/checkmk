@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { TriggerAria } from 'cmk-ui-library/components/CmkFlyout'
+import { type CmkMultitoneIconNames } from 'cmk-ui-library/components/CmkIcon'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { useTemplateRef } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { TriggerAria } from '@/components/CmkFlyout'
-import { type CmkMultitoneIconNames } from '@/components/CmkIcon'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
 const props = defineProps<{
   /** Optional leading CmkMultitoneIcon name. */

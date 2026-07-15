@@ -8,15 +8,13 @@ import type {
   CustomGraphDesignerMode,
   TitleMacroGroup
 } from 'cmk-shared-typing/typescript/custom_graph_designer'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { useResizeObserver } from '@/lib/useResizeObserver'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
 
 import { useGlobalRefresh } from '../../GlobalRefreshControl/useGlobalRefresh'
 import GraphPanel from '../../components/GraphPanel.vue'

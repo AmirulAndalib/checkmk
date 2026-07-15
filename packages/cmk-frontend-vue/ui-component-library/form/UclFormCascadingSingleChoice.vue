@@ -6,10 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import type * as vue_formspec_components from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ValidationMessages } from '@/form'
 import FormEdit from '@/form/FormEdit.vue'

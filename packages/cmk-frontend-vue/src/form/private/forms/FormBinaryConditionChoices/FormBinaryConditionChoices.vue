@@ -6,12 +6,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type * as typing from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import { type ValidationMessages } from '@/form/private/validation'
 

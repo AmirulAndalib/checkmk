@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
-import CmkSlideIn from '@/components/CmkSlideIn'
+import CmkSlideIn from 'cmk-ui-library/components/CmkSlideIn'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import FilterSettings from '@/dashboard/components/DashboardFilterSettings/FilterSettings.vue'
 import type {

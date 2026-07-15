@@ -21,7 +21,6 @@
 //   )
 //   formatter.render(convert(rawBytes))   // → "12.34 kB"
 import type { UnitFormat } from 'cmk-shared-typing/typescript/unit_format'
-
 import {
   DecimalFormatter,
   EngineeringScientificFormatter,
@@ -31,11 +30,11 @@ import {
   SIFormatter,
   StandardScientificFormatter,
   TimeFormatter
-} from '@/lib/unit-format/notationFormatter'
+} from 'cmk-ui-library/lib/unit-format/notationFormatter'
 
 // `UnitFormat` is generated from packages/cmk-shared-typing/source/unit_format.json
 // (the canonical wire format the backend serializes into). Re-exported here so the
-// existing `@/lib/unit-format/unitFormatter` import sites stay unchanged.
+// existing `cmk-ui-library/lib/unit-format/unitFormatter` import sites stay unchanged.
 export type { UnitFormat }
 
 export type TemperatureUnit = 'celsius' | 'fahrenheit'

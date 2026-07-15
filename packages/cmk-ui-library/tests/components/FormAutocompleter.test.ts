@@ -5,25 +5,27 @@
  */
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
 
-import { Response } from '@/components/CmkSuggestions'
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
-
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal() // type is inferred
-  return {
-    ...mod,
-    fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      return new Response(
-        [
-          { name: 'os:windows', title: 'OS Windows' },
-          { name: 'os:linux', title: 'OS Linux' }
-        ].filter((item) => item.name.includes(value))
-      )
-    })
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal() // type is inferred
+    return {
+      ...mod,
+      fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return new Response(
+          [
+            { name: 'os:windows', title: 'OS Windows' },
+            { name: 'os:linux', title: 'OS Linux' }
+          ].filter((item) => item.name.includes(value))
+        )
+      })
+    }
   }
-})
+)
 
 describe('FormAutocompleter', () => {
   test('should be rendered with placeholder', async () => {

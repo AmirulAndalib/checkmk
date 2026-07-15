@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useDebounceRef } from 'cmk-ui-library/lib/useDebounce'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { type Ref, computed, nextTick, ref, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { useDebounceRef } from '@/lib/useDebounce'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import { ErrorResponse, type Suggestion, WarningResponse } from './suggestions'
 import {

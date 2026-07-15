@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { FixedValue } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
 import { computed } from 'vue'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import FormLabel from '@/form/private/FormLabel.vue'
 import { type ValidationMessages, useValidation } from '@/form/private/validation'

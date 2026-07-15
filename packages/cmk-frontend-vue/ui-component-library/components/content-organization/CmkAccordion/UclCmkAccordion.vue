@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { StringArrayPropDef } from '@ucl/_ucl/types/prop-def'
-
-import { type HeadingType } from '@/components/typography/CmkHeading.vue'
+import { type HeadingType } from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 import codeExample from './UclCmkAccordionCodeExample.vue?raw'
 
@@ -80,11 +79,10 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkAccordion from '@/components/CmkAccordion/CmkAccordion.vue'
-import CmkAccordionItem from '@/components/CmkAccordion/CmkAccordionItem.vue'
-import CmkAccordionItemStateIndicator from '@/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
-import CmkIcon from '@/components/CmkIcon'
+import CmkAccordion from 'cmk-ui-library/components/CmkAccordion/CmkAccordion.vue'
+import CmkAccordionItem from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItem.vue'
+import CmkAccordionItemStateIndicator from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 
 import UclCmkAccordionDev from './UclCmkAccordionDev.vue'
 

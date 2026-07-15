@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkList from 'cmk-ui-library/components/CmkList/CmkList.vue'
 import { ref } from 'vue'
-
-import CmkList from '@/components/CmkList/CmkList.vue'
 
 const itemsData = ref({
   names: ['Alice', 'Bob', 'Charlie'],

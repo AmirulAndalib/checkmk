@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { SortingState } from '@tanstack/vue-table'
-
-import client, { unwrap } from '@/lib/rest-api-client/client'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 
 import type { RequestedLimit } from '@/monitoring/shared/services/MonitoringService'
 

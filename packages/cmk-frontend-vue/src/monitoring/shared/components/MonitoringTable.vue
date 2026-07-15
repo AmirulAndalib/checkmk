@@ -14,9 +14,8 @@ import {
   useVueTable
 } from '@tanstack/vue-table'
 import { useVirtualizer } from '@tanstack/vue-virtual'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { type ComponentPublicInstance, computed, inject, provide, ref, watch } from 'vue'
-
-import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import TableSkeleton from '@/loading-transition/TableSkeleton.vue'
 import type { FetchState } from '@/monitoring/shared/services/MonitoringService'

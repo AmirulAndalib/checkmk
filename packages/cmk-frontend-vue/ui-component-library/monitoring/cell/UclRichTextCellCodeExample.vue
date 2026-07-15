@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkTag from '@/components/CmkTag.vue'
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
 
 import RichTextCell from '@/monitoring/shared/components/cell/RichTextCell.vue'
 </script>

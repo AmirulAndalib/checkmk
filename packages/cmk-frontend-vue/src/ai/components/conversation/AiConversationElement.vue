@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, onMounted, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import { type QualityLevel, extractQualityLevel, stripQualityLineFromText } from '@/ai/lib/markdown'
 import { getInjectedAiTemplate } from '@/ai/lib/provider/ai-template'

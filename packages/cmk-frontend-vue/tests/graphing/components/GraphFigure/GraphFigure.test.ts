@@ -6,8 +6,7 @@
 import type * as intl from '@internationalized/date'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
-
-import client from '@/lib/rest-api-client/client'
+import client from 'cmk-ui-library/lib/rest-api-client/client'
 
 import GraphFigure from '@/graphing/components/GraphFigure/GraphFigure.vue'
 

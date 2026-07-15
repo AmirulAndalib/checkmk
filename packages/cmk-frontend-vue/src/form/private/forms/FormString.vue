@@ -5,17 +5,15 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdownButton from 'cmk-ui-library/components/CmkDropdown/CmkDropdownButton.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkDropdownButton from '@/components/CmkDropdown/CmkDropdownButton.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkSpace from '@/components/CmkSpace.vue'
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import FormLabel from '@/form/private/FormLabel.vue'
 import FormRequired from '@/form/private/FormRequired.vue'

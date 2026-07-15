@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { ConfiguredFilters, FilterDefinition } from '@/components/filter'
+import type { ConfiguredFilters, FilterDefinition } from 'cmk-ui-library/components/filter'
 
 import type { ContextFilters } from '@/dashboard/types/filter.ts'
 

@@ -6,13 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { fromAbsolute, getLocalTimeZone } from '@internationalized/date'
-import { computed } from 'vue'
-
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
+import { computed } from 'vue'
 
 import { isoDate, isoTime, shortWeekday } from '../../../utils/timeFormat'
 import type { HoverState } from '../interaction/hover'

@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { type ProductUsageAnalyticsConfig } from 'cmk-shared-typing/typescript/product_usage_analytics'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkPopupDialog from 'cmk-ui-library/components/CmkPopupDialog.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkPopupDialog from '@/components/CmkPopupDialog.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 const { _t } = usei18n()
 

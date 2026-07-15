@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { markRaw } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import ActionFormPane from '@/monitoring/shared/components/action/ActionFormPane.vue'
 import CommentForm from '@/monitoring/shared/components/action/actions/CommentForm.vue'

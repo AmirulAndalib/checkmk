@@ -3,8 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { Api, type ApiResponseBody } from '@/lib/api-client'
-import { randomId } from '@/lib/randomId'
+import { Api, type ApiResponseBody } from 'cmk-ui-library/lib/api-client'
+import { randomId } from 'cmk-ui-library/lib/randomId'
 
 import { streamJsonResponse } from './utils'
 

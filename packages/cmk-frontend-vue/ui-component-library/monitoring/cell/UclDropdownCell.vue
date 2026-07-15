@@ -78,12 +78,10 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import type { ColumnJustify } from '@/monitoring/shared/components/MonitoringTableContext'

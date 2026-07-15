@@ -7,9 +7,8 @@ import type {
   TitleMacroGroup,
   TitleMacroSourceType
 } from 'cmk-shared-typing/typescript/custom_graph_designer'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import { useRowLabels } from './useRowLabels'
 

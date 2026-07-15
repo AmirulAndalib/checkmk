@@ -47,10 +47,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkSearchInput from 'cmk-ui-library/components/CmkSearchInput.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 import { ref } from 'vue'
-
-import CmkSearchInput from '@/components/CmkSearchInput.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

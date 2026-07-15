@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Components, FormSpec } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import type { ValidationMessages } from '@/form/private/validation'

@@ -36,18 +36,16 @@ export function nextAvailableConfigName(existingIds: string[], prefix: string): 
 </script>
 
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch.ts'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, onMounted, ref } from 'vue'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
-import usei18n, { untranslated } from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import type { Suggestion } from '@/components/CmkSuggestions'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 const API_ROOT = 'api/v1'
 

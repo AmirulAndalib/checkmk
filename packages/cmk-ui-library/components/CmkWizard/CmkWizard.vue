@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { provideWizardContext } from '@/components/CmkWizard/utils.ts'
+import { provideWizardContext } from 'cmk-ui-library/components/CmkWizard/utils.ts'
 
 export interface CmkWizardProps {
   mode: 'overview' | 'guided'

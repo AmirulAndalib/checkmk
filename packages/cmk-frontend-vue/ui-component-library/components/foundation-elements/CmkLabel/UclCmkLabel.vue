@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type LabelProps } from '@/components/CmkLabel.vue'
+import { type LabelProps } from 'cmk-ui-library/components/CmkLabel.vue'
 
 import codeExample from './UclCmkLabelCodeExample.vue?raw'
 
@@ -60,8 +59,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkLabel from '@/components/CmkLabel.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

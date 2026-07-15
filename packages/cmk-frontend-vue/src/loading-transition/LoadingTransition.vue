@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type LoadingTransition } from 'cmk-shared-typing/typescript/loading_transition'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import CatalogSkeleton from './CatalogSkeleton.vue'
 import DashboardSkeleton from './DashboardSkeleton.vue'

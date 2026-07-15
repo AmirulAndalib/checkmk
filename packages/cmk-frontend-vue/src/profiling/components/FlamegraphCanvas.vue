@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
 
 import type { CallerInfo, FlamegraphNode } from '../types'
 import {

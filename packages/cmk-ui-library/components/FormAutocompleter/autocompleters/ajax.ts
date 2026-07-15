@@ -7,12 +7,10 @@ import type {
   Autocompleter,
   AutocompleterData
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { cmkFetch } from '@/lib/cmkFetch'
-import { CmkError } from '@/lib/error'
-import { untranslated } from '@/lib/i18n'
-
-import { ErrorResponse, Response } from '@/components/CmkSuggestions'
+import { ErrorResponse, Response } from 'cmk-ui-library/components/CmkSuggestions'
+import { cmkFetch } from 'cmk-ui-library/lib/cmkFetch'
+import { CmkError } from 'cmk-ui-library/lib/error'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 
 export interface MaybeApiError {
   result?: string

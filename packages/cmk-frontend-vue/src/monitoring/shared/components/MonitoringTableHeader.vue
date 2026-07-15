@@ -12,14 +12,12 @@ import {
   type HeaderGroup,
   type Table
 } from '@tanstack/vue-table'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkIconEmblem from 'cmk-ui-library/components/CmkIcon/CmkIconEmblem.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type CSSProperties, inject } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 

@@ -39,16 +39,14 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { UserProps } from '@ucl/_ucl/types/prop-def'
-import { computed, shallowRef } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkLabel from '@/components/CmkLabel.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
 import {
   CmkDateTimePicker,
   type DateFormatKind,
   type DateTimePickerSettings
-} from '@/components/date-time'
+} from 'cmk-ui-library/components/date-time'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { computed, shallowRef } from 'vue'
 
 import { resolveFirstDayOfWeek, resolveHourCycleKnob, resolveWeekendDays } from './uclKnobs'
 

@@ -8,11 +8,9 @@ import type {
   CheckboxListChoice,
   MultipleChoiceElement
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 
 import { type ValidationMessages, useValidation } from '../validation'
 

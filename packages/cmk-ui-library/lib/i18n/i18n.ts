@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Ref, computed, getCurrentInstance, ref } from 'vue'
 import { type Translations, createGettext } from 'vue3-gettext'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import { dummyT, dummyTn, dummyTnp, dummyTp } from './i18nDummy'
 

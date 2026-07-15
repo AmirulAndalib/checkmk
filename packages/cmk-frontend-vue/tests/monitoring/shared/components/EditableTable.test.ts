@@ -5,9 +5,8 @@
  */
 import type { ColumnDef, RowSelectionState, Row as TanStackRow } from '@tanstack/vue-table'
 import { fireEvent, render, screen } from '@testing-library/vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { defineComponent, h, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import DragHandleCell from '@/monitoring/shared/components/cell/DragHandleCell.vue'

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import type { CmkSplitPaneProps } from '@/components/CmkSplitPane.vue'
+import type { CmkSplitPaneProps } from 'cmk-ui-library/components/CmkSplitPane.vue'
 
 import codeExample from './UclCmkSplitPaneCodeExample.vue?raw'
 
@@ -104,8 +103,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkSplitPane from '@/components/CmkSplitPane.vue'
+import CmkSplitPane from 'cmk-ui-library/components/CmkSplitPane.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

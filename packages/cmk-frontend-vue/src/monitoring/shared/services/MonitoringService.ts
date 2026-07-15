@@ -9,6 +9,10 @@ import type {
   SortingState,
   VisibilityState
 } from '@tanstack/vue-table'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import type { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
+import { ServiceBase } from 'cmk-ui-library/lib/service/base'
 import {
   type ComputedRef,
   type Ref,
@@ -18,11 +22,6 @@ import {
   shallowRef,
   watch
 } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import type { KeyShortcutService } from '@/lib/keyShortcuts'
-import { ServiceBase } from '@/lib/service/base'
 
 import type { FilterNode } from '@/monitoring/shared/api/types'
 import { DEFAULT_BATCH_SIZE, POLL_INTERVAL_MS } from '@/monitoring/shared/constants'

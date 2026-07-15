@@ -4,15 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, onBeforeMount } from 'vue'
-
 import {
   CmkFilterSelection,
   getCategoryDefinition,
   parseFilterTypes,
   useFilters,
   useProvideFilterDefinitions
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import { computed, onBeforeMount } from 'vue'
 
 // Definitions become available to all filter components below this component.
 // Usually called once in an app root.

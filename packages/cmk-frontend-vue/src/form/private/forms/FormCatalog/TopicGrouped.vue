@@ -9,12 +9,10 @@ import type {
   DictionaryElement,
   TopicGroup
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import useId from 'cmk-ui-library/lib/useId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { ref } from 'vue'
-
-import useId from '@/lib/useId'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkLabel from '@/components/CmkLabel.vue'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import { type ValidationMessages } from '@/form/private/validation'

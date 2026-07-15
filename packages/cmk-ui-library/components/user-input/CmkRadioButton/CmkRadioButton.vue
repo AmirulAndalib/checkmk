@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useId from 'cmk-ui-library/lib/useId'
 import { RadioGroupIndicator, RadioGroupItem } from 'reka-ui'
-
-import type { TranslatedString } from '@/lib/i18nString'
-import useId from '@/lib/useId'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 
 interface CmkRadioButtonProps {
   value: string

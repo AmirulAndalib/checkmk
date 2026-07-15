@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { cmkAjax } from '@/lib/ajax'
+import { cmkAjax } from 'cmk-ui-library/lib/ajax'
 
 export async function fetchMetricColor<OutputType>(
   metricName: string,

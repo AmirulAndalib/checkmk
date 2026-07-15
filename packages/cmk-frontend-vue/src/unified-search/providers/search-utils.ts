@@ -5,12 +5,11 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ProviderName } from 'cmk-shared-typing/typescript/unified_search'
+import { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
+import { randomId } from 'cmk-ui-library/lib/randomId'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
+import { escapeHtml } from 'cmk-ui-library/lib/utils'
 import { type InjectionKey, type Ref, inject, provide, ref } from 'vue'
-
-import { KeyShortcutService } from '@/lib/keyShortcuts'
-import { randomId } from '@/lib/randomId'
-import usePersistentRef from '@/lib/usePersistentRef'
-import { escapeHtml } from '@/lib/utils'
 
 import type { SearchHistoryService } from '@/unified-search/lib/searchHistory'
 import type { UnifiedSearch } from '@/unified-search/lib/unified-search'

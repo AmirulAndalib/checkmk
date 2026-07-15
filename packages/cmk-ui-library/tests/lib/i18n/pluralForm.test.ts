@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { selectOrdinalForm } from '@/lib/i18n/pluralForm'
+import { selectOrdinalForm } from 'cmk-ui-library/lib/i18n/pluralForm'
 
 /** Resolve the CLDR ordinal category chosen for a number in a locale. */
 function categoryOf(n: number, locale: string | null): string {

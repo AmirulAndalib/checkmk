@@ -5,14 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { getLocalTimeZone, now } from '@internationalized/date'
-import { shallowRef } from 'vue'
-
-import CmkLabel from '@/components/CmkLabel.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
 import {
   CmkTimeRangePicker,
   type DateTimePickerSettings,
   type DateTimeRange
-} from '@/components/date-time'
+} from 'cmk-ui-library/components/date-time'
+import { shallowRef } from 'vue'
 
 const range = shallowRef<DateTimeRange>({
   from: now(getLocalTimeZone()),

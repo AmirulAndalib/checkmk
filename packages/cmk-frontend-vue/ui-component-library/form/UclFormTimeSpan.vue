@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { TimeSpan } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import FormTimeSpan from '@/form/private/forms/FormTimeSpan/FormTimeSpan.vue'
 

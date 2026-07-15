@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { FormSpec } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
-
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 
 import FormEdit from '@/form/FormEdit.vue'
 import FormReadonly from '@/form/FormReadonly.vue'

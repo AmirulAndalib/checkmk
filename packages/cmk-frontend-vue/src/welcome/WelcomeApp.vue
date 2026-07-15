@@ -6,9 +6,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { StageInformation, WelcomeCards } from 'cmk-shared-typing/typescript/welcome'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
 import { computed, ref } from 'vue'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import { refreshSidebarSnapin } from '@/sidebar/lib/snapin-refresh'
 import NextSteps from '@/welcome/components/NextSteps.vue'

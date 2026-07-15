@@ -15,8 +15,7 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

@@ -54,9 +54,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkIndent from '@/components/CmkIndent.vue'
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
 
 import UclCmkCollapsibleDev from './UclCmkCollapsibleDev.vue'
 

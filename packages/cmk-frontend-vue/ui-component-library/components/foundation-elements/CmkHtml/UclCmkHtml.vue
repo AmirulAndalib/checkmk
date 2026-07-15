@@ -30,8 +30,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkHtml from '@/components/CmkHtml.vue'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
 
 import UclCmkHtmlDev from './UclCmkHtmlDev.vue'
 

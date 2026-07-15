@@ -10,6 +10,6 @@
  * This file exists to overwrite that strong type in the tests and demo. This saves us
  * from having to cast every single string in these environments.
  */
-declare module '@/lib/i18nString' {
+declare module 'cmk-ui-library/lib/i18nString' {
   export type TranslatedString = string
 }

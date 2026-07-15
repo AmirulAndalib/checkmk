@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkIcon from '@/components/CmkIcon'
-import type { Suggestions } from '@/components/CmkSuggestions'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import CmkDropdown from './CmkDropdown.vue'
 import type { ButtonVariants } from './CmkDropdownButton.vue'

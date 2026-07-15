@@ -5,9 +5,8 @@
  */
 import { userEvent } from '@testing-library/user-event'
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkDeprecatedTimePicker from 'cmk-ui-library/components/CmkDeprecatedDateTimePicker/CmkDeprecatedTimePicker.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkDeprecatedTimePicker from '@/components/CmkDeprecatedDateTimePicker/CmkDeprecatedTimePicker.vue'
 
 test('CmkTimePicker renders initial time value', () => {
   render(CmkDeprecatedTimePicker, {

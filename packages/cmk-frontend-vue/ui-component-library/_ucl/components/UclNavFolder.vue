@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { computed } from 'vue'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import type { NavFolder } from '../composables/useNavigation'
 import UclNavPage from './UclNavPage.vue'

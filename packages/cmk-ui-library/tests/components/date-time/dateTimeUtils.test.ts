@@ -4,8 +4,6 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDate, CalendarDateTime, toZoned } from '@internationalized/date'
-import { describe, expect, test } from 'vitest'
-
 import {
   formatDate,
   formatTime,
@@ -21,7 +19,7 @@ import {
   timeZoneShortLabel,
   toMeridiemHour,
   zonedToParts
-} from '@/components/date-time/dateTimeUtils'
+} from 'cmk-ui-library/components/date-time/dateTimeUtils'
 import type {
   DateFormatParts,
   DateTimePartsDraft,
@@ -30,7 +28,8 @@ import type {
   MeridiemCycle,
   RangeDraft,
   TimeValue
-} from '@/components/date-time/types'
+} from 'cmk-ui-library/components/date-time/types'
+import { describe, expect, test } from 'vitest'
 
 import { TZ_BERLIN, TZ_TOKYO, TZ_UTC } from './dateTimeTestFixtures'
 

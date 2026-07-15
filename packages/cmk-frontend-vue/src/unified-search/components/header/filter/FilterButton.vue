@@ -4,13 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkChip, { type Colors, type Variants } from '@/components/CmkChip.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkChip, { type Colors, type Variants } from 'cmk-ui-library/components/CmkChip.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
 import type {
   CmkMultitoneIconColor,
   CmkMultitoneIconNames,
   CustomIconColor
-} from '@/components/CmkIcon/types'
+} from 'cmk-ui-library/components/CmkIcon/types'
 
 const props = defineProps<{
   active?: boolean | undefined

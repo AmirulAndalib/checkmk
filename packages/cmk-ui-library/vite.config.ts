@@ -22,8 +22,6 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@/lib': path.resolve('./lib'),
-      '@/components': path.resolve('./components'),
       // Self-reference: package files import each other as `cmk-ui-library/...`.
       'cmk-ui-library': path.resolve('.'),
       // Icons and theme images resolved from the classic frontend, same

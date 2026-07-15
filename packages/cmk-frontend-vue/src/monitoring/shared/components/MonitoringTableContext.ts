@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { RowData, Updater } from '@tanstack/vue-table'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import type { ComputedRef, InjectionKey } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import type { MonitoringService } from '@/monitoring/shared/services/MonitoringService'
 

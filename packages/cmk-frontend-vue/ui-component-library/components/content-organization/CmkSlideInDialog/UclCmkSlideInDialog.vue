@@ -6,10 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { BoolPropDef, StringPropDef } from '@ucl/_ucl/types/prop-def'
-
-import { type CmkIconProps } from '@/components/CmkIcon'
-import type { SlideInVariants } from '@/components/CmkSlideIn'
-import type { CmkSlideInDialogProps } from '@/components/CmkSlideInDialog.vue'
+import { type CmkIconProps } from 'cmk-ui-library/components/CmkIcon'
+import type { SlideInVariants } from 'cmk-ui-library/components/CmkSlideIn'
+import type { CmkSlideInDialogProps } from 'cmk-ui-library/components/CmkSlideInDialog.vue'
 
 import codeExample from './UclCmkSlideInDialogCodeExample.vue?raw'
 
@@ -99,12 +98,11 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 import { computed } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import UclCmkSlideInDialogDev from './UclCmkSlideInDialogDev.vue'
 

@@ -6,9 +6,8 @@
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import type { CustomGraphDesigner } from 'cmk-shared-typing/typescript/custom_graph_designer'
+import client from 'cmk-ui-library/lib/rest-api-client/client'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-
-import client from '@/lib/rest-api-client/client'
 
 import CustomGraphDesignerApp from '@/graphing/designer/CustomGraphDesignerApp.vue'
 

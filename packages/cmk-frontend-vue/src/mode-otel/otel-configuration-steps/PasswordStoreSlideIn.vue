@@ -5,13 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { FormSpec } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import type {
+  SetDataResult,
+  ValidationMessages
+} from 'cmk-ui-library/lib/configuration_entity_types.ts'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 import { ref } from 'vue'
-
-import type { SetDataResult, ValidationMessages } from '@/lib/configuration_entity_types.ts'
-import usei18n from '@/lib/i18n'
-import client, { unwrap } from '@/lib/rest-api-client/client'
-
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
 
 import { configEntityAPI } from '@/form'
 import type { API, Payload } from '@/form/FormEditAsync.vue'

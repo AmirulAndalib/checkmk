@@ -13,12 +13,11 @@ import type {
   Topic,
   TopicElement
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
 import { ref } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkIcon from '@/components/CmkIcon'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
 
 import FormEdit from '@/form/FormEdit.vue'
 

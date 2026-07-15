@@ -3,11 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { Response, type Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { type ComputedRef, type MaybeRefOrGetter, type Ref, computed, ref, toValue } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import { Response, type Suggestions } from '@/components/CmkSuggestions'
 
 import { useItemDescription } from '../../composables/useItemDescription'
 import {

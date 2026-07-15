@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDate } from '@internationalized/date'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type ComputedRef, type MaybeRefOrGetter, computed, toValue } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import type { DateFormatParts, DateSectionType } from '../../types'
 import {

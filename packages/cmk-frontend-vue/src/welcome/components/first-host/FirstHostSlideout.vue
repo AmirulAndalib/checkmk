@@ -5,23 +5,21 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkTab from 'cmk-ui-library/components/CmkTabs/CmkTab.vue'
+import CmkTabContent from 'cmk-ui-library/components/CmkTabs/CmkTabContent.vue'
+import CmkTabs from 'cmk-ui-library/components/CmkTabs/CmkTabs.vue'
+import CmkWizard from 'cmk-ui-library/components/CmkWizard/CmkWizard.vue'
+import CmkWizardButton from 'cmk-ui-library/components/CmkWizard/CmkWizardButton.vue'
+import CmkWizardStep from 'cmk-ui-library/components/CmkWizard/CmkWizardStep.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import { ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import CmkCode from '@/components/CmkCode.vue'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkTab from '@/components/CmkTabs/CmkTab.vue'
-import CmkTabContent from '@/components/CmkTabs/CmkTabContent.vue'
-import CmkTabs from '@/components/CmkTabs/CmkTabs.vue'
-import CmkWizard from '@/components/CmkWizard/CmkWizard.vue'
-import CmkWizardButton from '@/components/CmkWizard/CmkWizardButton.vue'
-import CmkWizardStep from '@/components/CmkWizard/CmkWizardStep.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import GenerateToken from '@/mode-host/agent-connection-test/components/GenerateToken.vue'
 

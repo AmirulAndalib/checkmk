@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { userSpecificUnit } from 'cmk-ui-library/lib/unit-format/unitFormatter'
 import { scaleLinear, scaleTime } from 'd3-scale'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
 import type { ConsolidationFn } from '../consolidation'
 import { CANVAS_MARGIN_LEFT, CANVAS_MARGIN_RIGHT } from '../constants'

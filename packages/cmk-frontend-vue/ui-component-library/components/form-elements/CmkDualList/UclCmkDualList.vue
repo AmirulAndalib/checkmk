@@ -6,11 +6,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { StringArrayPropDef } from '@ucl/_ucl/types/prop-def'
-
 import {
   type DualListElement,
   type SearchableListWidthVariants
-} from '@/components/CmkDualList/index.ts'
+} from 'cmk-ui-library/components/CmkDualList/index.ts'
 
 import codeExample from './UclCmkDualListCodeExample.vue?raw'
 
@@ -69,9 +68,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkDualList from 'cmk-ui-library/components/CmkDualList/CmkDualList.vue'
 import { computed } from 'vue'
-
-import CmkDualList from '@/components/CmkDualList/CmkDualList.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

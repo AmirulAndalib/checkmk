@@ -8,9 +8,8 @@ import type {
   NavItemTopic,
   NavItemTopicEntry
 } from 'cmk-shared-typing/typescript/main_menu'
+import type { Colors } from 'cmk-ui-library/components/CmkBadge.vue'
 import type { Ref } from 'vue'
-
-import type { Colors } from '@/components/CmkBadge.vue'
 
 export type OnNavigateCallback = (item: NavItem) => void
 export type OnCloseCallback = (id: string) => void

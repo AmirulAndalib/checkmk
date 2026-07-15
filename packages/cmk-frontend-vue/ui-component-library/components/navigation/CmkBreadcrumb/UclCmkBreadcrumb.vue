@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import type { PanelConfig } from '@ucl/_ucl/components/detail-page'
 import type { PanelState } from '@ucl/_ucl/types/prop-panel'
-
-import type { BreadcrumbItem } from '@/components/CmkBreadcrumb'
+import type { BreadcrumbItem } from 'cmk-ui-library/components/CmkBreadcrumb'
 
 import codeExample from './UclCmkBreadcrumbCodeExample.vue?raw'
 
@@ -68,9 +67,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkBreadcrumb from 'cmk-ui-library/components/CmkBreadcrumb'
 import { computed, ref } from 'vue'
-
-import CmkBreadcrumb from '@/components/CmkBreadcrumb'
 
 defineProps<{ screenshotMode: boolean }>()
 

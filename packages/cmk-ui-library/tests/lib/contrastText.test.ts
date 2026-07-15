@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { contrastTextColor } from '@/lib/contrastText'
+import { contrastTextColor } from 'cmk-ui-library/lib/contrastText'
 
 const DARK_TEXT = 'rgb(30, 38, 46)'
 const LIGHT_TEXT = 'rgb(255, 255, 255)'

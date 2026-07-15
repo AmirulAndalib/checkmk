@@ -8,8 +8,7 @@ import {
   type GraphLines,
   type GraphOptions
 } from 'cmk-shared-typing/typescript/graph_designer'
-
-import { cmkAjax } from '@/lib/ajax'
+import { cmkAjax } from 'cmk-ui-library/lib/ajax'
 
 // Copied from cmk-frontend/src/js/modules/graphs.ts
 

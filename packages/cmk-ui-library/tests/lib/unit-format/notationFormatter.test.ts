@@ -16,7 +16,7 @@ import {
   StandardScientificFormatter,
   TimeFormatter,
   stringifySmallDecimalNumber
-} from '@/lib/unit-format/notationFormatter'
+} from 'cmk-ui-library/lib/unit-format/notationFormatter'
 
 const pos = (start: number, end: number): PositiveYRange => ({ kind: 'positive', start, end })
 const neg = (start: number, end: number): NegativeYRange => ({ kind: 'negative', start, end })

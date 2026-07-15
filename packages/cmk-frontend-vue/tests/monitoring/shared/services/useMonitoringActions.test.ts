@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { RowSelectionState } from '@tanstack/vue-table'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { nextTick, ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import { useMonitoringActions } from '@/monitoring/shared/services/useMonitoringActions'
 

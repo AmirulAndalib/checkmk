@@ -4,8 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 import demoLayoutImage from '../assets/images/ucl-layout.png'
 import UclHeroBanner from '../components/UclHeroBanner.vue'

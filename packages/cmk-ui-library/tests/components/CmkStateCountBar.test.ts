@@ -4,10 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen, within } from '@testing-library/vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkStateCountBar, { type StateSegment } from '@/components/CmkStateCountBar.vue'
+import CmkStateCountBar, { type StateSegment } from 'cmk-ui-library/components/CmkStateCountBar.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 function seg(label: string, count: number, color: StateSegment['color']): StateSegment {
   return { label: label as TranslatedString, count, color }

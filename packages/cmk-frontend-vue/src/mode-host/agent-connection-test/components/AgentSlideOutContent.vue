@@ -10,10 +10,9 @@ import {
   type AgentStatusCmds,
   type UnbakedFallback
 } from 'cmk-shared-typing/typescript/agent_slideout'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import AgentSlideOut from '@/mode-host/agent-connection-test/components/AgentSlideOut.vue'
 

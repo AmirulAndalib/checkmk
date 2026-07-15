@@ -4,18 +4,16 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch.ts'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, onMounted, ref } from 'vue'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch.ts'
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import type { Suggestion } from '@/components/CmkSuggestions'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import CollectorAuthConfig from './CollectorAuthConfig.vue'
 import CollectorConnectionOptions from './CollectorConnectionOptions.vue'

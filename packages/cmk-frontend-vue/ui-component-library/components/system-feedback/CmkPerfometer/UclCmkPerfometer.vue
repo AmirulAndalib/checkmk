@@ -41,8 +41,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkPerfometer from '@/components/CmkPerfometer.vue'
+import CmkPerfometer from 'cmk-ui-library/components/CmkPerfometer.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

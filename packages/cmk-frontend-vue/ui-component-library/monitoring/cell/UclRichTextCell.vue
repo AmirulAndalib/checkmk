@@ -72,9 +72,8 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
 import { computed, ref } from 'vue'
-
-import CmkTag from '@/components/CmkTag.vue'
 
 import MonitoringTable from '@/monitoring/shared/components/MonitoringTable.vue'
 import type { ColumnJustify } from '@/monitoring/shared/components/MonitoringTableContext'

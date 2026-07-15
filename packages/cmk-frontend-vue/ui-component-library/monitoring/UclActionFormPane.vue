@@ -37,9 +37,8 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Component, computed, ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
 
 import ActionFormPane from '@/monitoring/shared/components/action/ActionFormPane.vue'
 import { useCommentAction } from '@/monitoring/shared/components/action/actions/comment'

@@ -5,16 +5,15 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import * as intl from '@internationalized/date'
-import { afterEach, describe, expect, test, vi } from 'vitest'
-
 import {
   defaultYearRange,
   monthFromIndex,
   monthIndex,
   navTarget,
   weekdayOf
-} from '@/components/date-time/private/calendar/util'
-import type { Weekday } from '@/components/date-time/types'
+} from 'cmk-ui-library/components/date-time/private/calendar/util'
+import type { Weekday } from 'cmk-ui-library/components/date-time/types'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 vi.mock('@internationalized/date', async (importOriginal) => {
   const actual = await importOriginal<typeof intl>()

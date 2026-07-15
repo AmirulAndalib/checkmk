@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
-
-import { untranslated } from '@/lib/i18n'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 
 import ItemIdButton from '@/graphing/designer/calculation/components/ItemIdButton.vue'
 

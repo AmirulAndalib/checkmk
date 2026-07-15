@@ -4,12 +4,13 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import {
+  timeZoneRegionLabel,
+  timeZoneShortLabel
+} from 'cmk-ui-library/components/date-time/dateTimeUtils'
+import TimeZoneTag from 'cmk-ui-library/components/date-time/private/display/TimeZoneTag.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { describe, expect, test } from 'vitest'
-
-import { untranslated } from '@/lib/i18n'
-
-import { timeZoneRegionLabel, timeZoneShortLabel } from '@/components/date-time/dateTimeUtils'
-import TimeZoneTag from '@/components/date-time/private/display/TimeZoneTag.vue'
 
 import { TZ_BERLIN } from '../../dateTimeTestFixtures'
 

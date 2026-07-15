@@ -35,8 +35,6 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
-        '@/lib': path.resolve('./node_modules/cmk-ui-library/lib'),
-        '@/components': path.resolve('./node_modules/cmk-ui-library/components'),
         '@': path.resolve('./src'),
         'cmk-ui-library': path.resolve('./node_modules/cmk-ui-library'),
         '@ucl': path.resolve('./ui-component-library'),

@@ -103,10 +103,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed } from 'vue'
-
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import UclCmkCheckboxDev from './UclCmkCheckboxDev.vue'
 

@@ -5,11 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
-import { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import type { CmkWizardStepProps } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import type { CmkWizardStepProps } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 const { _t } = usei18n()
 

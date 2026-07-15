@@ -8,8 +8,6 @@
       // Self-references: package files import each other as `cmk-ui-library/...`,
       // exactly like consumers do, so files can move between the package and
       // its consumers without import rewrites.
-      "@/lib/*": ["./lib/*"],
-      "@/components/*": ["./components/*"],
       "cmk-ui-library/*": ["./*"],
       "*": ["./node_modules/*", "../../bazel-bin/packages/cmk-ui-library/node_modules/*"]
     }

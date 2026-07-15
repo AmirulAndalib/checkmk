@@ -5,18 +5,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type ModeHostFormKeys, type ModeHostSite } from 'cmk-shared-typing/typescript/mode_host'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import { resolveSiteId } from '@/mode-host/lib/site'
 

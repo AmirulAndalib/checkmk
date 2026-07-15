@@ -4,9 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkIcon from '@/components/CmkIcon'
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkLoading from '@/components/CmkLoading.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkLoading from 'cmk-ui-library/components/CmkLoading.vue'
 
 import type { LogStep, LogStepStatus } from './useBackgroundJobLog'
 

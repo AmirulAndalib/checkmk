@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkBreadcrumb, { type BreadcrumbItem } from 'cmk-ui-library/components/CmkBreadcrumb'
 import { computed } from 'vue'
-
-import CmkBreadcrumb, { type BreadcrumbItem } from '@/components/CmkBreadcrumb'
 
 import type { SelectedDashboard } from '@/dashboard/components/DashboardMenuHeader/types'
 import type { DashboardKey } from '@/dashboard/types/dashboard'

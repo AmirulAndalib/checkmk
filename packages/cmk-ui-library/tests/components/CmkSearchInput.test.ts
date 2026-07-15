@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkSearchInput from 'cmk-ui-library/components/CmkSearchInput.vue'
 import { defineComponent, h, ref } from 'vue'
-
-import CmkSearchInput from '@/components/CmkSearchInput.vue'
 
 function renderInput(modelValue = '') {
   return render(CmkSearchInput, {

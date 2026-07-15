@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
-
-import CmkBreadcrumb from '@/components/CmkBreadcrumb'
+import CmkBreadcrumb from 'cmk-ui-library/components/CmkBreadcrumb'
 
 const items = [
   { title: 'Customize', link: null },

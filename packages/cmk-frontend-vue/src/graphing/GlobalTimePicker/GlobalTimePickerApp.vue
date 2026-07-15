@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { GlobalTimePickerProps } from 'cmk-shared-typing/typescript/global_time_picker'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { computed } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import GlobalRefreshControl from '../GlobalRefreshControl/GlobalRefreshControl.vue'
 import GlobalTimePicker from './GlobalTimePicker.vue'

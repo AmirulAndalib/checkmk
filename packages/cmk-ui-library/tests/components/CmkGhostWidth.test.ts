@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import CmkGhostWidth from 'cmk-ui-library/components/CmkGhostWidth.vue'
 import { describe, expect, test } from 'vitest'
-
-import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
 
 describe('CmkGhostWidth', () => {
   test('renders one hidden ghost span per variant plus the slot', () => {

@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
 import { defineComponent } from 'vue'
-
-import CmkHtml from '@/components/CmkHtml.vue'
 
 test.each([
   ['<script>alert(1)</script>', ''],

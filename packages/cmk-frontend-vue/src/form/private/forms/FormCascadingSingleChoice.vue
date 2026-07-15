@@ -10,18 +10,16 @@ import type {
   Components,
   FormSpec
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import FormIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref, toRaw, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import useId from '@/lib/useId'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import FormIndent from '@/components/CmkIndent.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import FormLabel from '@/form/private/FormLabel.vue'

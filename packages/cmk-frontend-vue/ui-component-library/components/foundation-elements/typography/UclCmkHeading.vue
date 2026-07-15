@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { BoolPropDef, MultilineStringPropDef } from '@ucl/_ucl/types/prop-def'
-
-import { type HeadingType } from '@/components/typography/CmkHeading.vue'
+import { type HeadingType } from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 import codeExample from './UclCmkHeadingCodeExample.vue?raw'
 
@@ -50,8 +49,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

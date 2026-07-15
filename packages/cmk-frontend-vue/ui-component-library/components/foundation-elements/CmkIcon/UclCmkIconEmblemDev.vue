@@ -5,12 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkIcon, { type IconSizeNames } from 'cmk-ui-library/components/CmkIcon'
+import CmkIconEmblem from 'cmk-ui-library/components/CmkIcon/CmkIconEmblem.vue'
+import { emblems } from 'cmk-ui-library/components/CmkIcon/icons.constants'
+import type { IconEmblems, SimpleIcons } from 'cmk-ui-library/components/CmkIcon/types'
 import { ref } from 'vue'
-
-import CmkIcon, { type IconSizeNames } from '@/components/CmkIcon'
-import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
-import { emblems } from '@/components/CmkIcon/icons.constants'
-import type { IconEmblems, SimpleIcons } from '@/components/CmkIcon/types'
 
 const icon = ref<SimpleIcons>('filter')
 const emblem = ref<IconEmblems>('warning')

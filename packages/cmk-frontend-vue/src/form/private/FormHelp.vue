@@ -4,9 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
 
 defineProps<{
   help: string

@@ -42,13 +42,11 @@ import type {
   Tuple,
   TwoColumnDictionary
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import type { DualListElement } from 'cmk-ui-library/components/CmkDualList'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { formatTimeSpan } from 'cmk-ui-library/components/user-input/CmkTimeSpan/timeSpan'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type PropType, type VNode, defineComponent, h } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import type { DualListElement } from '@/components/CmkDualList'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import { formatTimeSpan } from '@/components/user-input/CmkTimeSpan/timeSpan'
 
 import type { CheckboxListChoiceElement } from '@/form/private/forms/FormCheckboxListChoice.vue'
 import type { FileUploadData } from '@/form/private/forms/FormFileUpload.vue'

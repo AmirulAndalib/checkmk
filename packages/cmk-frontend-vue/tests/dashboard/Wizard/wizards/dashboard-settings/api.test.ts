@@ -12,7 +12,7 @@ import {
 
 const mockFetchRestAPI = vi.hoisted(() => vi.fn())
 
-vi.mock('@/lib/cmkFetch.ts', () => ({
+vi.mock('cmk-ui-library/lib/cmkFetch.ts', () => ({
   fetchRestAPIDeprecated: mockFetchRestAPI
 }))
 

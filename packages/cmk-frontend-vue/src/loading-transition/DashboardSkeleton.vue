@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
 
 // Generate panels with varying row and column spans
 const panels = Array.from({ length: 40 }, (_, i) => {

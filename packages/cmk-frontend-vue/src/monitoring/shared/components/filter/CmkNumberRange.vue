@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 export interface NumberRange {
   from: number | undefined

@@ -5,15 +5,14 @@
  */
 import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
 import { fireEvent, render, screen, within } from '@testing-library/vue'
-import { afterEach, describe, expect, test, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
-
-import CmkTimeRangePicker from '@/components/date-time/CmkTimeRangePicker.vue'
+import CmkTimeRangePicker from 'cmk-ui-library/components/date-time/CmkTimeRangePicker.vue'
 import type {
   DateTimePickerSettings,
   DateTimeRange,
   RangeDraft
-} from '@/components/date-time/types'
+} from 'cmk-ui-library/components/date-time/types'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 import { TZ_BERLIN } from './dateTimeTestFixtures'
 import { lastValue } from './pickerTestHarness'

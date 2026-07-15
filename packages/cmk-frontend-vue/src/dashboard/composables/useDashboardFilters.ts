@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
 import { type Ref, computed, ref } from 'vue'
-
-import type { ConfiguredFilters } from '@/components/filter'
 
 import type { DashboardFilterContextWithSingleInfos } from '@/dashboard/types/dashboard'
 import { type ContextFilters, FilterOrigin, RuntimeFilterMode } from '@/dashboard/types/filter.ts'

@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { PendingChange } from 'cmk-shared-typing/typescript/changes'
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkZebra from 'cmk-ui-library/components/CmkZebra.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkIndent from '@/components/CmkIndent.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkZebra from '@/components/CmkZebra.vue'
 
 import PendingChangeItemText from './PendingChangeItemText.vue'
 

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
-
-import type { TranslatedString } from '@/lib/i18nString'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 const propsCva = cva('', {
   variants: {

@@ -69,8 +69,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import { CmkRadioButton, CmkRadioGroup } from '@/components/user-input/CmkRadioButton'
+import { CmkRadioButton, CmkRadioGroup } from 'cmk-ui-library/components/user-input/CmkRadioButton'
 
 import UclCmkRadioButtonDev from './UclCmkRadioButtonDev.vue'
 

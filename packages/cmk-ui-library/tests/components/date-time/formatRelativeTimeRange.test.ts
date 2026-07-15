@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { untranslated } from '@/lib/i18n'
-
-import { formatRelativeTimeRange } from '@/components/date-time/formatRelativeTimeRange'
-import type { ResolvedDateTimeSettings } from '@/components/date-time/types'
+import { formatRelativeTimeRange } from 'cmk-ui-library/components/date-time/formatRelativeTimeRange'
+import type { ResolvedDateTimeSettings } from 'cmk-ui-library/components/date-time/types'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 
 const settings: Pick<ResolvedDateTimeSettings, 'timeZone' | 'hourCycle' | 'formatLongDate'> = {
   timeZone: 'UTC',

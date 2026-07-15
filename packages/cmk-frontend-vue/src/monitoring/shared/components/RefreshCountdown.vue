@@ -5,13 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
 import CmkProgressCircle, {
   type Colors,
   type Sizes
-} from '@/components/progress/CmkProgressCircle.vue'
+} from 'cmk-ui-library/components/progress/CmkProgressCircle.vue'
+import { computed } from 'vue'
 
 interface RefreshCountdownProps {
   remaining: number

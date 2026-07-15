@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { type ComputedRef, type Ref, computed, nextTick, onMounted, ref, watch } from 'vue'
-
-import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import type { CustomPreset } from './useCustomPresets.ts'
 

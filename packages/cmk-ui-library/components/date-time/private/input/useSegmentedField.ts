@@ -3,6 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import {
   type ComputedRef,
   type MaybeRefOrGetter,
@@ -12,9 +14,6 @@ import {
   toValue,
   watch
 } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import { focusLeftElement } from '../../focusLeftElement'
 import { useSegmentFocus } from './useSegmentFocus'

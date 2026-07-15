@@ -9,14 +9,12 @@ import type {
   FormSpec,
   TwoColumnDictionary
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import type { CmkWizardStepProps } from 'cmk-ui-library/components/CmkWizard'
+import { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch.ts'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch.ts'
-
-import type { CmkWizardStepProps } from '@/components/CmkWizard'
-import { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import type { ValidationMessages } from '@/form'
 import FormEdit from '@/form/FormEdit.vue'

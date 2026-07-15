@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import ResultItem from '@/unified-search/components/result/ResultItem.vue'
 import ResultList from '@/unified-search/components/result/ResultList.vue'

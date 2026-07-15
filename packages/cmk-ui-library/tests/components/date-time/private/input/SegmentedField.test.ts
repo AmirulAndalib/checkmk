@@ -5,18 +5,17 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import { fireEvent, render } from '@testing-library/vue'
-import { afterEach, describe, expect, test, vi } from 'vitest'
-import { type ComputedRef, computed, shallowRef } from 'vue'
-
-import SegmentedField from '@/components/date-time/private/input/SegmentedField.vue'
-import { useDateField } from '@/components/date-time/private/input/useDateField'
+import SegmentedField from 'cmk-ui-library/components/date-time/private/input/SegmentedField.vue'
+import { useDateField } from 'cmk-ui-library/components/date-time/private/input/useDateField'
 import {
   type SegmentView,
   type SegmentedFieldApi,
   useSegmentedField
-} from '@/components/date-time/private/input/useSegmentedField'
-import { useTimeField } from '@/components/date-time/private/input/useTimeField'
-import type { HourCycle } from '@/components/date-time/types'
+} from 'cmk-ui-library/components/date-time/private/input/useSegmentedField'
+import { useTimeField } from 'cmk-ui-library/components/date-time/private/input/useTimeField'
+import type { HourCycle } from 'cmk-ui-library/components/date-time/types'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import { type ComputedRef, computed, shallowRef } from 'vue'
 
 import { DMY, MONTH_NAMES_EN } from '../../dateTimeTestFixtures'
 

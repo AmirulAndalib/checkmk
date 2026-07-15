@@ -10,20 +10,18 @@ import type {
   PanelConfig,
   PanelState
 } from '@ucl/_ucl/types/prop-panel.ts'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkSwitch from 'cmk-ui-library/components/CmkSwitch.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-import useId from '@/lib/useId'
-
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkSwitch from '@/components/CmkSwitch.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import UclMultiSelect from './UclMultiSelect.vue'
 import UclStringArrayTextarea from './UclStringArrayTextarea.vue'

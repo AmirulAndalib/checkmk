@@ -76,14 +76,13 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
 
 defineProps<{ screenshotMode: boolean }>()
 

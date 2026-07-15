@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const { CmkErrorBoundary } = useCmkErrorBoundary()

@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, shallowRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import CmkSearchableList from './CmkSearchableList.vue'
 import type { DualListElement, SearchableListWidthVariants } from './index.ts'

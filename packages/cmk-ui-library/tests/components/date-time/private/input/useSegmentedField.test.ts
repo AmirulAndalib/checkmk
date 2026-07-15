@@ -4,10 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDate } from '@internationalized/date'
-import { afterEach, describe, expect, test, vi } from 'vitest'
-import { type Ref, nextTick, ref, shallowRef } from 'vue'
-
-import { useDateField } from '@/components/date-time/private/input/useDateField'
+import { useDateField } from 'cmk-ui-library/components/date-time/private/input/useDateField'
 import {
   clampToRange,
   digitsAreComplete,
@@ -15,9 +12,15 @@ import {
   selectInputOnFocus,
   useSegmentedField,
   wrapToRange
-} from '@/components/date-time/private/input/useSegmentedField'
-import { useTimeField } from '@/components/date-time/private/input/useTimeField'
-import type { DateFormatParts, HourCycle, TimeValue } from '@/components/date-time/types'
+} from 'cmk-ui-library/components/date-time/private/input/useSegmentedField'
+import { useTimeField } from 'cmk-ui-library/components/date-time/private/input/useTimeField'
+import type {
+  DateFormatParts,
+  HourCycle,
+  TimeValue
+} from 'cmk-ui-library/components/date-time/types'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import { type Ref, nextTick, ref, shallowRef } from 'vue'
 
 import { DMY, MONTH_NAMES_EN, YMD } from '../../dateTimeTestFixtures'
 

@@ -4,14 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
 import {
   CmkFilterInputItem,
   CmkRemoveFilterButton,
   type ConfiguredValues,
   type FilterDefinition
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 interface Props {
   filterId: string

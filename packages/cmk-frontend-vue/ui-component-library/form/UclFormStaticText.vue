@@ -5,11 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Dictionary, StaticText } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 import { computed, ref } from 'vue'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import type { Suggestions } from '@/components/CmkSuggestions'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import FormEdit from '@/form/FormEdit.vue'
 import FormStaticText from '@/form/private/forms/FormStaticText.vue'

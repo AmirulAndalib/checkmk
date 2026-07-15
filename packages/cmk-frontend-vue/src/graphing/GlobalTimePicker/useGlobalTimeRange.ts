@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { type ComputedRef, computed, shallowRef } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 export type ActiveTimeRange = DateTimeRange | null
 

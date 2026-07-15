@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import { useFilterDefinitions } from 'cmk-ui-library/components/filter'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, h, onBeforeMount, reactive, ref, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import type { Suggestion } from '@/components/CmkSuggestions'
-import type { ConfiguredFilters } from '@/components/filter'
-import { useFilterDefinitions } from '@/components/filter'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import QuickSetup from '@/quick-setup/components/quick-setup/QuickSetup.vue'

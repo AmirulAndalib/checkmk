@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import AiConversation from './AiConversation.vue'
 

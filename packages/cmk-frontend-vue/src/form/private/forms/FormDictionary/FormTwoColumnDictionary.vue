@@ -6,15 +6,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { cva } from 'class-variance-authority'
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import useId from '@/lib/useId'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import FormReadonly from '@/form/FormReadonly.vue'
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'

@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import TimeInput from 'cmk-ui-library/components/date-time/private/input/TimeInput.vue'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import TimeInput from '@/components/date-time/private/input/TimeInput.vue'
 
 afterEach(() => {
   vi.restoreAllMocks()

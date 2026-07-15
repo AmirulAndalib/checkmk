@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { IconWithEmblem, SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkIconEmblem from 'cmk-ui-library/components/CmkIcon/CmkIconEmblem.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { IconWithEmblem, SimpleIcons } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 
 interface WidgetTileProps {
   label: TranslatedString

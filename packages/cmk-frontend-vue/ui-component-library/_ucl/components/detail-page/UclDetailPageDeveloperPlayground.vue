@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAccordion from 'cmk-ui-library/components/CmkAccordion/CmkAccordion.vue'
+import CmkAccordionItem from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItem.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
 import { computed, ref } from 'vue'
-
-import CmkAccordion from '@/components/CmkAccordion/CmkAccordion.vue'
-import CmkAccordionItem from '@/components/CmkAccordion/CmkAccordionItem.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkSpace from '@/components/CmkSpace.vue'
 
 const openedItems = ref<string[]>([])
 const isDeveloperOpen = computed(() => openedItems.value.includes('developer-playground'))

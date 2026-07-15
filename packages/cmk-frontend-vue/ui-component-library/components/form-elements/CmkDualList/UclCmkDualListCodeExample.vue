@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDualList from 'cmk-ui-library/components/CmkDualList/CmkDualList.vue'
+import { type DualListElement } from 'cmk-ui-library/components/CmkDualList/index.ts'
 import { ref } from 'vue'
-
-import CmkDualList from '@/components/CmkDualList/CmkDualList.vue'
-import { type DualListElement } from '@/components/CmkDualList/index.ts'
 
 const availableRoles = ref<DualListElement[]>([
   { name: 'admin', title: 'Admin' },

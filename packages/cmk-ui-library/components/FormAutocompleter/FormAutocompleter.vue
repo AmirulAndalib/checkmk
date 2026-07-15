@@ -5,21 +5,19 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
-import { useSlots } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import type { ButtonVariants } from '@/components/CmkDropdown/CmkDropdownButton.vue'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkDropdown/CmkDropdownButton.vue'
 import {
   ErrorResponse,
   Response,
   type Suggestion,
   WarningResponse,
   flattenSuggestions
-} from '@/components/CmkSuggestions'
-import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchSuggestions } from 'cmk-ui-library/components/FormAutocompleter/autocompleter'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { useSlots } from 'vue'
 
 const { _t } = usei18n()
 

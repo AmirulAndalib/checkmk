@@ -14,7 +14,7 @@ import { flushPromises } from '../../utils.ts'
 
 const mockCmkAjax = vi.hoisted(() => vi.fn().mockResolvedValue([]))
 
-vi.mock('@/lib/ajax', () => ({
+vi.mock('cmk-ui-library/lib/ajax', () => ({
   cmkAjax: mockCmkAjax
 }))
 

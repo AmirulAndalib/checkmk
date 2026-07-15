@@ -5,12 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
 import {
   type CmkMultitoneIconColor,
   type CmkMultitoneIconNames,
   type IconSizeNames
-} from '@/components/CmkIcon/types.ts'
+} from 'cmk-ui-library/components/CmkIcon/types.ts'
 
 import codeExample from './UclCmkMultitoneIconCodeExample.vue?raw'
 
@@ -103,8 +102,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

@@ -5,13 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { DynamicIcon } from 'cmk-shared-typing/typescript/icon'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
+import CmkDynamicIcon from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { useTemplateRef } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkDynamicIcon from '@/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
 
 interface CollapsibleTitleProps {
   /**@property {TranslatedString} title - Text to display next to the chevron */

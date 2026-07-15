@@ -4,12 +4,10 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { CustomGraphTimeRange } from 'cmk-shared-typing/typescript/global_time_picker'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import { durationSeconds, endsNow, rollingRange } from './timeRange'
 

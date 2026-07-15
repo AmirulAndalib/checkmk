@@ -6,11 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { type AiButton, type ExplainThisIssueData } from 'cmk-shared-typing/typescript/ai_button'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { type Ref, computed, provide, ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 
 import AiConversationSlideout from './components/conversation/AiConversationSlideout.vue'
 import { aiTemplateKey } from './lib/provider/ai-template'

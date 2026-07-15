@@ -5,11 +5,10 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import { fireEvent, render } from '@testing-library/vue'
+import DateTimeInput from 'cmk-ui-library/components/date-time/private/input/DateTimeInput.vue'
+import type { DateTimePartsDraft, HourCycle } from 'cmk-ui-library/components/date-time/types'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { type Ref, defineComponent, nextTick, shallowRef } from 'vue'
-
-import DateTimeInput from '@/components/date-time/private/input/DateTimeInput.vue'
-import type { DateTimePartsDraft, HourCycle } from '@/components/date-time/types'
 
 import { DMY, MONTH_NAMES_EN } from '../../dateTimeTestFixtures'
 

@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import SelectorSingleInfo from '@/dashboard/components/selectors/SelectorSingleInfo.vue'

@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { StaticText } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
 import { computed } from 'vue'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
 
 import FormLabel from '@/form/private/FormLabel.vue'
 

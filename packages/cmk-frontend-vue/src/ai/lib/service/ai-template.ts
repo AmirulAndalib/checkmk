@@ -4,14 +4,12 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { ExplainThisIssueData, Legal } from 'cmk-shared-typing/typescript/ai_button'
+import { type ButtonProps } from 'cmk-ui-library/components/CmkButton'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
+import { ServiceBase } from 'cmk-ui-library/lib/service/base'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import { type Ref, nextTick, reactive, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { KeyShortcutService } from '@/lib/keyShortcuts'
-import { ServiceBase } from '@/lib/service/base'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import { type ButtonProps } from '@/components/CmkButton'
 
 import {
   AiApiClient,

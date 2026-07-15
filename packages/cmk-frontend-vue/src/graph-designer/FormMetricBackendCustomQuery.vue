@@ -10,14 +10,12 @@ import {
   type ConsolidationFunction as WireConsolidationFunction
 } from 'cmk-shared-typing/typescript/graph_designer'
 import type { MetricBackendCustomQuery } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import CmkLabelRequired from 'cmk-ui-library/components/user-input/CmkLabelRequired.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
-import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import { type ValidationMessages } from '@/form/private/validation'
 

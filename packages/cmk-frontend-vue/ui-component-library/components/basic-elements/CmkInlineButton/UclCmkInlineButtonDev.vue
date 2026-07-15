@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

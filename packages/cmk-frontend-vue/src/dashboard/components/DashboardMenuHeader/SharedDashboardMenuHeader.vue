@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { onMounted, onUnmounted, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkIcon from '@/components/CmkIcon'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 
 interface Props {
   dashboardTitle: string

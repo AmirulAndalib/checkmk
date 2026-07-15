@@ -26,9 +26,12 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { UserProps } from '@ucl/_ucl/types/prop-def'
+import {
+  CmkTimePicker,
+  type TimePickerSettings,
+  type TimeValue
+} from 'cmk-ui-library/components/date-time'
 import { computed, ref } from 'vue'
-
-import { CmkTimePicker, type TimePickerSettings, type TimeValue } from '@/components/date-time'
 
 import { resolveHourCycleKnob } from './uclKnobs'
 

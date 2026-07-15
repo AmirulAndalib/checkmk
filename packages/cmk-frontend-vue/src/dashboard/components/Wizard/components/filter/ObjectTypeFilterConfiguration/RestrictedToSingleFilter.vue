@@ -4,19 +4,17 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { capitalizeFirstLetter } from '@/lib/utils'
-
 import {
   CmkFilterInputComponent,
   CmkRemoveFilterButton,
   type ComponentConfig,
   type ConfiguredValues
-} from '@/components/filter'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
+} from 'cmk-ui-library/components/filter'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { capitalizeFirstLetter } from 'cmk-ui-library/lib/utils'
+import { computed, onMounted, ref } from 'vue'
 
 import { useVisualInfoCollection } from '@/dashboard/composables/api/useVisualInfoCollection.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'

@@ -5,6 +5,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts" generic="Nullable extends boolean = false">
 import { fromDate as instantToZoned } from '@internationalized/date'
+import type { TriggerAria } from 'cmk-ui-library/components/CmkFlyout'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkVisuallyHidden from 'cmk-ui-library/components/CmkVisuallyHidden.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import { CmkRadioButton, CmkRadioGroup } from 'cmk-ui-library/components/user-input/CmkRadioButton'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import {
   type ComponentPublicInstance,
   computed,
@@ -13,15 +20,6 @@ import {
   ref,
   useTemplateRef
 } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { TriggerAria } from '@/components/CmkFlyout'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkVisuallyHidden from '@/components/CmkVisuallyHidden.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import { CmkRadioButton, CmkRadioGroup } from '@/components/user-input/CmkRadioButton'
 
 import CmkTimePicker from './CmkTimePicker.vue'
 import {

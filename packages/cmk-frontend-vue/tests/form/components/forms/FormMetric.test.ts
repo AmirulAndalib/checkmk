@@ -5,29 +5,31 @@
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
 import type { Metric, Validator } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
 import { vi } from 'vitest'
-
-import { Response } from '@/components/CmkSuggestions'
 
 import FormMetric from '@/form/private/forms/FormMetric.vue'
 
 import { renderForm } from '../cmk-form-helper'
 
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal() // type is inferred
-  return {
-    ...mod,
-    fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      return new Response(
-        [
-          { name: 'choicea', title: 'Choice A' },
-          { name: 'choiceb', title: 'Choice B' }
-        ].filter((item) => item.name.includes(value))
-      )
-    })
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal() // type is inferred
+    return {
+      ...mod,
+      fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return new Response(
+          [
+            { name: 'choicea', title: 'Choice A' },
+            { name: 'choiceb', title: 'Choice B' }
+          ].filter((item) => item.name.includes(value))
+        )
+      })
+    }
   }
-})
+)
 
 const validators: Validator[] = [
   {

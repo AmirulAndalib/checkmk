@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { cleanup, fireEvent, screen } from '@testing-library/vue'
-
-import { Api } from '@/lib/api-client'
+import { Api } from 'cmk-ui-library/lib/api-client'
 
 import RunMsiInstaller from '@/mode-relay/add-relay-configuration-steps/RunMsiInstaller.vue'
 

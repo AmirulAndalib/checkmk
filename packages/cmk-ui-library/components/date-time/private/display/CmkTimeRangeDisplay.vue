@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { CalendarDate } from '@internationalized/date'
+import CmkGhostWidth from 'cmk-ui-library/components/CmkGhostWidth.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
 
 import { formatDate, formatTime } from '../../dateTimeUtils'
 import type { DateTimePartsDraft, ResolvedDateTimeSettings, TimeValue } from '../../types'

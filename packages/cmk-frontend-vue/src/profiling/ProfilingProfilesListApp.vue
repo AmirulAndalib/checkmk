@@ -12,17 +12,15 @@ conditions defined in the file COPYING, which is part of this source code packag
  * Python-rendered form via `document.getElementById` in onMounted. A future
  * refactor would move the upload to a REST endpoint and own the <input> here.
  */
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { useDebounceFn } from '@/lib/useDebounce'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkBadge from '@/components/CmkBadge.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import { useSortedRows } from './composables/useSortedRows'
 import type { ProfileMetadata, ProfileSourceType } from './types'

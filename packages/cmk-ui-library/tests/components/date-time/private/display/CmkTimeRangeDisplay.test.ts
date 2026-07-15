@@ -5,11 +5,14 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import { render } from '@testing-library/vue'
+import {
+  formatDate,
+  formatTime,
+  timeZoneRegionLabel
+} from 'cmk-ui-library/components/date-time/dateTimeUtils'
+import CmkTimeRangeDisplay from 'cmk-ui-library/components/date-time/private/display/CmkTimeRangeDisplay.vue'
+import type { DateTimePartsDraft, HourCycle } from 'cmk-ui-library/components/date-time/types'
 import { describe, expect, test } from 'vitest'
-
-import { formatDate, formatTime, timeZoneRegionLabel } from '@/components/date-time/dateTimeUtils'
-import CmkTimeRangeDisplay from '@/components/date-time/private/display/CmkTimeRangeDisplay.vue'
-import type { DateTimePartsDraft, HourCycle } from '@/components/date-time/types'
 
 import { TZ_BERLIN, YMD, makeSettings } from '../../dateTimeTestFixtures'
 

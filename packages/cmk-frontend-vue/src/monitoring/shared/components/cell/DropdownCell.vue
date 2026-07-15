@@ -5,11 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import type { Suggestions } from '@/components/CmkSuggestions'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 

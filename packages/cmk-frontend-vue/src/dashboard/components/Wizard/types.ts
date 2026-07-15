@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
 import type { Ref } from 'vue'
-
-import type { SimpleIcons } from '@/components/CmkIcon'
 
 import type { DashboardKey } from '@/dashboard/types/dashboard'
 import type {

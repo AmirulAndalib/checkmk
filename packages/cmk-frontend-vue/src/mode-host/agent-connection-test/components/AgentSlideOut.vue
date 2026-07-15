@@ -4,23 +4,21 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLinkCard from 'cmk-ui-library/components/CmkLinkCard'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import CmkWizard, { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { useDismissDialog } from 'cmk-ui-library/lib/useDismissDialog'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import { ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { useDismissDialog } from '@/lib/useDismissDialog'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkCode from '@/components/CmkCode.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLinkCard from '@/components/CmkLinkCard'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
-import CmkWizard, { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import type { AgentSlideOutTabs } from '../lib/type_def'
 import GenerateToken from './GenerateToken.vue'

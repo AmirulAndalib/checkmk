@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
 import { onMounted } from 'vue'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
 
 import type {
   AlertConversationElementContent,

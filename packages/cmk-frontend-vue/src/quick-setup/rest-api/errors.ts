@@ -5,9 +5,8 @@
  */
 import type { AxiosError } from 'axios'
 import axios from 'axios'
-
-import { CmkError, CmkSimpleError } from '@/lib/error.ts'
-import type { MaybeRestApiCrashReport, MaybeRestApiError } from '@/lib/types'
+import { CmkError, CmkSimpleError } from 'cmk-ui-library/lib/error.ts'
+import type { MaybeRestApiCrashReport, MaybeRestApiError } from 'cmk-ui-library/lib/types'
 
 import type { Errors, StageErrors } from './response_schemas'
 

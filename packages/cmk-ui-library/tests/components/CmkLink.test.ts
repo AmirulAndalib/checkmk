@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
+import CmkLink from 'cmk-ui-library/components/CmkLink.vue'
 import { defineComponent, ref } from 'vue'
-
-import CmkLink from '@/components/CmkLink.vue'
 
 test('renders an anchor with the given href', () => {
   render(CmkLink, { props: { href: 'https://checkmk.com' } })

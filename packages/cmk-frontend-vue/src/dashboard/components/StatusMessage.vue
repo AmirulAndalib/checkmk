@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkSpace from '@/components/CmkSpace.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 export type StatusType = 'OK' | 'WARNING' | 'DANGER' | 'INFO' | null
 

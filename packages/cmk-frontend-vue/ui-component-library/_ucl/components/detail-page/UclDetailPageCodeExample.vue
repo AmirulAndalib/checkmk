@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 import { computed } from 'vue'
-
-import CmkCode from '@/components/CmkCode.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 const props = defineProps<{
   code: string

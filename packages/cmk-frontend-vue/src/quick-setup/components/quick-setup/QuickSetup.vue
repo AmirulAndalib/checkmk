@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkWizard from 'cmk-ui-library/components/CmkWizard/CmkWizard.vue'
 import { computed, onMounted, provide } from 'vue'
-
-import CmkWizard from '@/components/CmkWizard/CmkWizard.vue'
 
 import QuickSetupSaveStage from './QuickSetupSaveStage.vue'
 import QuickSetupStage from './QuickSetupStage.vue'

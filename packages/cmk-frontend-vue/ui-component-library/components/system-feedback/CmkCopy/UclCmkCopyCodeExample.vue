@@ -4,8 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIconButton from '@/components/CmkIconButton.vue'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
 </script>
 
 <template>

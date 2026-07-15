@@ -8,8 +8,8 @@ import {
   IECFormatter,
   SIFormatter,
   TimeFormatter
-} from '@/lib/unit-format/notationFormatter'
-import { type UnitFormat, userSpecificUnit } from '@/lib/unit-format/unitFormatter'
+} from 'cmk-ui-library/lib/unit-format/notationFormatter'
+import { type UnitFormat, userSpecificUnit } from 'cmk-ui-library/lib/unit-format/unitFormatter'
 
 const auto2 = { type: 'auto', digits: 2 } as const
 

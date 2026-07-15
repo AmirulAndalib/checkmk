@@ -5,13 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { useVirtualizer } from '@tanstack/vue-virtual'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { type ComponentPublicInstance, computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { useResizeObserver } from '@/lib/useResizeObserver'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import CmkIconButton from '@/components/CmkIconButton.vue'
 
 import type { HotspotData } from '../types'
 import { heatColor } from '../utils/flamegraph-colors'

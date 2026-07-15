@@ -14,8 +14,7 @@ If you know at buildtime which icon should be shown, use the classic CmkIcon.
 -->
 <script setup lang="ts">
 import type { DynamicIcon } from 'cmk-shared-typing/typescript/icon'
-
-import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
+import CmkIconEmblem from 'cmk-ui-library/components/CmkIcon/CmkIconEmblem.vue'
 
 import { type IconEmblems, type IconSizeNames } from '../types'
 import CmkDynamicIconUserOrDefault from './CmkDynamicIconUserOrDefault.vue'

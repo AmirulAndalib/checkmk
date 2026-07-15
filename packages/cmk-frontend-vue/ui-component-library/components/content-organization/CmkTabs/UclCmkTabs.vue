@@ -53,11 +53,10 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkIcon from '@/components/CmkIcon'
-import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkTabs, { CmkTab, CmkTabContent } from 'cmk-ui-library/components/CmkTabs'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

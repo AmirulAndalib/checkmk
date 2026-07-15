@@ -3,14 +3,13 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { computed } from 'vue'
-
 import {
   type ConfiguredFilters,
   type ConfiguredValues,
   type FilterDefinitions,
   useFilters
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import { computed } from 'vue'
 
 import { useAddFilter } from '@/dashboard/components/Wizard/components/AddFilters/composables/useAddFilters.ts'
 import type { ObjectType } from '@/dashboard/types/shared.ts'

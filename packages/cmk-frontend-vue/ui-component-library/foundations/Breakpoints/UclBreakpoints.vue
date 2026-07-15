@@ -11,9 +11,8 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
-
-import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import codeExample from './UclBreakpointsCodeExample.vue?raw'
 

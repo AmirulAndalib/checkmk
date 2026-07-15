@@ -4,12 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import type { SimpleIcons } from '@/components/CmkIcon/types'
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon/types'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import { ACK_ACTION_ID } from '@/monitoring/shared/components/action/actions/acknowledge'
 import { RESCHEDULE_ACTION_ID } from '@/monitoring/shared/components/action/actions/reschedule'

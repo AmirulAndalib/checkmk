@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type ShallowRef, computed, ref, toValue, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import ContentSpacer from '@/dashboard/components/ContentSpacer.vue'
 import ActionBar from '@/dashboard/components/Wizard/components/ActionBar.vue'

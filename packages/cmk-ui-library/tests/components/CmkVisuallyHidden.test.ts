@@ -4,11 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import CmkVisuallyHidden from 'cmk-ui-library/components/CmkVisuallyHidden.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { describe, expect, test } from 'vitest'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkVisuallyHidden from '@/components/CmkVisuallyHidden.vue'
 
 describe('CmkVisuallyHidden', () => {
   test('exposes its text to assistive tech', () => {

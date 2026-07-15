@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 
 import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 

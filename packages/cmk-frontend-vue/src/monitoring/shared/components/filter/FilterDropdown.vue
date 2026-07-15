@@ -19,13 +19,11 @@ draft (closing the popover and updating the table); "Cancel", Escape and
 click-outside discard the draft, leaving the model at the state it had on open.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton/CmkButton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { getKeyShortcutServiceInstance } from 'cmk-ui-library/lib/keyShortcuts'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { type Component, computed, inject, nextTick, onBeforeUnmount, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { getKeyShortcutServiceInstance } from '@/lib/keyShortcuts'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkButton from '@/components/CmkButton/CmkButton.vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 

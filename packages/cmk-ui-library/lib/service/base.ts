@@ -4,14 +4,13 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ref } from 'vue'
-
 import {
   type KeyShortcut,
   type KeyShortcutHandlerCallback,
   type KeyShortcutService
-} from '@/lib/keyShortcuts'
-import { randomId } from '@/lib/randomId'
+} from 'cmk-ui-library/lib/keyShortcuts'
+import { randomId } from 'cmk-ui-library/lib/randomId'
+import { ref } from 'vue'
 
 const callbacks: {
   [key: string]: { id: string; cb: (...args: any) => void }[]

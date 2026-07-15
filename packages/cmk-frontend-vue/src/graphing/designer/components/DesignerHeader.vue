@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { CustomGraphDesignerMode } from 'cmk-shared-typing/typescript/custom_graph_designer'
 import type { GlobalTimePickerProps } from 'cmk-shared-typing/typescript/global_time_picker'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import type { DateTimeRange } from '@/components/date-time'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 import { GlobalTimePicker, rollingRange, useGlobalTimeRange } from '../../GlobalTimePicker'
 import GraphSelector, { type SelectableGraph } from './GraphSelector.vue'

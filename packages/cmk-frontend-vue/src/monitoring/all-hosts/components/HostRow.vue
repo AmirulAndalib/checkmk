@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Row } from '@tanstack/vue-table'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, inject } from 'vue'
-
-import usei18n from '@/lib/i18n'
 
 import type { HostEntry, HostRef } from '@/monitoring/shared/api/types'
 import { COLUMN_LAYOUT_KEY } from '@/monitoring/shared/components/MonitoringTableContext'

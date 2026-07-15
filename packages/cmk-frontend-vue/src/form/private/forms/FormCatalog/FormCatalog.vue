@@ -11,14 +11,12 @@ import type {
   TopicElement,
   TopicGroup
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import FormReadonly from '@/form/FormReadonly.vue'
 import TopicGrouped from '@/form/private/forms/FormCatalog/TopicGrouped.vue'

@@ -57,12 +57,10 @@ import {
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
 import type { InferPanelState } from '@ucl/_ucl/types/prop-panel'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import translatedStringFromTS from './_ts_file_using_i18n'
 

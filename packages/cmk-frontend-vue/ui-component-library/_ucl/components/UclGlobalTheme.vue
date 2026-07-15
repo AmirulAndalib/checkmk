@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
-
-import CmkDropdown from '@/components/CmkDropdown'
 
 import { type Theme, useTheme } from '../composables/useTheme'
 

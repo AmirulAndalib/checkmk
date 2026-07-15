@@ -5,9 +5,8 @@
  */
 import { CalendarDate } from '@internationalized/date'
 import { fireEvent, render, screen } from '@testing-library/vue'
+import DateInput from 'cmk-ui-library/components/date-time/private/input/DateInput.vue'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import DateInput from '@/components/date-time/private/input/DateInput.vue'
 
 import { DMY, MONTH_NAMES_EN } from '../../dateTimeTestFixtures'
 

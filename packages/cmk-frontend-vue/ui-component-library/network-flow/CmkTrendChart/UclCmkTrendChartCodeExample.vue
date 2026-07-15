@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { SIFormatter } from '@/lib/unit-format/notationFormatter'
+import { SIFormatter } from 'cmk-ui-library/lib/unit-format/notationFormatter'
 
 import CmkTrendChart from '@/network-flow/CmkTrendChart'
 

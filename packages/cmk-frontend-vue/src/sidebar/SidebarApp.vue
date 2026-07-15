@@ -6,14 +6,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { type SidebarConfig } from 'cmk-shared-typing/typescript/sidebar'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
 import { provide, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { KeyShortcutService } from '@/lib/keyShortcuts'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import { SidebarService } from '@/sidebar/lib/sidebar'
 

@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { getLocalTimeZone, now } from '@internationalized/date'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import { CmkDateTimePicker, type DateTimePickerSettings } from 'cmk-ui-library/components/date-time'
 import { shallowRef } from 'vue'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import { CmkDateTimePicker, type DateTimePickerSettings } from '@/components/date-time'
 
 const value = shallowRef(now(getLocalTimeZone()))
 

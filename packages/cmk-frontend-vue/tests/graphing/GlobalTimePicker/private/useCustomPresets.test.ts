@@ -5,10 +5,9 @@
  */
 import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
 import type { CustomGraphTimeRange } from 'cmk-shared-typing/typescript/global_time_picker'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { describe, expect, test } from 'vitest'
 import { type Ref, nextTick, shallowRef } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import { rollingRange } from '@/graphing/GlobalTimePicker/private/timeRange'
 import { useCustomPresets } from '@/graphing/GlobalTimePicker/private/useCustomPresets'

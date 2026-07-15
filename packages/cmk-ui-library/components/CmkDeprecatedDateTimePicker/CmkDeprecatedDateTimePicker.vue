@@ -11,6 +11,10 @@ import {
   getLocalTimeZone,
   today
 } from '@internationalized/date'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import ArrowDown from 'cmk-ui-library/components/graphics/ArrowDown.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import {
   DatePickerAnchor,
   DatePickerCalendar,
@@ -32,12 +36,6 @@ import {
   DatePickerTrigger
 } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import ArrowDown from '@/components/graphics/ArrowDown.vue'
 
 import CmkDeprecatedTimePicker from './CmkDeprecatedTimePicker.vue'
 import { parseDateString } from './dateUtils'

@@ -6,16 +6,17 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { Regex } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import type { Response } from 'cmk-ui-library/components/CmkSuggestions/suggestions'
+import {
+  ErrorResponse,
+  type Suggestion
+} from 'cmk-ui-library/components/CmkSuggestions/suggestions'
+import { flattenSuggestions } from 'cmk-ui-library/components/CmkSuggestions/types'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, h, ref, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import type { Response } from '@/components/CmkSuggestions/suggestions'
-import { ErrorResponse, type Suggestion } from '@/components/CmkSuggestions/suggestions'
-import { flattenSuggestions } from '@/components/CmkSuggestions/types'
 
 type SuggestionsCallbackFiltered = {
   type: 'callback-filtered'

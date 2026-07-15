@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import type { ConfiguredValues } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkIndent from '@/components/CmkIndent.vue'
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
-import type { ConfiguredValues } from '@/components/filter'
 
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'

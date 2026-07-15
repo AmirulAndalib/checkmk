@@ -9,13 +9,11 @@ import type {
   UnifiedSearchResultItemInlineButton,
   UnifiedSearchResultTarget
 } from 'cmk-shared-typing/typescript/unified_search'
+import CmkDynamicIcon from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
+import CmkLink from 'cmk-ui-library/components/CmkLink.vue'
+import CmkZebra from 'cmk-ui-library/components/CmkZebra.vue'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, onBeforeUnmount, ref, useTemplateRef } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
-
-import CmkDynamicIcon from '@/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
-import CmkLink from '@/components/CmkLink.vue'
-import CmkZebra from '@/components/CmkZebra.vue'
 
 import { showLoadingTransition } from '@/loading-transition/loadingTransition'
 import { getSearchUtils } from '@/unified-search/providers/search-utils'

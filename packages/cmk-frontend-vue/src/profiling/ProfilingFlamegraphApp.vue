@@ -4,20 +4,18 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
+import CmkChip from 'cmk-ui-library/components/CmkChip.vue'
+import CmkCollapsible from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsible.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import { cmkFetch } from 'cmk-ui-library/lib/cmkFetch'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
 import { computed, onMounted, ref, watch } from 'vue'
-
-import { cmkFetch } from '@/lib/cmkFetch'
-import usei18n from '@/lib/i18n'
-import { useDebounceFn } from '@/lib/useDebounce'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkBadge from '@/components/CmkBadge.vue'
-import CmkChip from '@/components/CmkChip.vue'
-import CmkCollapsible from '@/components/CmkCollapsible/CmkCollapsible.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import FlamegraphCanvas from './components/FlamegraphCanvas.vue'
 import HotspotsTable from './components/HotspotsTable.vue'

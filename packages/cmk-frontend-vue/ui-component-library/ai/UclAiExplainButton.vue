@@ -6,9 +6,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { useMswWorker } from '@ucl/_ucl/composables/useMswWorker'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { nextTick, reactive, ref } from 'vue'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import AiExplainButtonApp from '@/ai/AiExplainButtonApp.vue'
 

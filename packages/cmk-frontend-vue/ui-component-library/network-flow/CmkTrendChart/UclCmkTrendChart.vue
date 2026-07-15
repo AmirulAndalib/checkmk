@@ -11,8 +11,7 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
-import { SIFormatter } from '@/lib/unit-format/notationFormatter'
+import { SIFormatter } from 'cmk-ui-library/lib/unit-format/notationFormatter'
 
 import CmkTrendChart from '@/network-flow/CmkTrendChart'
 import type { TrendChartSeries } from '@/network-flow/CmkTrendChart'

@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import { useProvideFilterDefinitions } from 'cmk-ui-library/components/filter'
 import { computed, onMounted, onUnmounted, provide } from 'vue'
-
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
-import { useProvideFilterDefinitions } from '@/components/filter'
 
 import DashboardComponent from '@/dashboard/components/DashboardComponent.vue'
 import SharedDashboardMenuHeader from '@/dashboard/components/DashboardMenuHeader/SharedDashboardMenuHeader.vue'

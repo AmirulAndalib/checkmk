@@ -3,11 +3,10 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { CmkIconProps } from 'cmk-ui-library/components/CmkIcon'
+import type { SlideInVariants } from 'cmk-ui-library/components/CmkSlideIn'
+import type { CmkTabProps } from 'cmk-ui-library/components/CmkTabs/CmkTab.vue'
 import type { Component } from 'vue'
-
-import type { CmkIconProps } from '@/components/CmkIcon'
-import type { SlideInVariants } from '@/components/CmkSlideIn'
-import type { CmkTabProps } from '@/components/CmkTabs/CmkTab.vue'
 
 /**
  * A single tab rendered inside {@link CmkSlideInTabbed}.

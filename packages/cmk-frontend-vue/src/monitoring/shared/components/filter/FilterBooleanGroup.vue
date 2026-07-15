@@ -15,11 +15,9 @@ single active group stays a lone condition). The parent `FilterDropdown` owns
 the popover shell and Clear/Apply handling.
 -->
 <script setup lang="ts" generic="F extends FilterField">
+import { CmkRadioButton, CmkRadioGroup } from 'cmk-ui-library/components/user-input/CmkRadioButton'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import { CmkRadioButton, CmkRadioGroup } from '@/components/user-input/CmkRadioButton'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 

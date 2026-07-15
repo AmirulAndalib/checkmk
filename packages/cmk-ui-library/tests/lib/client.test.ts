@@ -3,11 +3,10 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { CmkApiError } from 'cmk-ui-library/lib/error'
+import { createClient, unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
-
-import type { CmkApiError } from '@/lib/error'
-import { createClient, unwrap } from '@/lib/rest-api-client/client'
 
 const EXAMPLE_DATA = {
   some_random_playload: 123

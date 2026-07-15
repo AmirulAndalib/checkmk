@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { CmkFetchResponse } from 'cmk-ui-library/lib/cmkFetch.ts'
 import { type Ref, readonly, ref } from 'vue'
-
-import type { CmkFetchResponse } from '@/lib/cmkFetch.ts'
 
 type LoaderOptions<T> = {
   fetcher: () => Promise<CmkFetchResponse>

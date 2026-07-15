@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type * as NotificationTypes from 'cmk-shared-typing/typescript/notifications'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
 import { onMounted, ref } from 'vue'
-
-import CmkIconButton from '@/components/CmkIconButton.vue'
 
 import NotificationCoreStats from '@/notification/components/NotificationCoreStats.vue'
 import NotificationFallbackWarning from '@/notification/components/NotificationFallbackWarning.vue'

@@ -6,11 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { DefaultIcon, UserIcon } from 'cmk-shared-typing/typescript/icon'
+import CmkIcon, { type IconSizeNames, type SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkIcon, { type IconSizeNames, type SimpleIcons } from '@/components/CmkIcon'
 
 import { iconSizeNametoNumber } from '../utils'
 

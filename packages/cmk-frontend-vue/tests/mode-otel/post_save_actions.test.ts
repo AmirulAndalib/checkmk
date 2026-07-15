@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import * as cmkFetch from 'cmk-ui-library/lib/cmkFetch'
 import type { Mock } from 'vitest'
-
-import * as cmkFetch from '@/lib/cmkFetch'
 
 import { configEntityAPI } from '@/form'
 

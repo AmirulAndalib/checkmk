@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import CmkIndent from 'cmk-ui-library/components/CmkIndent.vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import CmkIndent from '@/components/CmkIndent.vue'
-import type { Suggestion } from '@/components/CmkSuggestions'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import SelectorView from '@/dashboard/components/selectors/SelectorView.vue'
 

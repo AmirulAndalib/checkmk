@@ -57,8 +57,6 @@ export default defineConfig(({ command }) => {
     ],
     resolve: {
       alias: {
-        '@/lib': path.resolve('./node_modules/cmk-ui-library/lib'),
-        '@/components': path.resolve('./node_modules/cmk-ui-library/components'),
         '@': path.resolve('./src'),
         'cmk-ui-library': path.resolve('./node_modules/cmk-ui-library'),
         '@ucl': path.resolve('./ui-component-library'),
@@ -151,7 +149,7 @@ export default defineConfig(({ command }) => {
           : ['default']
       },
       optimizeDeps: {
-        include: ['@/components/CmkIcon/icons.constants']
+        include: ['cmk-ui-library/components/CmkIcon/icons.constants']
       },
       server: {
         strictPort: true,

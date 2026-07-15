@@ -78,10 +78,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import type { CmkIconVariants, IconSizeNames, SimpleIcons } from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
+import type { CmkIconVariants, IconSizeNames, SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 
 import UclCmkIconButtonDev from './UclCmkIconButtonDev.vue'
 

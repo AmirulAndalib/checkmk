@@ -11,9 +11,8 @@ import {
   getCoreRowModel,
   useVueTable
 } from '@tanstack/vue-table'
+import useDragging from 'cmk-ui-library/lib/useDragging'
 import { computed, provide, ref } from 'vue'
-
-import useDragging from '@/lib/useDragging'
 
 import {
   COLUMN_LAYOUT_KEY,

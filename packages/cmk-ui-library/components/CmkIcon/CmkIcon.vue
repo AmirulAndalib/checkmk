@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import { useTheme } from 'cmk-ui-library/lib/useTheme.ts'
 import { ref, watchEffect } from 'vue'
-
-import { useTheme } from '@/lib/useTheme.ts'
 
 import { cmkIconVariants } from './icons.constants.ts'
 import type { CmkIconProps } from './types.ts'

@@ -5,8 +5,7 @@
  */
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
 import type { Components } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { staticAssertNever } from '@/lib/typeUtils'
+import { staticAssertNever } from 'cmk-ui-library/lib/typeUtils'
 
 type RendersRequiredLabels =
   | FormSpec.Password

@@ -12,7 +12,7 @@ import { defineComponent, nextTick } from 'vue'
 import GeneralProperties from '@/dashboard/components/Wizard/components/DashboardSettings/GeneralProperties.vue'
 import * as utils from '@/dashboard/components/Wizard/components/DashboardSettings/utils'
 
-vi.mock('@/lib/useDebounce', () => ({
+vi.mock('cmk-ui-library/lib/useDebounce', () => ({
   useDebounceFn: (fn: (...args: unknown[]) => unknown) => fn
 }))
 

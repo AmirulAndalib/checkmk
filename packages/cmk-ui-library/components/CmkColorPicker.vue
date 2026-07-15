@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { contrastTextColor } from 'cmk-ui-library/lib/contrastText'
 import { computed, useAttrs } from 'vue'
-
-import { contrastTextColor } from '@/lib/contrastText'
 
 defineOptions({ inheritAttrs: false })
 

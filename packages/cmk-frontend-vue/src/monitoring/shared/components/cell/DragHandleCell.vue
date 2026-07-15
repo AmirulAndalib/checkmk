@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { inject } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import { ROW_DRAG_KEY } from '../MonitoringTableContext'
 import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'

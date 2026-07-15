@@ -4,14 +4,6 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import useClickOutside from '@/lib/useClickOutside'
-import useId from '@/lib/useId'
-import { immediateWatch } from '@/lib/watch'
-
 import CmkSuggestions, {
   NoSelection,
   SelectionWithTitle,
@@ -19,8 +11,14 @@ import CmkSuggestions, {
   type SuggestionValue,
   type Suggestions,
   flattenSuggestions
-} from '@/components/CmkSuggestions'
-import ArrowDown from '@/components/graphics/ArrowDown.vue'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import ArrowDown from 'cmk-ui-library/components/graphics/ArrowDown.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
+import useId from 'cmk-ui-library/lib/useId'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 
 const {
   options,

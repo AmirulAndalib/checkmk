@@ -6,8 +6,7 @@
 import userEvent from '@testing-library/user-event'
 import { findByRole, fireEvent, render, screen, waitFor, within } from '@testing-library/vue'
 import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { Response } from '@/components/CmkSuggestions'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
 
 import FormLabel from '@/form/private/forms/FormLabels.vue'
 
@@ -17,25 +16,28 @@ const EXISTING_LABEL_KEY = 'existing_key'
 const EXISTING_LABEL_VALUE = 'existing_value'
 const EXISTING_LABEL_CONCAT = `${EXISTING_LABEL_KEY}:${EXISTING_LABEL_VALUE}`
 
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal() // type is inferred
-  return {
-    ...mod,
-    fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
-      let firstElement: Array<{ name: string; title: string }> = []
-      if (value && /^.+:.+$/.test(value)) {
-        firstElement = [{ name: value, title: value }]
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      return new Response([
-        ...firstElement,
-        ...[{ name: EXISTING_LABEL_CONCAT, title: EXISTING_LABEL_CONCAT }].filter((item) =>
-          item.name.includes(value)
-        )
-      ])
-    })
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal() // type is inferred
+    return {
+      ...mod,
+      fetchSuggestions: vi.fn(async (_config: unknown, value: string) => {
+        let firstElement: Array<{ name: string; title: string }> = []
+        if (value && /^.+:.+$/.test(value)) {
+          firstElement = [{ name: value, title: value }]
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return new Response([
+          ...firstElement,
+          ...[{ name: EXISTING_LABEL_CONCAT, title: EXISTING_LABEL_CONCAT }].filter((item) =>
+            item.name.includes(value)
+          )
+        ])
+      })
+    }
   }
-})
+)
 
 const spec: FormSpec.Labels = {
   type: 'labels',

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import type { ToggleButtonOption } from '@/components/CmkToggleButtonGroup.vue'
+import type { ToggleButtonOption } from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
 
 import codeExample from './UclCmkToggleButtonGroupCodeExample.vue?raw'
 
@@ -50,8 +49,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

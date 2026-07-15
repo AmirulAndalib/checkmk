@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { Response, flattenSuggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { fetchSuggestions } from 'cmk-ui-library/components/FormAutocompleter/autocompleter'
 import { type ComputedRef, type Ref, ref, watch } from 'vue'
-
-import { Response, flattenSuggestions } from '@/components/CmkSuggestions'
-import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 
 import type { LabelValueItem } from '@/dashboard/components/Wizard/types'
 

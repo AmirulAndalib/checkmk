@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { TimeSpan } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import CmkTimeSpan from '@/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
+import CmkTimeSpan from 'cmk-ui-library/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
 
 import { type ValidationMessages, useValidation } from '@/form/private/validation'
 

@@ -5,14 +5,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Autocompleter, Regex } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import {
+  ErrorResponse,
+  Response,
+  type Suggestion
+} from 'cmk-ui-library/components/CmkSuggestions/suggestions'
+import { flattenSuggestions } from 'cmk-ui-library/components/CmkSuggestions/types'
+import { fetchSuggestions } from 'cmk-ui-library/components/FormAutocompleter/autocompleter'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import { ErrorResponse, Response, type Suggestion } from '@/components/CmkSuggestions/suggestions'
-import { flattenSuggestions } from '@/components/CmkSuggestions/types'
-import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 
 import FormSuggestionsList from './FormSuggestionsList.vue'
 

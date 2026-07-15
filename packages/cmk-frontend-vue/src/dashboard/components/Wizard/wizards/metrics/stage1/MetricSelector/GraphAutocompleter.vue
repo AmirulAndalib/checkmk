@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
+import type { ConfiguredFilters } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
-import type { ConfiguredFilters } from '@/components/filter'
 
 import { useLabelValueAutocomplete } from '@/dashboard/components/Wizard/components/autocompleters/useLabelValueAutocomplete'
 import type { LabelValueItem } from '@/dashboard/components/Wizard/types'

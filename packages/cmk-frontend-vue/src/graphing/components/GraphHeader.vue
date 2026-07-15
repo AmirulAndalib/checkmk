@@ -6,13 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { fromAbsolute, getLocalTimeZone } from '@internationalized/date'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkLabeledSwitch from 'cmk-ui-library/components/CmkLabeledSwitch.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkLabeledSwitch from '@/components/CmkLabeledSwitch.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 import type { BurgerMenuGroup, TimeRange } from '../types.ts'
 import { isoDate, stepLabel } from '../utils/timeFormat'

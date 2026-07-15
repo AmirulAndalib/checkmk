@@ -7,8 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import AccessibilityTable, {
   type AccessibilityItem
 } from '@ucl/_ucl/components/detail-page/UclAccessibilityTable.vue'
-
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 defineProps<{
   data?: AccessibilityItem[]

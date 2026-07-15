@@ -6,12 +6,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import axios from 'axios'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare let global_csrf_token: string

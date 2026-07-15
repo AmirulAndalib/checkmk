@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 import { defineComponent } from 'vue'
-
-import CmkHeading from '@/components/typography/CmkHeading.vue'
 
 test('CmkHeading triggers onclick handler', async () => {
   let clicked = false

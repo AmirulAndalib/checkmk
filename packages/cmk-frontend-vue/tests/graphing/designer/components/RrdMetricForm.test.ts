@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
 import { afterEach, expect, test, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions'
 
 import { resolveMetricColor } from '@/graphing/designer/api'
 import RrdMetricForm from '@/graphing/designer/components/forms/RrdMetricForm.vue'
@@ -24,13 +23,16 @@ const mocks = vi.hoisted(() => ({
   suggestions: [] as { name: string; title: string }[]
 }))
 
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal()
-  return {
-    ...mod,
-    fetchSuggestions: vi.fn(async () => new Response(mocks.suggestions))
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal()
+    return {
+      ...mod,
+      fetchSuggestions: vi.fn(async () => new Response(mocks.suggestions))
+    }
   }
-})
+)
 
 afterEach(() => {
   vi.clearAllMocks()

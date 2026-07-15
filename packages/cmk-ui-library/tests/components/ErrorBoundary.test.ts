@@ -4,11 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import { CmkError } from 'cmk-ui-library/lib/error.ts'
 import { defineComponent } from 'vue'
-
-import { CmkError } from '@/lib/error.ts'
-
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 
 test('CmkErrorBoundary shows full stack', async () => {
   class DemoError<T extends Error> extends CmkError<T> {

@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import { useDebounceFn } from 'cmk-ui-library/lib/useDebounce'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
+import useTimer from 'cmk-ui-library/lib/useTimer.ts'
 import { type Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-
-import { useDebounceFn } from '@/lib/useDebounce'
-import { useResizeObserver } from '@/lib/useResizeObserver'
-import useTimer from '@/lib/useTimer.ts'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import { useInjectCmkToken } from '@/dashboard/composables/useCmkToken'
 import { useSuppressEventOnPublicDashboard } from '@/dashboard/composables/useIsPublicDashboard'

@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
+import CmkVisuallyHidden from 'cmk-ui-library/components/CmkVisuallyHidden.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkTag from '@/components/CmkTag.vue'
-import CmkVisuallyHidden from '@/components/CmkVisuallyHidden.vue'
 
 import { timeZoneRegionLabel, timeZoneShortLabel } from '../../dateTimeUtils'
 

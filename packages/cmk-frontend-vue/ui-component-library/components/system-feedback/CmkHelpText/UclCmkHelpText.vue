@@ -52,8 +52,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkHelpText from '@/components/CmkHelpText.vue'
+import CmkHelpText from 'cmk-ui-library/components/CmkHelpText.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

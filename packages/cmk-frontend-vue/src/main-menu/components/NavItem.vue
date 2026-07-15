@@ -6,12 +6,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { NavItem, NavLinkItem } from 'cmk-shared-typing/typescript/main_menu'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { CmkMultitoneIconColor, OneColorIcons } from 'cmk-ui-library/components/CmkIcon/types'
+import CmkKeyboardKey from 'cmk-ui-library/components/CmkKeyboardKey.vue'
 import { computed } from 'vue'
-
-import CmkBadge from '@/components/CmkBadge.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import type { CmkMultitoneIconColor, OneColorIcons } from '@/components/CmkIcon/types'
-import CmkKeyboardKey from '@/components/CmkKeyboardKey.vue'
 
 import { getInjectedMainMenu } from '@/main-menu/provider/main-menu'
 

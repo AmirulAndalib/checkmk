@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { VisibilityState } from '@tanstack/vue-table'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { inject, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 

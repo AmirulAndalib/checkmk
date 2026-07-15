@@ -7,11 +7,10 @@ import { CalendarDate } from '@internationalized/date'
 import * as intl from '@internationalized/date'
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render } from '@testing-library/vue'
+import DateCalendar from 'cmk-ui-library/components/date-time/private/calendar/DateCalendar.vue'
+import type { CalendarSelection } from 'cmk-ui-library/components/date-time/private/calendar/types'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { nextTick } from 'vue'
-
-import DateCalendar from '@/components/date-time/private/calendar/DateCalendar.vue'
-import type { CalendarSelection } from '@/components/date-time/private/calendar/types'
 
 import { TZ_BERLIN, makeSettings } from '../../dateTimeTestFixtures'
 import { lastValue, selectDropdownOption } from '../../pickerTestHarness'

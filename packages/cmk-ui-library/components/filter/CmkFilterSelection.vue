@@ -4,15 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCollapsible, { CmkCollapsibleTitle } from 'cmk-ui-library/components/CmkCollapsible'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkScrollContainer from 'cmk-ui-library/components/CmkScrollContainer.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
 import { computed, onMounted, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-
-import CmkCollapsible, { CmkCollapsibleTitle } from '@/components/CmkCollapsible'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import FilterSelectionActiveIcon from './private/selection/FilterSelectionActiveIcon.vue'
 import FilterSelectionSearch from './private/selection/FilterSelectionSearch.vue'

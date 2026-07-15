@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { fetchRestAPIDeprecated } from 'cmk-ui-library/lib/cmkFetch'
 import { computed } from 'vue'
-
-import { fetchRestAPIDeprecated } from '@/lib/cmkFetch'
 
 import type { ViewCollectionModel, ViewModel } from '@/dashboard/types/api'
 

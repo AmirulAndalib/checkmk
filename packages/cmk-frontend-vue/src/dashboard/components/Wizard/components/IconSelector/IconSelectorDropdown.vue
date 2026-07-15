@@ -5,11 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { DynamicIcon } from 'cmk-shared-typing/typescript/icon'
+import CmkDynamicIcon from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDynamicIcon from '@/components/CmkIcon/CmkDynamicIcon/CmkDynamicIcon.vue'
 
 import IconPopup from './IconPopup.vue'
 import type { IconCategory } from './types'

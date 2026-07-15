@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 import { pad2 } from '../utils/timeFormat'
 import { useGlobalRefresh } from './useGlobalRefresh'

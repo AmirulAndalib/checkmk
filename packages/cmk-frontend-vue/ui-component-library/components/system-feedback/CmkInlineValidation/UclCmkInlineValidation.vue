@@ -27,8 +27,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

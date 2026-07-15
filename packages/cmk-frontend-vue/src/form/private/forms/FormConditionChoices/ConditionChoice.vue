@@ -9,15 +9,13 @@ import {
   type ConditionChoicesValue,
   type ConditionGroup
 } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkList from 'cmk-ui-library/components/CmkList'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkList from '@/components/CmkList'
-import CmkSpace from '@/components/CmkSpace.vue'
 
 import { type Operator, type OperatorI18n } from './utils'
 

@@ -4,11 +4,10 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, within } from '@testing-library/vue'
+import TimeSelector from 'cmk-ui-library/components/date-time/private/time-selector/TimeSelector.vue'
+import type { HourCycle, TimeValue } from 'cmk-ui-library/components/date-time/types'
 import { describe, expect, test } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import TimeSelector from '@/components/date-time/private/time-selector/TimeSelector.vue'
-import type { HourCycle, TimeValue } from '@/components/date-time/types'
 
 import { lastValue } from '../../pickerTestHarness'
 

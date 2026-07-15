@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { CalendarDate } from '@internationalized/date'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import { CmkDatePicker, type DatePickerSettings } from 'cmk-ui-library/components/date-time'
 import { shallowRef } from 'vue'
-
-import CmkLabel from '@/components/CmkLabel.vue'
-import { CmkDatePicker, type DatePickerSettings } from '@/components/date-time'
 
 const value = shallowRef(new CalendarDate(2026, 3, 20))
 

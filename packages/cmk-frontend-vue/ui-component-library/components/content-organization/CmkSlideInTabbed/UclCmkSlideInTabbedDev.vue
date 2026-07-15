@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkSlideInTabbed, { type SlideInTab } from 'cmk-ui-library/components/CmkSlideInTabbed'
 import { markRaw, ref } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import CmkSlideInTabbed, { type SlideInTab } from '@/components/CmkSlideInTabbed'
 
 import CmkSlideInTabbedDemoTab from './CmkSlideInTabbedDemoTab.vue'
 

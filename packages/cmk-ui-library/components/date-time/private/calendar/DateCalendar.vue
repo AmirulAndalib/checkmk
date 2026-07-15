@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts" generic="M extends 'single' | 'range'">
 import { CalendarDate, today } from '@internationalized/date'
+import CmkVisuallyHidden from 'cmk-ui-library/components/CmkVisuallyHidden.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkVisuallyHidden from '@/components/CmkVisuallyHidden.vue'
 
 import type { ResolvedDateTimeSettings } from '../../types'
 import CalendarControls from './CalendarControls.vue'

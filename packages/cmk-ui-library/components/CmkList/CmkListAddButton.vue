@@ -4,8 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkInlineButton from '@/components/user-input/CmkInlineButton.vue'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkInlineButton from 'cmk-ui-library/components/user-input/CmkInlineButton.vue'
 
 defineOptions({
   inheritAttrs: false

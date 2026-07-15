@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import FormAutocompleter from 'cmk-ui-library/components/FormAutocompleter/FormAutocompleter.vue'
+import { cmkFetch } from 'cmk-ui-library/lib/cmkFetch.ts'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, watch } from 'vue'
-
-import { cmkFetch } from '@/lib/cmkFetch.ts'
-import usei18n from '@/lib/i18n'
-
-import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
 import type { DynamicDropdownConfig } from '../../types.ts'
 import type { ComponentEmits, FilterComponentProps } from './types.ts'

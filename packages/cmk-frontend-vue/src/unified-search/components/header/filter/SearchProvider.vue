@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { OneColorIcons } from '@/components/CmkIcon/types'
+import type { OneColorIcons } from 'cmk-ui-library/components/CmkIcon/types'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 import type { UnifiedSearchProvider } from '@/unified-search/lib/providers/unified'
 import { getSearchUtils } from '@/unified-search/providers/search-utils'

@@ -5,13 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Password } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import { type ValidationMessages, validateValue } from '@/form/private/validation'
 

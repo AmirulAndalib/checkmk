@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import client from 'cmk-ui-library/lib/rest-api-client/client'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-
-import client from '@/lib/rest-api-client/client'
 
 import type { CustomGraphObject } from '@/graphing/designer/api'
 import DesignerBody from '@/graphing/designer/components/DesignerBody.vue'

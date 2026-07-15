@@ -4,13 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
+import { computed, ref } from 'vue'
 
 import { formatRelativeTimeRange } from './formatRelativeTimeRange'
 import { useNowTicker } from './useNowTicker'

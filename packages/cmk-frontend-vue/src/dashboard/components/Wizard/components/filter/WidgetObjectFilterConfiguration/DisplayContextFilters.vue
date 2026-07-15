@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkLabel from '@/components/CmkLabel.vue'
 
 import type { FilterConfigState } from '@/dashboard/components/Wizard/components/filter/utils.ts'
 import { type ContextFilters, FilterOrigin } from '@/dashboard/types/filter'

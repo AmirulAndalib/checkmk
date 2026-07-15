@@ -4,11 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkCode from '@/components/CmkCode.vue'
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLink from '@/components/CmkLink.vue'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLink from 'cmk-ui-library/components/CmkLink.vue'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
 
 export interface ExternalReferenceItem {
   label: string

@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
+import { userSpecificUnit } from 'cmk-ui-library/lib/unit-format/unitFormatter'
 
 // Reuse the shared notation formatters for the two adaptive-unit cases (bytes
 // and seconds) instead of hand-rolling the prefix maths. The temperature unit

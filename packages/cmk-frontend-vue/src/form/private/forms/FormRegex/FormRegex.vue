@@ -5,12 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { Regex } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useClickOutside from 'cmk-ui-library/lib/useClickOutside'
 import { computed, nextTick, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import useClickOutside from '@/lib/useClickOutside'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import type { ValidationMessages } from '@/form/private/validation'
 

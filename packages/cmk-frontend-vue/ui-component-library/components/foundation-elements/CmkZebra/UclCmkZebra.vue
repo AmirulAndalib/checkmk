@@ -15,8 +15,7 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkZebra from '@/components/CmkZebra.vue'
+import CmkZebra from 'cmk-ui-library/components/CmkZebra.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

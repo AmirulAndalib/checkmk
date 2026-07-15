@@ -4,14 +4,12 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalized/date'
+import { instantToParts, isRangeInverted } from 'cmk-ui-library/components/date-time/dateTimeUtils'
+import type { RangeDraft, RangePreset } from 'cmk-ui-library/components/date-time/types'
+import { useRangePresets } from 'cmk-ui-library/components/date-time/useRangePresets'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { describe, expect, test } from 'vitest'
 import { nextTick, shallowRef } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import { instantToParts, isRangeInverted } from '@/components/date-time/dateTimeUtils'
-import type { RangeDraft, RangePreset } from '@/components/date-time/types'
-import { useRangePresets } from '@/components/date-time/useRangePresets'
 
 import { TZ_BERLIN } from './dateTimeTestFixtures'
 

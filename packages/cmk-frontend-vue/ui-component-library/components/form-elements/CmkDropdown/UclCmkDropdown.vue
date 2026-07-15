@@ -6,9 +6,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { BoolPropDef, ListPropDef } from '@ucl/_ucl/types/prop-def'
-
-import { type ButtonVariants } from '@/components/CmkDropdown/CmkDropdownButton.vue'
-import { type Suggestions } from '@/components/CmkSuggestions'
+import { type ButtonVariants } from 'cmk-ui-library/components/CmkDropdown/CmkDropdownButton.vue'
+import { type Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
 
 import codeExample from './UclCmkDropdownCodeExample.vue?raw'
 
@@ -115,10 +114,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions/suggestions'
 import { computed } from 'vue'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import { Response } from '@/components/CmkSuggestions/suggestions'
 
 import UclCmkDropdownDev from './UclCmkDropdownDev.vue'
 

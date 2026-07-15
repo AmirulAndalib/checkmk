@@ -3,12 +3,17 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import { makeLongDateFormatter, makeMonthYearFormatter } from '@/components/date-time/dateTimeUtils'
-import type { ResolvedDateTimeSettings, WeekdayNames } from '@/components/date-time/types'
-import type { DateFormatParts } from '@/components/date-time/types'
+import {
+  makeLongDateFormatter,
+  makeMonthYearFormatter
+} from 'cmk-ui-library/components/date-time/dateTimeUtils'
+import type {
+  ResolvedDateTimeSettings,
+  WeekdayNames
+} from 'cmk-ui-library/components/date-time/types'
+import type { DateFormatParts } from 'cmk-ui-library/components/date-time/types'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 export const TZ_UTC = 'UTC'
 export const TZ_BERLIN = 'Europe/Berlin'

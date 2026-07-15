@@ -4,17 +4,15 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { copyToClipboard as copyToClipboardUtil } from '@/lib/utils'
-
-import CmkIcon from '@/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { copyToClipboard as copyToClipboardUtil } from 'cmk-ui-library/lib/utils'
+import { computed, ref } from 'vue'
 
 const { _t } = usei18n()
 

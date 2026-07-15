@@ -6,11 +6,10 @@
 import { CalendarDate } from '@internationalized/date'
 import * as intl from '@internationalized/date'
 import { fireEvent, render } from '@testing-library/vue'
+import CalendarGrid from 'cmk-ui-library/components/date-time/private/calendar/CalendarGrid.vue'
+import type { CalendarSelection } from 'cmk-ui-library/components/date-time/private/calendar/types'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { nextTick } from 'vue'
-
-import CalendarGrid from '@/components/date-time/private/calendar/CalendarGrid.vue'
-import type { CalendarSelection } from '@/components/date-time/private/calendar/types'
 
 import { makeSettings } from '../../dateTimeTestFixtures'
 import { lastValue } from '../../pickerTestHarness'

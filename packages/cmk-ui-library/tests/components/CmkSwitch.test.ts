@@ -5,8 +5,7 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
-
-import CmkSwitch from '@/components/CmkSwitch.vue'
+import CmkSwitch from 'cmk-ui-library/components/CmkSwitch.vue'
 
 test('switch is keyboard focusable and toggles via Space/Enter', async () => {
   const user = userEvent.setup()

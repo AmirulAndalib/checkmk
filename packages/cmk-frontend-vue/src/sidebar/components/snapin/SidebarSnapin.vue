@@ -5,18 +5,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkCollapsible from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsible.vue'
+import CmkCollapsibleTitle from 'cmk-ui-library/components/CmkCollapsible/CmkCollapsibleTitle.vue'
+import CmkMultitoneIcon from 'cmk-ui-library/components/CmkIcon/CmkMultitoneIcon.vue'
+import type { CmkMultitoneIconColor, OneColorIcons } from 'cmk-ui-library/components/CmkIcon/types'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkCollapsible from '@/components/CmkCollapsible/CmkCollapsible.vue'
-import CmkCollapsibleTitle from '@/components/CmkCollapsible/CmkCollapsibleTitle.vue'
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import type { CmkMultitoneIconColor, OneColorIcons } from '@/components/CmkIcon/types'
-import CmkIconButton from '@/components/CmkIconButton.vue'
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
 
 import type { TSidebarSnapin } from '@/sidebar/lib/type-defs'
 import { getInjectedSidebar } from '@/sidebar/provider/sidebar'

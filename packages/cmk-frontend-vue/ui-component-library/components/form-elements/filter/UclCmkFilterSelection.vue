@@ -14,14 +14,13 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-
 import {
   CmkFilterSelection,
   getCategoryDefinition,
   parseFilterTypes,
   useFilters,
   useProvideFilterDefinitions
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
 
 import { SAMPLE_FILTER_DEFINITIONS } from './sampleFilterDefinitions'
 

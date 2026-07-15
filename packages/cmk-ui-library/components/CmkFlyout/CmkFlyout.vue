@@ -4,9 +4,8 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import useId from 'cmk-ui-library/lib/useId'
 import { computed, useTemplateRef } from 'vue'
-
-import useId from '@/lib/useId'
 
 import type { FlyoutProps, FlyoutSlots, TriggerAria } from './types'
 import { useFlyoutDismiss } from './useFlyoutDismiss'

@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { IconWithEmblem, SimpleIcons } from '@/components/CmkIcon'
+import type { IconWithEmblem, SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 export interface WidgetItem {
   id: string

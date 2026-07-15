@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { DataSize } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
 import { computed, ref } from 'vue'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import FormDataSize from '@/form/private/forms/FormDataSize.vue'
 

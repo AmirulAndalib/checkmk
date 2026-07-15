@@ -3,7 +3,11 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { ComponentConfig, ConfiguredFilters, FilterDefinitions } from '@/components/filter'
+import type {
+  ComponentConfig,
+  ConfiguredFilters,
+  FilterDefinitions
+} from 'cmk-ui-library/components/filter'
 
 import type { UseViewsCollection } from '@/dashboard/composables/api/useViewsCollection'
 import type { UseVisualInfoCollection } from '@/dashboard/composables/api/useVisualInfoCollection'

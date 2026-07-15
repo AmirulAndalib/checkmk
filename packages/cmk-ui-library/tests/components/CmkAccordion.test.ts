@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
+import CmkAccordion from 'cmk-ui-library/components/CmkAccordion/CmkAccordion.vue'
+import CmkAccordionItem from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItem.vue'
 import { type Ref, defineComponent, ref } from 'vue'
-
-import CmkAccordion from '@/components/CmkAccordion/CmkAccordion.vue'
-import CmkAccordionItem from '@/components/CmkAccordion/CmkAccordionItem.vue'
 
 const createAccordionComponent = (
   items: number,

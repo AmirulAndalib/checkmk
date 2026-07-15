@@ -4,11 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { defineComponent, h } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 import DropdownCell from '@/monitoring/shared/components/cell/DropdownCell.vue'
 

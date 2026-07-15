@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import { useResizeObserver } from 'cmk-ui-library/lib/useResizeObserver'
 import { type Ref, computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
-
-import { useResizeObserver } from '@/lib/useResizeObserver'
-
-import CmkIcon from '@/components/CmkIcon'
 
 import DashboardContentContainer from '@/dashboard/components/DashboardContent/DashboardContentContainer.vue'
 import { useInjectCmkToken } from '@/dashboard/composables/useCmkToken'

@@ -6,10 +6,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import type { CalendarDate } from '@internationalized/date'
 import { isSameDay, startOfMonth, today } from '@internationalized/date'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, useTemplateRef, watch } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import type { ResolvedDateTimeSettings, Weekday } from '../../types'
 import type { CalendarSelection } from './types'

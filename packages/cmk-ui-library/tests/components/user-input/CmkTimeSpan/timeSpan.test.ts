@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { formatTimeSpan } from 'cmk-ui-library/components/user-input/CmkTimeSpan/timeSpan'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
-
-import { formatTimeSpan } from '@/components/user-input/CmkTimeSpan/timeSpan'
 
 describe('formatTimeSpan', () => {
   const labels = { hour: 'Hours', minute: 'Minutes', second: 'Seconds' }

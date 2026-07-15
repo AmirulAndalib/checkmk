@@ -4,6 +4,15 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { BreadcrumbItem } from 'cmk-ui-library/components/CmkBreadcrumb'
+import { useCmkErrorBoundary } from 'cmk-ui-library/components/CmkErrorBoundary'
+import CmkErrorAlert from 'cmk-ui-library/components/CmkErrorBoundary/CmkErrorAlert.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import {
+  type ConfiguredFilters,
+  useProvideFilterDefinitions
+} from 'cmk-ui-library/components/filter'
+import { randomId } from 'cmk-ui-library/lib/randomId'
 import {
   computed,
   nextTick,
@@ -15,14 +24,6 @@ import {
   toRaw,
   watch
 } from 'vue'
-
-import { randomId } from '@/lib/randomId'
-
-import type { BreadcrumbItem } from '@/components/CmkBreadcrumb'
-import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
-import CmkErrorAlert from '@/components/CmkErrorBoundary/CmkErrorAlert.vue'
-import CmkIcon from '@/components/CmkIcon'
-import { type ConfiguredFilters, useProvideFilterDefinitions } from '@/components/filter'
 
 import DashboardBreadcrumb from '@/dashboard/components/DashboardBreadcrumb/DashboardBreadcrumb.vue'
 import DashboardComponent from '@/dashboard/components/DashboardComponent.vue'

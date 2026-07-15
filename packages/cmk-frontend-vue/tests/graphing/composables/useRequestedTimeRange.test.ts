@@ -9,9 +9,8 @@ import {
   getLocalTimeZone,
   toZoned
 } from '@internationalized/date'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 import { nextTick } from 'vue'
-
-import type { DateTimeRange } from '@/components/date-time'
 
 import { useGlobalTimeRange } from '@/graphing/GlobalTimePicker/useGlobalTimeRange'
 import { useRequestedTimeRange } from '@/graphing/composables/useRequestedTimeRange'

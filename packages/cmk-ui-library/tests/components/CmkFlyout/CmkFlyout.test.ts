@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import CmkFlyout from 'cmk-ui-library/components/CmkFlyout'
 import { vi } from 'vitest'
 import { defineComponent, nextTick } from 'vue'
-
-import CmkFlyout from '@/components/CmkFlyout'
 
 // CmkFlyout is fully controlled: it never opens or closes itself. The host owns `open`, toggles it
 // from the trigger, and closes on the `cancel` event (Escape / outside press / focus leaving).

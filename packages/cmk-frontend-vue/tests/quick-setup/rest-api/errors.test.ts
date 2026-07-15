@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { AxiosError, type InternalAxiosRequestConfig } from 'axios'
-
-import { CmkSimpleError } from '@/lib/error'
+import { CmkSimpleError } from 'cmk-ui-library/lib/error'
 
 import { argumentError } from '@/quick-setup/rest-api/errors'
 

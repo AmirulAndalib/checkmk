@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
+import CmkChipSelect from 'cmk-ui-library/components/CmkChipSelect.vue'
 import { h } from 'vue'
-
-import CmkChipSelect from '@/components/CmkChipSelect.vue'
 
 const timeRanges = {
   type: 'fixed' as const,

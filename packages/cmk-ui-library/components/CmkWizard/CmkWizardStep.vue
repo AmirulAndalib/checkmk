@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCollapsible from 'cmk-ui-library/components/CmkCollapsible'
+import { getWizardContext } from 'cmk-ui-library/components/CmkWizard/utils.ts'
 import { computed, nextTick, ref, watch } from 'vue'
-
-import CmkCollapsible from '@/components/CmkCollapsible'
-import { getWizardContext } from '@/components/CmkWizard/utils.ts'
 
 export interface CmkWizardStepProps {
   index: number

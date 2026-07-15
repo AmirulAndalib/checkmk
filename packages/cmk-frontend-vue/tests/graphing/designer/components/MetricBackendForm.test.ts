@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render, screen } from '@testing-library/vue'
+import { Response } from 'cmk-ui-library/components/CmkSuggestions'
 import { expect, test, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
-
-import { Response } from '@/components/CmkSuggestions'
 
 import MetricBackendForm from '@/graphing/designer/components/forms/MetricBackendForm.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
@@ -15,12 +14,15 @@ import { type DraftMetricBackendItem, newMetricBackendDraft } from '@/graphing/d
 
 const mocks = vi.hoisted(() => ({ fetchSuggestions: vi.fn(), fetchRestAPIDeprecated: vi.fn() }))
 
-vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
-  const mod = await importOriginal()
-  return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
-})
+vi.mock(
+  import('cmk-ui-library/components/FormAutocompleter/autocompleter'),
+  async (importOriginal) => {
+    const mod = await importOriginal()
+    return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
+  }
+)
 
-vi.mock(import('@/lib/cmkFetch'), async (importOriginal) => {
+vi.mock(import('cmk-ui-library/lib/cmkFetch'), async (importOriginal) => {
   const mod = await importOriginal()
   return { ...mod, fetchRestAPIDeprecated: mocks.fetchRestAPIDeprecated }
 })

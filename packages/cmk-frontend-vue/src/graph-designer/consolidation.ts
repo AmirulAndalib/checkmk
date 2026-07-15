@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { ConsolidationFunction as WireConsolidationFunction } from 'cmk-shared-typing/typescript/graph_designer'
-
-import { staticAssertNever } from '@/lib/typeUtils'
+import { staticAssertNever } from 'cmk-ui-library/lib/typeUtils'
 
 import type { ConsolidationFunction } from '@/metric-backend/consolidation/types'
 

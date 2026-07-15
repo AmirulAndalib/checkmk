@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup generic="ItemsProps extends Record<string, unknown[]>" lang="ts">
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import { type UnpackedArray } from 'cmk-ui-library/lib/typeUtils'
+import useDragging from 'cmk-ui-library/lib/useDragging'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { ref } from 'vue'
-
-import { type UnpackedArray } from '@/lib/typeUtils'
-import useDragging from '@/lib/useDragging'
-import { immediateWatch } from '@/lib/watch'
-
-import CmkSpace from '@/components/CmkSpace.vue'
 
 import CmkListAddButton from './CmkListAddButton.vue'
 import CmkListItem from './CmkListItem.vue'

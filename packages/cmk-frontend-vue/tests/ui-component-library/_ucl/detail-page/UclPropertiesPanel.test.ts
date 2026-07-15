@@ -8,11 +8,10 @@ import { render, screen } from '@testing-library/vue'
 import UclPropertiesPanel from '@ucl/_ucl/components/detail-page/UclPropertiesPanel.vue'
 import type { PanelConfig } from '@ucl/_ucl/types/prop-panel'
 import { PanelStateCreator } from '@ucl/_ucl/types/prop-panel'
+import { copyToClipboard } from 'cmk-ui-library/lib/utils'
 import { type PropType, defineComponent, ref } from 'vue'
 
-import { copyToClipboard } from '@/lib/utils'
-
-vi.mock('@/lib/utils', () => ({ copyToClipboard: vi.fn() }))
+vi.mock('cmk-ui-library/lib/utils', () => ({ copyToClipboard: vi.fn() }))
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({

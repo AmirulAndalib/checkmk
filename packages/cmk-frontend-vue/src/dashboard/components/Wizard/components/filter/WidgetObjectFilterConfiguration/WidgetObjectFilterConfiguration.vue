@@ -4,12 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
+import { useFilterDefinitions } from 'cmk-ui-library/components/filter'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, onBeforeMount } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
-import { useFilterDefinitions } from '@/components/filter'
 
 import CatalogPanelHeader from '@/dashboard/components/Wizard/components/CatalogPanelHeader.vue'
 import { ElementSelection } from '@/dashboard/components/Wizard/types.ts'

@@ -4,14 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import CmkWizard, {
   CmkWizardButton,
   CmkWizardModeToggle,
   CmkWizardStep
-} from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
+} from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import { ref } from 'vue'
 
 const step = ref(1)
 const mode = ref<'guided' | 'overview'>('guided')

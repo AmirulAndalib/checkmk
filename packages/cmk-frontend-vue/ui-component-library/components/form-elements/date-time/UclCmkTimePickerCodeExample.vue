@@ -4,9 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import {
+  CmkTimePicker,
+  type TimePickerSettings,
+  type TimeValue
+} from 'cmk-ui-library/components/date-time'
 import { ref } from 'vue'
-
-import { CmkTimePicker, type TimePickerSettings, type TimeValue } from '@/components/date-time'
 
 const value = ref<TimeValue>({ hour: 9, minute: 5 })
 

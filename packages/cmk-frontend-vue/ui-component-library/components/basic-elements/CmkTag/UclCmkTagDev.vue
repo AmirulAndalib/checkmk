@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import CmkTag from '@/components/CmkTag.vue'
+import CmkTag from 'cmk-ui-library/components/CmkTag.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 </script>

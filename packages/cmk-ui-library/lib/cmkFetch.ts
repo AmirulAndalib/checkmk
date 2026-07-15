@@ -3,8 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { CmkError } from '@/lib/error.ts'
-import type { MaybeRestApiCrashReport, MaybeRestApiError } from '@/lib/types'
+import { CmkError } from 'cmk-ui-library/lib/error.ts'
+import type { MaybeRestApiCrashReport, MaybeRestApiError } from 'cmk-ui-library/lib/types'
 
 type FetchParams = Parameters<typeof fetch>
 
@@ -119,7 +119,7 @@ export class CmkFetchResponse {
  * **Legacy use only.** Use this only for legacy AJAX requests or page endpoint
  * calls where backwards-compatibility requires it. Do not use for new
  * development — prefer the typed REST API client in
- * `@/lib/rest-api-client/client.ts` instead.
+ * `cmk-ui-library/lib/rest-api-client/client.ts` instead.
  */
 export async function cmkFetch(
   url: FetchParams[0],
@@ -130,7 +130,7 @@ export async function cmkFetch(
 }
 
 /**
- * @deprecated Use the typed REST API client in `@/lib/rest-api-client/client.ts` instead.
+ * @deprecated Use the typed REST API client in `cmk-ui-library/lib/rest-api-client/client.ts` instead.
  *
  * This function is a thin wrapper around `cmkFetch` that pre-fills REST API
  * headers. It predates the typed OpenAPI-based client and should not be used

@@ -5,8 +5,6 @@
  */
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
-import { h } from 'vue'
-
 import CmkSuggestions, {
   NoSelection,
   Response,
@@ -14,7 +12,8 @@ import CmkSuggestions, {
   SelectionWithTitle,
   type Suggestion,
   type Suggestions
-} from '@/components/CmkSuggestions'
+} from 'cmk-ui-library/components/CmkSuggestions'
+import { h } from 'vue'
 
 const flatSuggestions: Suggestion[] = [
   { name: 'option1', title: 'Option One' },

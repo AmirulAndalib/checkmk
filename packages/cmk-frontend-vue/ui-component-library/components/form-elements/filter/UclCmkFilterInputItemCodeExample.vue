@@ -4,13 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue'
-
 import {
   CmkFilterInputItem,
   type ConfiguredValues,
   useProvideFilterDefinitions
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import { onBeforeMount, ref } from 'vue'
 
 // Definitions become available to all filter components below this component.
 // Usually called once in an app root.

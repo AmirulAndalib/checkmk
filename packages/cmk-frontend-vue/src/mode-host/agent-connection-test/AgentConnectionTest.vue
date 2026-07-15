@@ -10,24 +10,22 @@ import {
   type ModeHostServerPerSite,
   type ModeHostSite
 } from 'cmk-shared-typing/typescript/mode_host'
-import type { Ref } from 'vue'
-import { computed, onMounted, ref, watch } from 'vue'
-
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
 import {
   DEFAULT_AGENT_RECEIVER_PORT,
   fetchAgentReceiverPort as fetchAgentReceiverPortApi
-} from '@/lib/agentReceiverPort'
-import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
+} from 'cmk-ui-library/lib/agentReceiverPort'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import useId from 'cmk-ui-library/lib/useId'
+import type { Ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import AgentSlideOutContent from '@/mode-host/agent-connection-test/components/AgentSlideOutContent.vue'
 import { resolveSiteId } from '@/mode-host/lib/site'

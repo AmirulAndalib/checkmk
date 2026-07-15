@@ -9,12 +9,10 @@ conditions defined in the file COPYING, which is part of this source code packag
   generic="T extends 'text' | 'number' | 'date' | 'time' | 'password' = 'text'"
 >
 import { type VariantProps, cva } from 'class-variance-authority'
+import CmkSpace from 'cmk-ui-library/components/CmkSpace.vue'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { computed, ref, watch } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
-
-import CmkSpace from '@/components/CmkSpace.vue'
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import { inputSizes } from './sizes'
 

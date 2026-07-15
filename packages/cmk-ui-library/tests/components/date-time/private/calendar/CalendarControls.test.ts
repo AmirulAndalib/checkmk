@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CalendarControls from 'cmk-ui-library/components/date-time/private/calendar/CalendarControls.vue'
 import { describe, expect, test } from 'vitest'
-
-import CalendarControls from '@/components/date-time/private/calendar/CalendarControls.vue'
 
 import { MONTH_NAMES_EN } from '../../dateTimeTestFixtures'
 import { openDropdown, selectDropdownOption } from '../../pickerTestHarness'

@@ -5,17 +5,17 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon/CmkIcon.vue'
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
-import CmkProgressCircle, { type Colors } from '@/components/progress/CmkProgressCircle.vue'
+} from 'cmk-ui-library/components/CmkTooltip'
+import CmkProgressCircle, {
+  type Colors
+} from 'cmk-ui-library/components/progress/CmkProgressCircle.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { computed, ref } from 'vue'
 
 import type { QualityLevel } from '@/ai/lib/markdown'
 

@@ -63,18 +63,16 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-import { ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLabel from '@/components/CmkLabel.vue'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
 import CmkSlideInDropdown, {
   type CmkSlideInDropdownChoice
-} from '@/components/user-input/CmkSlideInDropdown'
+} from 'cmk-ui-library/components/user-input/CmkSlideInDropdown'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
+import { ref } from 'vue'
 
 import UclCmkSlideInDropdownDev from './UclCmkSlideInDropdownDev.vue'
 

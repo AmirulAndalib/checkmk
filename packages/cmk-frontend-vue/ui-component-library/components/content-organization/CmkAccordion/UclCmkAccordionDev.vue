@@ -5,15 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkAccordion from 'cmk-ui-library/components/CmkAccordion/CmkAccordion.vue'
+import CmkAccordionItem from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItem.vue'
+import CmkAccordionItemStateIndicator from 'cmk-ui-library/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import type { CmkIconProps } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { ref } from 'vue'
-
-import CmkAccordion from '@/components/CmkAccordion/CmkAccordion.vue'
-import CmkAccordionItem from '@/components/CmkAccordion/CmkAccordionItem.vue'
-import CmkAccordionItemStateIndicator from '@/components/CmkAccordion/CmkAccordionItemStateIndicator.vue'
-import CmkButton from '@/components/CmkButton'
-import CmkDropdown from '@/components/CmkDropdown'
-import type { CmkIconProps } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon'
 
 defineProps<{ screenshotMode: boolean }>()
 

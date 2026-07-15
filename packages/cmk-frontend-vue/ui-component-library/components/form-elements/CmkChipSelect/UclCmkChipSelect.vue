@@ -62,10 +62,9 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkChipSelect from 'cmk-ui-library/components/CmkChipSelect.vue'
+import { type Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
 import { computed, ref } from 'vue'
-
-import CmkChipSelect from '@/components/CmkChipSelect.vue'
-import { type Suggestions } from '@/components/CmkSuggestions'
 
 import UclCmkChipSelectDev from './UclCmkChipSelectDev.vue'
 

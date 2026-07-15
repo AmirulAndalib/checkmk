@@ -5,10 +5,9 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CmkSlideInTabbed from 'cmk-ui-library/components/CmkSlideInTabbed/CmkSlideInTabbed.vue'
+import type { SlideInTab } from 'cmk-ui-library/components/CmkSlideInTabbed/types'
 import { defineComponent, h, markRaw } from 'vue'
-
-import CmkSlideInTabbed from '@/components/CmkSlideInTabbed/CmkSlideInTabbed.vue'
-import type { SlideInTab } from '@/components/CmkSlideInTabbed/types'
 
 const tabBody = markRaw(
   defineComponent({

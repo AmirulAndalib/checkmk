@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkHtml from 'cmk-ui-library/components/CmkHtml.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkIconButton from 'cmk-ui-library/components/CmkIconButton.vue'
+import { cmkAjax } from 'cmk-ui-library/lib/ajax'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { type Ref, onMounted, ref } from 'vue'
-
-import { cmkAjax } from '@/lib/ajax'
-import usei18n from '@/lib/i18n'
-
-import CmkHtml from '@/components/CmkHtml.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkIconButton from '@/components/CmkIconButton.vue'
 
 import { useInjectIsPublicDashboard } from '@/dashboard/composables/useIsPublicDashboard'
 

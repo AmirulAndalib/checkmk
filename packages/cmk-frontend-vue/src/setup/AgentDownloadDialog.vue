@@ -5,19 +5,17 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type AgentSlideout } from 'cmk-shared-typing/typescript/agent_slideout'
-import { TooltipArrow } from 'reka-ui'
-import { ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkSlideInDialog from '@/components/CmkSlideInDialog.vue'
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkSlideInDialog from 'cmk-ui-library/components/CmkSlideInDialog.vue'
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
+import { TooltipArrow } from 'reka-ui'
+import { ref } from 'vue'
 
 import AgentSlideOutContent from '@/mode-host/agent-connection-test/components/AgentSlideOutContent.vue'
 

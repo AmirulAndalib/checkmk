@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
-
-import type { DateTimeRange } from '@/components/date-time'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
 
 /** The last `totalSeconds`, ending now (browser zone). */
 export function rollingRange(totalSeconds: number): DateTimeRange {

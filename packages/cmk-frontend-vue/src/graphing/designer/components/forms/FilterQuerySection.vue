@@ -4,17 +4,16 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { TranslatedString } from '@/lib/i18nString'
-
-import { CmkAddDropdown } from '@/components/CmkDropdown'
-import CmkLabel from '@/components/CmkLabel.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
+import { CmkAddDropdown } from 'cmk-ui-library/components/CmkDropdown'
+import CmkLabel from 'cmk-ui-library/components/CmkLabel.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
 import {
   CmkFilterInputItem,
   CmkRemoveFilterButton,
   type ConfiguredValues,
   type FilterDefinitions
-} from '@/components/filter'
+} from 'cmk-ui-library/components/filter'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 defineProps<{
   title: TranslatedString

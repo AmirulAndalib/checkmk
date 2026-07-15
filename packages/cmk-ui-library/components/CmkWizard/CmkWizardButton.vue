@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkButton'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon, { type IconSizeNames } from 'cmk-ui-library/components/CmkIcon'
+import { getWizardContext } from 'cmk-ui-library/components/CmkWizard/utils.ts'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import type { ButtonVariants } from '@/components/CmkButton'
-import CmkButton from '@/components/CmkButton'
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkIcon, { type IconSizeNames } from '@/components/CmkIcon'
-import { getWizardContext } from '@/components/CmkWizard/utils.ts'
 
 export interface CmkWizardButtonProps {
   type: 'next' | 'previous' | 'finish' | 'other'

@@ -6,15 +6,13 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import { type MainMenuConfig, type NavItemIdEnum } from 'cmk-shared-typing/typescript/main_menu'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkKeyboardKey from 'cmk-ui-library/components/CmkKeyboardKey.vue'
+import CmkPopupDialog from 'cmk-ui-library/components/CmkPopupDialog.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
 import { onMounted, provide, ref } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-import { KeyShortcutService } from '@/lib/keyShortcuts'
-
-import CmkButton from '@/components/CmkButton'
-import CmkKeyboardKey from '@/components/CmkKeyboardKey.vue'
-import CmkPopupDialog from '@/components/CmkPopupDialog.vue'
 
 import { MainMenuService } from '@/main-menu/lib/main-menu-service'
 import { type UserPopupMessageRef } from '@/main-menu/lib/type-defs'

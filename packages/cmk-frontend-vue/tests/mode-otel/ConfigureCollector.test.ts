@@ -4,11 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { cleanup, render, screen, waitFor } from '@testing-library/vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import * as cmkFetch from 'cmk-ui-library/lib/cmkFetch'
 import { defineComponent, ref } from 'vue'
-
-import * as cmkFetch from '@/lib/cmkFetch'
-
-import type { Suggestion } from '@/components/CmkSuggestions'
 
 import ConfigureCollector from '@/mode-otel/otel-configuration-steps/ConfigureCollector.vue'
 import type {

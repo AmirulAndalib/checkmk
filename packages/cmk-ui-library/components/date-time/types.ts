@@ -4,8 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { CalendarDate, ZonedDateTime } from '@internationalized/date'
-
-import type { TranslatedString } from '@/lib/i18nString'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 
 /**
  * A quick-select range offered by `CmkTimeRangePicker`. `getRange` is evaluated lazily on

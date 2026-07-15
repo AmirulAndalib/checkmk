@@ -5,9 +5,8 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/vue'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
 import { defineComponent } from 'vue'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
 
 const submitHandler = vi.fn((e) => e.preventDefault())
 

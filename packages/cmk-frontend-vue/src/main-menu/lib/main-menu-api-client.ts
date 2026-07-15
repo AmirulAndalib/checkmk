@@ -3,8 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { AjaxResponse } from '@/lib/ajax'
-import { Api } from '@/lib/api-client'
+import type { AjaxResponse } from 'cmk-ui-library/lib/ajax'
+import { Api } from 'cmk-ui-library/lib/api-client'
 
 import type { UnackIncompWerksResult, UserMessagesResult } from './type-defs'
 

@@ -4,14 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import type { ButtonVariants } from 'cmk-ui-library/components/CmkDropdown/CmkDropdownButton.vue'
+import type { Suggestion } from 'cmk-ui-library/components/CmkSuggestions'
+import usei18n, { untranslated } from 'cmk-ui-library/lib/i18n'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
 import { computed, onMounted } from 'vue'
-
-import usei18n, { untranslated } from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import type { ButtonVariants } from '@/components/CmkDropdown/CmkDropdownButton.vue'
-import type { Suggestion } from '@/components/CmkSuggestions'
 
 import { useDataSourcesCollection } from '@/dashboard/composables/api/useDataSourcesCollection'
 import { useViewsCollection } from '@/dashboard/composables/api/useViewsCollection'

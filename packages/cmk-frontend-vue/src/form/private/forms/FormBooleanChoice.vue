@@ -5,10 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { BooleanChoice } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
+import CmkCheckbox from 'cmk-ui-library/components/user-input/CmkCheckbox.vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 
 import { type ValidationMessages, useValidation } from '@/form/private/validation'
 

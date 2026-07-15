@@ -3,9 +3,8 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useFilters } from 'cmk-ui-library/components/filter'
 import { beforeEach, describe, expect, it } from 'vitest'
-
-import { useFilters } from '@/components/filter'
 
 describe('useFilters Composable', () => {
   let filters: ReturnType<typeof useFilters>

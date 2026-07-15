@@ -7,10 +7,8 @@ import { CalendarDateTime, type ZonedDateTime, toZoned } from '@internationalize
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import type { CmkTimeSeriesGraph } from 'cmk-shared-typing/typescript/cmk_time_series_graph'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
-
-import client from '@/lib/rest-api-client/client'
-
-import type { DateTimeRange } from '@/components/date-time'
+import type { DateTimeRange } from 'cmk-ui-library/components/date-time'
+import client from 'cmk-ui-library/lib/rest-api-client/client'
 
 import { useGlobalTimeRange } from '@/graphing/GlobalTimePicker/useGlobalTimeRange'
 import GraphGroup from '@/graphing/components/GraphGroup.vue'

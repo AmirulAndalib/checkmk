@@ -62,9 +62,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkDeprecatedDateTimePicker from 'cmk-ui-library/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 import { ref } from 'vue'
-
-import CmkDeprecatedDateTimePicker from '@/components/CmkDeprecatedDateTimePicker/CmkDeprecatedDateTimePicker.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

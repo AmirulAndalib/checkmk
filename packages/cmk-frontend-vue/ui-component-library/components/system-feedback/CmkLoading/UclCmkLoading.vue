@@ -28,8 +28,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkLoading from '@/components/CmkLoading.vue'
+import CmkLoading from 'cmk-ui-library/components/CmkLoading.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

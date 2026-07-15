@@ -18,13 +18,11 @@ export interface ActionItemStatus {
 </script>
 
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkLoading from 'cmk-ui-library/components/CmkLoading.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkLoading from '@/components/CmkLoading.vue'
 
 import { errorFromUnknown } from './post_save_actions.ts'
 import type { PostSaveAction, PostSaveContext, PostSaveResult } from './post_save_actions.ts'

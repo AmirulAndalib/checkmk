@@ -5,10 +5,9 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown'
+import CmkLinkCard from 'cmk-ui-library/components/CmkLinkCard'
 import { ref } from 'vue'
-
-import CmkDropdown from '@/components/CmkDropdown'
-import CmkLinkCard from '@/components/CmkLinkCard'
 
 defineProps<{ screenshotMode: boolean }>()
 const bordersSelected = ref<'standard' | 'borderless'>('standard')

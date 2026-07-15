@@ -6,9 +6,11 @@
 import type { ConfigEntityType } from 'cmk-shared-typing/typescript/configuration_entity'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 import type { FormSpec } from 'cmk-shared-typing/typescript/vue_formspec_components'
-
-import type { SetDataResult, ValidationMessages } from '@/lib/configuration_entity_types'
-import client, { unwrap } from '@/lib/rest-api-client/client'
+import type {
+  SetDataResult,
+  ValidationMessages
+} from 'cmk-ui-library/lib/configuration_entity_types'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 
 export type { SetDataResult }
 

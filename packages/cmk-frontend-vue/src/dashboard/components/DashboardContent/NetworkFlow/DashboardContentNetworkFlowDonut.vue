@@ -4,13 +4,11 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkAlertBox from 'cmk-ui-library/components/CmkAlertBox.vue'
+import CmkLoading from 'cmk-ui-library/components/CmkLoading.vue'
+import { CmkApiError } from 'cmk-ui-library/lib/error'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, onBeforeMount, ref, watch } from 'vue'
-
-import { CmkApiError } from '@/lib/error'
-import usei18n from '@/lib/i18n'
-
-import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkLoading from '@/components/CmkLoading.vue'
 
 import type { NetworkFlowDonutContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'

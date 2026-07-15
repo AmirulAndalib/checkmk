@@ -5,8 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type Colors, type Shapes, type Sizes, type Types } from '@/components/CmkBadge.vue'
+import {
+  type Colors,
+  type Shapes,
+  type Sizes,
+  type Types
+} from 'cmk-ui-library/components/CmkBadge.vue'
 
 import codeExample from './UclCmkBadgeCodeExample.vue?raw'
 
@@ -65,8 +69,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkBadge from '@/components/CmkBadge.vue'
+import CmkBadge from 'cmk-ui-library/components/CmkBadge.vue'
 
 import UclCmkBadgeDev from './UclCmkBadgeDev.vue'
 

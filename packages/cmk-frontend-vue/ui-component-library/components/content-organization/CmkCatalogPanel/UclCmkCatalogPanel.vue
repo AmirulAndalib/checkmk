@@ -53,8 +53,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkCatalogPanel from '@/components/CmkCatalogPanel.vue'
+import CmkCatalogPanel from 'cmk-ui-library/components/CmkCatalogPanel.vue'
 
 import UclCmkCatalogPanelDev from './UclCmkCatalogPanelDev.vue'
 

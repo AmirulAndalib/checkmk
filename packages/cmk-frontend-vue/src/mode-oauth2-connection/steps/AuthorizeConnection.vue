@@ -6,19 +6,17 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { Oauth2Urls } from 'cmk-shared-typing/typescript/mode_oauth2_connection'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkCopy from 'cmk-ui-library/components/CmkCopy.vue'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
+import CmkPaste from 'cmk-ui-library/components/CmkPaste.vue'
+import type { CmkWizardStepProps } from 'cmk-ui-library/components/CmkWizard'
+import { CmkWizardButton, CmkWizardStep } from 'cmk-ui-library/components/CmkWizard'
+import CmkHeading from 'cmk-ui-library/components/typography/CmkHeading.vue'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
+import { randomId } from 'cmk-ui-library/lib/randomId.ts'
 import { computed } from 'vue'
-
-import usei18n from '@/lib/i18n'
-import { randomId } from '@/lib/randomId.ts'
-
-import CmkButton from '@/components/CmkButton'
-import CmkCopy from '@/components/CmkCopy.vue'
-import CmkIcon from '@/components/CmkIcon'
-import CmkPaste from '@/components/CmkPaste.vue'
-import type { CmkWizardStepProps } from '@/components/CmkWizard'
-import { CmkWizardButton, CmkWizardStep } from '@/components/CmkWizard'
-import CmkHeading from '@/components/typography/CmkHeading.vue'
-import CmkInput from '@/components/user-input/CmkInput.vue'
 
 import type { ValidationMessages } from '@/form'
 

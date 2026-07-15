@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { CalendarDate } from '@internationalized/date'
+import { useDateTimeDraft } from 'cmk-ui-library/components/date-time/useDateTimeDraft'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { type Ref, nextTick, ref, shallowRef } from 'vue'
-
-import { useDateTimeDraft } from '@/components/date-time/useDateTimeDraft'
 
 type DateValue = CalendarDate | null
 type SaveHandler = () => boolean | Promise<boolean>

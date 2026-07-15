@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import type { SimpleIcons } from 'cmk-ui-library/components/CmkIcon'
+import CmkIcon from 'cmk-ui-library/components/CmkIcon'
 import { computed, ref } from 'vue'
-
-import type { SimpleIcons } from '@/components/CmkIcon'
-import CmkIcon from '@/components/CmkIcon'
 
 export interface CmkInlineButtonProps {
   icon?: SimpleIcons | null

@@ -5,8 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
-
-import { type SkeletonType } from '@/components/CmkSkeleton.vue'
+import { type SkeletonType } from 'cmk-ui-library/components/CmkSkeleton.vue'
 
 import codeExample from './UclCmkSkeletonCodeExample.vue?raw'
 
@@ -51,8 +50,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkSkeleton from '@/components/CmkSkeleton.vue'
+import CmkSkeleton from 'cmk-ui-library/components/CmkSkeleton.vue'
 
 import UclCmkSkeletonDev from './UclCmkSkeletonDev.vue'
 

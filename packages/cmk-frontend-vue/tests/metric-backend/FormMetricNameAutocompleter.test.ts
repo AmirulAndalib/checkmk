@@ -5,12 +5,11 @@
  */
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/vue'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
 import { describe, expect, test } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
 
 import FormMetricNameAutocompleter from '@/metric-backend/FormMetricNameAutocompleter.vue'
 

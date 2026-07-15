@@ -9,8 +9,7 @@ import {
   type PanelConfig,
   type PanelConfigFor
 } from '@ucl/_ucl/components/detail-page'
-
-import { type Sizes } from '@/components/CmkColorPicker.vue'
+import { type Sizes } from 'cmk-ui-library/components/CmkColorPicker.vue'
 
 import codeExample from './UclCmkColorPickerCodeExample.vue?raw'
 
@@ -69,8 +68,7 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
-
-import CmkColorPicker from '@/components/CmkColorPicker.vue'
+import CmkColorPicker from 'cmk-ui-library/components/CmkColorPicker.vue'
 
 defineProps<{ screenshotMode: boolean }>()
 

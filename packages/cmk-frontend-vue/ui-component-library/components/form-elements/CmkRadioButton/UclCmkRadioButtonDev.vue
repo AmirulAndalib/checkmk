@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import { CmkRadioButton, CmkRadioGroup } from 'cmk-ui-library/components/user-input/CmkRadioButton'
 import { ref } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import { CmkRadioButton, CmkRadioGroup } from '@/components/user-input/CmkRadioButton'
 
 defineProps<{ screenshotMode: boolean }>()
 

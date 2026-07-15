@@ -4,9 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
+import client, { unwrap } from 'cmk-ui-library/lib/rest-api-client/client'
 import type { MethodResponse } from 'openapi-fetch'
-
-import client, { unwrap } from '@/lib/rest-api-client/client'
 
 /**
  * The full custom-graph domain object as responses type it (openapi-fetch's response

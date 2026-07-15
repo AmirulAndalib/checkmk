@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type { SidebarSnapin } from 'cmk-shared-typing/typescript/sidebar'
+import type { KeyShortcutService } from 'cmk-ui-library/lib/keyShortcuts'
+import { ServiceBase } from 'cmk-ui-library/lib/service/base'
 import { type Ref, ref } from 'vue'
-
-import type { KeyShortcutService } from '@/lib/keyShortcuts'
-import { ServiceBase } from '@/lib/service/base'
 
 import { SIDEBAR_UPDATE_SNAPIN_CONTENT_EVENT } from './constants'
 import { SidebarApiClient } from './sidebar-api-client'

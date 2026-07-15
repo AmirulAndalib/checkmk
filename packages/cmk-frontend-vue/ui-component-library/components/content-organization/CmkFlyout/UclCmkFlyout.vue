@@ -35,12 +35,10 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkFlyout from 'cmk-ui-library/components/CmkFlyout'
+import { untranslated } from 'cmk-ui-library/lib/i18n'
 import { ref, useTemplateRef } from 'vue'
-
-import { untranslated } from '@/lib/i18n'
-
-import CmkButton from '@/components/CmkButton'
-import CmkFlyout from '@/components/CmkFlyout'
 
 import UclCmkFlyoutDev from './UclCmkFlyoutDev.vue'
 

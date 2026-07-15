@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { cmkFetch } from '@/lib/cmkFetch'
+import { cmkFetch } from 'cmk-ui-library/lib/cmkFetch'
 
 export type ApiResponseBody<T> = T
 
@@ -23,7 +23,7 @@ export interface ApiOptions {
  * talking to page endpoints where backwards-compatibility is required.
  *
  * For new REST API calls use the typed client in
- * `@/lib/rest-api-client/client.ts`.
+ * `cmk-ui-library/lib/rest-api-client/client.ts`.
  */
 export class Api {
   public constructor(

@@ -5,14 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import CmkDropdown from 'cmk-ui-library/components/CmkDropdown/CmkDropdown.vue'
+import type { Section, Suggestions } from 'cmk-ui-library/components/CmkSuggestions/types'
+import CmkInput from 'cmk-ui-library/components/user-input/CmkInput.vue'
+import CmkTimeSpan from 'cmk-ui-library/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
-import type { Section, Suggestions } from '@/components/CmkSuggestions/types'
-import CmkInput from '@/components/user-input/CmkInput.vue'
-import CmkTimeSpan from '@/components/user-input/CmkTimeSpan/CmkTimeSpan.vue'
 
 import InlineEditPill from '../InlineEditPill.vue'
 import {

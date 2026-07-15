@@ -4,10 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkChipSelect from 'cmk-ui-library/components/CmkChipSelect.vue'
+import type { Suggestions } from 'cmk-ui-library/components/CmkSuggestions'
 import { ref } from 'vue'
-
-import CmkChipSelect from '@/components/CmkChipSelect.vue'
-import type { Suggestions } from '@/components/CmkSuggestions'
 
 defineProps<{ screenshotMode: boolean }>()
 

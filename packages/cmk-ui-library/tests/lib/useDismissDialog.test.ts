@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
+import { useDismissDialog } from 'cmk-ui-library/lib/useDismissDialog'
 import { afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { defineComponent, nextTick } from 'vue'
-
-import { useDismissDialog } from '@/lib/useDismissDialog'
 
 const DISMISS_ENDPOINT = 'api/1.0/domain-types/user_config/actions/dismiss-warning/invoke'
 

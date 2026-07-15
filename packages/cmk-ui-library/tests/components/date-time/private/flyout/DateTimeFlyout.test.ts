@@ -4,10 +4,9 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
+import DateTimeFlyout from 'cmk-ui-library/components/date-time/private/flyout/DateTimeFlyout.vue'
 import { afterEach, expect, test, vi } from 'vitest'
 import { defineComponent } from 'vue'
-
-import DateTimeFlyout from '@/components/date-time/private/flyout/DateTimeFlyout.vue'
 
 afterEach(() => {
   vi.restoreAllMocks()

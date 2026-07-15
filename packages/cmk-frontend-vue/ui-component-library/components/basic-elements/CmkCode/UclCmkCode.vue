@@ -35,7 +35,7 @@ export const panelConfig = {
     type: 'multiline-string' as const,
     title: 'Code Text',
     initialState: `<script setup lang="ts">
-${'import'} CmkCode from '@/components/CmkCode.vue'
+${'import'} CmkCode from 'cmk-ui-library/components/CmkCode.vue'
 
 const mySnippet = \`const greet = () => {
   console.log("Hello Checkmk!");
@@ -73,9 +73,8 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkCode from 'cmk-ui-library/components/CmkCode.vue'
 import type { ComponentProps } from 'vue-component-type-helpers'
-
-import CmkCode from '@/components/CmkCode.vue'
 
 import UclCmkCodeDev from './UclCmkCodeDev.vue'
 

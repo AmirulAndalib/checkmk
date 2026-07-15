@@ -4,16 +4,14 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { ref } from 'vue'
-
-import type { TranslatedString } from '@/lib/i18nString'
-import { getUserFrontendConfig } from '@/lib/userConfig'
-
 import CmkTooltip, {
   CmkTooltipContent,
   CmkTooltipProvider,
   CmkTooltipTrigger
-} from '@/components/CmkTooltip'
+} from 'cmk-ui-library/components/CmkTooltip'
+import type { TranslatedString } from 'cmk-ui-library/lib/i18nString'
+import { getUserFrontendConfig } from 'cmk-ui-library/lib/userConfig'
+import { ref } from 'vue'
 
 import CmkHtml from './CmkHtml.vue'
 import CmkIconButton from './CmkIconButton.vue'

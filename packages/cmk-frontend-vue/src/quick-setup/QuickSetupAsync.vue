@@ -4,6 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import CmkToggleButtonGroup from 'cmk-ui-library/components/CmkToggleButtonGroup.vue'
+import { CmkError, CmkSimpleError, formatError } from 'cmk-ui-library/lib/error.ts'
+import usePersistentRef from 'cmk-ui-library/lib/usePersistentRef'
 import {
   type Ref,
   computed,
@@ -16,11 +19,6 @@ import {
   toValue,
   watch
 } from 'vue'
-
-import { CmkError, CmkSimpleError, formatError } from '@/lib/error.ts'
-import usePersistentRef from '@/lib/usePersistentRef'
-
-import CmkToggleButtonGroup from '@/components/CmkToggleButtonGroup.vue'
 
 import type { StageData } from '@/quick-setup/components/quick-setup/widgets/widget_types'
 import {

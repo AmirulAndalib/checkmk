@@ -5,9 +5,8 @@
  */
 // eslint-disable-next-line no-restricted-imports -- TODO: migrate to @testing-library/vue, see https://wiki.lan.checkmk.net/spaces/DEV/pages/149528812/All+things+Vue
 import { mount } from '@vue/test-utils'
+import { immediateWatch } from 'cmk-ui-library/lib/watch'
 import { type Component, defineComponent, h, onErrorCaptured } from 'vue'
-
-import { immediateWatch } from '@/lib/watch'
 
 function wrapWithErrorCapture(component: Component) {
   return defineComponent({

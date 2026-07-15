@@ -4,11 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts" generic="F extends FilterField">
+import { CmkRadioButton, CmkRadioGroup } from 'cmk-ui-library/components/user-input/CmkRadioButton'
+import usei18n from 'cmk-ui-library/lib/i18n'
 import { ref, watch } from 'vue'
-
-import usei18n from '@/lib/i18n'
-
-import { CmkRadioButton, CmkRadioGroup } from '@/components/user-input/CmkRadioButton'
 
 import type { ColumnFilterNode, FilterField, NumericOp } from '@/monitoring/shared/api/types'
 

@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { LegacyValuespec } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import CmkInlineValidation from 'cmk-ui-library/components/user-input/CmkInlineValidation.vue'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-
-import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import type { ValidationMessages } from '@/form/private/validation'
 

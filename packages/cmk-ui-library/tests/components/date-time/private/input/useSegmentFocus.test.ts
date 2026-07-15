@@ -3,10 +3,9 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { useSegmentFocus } from 'cmk-ui-library/components/date-time/private/input/useSegmentFocus'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
-
-import { useSegmentFocus } from '@/components/date-time/private/input/useSegmentFocus'
 
 const SEGMENT_ORDER = ['day', 'month', 'year']
 

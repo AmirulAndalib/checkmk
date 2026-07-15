@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
 import type { BoolPropDef, StringPropDef } from '@ucl/_ucl/types/prop-def'
-
-import type { SlideInVariants } from '@/components/CmkSlideIn'
+import type { SlideInVariants } from 'cmk-ui-library/components/CmkSlideIn'
 
 import codeExample from './UclCmkSlideInTabbedCodeExample.vue?raw'
 
@@ -77,11 +76,10 @@ import {
   UclDetailPageLayout,
   UclPropertiesPanel
 } from '@ucl/_ucl/components/detail-page'
+import CmkButton from 'cmk-ui-library/components/CmkButton'
+import CmkSlideInTabbed, { type SlideInTab } from 'cmk-ui-library/components/CmkSlideInTabbed'
+import CmkParagraph from 'cmk-ui-library/components/typography/CmkParagraph.vue'
 import { computed, markRaw } from 'vue'
-
-import CmkButton from '@/components/CmkButton'
-import CmkSlideInTabbed, { type SlideInTab } from '@/components/CmkSlideInTabbed'
-import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import CmkSlideInTabbedDemoTab from './CmkSlideInTabbedDemoTab.vue'
 
