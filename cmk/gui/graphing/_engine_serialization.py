@@ -324,13 +324,16 @@ class GraphCodec:
         return {
             "quantity": self._quantities.serialize(curve.quantity),
             "attributes": _attributes_to_json(curve.attributes),
+            "source_id": curve.source_id,
         }
 
     def _curve_from_json(self, data: object) -> Curve:
         data = _as_mapping(data)
+        source_id = data.get("source_id")
         return Curve(
             quantity=self._quantities.deserialize(data["quantity"]),
             attributes=_attributes_from_json(data["attributes"]),
+            source_id=None if source_id is None else ensure_type(source_id, str),
         )
 
     def _stack_from_json(self, data: object) -> Stack:

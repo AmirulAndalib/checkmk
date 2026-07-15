@@ -148,8 +148,12 @@ class GraphFetchResponse:
     time_range: ApiTimeRange = api_field(
         description="The actual time range the returned data covers (may differ from the request).",
     )
-    metrics: list[ApiMetric] = api_field(description="The new metrics.")
-    horizontal_lines: list[ApiHorizontalLine] = api_field(description="The new horizontal lines.")
+    metrics: list[ApiMetric] = api_field(
+        description="The evaluated series in render order (stack members, then lines)."
+    )
+    horizontal_lines: list[ApiHorizontalLine] = api_field(
+        description="The horizontal (threshold) lines."
+    )
     warnings: list[str] = api_field(
         description=(
             "Non-fatal warnings about the fetched data, e.g. a query whose result was truncated "

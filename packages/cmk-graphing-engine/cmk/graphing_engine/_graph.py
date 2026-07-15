@@ -35,6 +35,7 @@ type VerticalRange = MinimalRange | FixedRange
 class Curve:
     quantity: Quantity
     attributes: CurveAttributes
+    source_id: str | None = None
 
 
 @dataclass(frozen=True)

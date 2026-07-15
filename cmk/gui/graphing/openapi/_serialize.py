@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
-from typing import assert_never, Literal
+from typing import assert_never, Literal, NamedTuple, Protocol
 
 from cmk.graphing_engine import (
     AutoPrecision,
@@ -50,39 +50,50 @@ def api_time_range_to_engine(time_range: ApiTimeRange) -> EngineTimeRange:
     return EngineTimeRange(start=time_range.start, end=time_range.end, step=time_range.step)
 
 
-def evaluated_to_response(
+class _ToMetric[MetricT](Protocol):
+    def __call__(
+        self, curve: EvaluatedCurve, *, stack: str | None, inverse: bool, hidden: bool
+    ) -> MetricT: ...
+
+
+class SerializedCurves[MetricT](NamedTuple):
+    time_range: ApiTimeRange
+    metrics: list[MetricT]
+
+
+def serialize_curves[MetricT](
     evaluated: EvaluatedGraph,
+    to_metric: _ToMetric[MetricT],
     *,
     fallback_time_range: EngineTimeRange,
-    diagnostics: FetchDiagnostics,
-) -> GraphFetchResponse:
-    """Map the evaluated graph to the data-only response (metrics, horizontal lines, resampled range)."""
-    metrics: list[ApiMetric] = []
+) -> SerializedCurves[MetricT]:
+    metrics: list[MetricT] = []
     data_time_range: EngineTimeRange | None = None
+
+    def add(curve: EvaluatedCurve, *, stack: str | None, inverse: bool, hidden: bool) -> None:
+        nonlocal data_time_range
+        if data_time_range is None:
+            data_time_range = curve.time_series.time_range
+        metrics.append(to_metric(curve, stack=stack, inverse=inverse, hidden=hidden))
 
     for index, stack in enumerate(evaluated.stacks):
         stack_id = f"stack-{index}"
         # The reference (invisible baseline) is emitted first so it is the stacking floor by order.
         if stack.reference is not None:
-            metrics.append(
-                _curve_to_api_metric(
-                    stack.reference, stack=stack_id, inverse=stack.inverse, hidden=True
-                )
-            )
-            data_time_range = data_time_range or stack.reference.time_series.time_range
+            add(stack.reference, stack=stack_id, inverse=stack.inverse, hidden=True)
         for member in stack.members:
-            metrics.append(
-                _curve_to_api_metric(member, stack=stack_id, inverse=stack.inverse, hidden=False)
-            )
-            data_time_range = data_time_range or member.time_series.time_range
-
+            add(member, stack=stack_id, inverse=stack.inverse, hidden=False)
     for line in evaluated.lines:
-        metrics.append(
-            _curve_to_api_metric(line.curve, stack=None, inverse=line.inverse, hidden=False)
-        )
-        data_time_range = data_time_range or line.curve.time_series.time_range
+        add(line.curve, stack=None, inverse=line.inverse, hidden=False)
 
-    horizontal_lines = [
+    effective = fallback_time_range if data_time_range is None else data_time_range
+    return SerializedCurves(
+        ApiTimeRange(start=effective.start, end=effective.end, step=effective.step), metrics
+    )
+
+
+def horizontal_lines_to_api(evaluated: EvaluatedGraph) -> list[ApiHorizontalLine]:
+    return [
         ApiHorizontalLine(
             name=rule.id,
             value=-rule.value if rule.inverse else rule.value,
@@ -91,28 +102,8 @@ def evaluated_to_response(
         for rule in evaluated.rules
     ]
 
-    effective_range = fallback_time_range if data_time_range is None else data_time_range
-    return GraphFetchResponse(
-        time_range=ApiTimeRange(
-            start=effective_range.start,
-            end=effective_range.end,
-            step=effective_range.step,
-        ),
-        metrics=metrics,
-        horizontal_lines=horizontal_lines,
-        warnings=[
-            _(
-                "The query for '%(metric)s' matched more than %(max)d time series, so the result "
-                "is truncated. Please narrow down the query."
-            )
-            % {"metric": limit.metric_name, "max": limit.max_series}
-            for limit in diagnostics.limits_reached
-        ],
-        errors=list(diagnostics.errors),
-    )
 
-
-def _curve_to_api_metric(
+def curve_to_api_metric(
     curve: EvaluatedCurve, *, stack: str | None, inverse: bool, hidden: bool
 ) -> ApiMetric:
     return ApiMetric(
@@ -124,6 +115,35 @@ def _curve_to_api_metric(
         ),
         render=ApiMetricRender(stack=stack, inverse=inverse, hidden=hidden),
         data_points=list(curve.time_series.values),
+    )
+
+
+def diagnostics_to_warnings(diagnostics: FetchDiagnostics) -> list[str]:
+    return [
+        _(
+            "The query for '%(metric)s' matched more than %(max)d time series, so the result "
+            "is truncated. Please narrow down the query."
+        )
+        % {"metric": limit.metric_name, "max": limit.max_series}
+        for limit in diagnostics.limits_reached
+    ]
+
+
+def evaluated_to_response(
+    evaluated: EvaluatedGraph,
+    *,
+    fallback_time_range: EngineTimeRange,
+    diagnostics: FetchDiagnostics,
+) -> GraphFetchResponse:
+    time_range, metrics = serialize_curves(
+        evaluated, curve_to_api_metric, fallback_time_range=fallback_time_range
+    )
+    return GraphFetchResponse(
+        time_range=time_range,
+        metrics=metrics,
+        horizontal_lines=horizontal_lines_to_api(evaluated),
+        warnings=diagnostics_to_warnings(diagnostics),
+        errors=list(diagnostics.errors),
     )
 
 

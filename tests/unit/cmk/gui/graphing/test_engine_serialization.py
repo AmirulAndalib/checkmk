@@ -87,7 +87,7 @@ def _rich_graphs() -> Sequence[Graph]:
             stacks=[
                 Stack(
                     members=[
-                        Curve(quantity=_METRIC, attributes=decimal),
+                        Curve(quantity=_METRIC, attributes=decimal, source_id="A"),
                         Curve(quantity=Sum([_METRIC, _METRIC_CF], decimal), attributes=decimal),
                     ],
                     inverse=True,
@@ -199,3 +199,6 @@ def test_template_round_trip_is_lossless() -> None:
     # as JSON, so the empty-sequence list/tuple distinction the dataclass defaults carry is irrelevant).
     restored = codec.deserialize_graphs(payload)
     assert serialize_graphs(restored) == payload
+    # The source id survives the round-trip; untagged curves stay untagged.
+    assert restored[0].stacks[0].members[0].source_id == "A"
+    assert restored[0].stacks[0].members[1].source_id is None

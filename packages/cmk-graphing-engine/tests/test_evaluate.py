@@ -3,8 +3,11 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import override
 
+from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing_engine import (
     AutoPrecision,
     Constant,
@@ -41,7 +44,7 @@ from cmk.graphing_engine import (
 )
 from cmk.graphing_engine._evaluate import _evaluate_graph, EvaluatedRule
 from cmk.graphing_engine._perfdata import PerformanceData
-from cmk.graphing_engine._quantities import EvaluationContext, Quantity
+from cmk.graphing_engine._quantities import EvaluatedQuantity, EvaluationContext, Quantity
 
 _UNIT = Unit(notation=DecimalNotation(""), precision=AutoPrecision(2))
 _TR = TimeRange(start=0, end=30, step=10)  # three data points
@@ -564,3 +567,81 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
     )
     assert [line.curve.id for line in first.lines] == ["rrd_metric(h/svc/a)", "rrd_metric(h/svc/b)"]
     assert [line.curve.id for line in second.lines] == ["rrd_metric(h/svc/b)"]
+
+
+# --- source ids ---------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class _FannedQuantity(Quantity):
+    """A fan-out leaf expanding into one curve per (label, value) pair."""
+
+    series: Sequence[tuple[str, float]]
+
+    @override
+    def kind(self) -> str:
+        return "fan"
+
+    @override
+    def ident(self) -> str:
+        return f"{self.kind()}(test)"
+
+    @override
+    def metrics(self) -> Iterable[Metric]:
+        return ()
+
+    @override
+    def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
+        return [
+            EvaluatedQuantity(value=value, time_series=_time_series(value), label=label)
+            for label, value in self.series
+        ]
+
+    @override
+    def attributes(
+        self,
+        _localizer: Callable[[str], str],
+        _registered_metrics: Mapping[str, metrics_v1.Metric],
+    ) -> CurveAttributes | None:
+        return None
+
+
+def test_evaluate_graph_carries_the_curve_source_id() -> None:
+    a, b = _metric("a"), _metric("b")
+    graph = Graph(
+        name="g",
+        title="g",
+        graph_type="test",
+        stacks=[
+            Stack(members=[Curve(quantity=a, attributes=_attrs("a"), source_id="A")], inverse=False)
+        ],
+        lines=[Line(curve=_curve(b, "b"), inverse=False)],
+    )
+    result = _evaluate_graph(
+        graph,
+        _context(
+            {a: _data(value=1.0), b: _data(value=2.0)},
+            {a: _time_series(1.0), b: _time_series(2.0)},
+        ),
+    )
+    assert result.stacks[0].members[0].source_id == "A"
+    # An untagged curve stays untagged.
+    assert result.lines[0].curve.source_id is None
+
+
+def test_evaluate_graph_fanned_curves_share_their_source_id() -> None:
+    fan = _FannedQuantity(series=[("first", 1.0), ("second", 2.0)])
+    graph = Graph(
+        name="g",
+        title="g",
+        graph_type="test",
+        lines=[
+            Line(curve=Curve(quantity=fan, attributes=_attrs("fan"), source_id="B"), inverse=False)
+        ],
+    )
+    result = _evaluate_graph(graph, _context({}, {}))
+    # Every series a source fans out into is attributable to that source, while the series ids
+    # stay distinct.
+    assert all(line.curve.source_id == "B" for line in result.lines)
+    ids = [line.curve.id for line in result.lines]
+    assert len(set(ids)) == len(ids)

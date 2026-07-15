@@ -25,6 +25,7 @@ class EvaluatedCurve:
     attributes: CurveAttributes
     value: float | None
     time_series: TimeSeries
+    source_id: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -141,6 +142,7 @@ def _evaluate_curve(
             ),
             value=evaluated.value,
             time_series=evaluated.time_series,
+            source_id=curve.source_id,
         )
         for index, evaluated in enumerate(results)
     ]
