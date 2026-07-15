@@ -27,17 +27,14 @@ from cmk.gui.config import Config
 from cmk.gui.http import Request
 from cmk.gui.i18n import localize
 from cmk.gui.logged_in import LoggedInNobody, user
-from cmk.gui.search import (
-    ABCMatchItemGenerator,
+from cmk.gui.search import ABCMatchItemGenerator, MatchItem, MatchItemGeneratorRegistry, MatchItems
+from cmk.gui.search.engines import redis as search
+from cmk.gui.search.engines.redis import (
     IndexBuilder,
     IndexNotFoundException,
     IndexSearcher,
-    MatchItem,
-    MatchItemGeneratorRegistry,
-    MatchItems,
     PermissionsHandler,
 )
-from cmk.gui.search.engines import redis as search
 from cmk.gui.session_context import _UserContext
 from cmk.gui.type_defs import SearchResult
 from cmk.gui.utils.roles import UserPermissions
