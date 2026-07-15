@@ -9,9 +9,8 @@ import { computed, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 import type { ConfiguredFilters } from '@/components/filter'
-
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
 import { useLabelValueAutocomplete } from '@/dashboard/components/Wizard/components/autocompleters/useLabelValueAutocomplete'
 import type { LabelValueItem } from '@/dashboard/components/Wizard/types'

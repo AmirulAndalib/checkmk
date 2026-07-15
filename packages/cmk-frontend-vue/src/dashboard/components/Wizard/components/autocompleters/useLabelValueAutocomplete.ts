@@ -7,8 +7,7 @@ import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_co
 import { type ComputedRef, type Ref, ref, watch } from 'vue'
 
 import { Response, flattenSuggestions } from '@/components/CmkSuggestions'
-
-import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
+import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 
 import type { LabelValueItem } from '@/dashboard/components/Wizard/types'
 

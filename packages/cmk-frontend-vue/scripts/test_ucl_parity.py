@@ -10,7 +10,7 @@ from typing import TypeVar
 
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 
-COMPONENTS_FOLDER = Path(PACKAGE_ROOT, "src/components/")
+COMPONENTS_FOLDER = Path(PACKAGE_ROOT, "../cmk-ui-library/components/")
 UCL_FOLDER = Path(PACKAGE_ROOT, "ui-component-library/components/")
 
 K = TypeVar("K")
@@ -105,7 +105,7 @@ def test_ucl_parity() -> None:
     Files under ui-component-library/components/ have three recognised roles:
 
     * ``Ucl<X>.vue`` — canonical UCL page; must correspond 1:1 with a
-      ``<X>`` component under src/components/.
+      ``<X>`` component under cmk-ui-library's components/.
     * ``Ucl<X>Dev.vue`` / ``Ucl<X>CodeExample.vue`` — Dev playground /
       raw-imported code-example file; not enforced for parity.
     * ``<Y>.vue`` (no ``Ucl`` prefix) — private helper imported by a sibling
@@ -128,6 +128,10 @@ def test_ucl_parity() -> None:
     # and should probably be moved into CmkDropdown?
     components.remove("CmkSuggestions")
 
+    # form-domain widget housed in cmk-ui-library because the shared filter
+    # components depend on it; not (yet) showcased in the UCL
+    components.remove("FormAutocompleter")
+
     # those components do not follow the usual path pattern,
     # but are stored inside CmkIcon
     ucl.remove("CmkMultitoneIcon")
@@ -142,7 +146,7 @@ def test_ucl_parity() -> None:
     for helper_name, helper_path in helpers.items():
         assert helper_name not in components, (
             f"Helper file {helper_path} shadows real component '{helper_name}'; "
-            f"helpers must use a name that does not match any src/components/ entry."
+            f"helpers must use a name that does not match any cmk-ui-library components/ entry."
         )
         sibling_dev_pages = list(helper_path.parent.glob("Ucl*Dev.vue"))
         assert sibling_dev_pages, (

@@ -19,6 +19,7 @@ npm.npm_translate_lock(
         "//packages/cmk-frontend:package.json",
         "//packages/cmk-frontend-vue:package.json",
         "//packages/cmk-shared-typing:package.json",
+        "//packages/cmk-ui-library:package.json",
         "//packages/cmk-werk:package.json",
     ],
     npmrc = "//:.npmrc",

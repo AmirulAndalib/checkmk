@@ -4,6 +4,7 @@ packages:
     - 'packages/cmk-frontend'
     - 'packages/cmk-frontend-vue'
     - 'packages/cmk-shared-typing'
+    - 'packages/cmk-ui-library'
     - 'packages/cmk-werks'
 
 overrides:

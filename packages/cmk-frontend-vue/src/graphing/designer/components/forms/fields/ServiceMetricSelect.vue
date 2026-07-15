@@ -12,10 +12,9 @@ import type { TranslatedString } from '@/lib/i18nString'
 import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 import type { ConfiguredFilters } from '@/components/filter'
 import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
-
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
 const {
   modelValue,

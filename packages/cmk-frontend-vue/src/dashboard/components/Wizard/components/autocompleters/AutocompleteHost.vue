@@ -10,8 +10,7 @@ import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
 import type { ButtonVariants } from '@/components/CmkDropdown/CmkDropdownButton.vue'
-
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
 const { _t } = usei18n()
 

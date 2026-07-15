@@ -1,8 +1,16 @@
 export default {
   input: {
     path: './',
-    include: ['{src,demo}/**/*.js', '{src,demo}/**/*.ts', '{src,demo}/**/*.vue'],
-    exclude: ['./src/lib/i18n/**/*'],
+    include: [
+      '{src,demo}/**/*.js',
+      '{src,demo}/**/*.ts',
+      '{src,demo}/**/*.vue',
+      // cmk-ui-library strings land in this package's catalog (single messages.pot);
+      // the package registers no catalogs of its own.
+      '../cmk-ui-library/{lib,components}/**/*.ts',
+      '../cmk-ui-library/{lib,components}/**/*.vue'
+    ],
+    exclude: ['../cmk-ui-library/lib/i18n/**/*'],
     parserOptions: {
       overrideDefaultKeywords: true,
       mapping: {

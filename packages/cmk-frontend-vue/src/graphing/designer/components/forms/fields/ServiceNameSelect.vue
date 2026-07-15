@@ -11,9 +11,8 @@ import usei18n from '@/lib/i18n'
 import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
-
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
 import { hostServiceContext } from './utils'
 

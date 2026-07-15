@@ -13,8 +13,7 @@ import usei18n from '@/lib/i18n'
 import CmkDualList from '@/components/CmkDualList'
 import type { DualListElement } from '@/components/CmkDualList'
 import CmkIcon from '@/components/CmkIcon'
-
-import { fetchData } from '@/form/private/FormAutocompleter/autocompleters/ajax'
+import { fetchData } from '@/components/FormAutocompleter/autocompleters/ajax'
 
 import { type ValidationMessages, useValidation } from '../validation'
 

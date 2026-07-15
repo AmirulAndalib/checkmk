@@ -132,6 +132,7 @@ js_run_binary(
         ":node_modules/vue3-gettext",
         ":src_ts",
         ":src_vue",
+        "//packages/cmk-ui-library:pkg",
     ],
     outs = ["locale/messages.pot"],
     tool = ":gettext-extract",
@@ -193,6 +194,7 @@ TOOLING = [
 SRCS = [
     "//:eslintrc",
     "//packages/cmk-frontend:dist",
+    ":node_modules/cmk-ui-library",
     "env.d.ts",
     "weaki18nString.d.ts",
     "scripts/stylelint-vue-bem-naming-convention.js",
@@ -242,7 +244,6 @@ SRCS = [
     ":node_modules/vue-component-type-helpers",
     ":node_modules/vue-router",
 ] + LOCALE_OUTS + glob([
-    "src/**/*.svg",
     "ui-component-library/**/*.png",
     "ui-component-library/**/*.svg",
     "ui-component-library/public/*",
@@ -405,7 +406,7 @@ py_cmk_test(
         "scripts/test_license_headers.py",
         "scripts/test_ucl_parity.py",
     ],
-    data = glob(["**"]),
+    data = glob(["**"]) + ["//packages/cmk-ui-library:srcs"],
 )
 
 build_test(

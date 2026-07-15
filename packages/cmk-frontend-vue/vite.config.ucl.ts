@@ -35,11 +35,15 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
+        '@/lib': path.resolve('./node_modules/cmk-ui-library/lib'),
+        '@/components': path.resolve('./node_modules/cmk-ui-library/components'),
         '@': path.resolve('./src'),
+        'cmk-ui-library': path.resolve('./node_modules/cmk-ui-library'),
         '@ucl': path.resolve('./ui-component-library'),
         // This is only a temporary hack to allow resolving icons and the demo css. Do not use this in new code!
         '~cmk-frontend': path.resolve('../cmk-frontend/dist')
-      }
+      },
+      dedupe: ['vue']
     }
   }
 })

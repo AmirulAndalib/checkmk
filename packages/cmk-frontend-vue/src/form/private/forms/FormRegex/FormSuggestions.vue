@@ -12,8 +12,7 @@ import usei18n from '@/lib/i18n'
 import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 import { ErrorResponse, Response, type Suggestion } from '@/components/CmkSuggestions/suggestions'
 import { flattenSuggestions } from '@/components/CmkSuggestions/types'
-
-import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
+import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 
 import FormSuggestionsList from './FormSuggestionsList.vue'
 

@@ -24,7 +24,7 @@ const mocks = vi.hoisted(() => ({
   suggestions: [] as { name: string; title: string }[]
 }))
 
-vi.mock(import('@/form/private/FormAutocompleter/autocompleter'), async (importOriginal) => {
+vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
   const mod = await importOriginal()
   return {
     ...mod,

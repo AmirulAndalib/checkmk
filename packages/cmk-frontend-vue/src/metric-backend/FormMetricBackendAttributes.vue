@@ -22,10 +22,10 @@ import {
   type Suggestion,
   flattenSuggestions
 } from '@/components/CmkSuggestions'
+import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 import FormValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import type { ValidationMessages } from '@/form'
-import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
 
 import FormAttributeFilter from './attribute-filter/FormAttributeFilter.vue'
 import type { AttributeFilterModel, AttributeKind, Condition } from './attribute-filter/types'

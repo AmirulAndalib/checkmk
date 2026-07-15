@@ -13,8 +13,8 @@ import usei18n from '@/lib/i18n'
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkIconButton from '@/components/CmkIconButton.vue'
 import CmkSpace from '@/components/CmkSpace.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 import { type ValidationMessages } from '@/form/private/validation'
 
 import { firstOperatorSuggestions, operatorSuggestions } from './suggestions'

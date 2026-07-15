@@ -453,6 +453,7 @@ js_library(
         # TODO CMK-33211: Root-level eslint.config.mjs dynamically imports package configs via
         # fs.readdirSync, which means we need to make this dependency explicit for the sandbox
         "//packages/cmk-frontend-vue:eslintrc",
+        "//packages/cmk-ui-library:eslintrc",
     ],
 )
 

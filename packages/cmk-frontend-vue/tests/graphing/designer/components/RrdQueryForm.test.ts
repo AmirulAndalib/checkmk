@@ -16,7 +16,7 @@ import { type DraftRRDQueryItem, newRrdQueryDraft } from '@/graphing/designer/dr
 
 const mocks = vi.hoisted(() => ({ fetchSuggestions: vi.fn() }))
 
-vi.mock(import('@/form/private/FormAutocompleter/autocompleter'), async (importOriginal) => {
+vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
   const mod = await importOriginal()
   return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
 })

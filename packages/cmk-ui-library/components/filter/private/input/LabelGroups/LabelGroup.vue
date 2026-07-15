@@ -11,8 +11,7 @@ import usei18n from '@/lib/i18n'
 
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkIcon from '@/components/CmkIcon'
-
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
 import type { LabelGroupItem } from './types'
 

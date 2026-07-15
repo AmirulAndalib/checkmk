@@ -142,8 +142,11 @@ def check(suffix: str, abs_path: Path, rel_path: Path) -> bool:
 def test_license_headers() -> None:
     package_root = Path(__file__).resolve().parent.parent
     problems = []
-    for root, _dirs, files in package_root.walk():
-        relative_root = root.relative_to(package_root)
+    # cmk-ui-library has no scripts/ of its own (kept minimal on purpose); its files
+    # follow the same header rules and are checked from here.
+    roots = [package_root, (package_root.parent / "cmk-ui-library").resolve()]
+    for current_root, (root, _dirs, files) in ((pr, rf) for pr in roots for rf in pr.walk()):
+        relative_root = root.relative_to(current_root)
 
         if relative_root.parts and relative_root.parts[0] in ROOT_FOLDERS_IGNORED:
             continue

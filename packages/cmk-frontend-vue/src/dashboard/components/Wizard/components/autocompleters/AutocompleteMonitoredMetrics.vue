@@ -9,7 +9,7 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 
 import type { LabelValueItem } from '@/dashboard/components/Wizard/types'
 

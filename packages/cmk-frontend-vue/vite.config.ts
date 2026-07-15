@@ -57,11 +57,17 @@ export default defineConfig(({ command }) => {
     ],
     resolve: {
       alias: {
+        '@/lib': path.resolve('./node_modules/cmk-ui-library/lib'),
+        '@/components': path.resolve('./node_modules/cmk-ui-library/components'),
         '@': path.resolve('./src'),
+        'cmk-ui-library': path.resolve('./node_modules/cmk-ui-library'),
         '@ucl': path.resolve('./ui-component-library'),
         // This is only a temporary hack to allow resolving icons and the demo css. Do not use this in new code!
         '~cmk-frontend': path.resolve('../cmk-frontend/dist')
-      }
+      },
+      // cmk-ui-library is a source workspace package compiled by this vite build; make
+      // sure it uses this package's vue instance.
+      dedupe: ['vue']
     },
     build: {
       manifest: '.manifest.json',
@@ -150,7 +156,7 @@ export default defineConfig(({ command }) => {
       server: {
         strictPort: true,
         fs: {
-          allow: ['.', '../cmk-frontend/']
+          allow: ['.', '../cmk-frontend/', '../cmk-ui-library/']
         },
         proxy: {
           // dev server proxies whole checkmk to inject js resources and support auto hot reloading

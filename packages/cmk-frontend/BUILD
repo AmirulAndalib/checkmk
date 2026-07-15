@@ -64,7 +64,10 @@ webpack_bundle(
     output_dir = True,
     # TODO: This is only done for the theme.css and icons.
     # cmk-frontend-vue should not access files that belong to cmk-frontend
-    visibility = ["//packages/cmk-frontend-vue:__pkg__"],
+    visibility = [
+        "//packages/cmk-frontend-vue:__pkg__",
+        "//packages/cmk-ui-library:__pkg__",
+    ],
     webpack_config = ":webpack.config.js",
     deps = BUILD_DEPS,
 )

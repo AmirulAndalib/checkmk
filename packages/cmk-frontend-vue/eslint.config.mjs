@@ -1,5 +1,3 @@
-import { globalIgnores } from 'eslint/config'
-
 export default [
   {
     files: ['packages/cmk-frontend-vue/**/*.{ts,tsx,vue,js,mjs}'],
@@ -108,8 +106,6 @@ export default [
       ]
     }
   },
-
-  globalIgnores(['packages/cmk-frontend-vue/src/components/graphics/RnbwCursor.vue']),
 
   {
     files: ['packages/cmk-frontend-vue/src/**/*'],

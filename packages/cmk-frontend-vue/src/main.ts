@@ -5,6 +5,10 @@
  */
 import defineCmkComponent from '@/lib/web-component/defineCmkComponent'
 
+import DynamicIconApp from '@/components/CmkIcon/CmkDynamicIcon/DynamicIconApp.vue'
+import IconApp from '@/components/CmkIcon/IconApp.vue'
+import RnbwApp from '@/components/graphics/RnbwApp.vue'
+
 import { FormApp } from '@/form'
 import { initializeComponentRegistry } from '@/form/private/FormEditDispatcher/dispatch'
 
@@ -15,9 +19,6 @@ import ModeHostApp from '@/mode-host/ModeHostApp.vue'
 import NotificationParametersOverviewApp from '@/notification/NotificationParametersOverviewApp.vue'
 
 import AiExplainThisIssueApp from './ai/AiExplainButtonApp.vue'
-import DynamicIconApp from './components/CmkIcon/CmkDynamicIcon/DynamicIconApp.vue'
-import IconApp from './components/CmkIcon/IconApp.vue'
-import RnbwApp from './components/graphics/RnbwApp.vue'
 import Dashboard from './dashboard/DashboardApp.vue'
 import SharedDashboard from './dashboard/DashboardSharedApp.vue'
 import DateTimePickerApp from './date-time-picker/CmkDateTimePickerApp.vue'

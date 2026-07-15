@@ -19,8 +19,7 @@ import {
   WarningResponse,
   flattenSuggestions
 } from '@/components/CmkSuggestions'
-
-import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
+import { fetchSuggestions } from '@/components/FormAutocompleter/autocompleter'
 
 const { _t } = usei18n()
 

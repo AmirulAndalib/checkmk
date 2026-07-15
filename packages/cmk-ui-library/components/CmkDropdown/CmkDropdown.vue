@@ -204,7 +204,7 @@ function showSuggestions(): void {
     if (!suggestionsShown.value) {
       return
     }
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
     nextTick(async () => {
       if (suggestionsRef.value) {
         if (!floating) {

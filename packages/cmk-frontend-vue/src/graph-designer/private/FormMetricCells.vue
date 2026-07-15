@@ -11,9 +11,9 @@ import { computed, ref, watch } from 'vue'
 import usei18n from '@/lib/i18n'
 import { immediateWatch } from '@/lib/watch'
 
+import FormAutocompleter from '@/components/FormAutocompleter/FormAutocompleter.vue'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 import { type ValidationMessages } from '@/form/private/validation'
 
 const { _t } = usei18n()

@@ -15,7 +15,7 @@ import { type DraftMetricBackendItem, newMetricBackendDraft } from '@/graphing/d
 
 const mocks = vi.hoisted(() => ({ fetchSuggestions: vi.fn(), fetchRestAPIDeprecated: vi.fn() }))
 
-vi.mock(import('@/form/private/FormAutocompleter/autocompleter'), async (importOriginal) => {
+vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
   const mod = await importOriginal()
   return { ...mod, fetchSuggestions: mocks.fetchSuggestions }
 })

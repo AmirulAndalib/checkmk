@@ -8,11 +8,18 @@
     "tests/**/*.vue",
     "ui-component-library/**/*"
   ],
-  "exclude": ["src/lib/i18nString.ts"],
   "compilerOptions": {
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
     "paths": {
       "@/lib/i18nString": ["weaki18nString.d.ts"],
+      "@/lib/*": [
+        "./node_modules/cmk-ui-library/lib/*",
+        "../../bazel-bin/packages/cmk-frontend-vue/node_modules/cmk-ui-library/lib/*"
+      ],
+      "@/components/*": [
+        "./node_modules/cmk-ui-library/components/*",
+        "../../bazel-bin/packages/cmk-frontend-vue/node_modules/cmk-ui-library/components/*"
+      ],
       "@/*": ["./src/*"],
       "@ucl/*": ["./ui-component-library/*"],
       "*": ["./node_modules/*", "../../bazel-bin/packages/cmk-frontend-vue/node_modules/*"]

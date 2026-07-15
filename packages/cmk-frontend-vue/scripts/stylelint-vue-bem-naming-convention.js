@@ -58,6 +58,15 @@ const patternMap = {
   mh: 'src/mode-host/'
 }
 
+function normalize(relativePath) {
+  // cmk-ui-library hosts the extracted components/ and lib/ trees; for naming
+  // purposes its layout maps onto the legacy src/ layout so the established
+  // block names (.cmk-*, .lib-*) stay valid.
+  return relativePath
+    .replace(/^\.\.\/cmk-ui-library\/tests\//, 'tests/')
+    .replace(/^\.\.\/cmk-ui-library\//, 'src/')
+}
+
 function getPrefix(relativePath) {
   const folderName = relativePath.split('/')[1]
   for (let [key, value] of Object.entries(patternMap)) {
@@ -79,7 +88,7 @@ const ruleFunction = (primary, secondaryOptions, context) => {
     if (!validOptions) return
 
     root.walkRules((ruleNode) => {
-      const relativeFilePath = path.relative(projectRoot, ruleNode.source.input.file)
+      const relativeFilePath = normalize(path.relative(projectRoot, ruleNode.source.input.file))
 
       const [componentName, prefix] = getPrefix(relativeFilePath)
 

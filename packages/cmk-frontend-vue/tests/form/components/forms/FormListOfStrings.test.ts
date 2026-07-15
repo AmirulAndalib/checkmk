@@ -11,7 +11,7 @@ import { Response } from '@/components/CmkSuggestions'
 
 import { renderForm } from '../cmk-form-helper'
 
-vi.mock(import('@/form/private/FormAutocompleter/autocompleter'), async (importOriginal) => {
+vi.mock(import('@/components/FormAutocompleter/autocompleter'), async (importOriginal) => {
   const mod = await importOriginal()
   return {
     ...mod,

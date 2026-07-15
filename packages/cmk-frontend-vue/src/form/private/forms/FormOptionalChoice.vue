@@ -8,6 +8,7 @@ import type * as FormSpec from 'cmk-shared-typing/typescript/vue_formspec_compon
 import { ref, watch } from 'vue'
 
 import { untranslated } from '@/lib/i18n'
+import { immediateWatch } from '@/lib/watch'
 
 import CmkHelpText from '@/components/CmkHelpText.vue'
 import FormIndent from '@/components/CmkIndent.vue'
@@ -16,8 +17,6 @@ import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue
 
 import FormEditDispatcher from '@/form/private/FormEditDispatcher/FormEditDispatcher.vue'
 import { type ValidationMessages } from '@/form/private/validation'
-
-import { immediateWatch } from '../../../lib/watch'
 
 const props = defineProps<{
   spec: FormSpec.OptionalChoice
