@@ -20,6 +20,13 @@ bazel test \
     "$@" || RC=$?
 
 bep_out="$(bazel info bazel-testlogs)"/_bep_output
+
+# Drop any stale entries restored from the hot cache: bep_to_junit only writes
+# files for failing targets, so a failure it recorded in a previous run would
+# otherwise survive here (bazel-testlogs lives inside the cached output base)
+# and be re-collected even though the current run passed.
+rm -rf "$bep_out"
+
 bazel run //buildscripts/scripts/bep_to_junit "$bep_json" "$bep_out"
 
 exit $RC
