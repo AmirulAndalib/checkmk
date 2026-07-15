@@ -8,13 +8,17 @@
 // these in their own small bundle decouples them from the large `main.ts`
 // bundle, so they can be registered and become interactive without waiting for
 // the heavy content apps (dashboard, forms, ...) to download and execute.
-import defineCmkComponent from 'cmk-ui-library/lib/web-component/defineCmkComponent'
+import initCmkUi from 'cmk-ui-library/lib/initCmkUi'
 
 import '@/assets/variables.css'
+import { translationLoader } from '@/translationLoader'
 
 import LoadingTransition from './loading-transition/LoadingTransition.vue'
 import MainMenuApp from './main-menu/MainMenuApp.vue'
 import SidebarApp from './sidebar/SidebarApp.vue'
+
+// Inject monolithic translation catalog from cmk-frontend-vue.
+const { defineCmkComponent } = initCmkUi({ translationLoader })
 
 defineCmkComponent('cmk-main-menu', MainMenuApp)
 defineCmkComponent('cmk-sidebar', SidebarApp)

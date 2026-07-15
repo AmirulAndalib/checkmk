@@ -24,9 +24,27 @@ export type SupportedLanguage = keyof typeof AVAILABLE_LANGUAGES
 
 type InterpolationValues = Record<string, string | number>
 
+export type TranslationLoader = (language: SupportedLanguage) => Promise<Translations>
+
+let translationLoader: TranslationLoader | null = null
+
+export function setTranslationLoader(loader: TranslationLoader): void {
+  if (translationLoader !== null && translationLoader !== loader) {
+    throw new Error(
+      'Conflicting translation loaders registered: cmk-ui-library supports a single application-owned catalog per bundle.'
+    )
+  }
+  translationLoader = loader
+}
+
 // Lazy loaded translation handling
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
-  return (await import(`@/assets/locale/${language}.json`)).default
+  if (translationLoader === null) {
+    throw new Error(
+      'No translation loader registered. The embedding application must initialize cmk-ui-library via initCmkUi() before mounting components.'
+    )
+  }
+  return translationLoader(language)
 }
 
 type GettextInstance = ReturnType<typeof createGettext>

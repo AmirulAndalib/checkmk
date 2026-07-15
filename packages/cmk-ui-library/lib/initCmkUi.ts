@@ -1,15 +1,15 @@
 /**
- * Copyright (C) 2024 Checkmk GmbH - License: GNU General Public License v2
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { type TranslationLoader, setTranslationLoader } from 'cmk-ui-library/lib/i18n/i18n.ts'
+import CmkApp, { type CmkAppProps } from 'cmk-ui-library/lib/web-component/CmkApp.vue'
 import { type Component, computed, defineCustomElement, h } from 'vue'
-
-import CmkApp, { type CmkAppProps } from './CmkApp.vue'
 
 let appCount = 0
 
-export default function defineCmkComponent(
+function defineCmkComponent(
   componentName: string,
   component: Component,
   options?: {
@@ -52,4 +52,20 @@ export default function defineCmkComponent(
   )
 
   customElements.define(componentName, CustomElement)
+}
+
+export interface CmkUiConfig {
+  /**
+   * cmk-ui-library ships no translation catalogs: its strings are extracted into the
+   * embedding application's catalog, so the application owns loading the
+   * compiled locale files (typically a lazy import of its locale JSON).
+   */
+  translationLoader: TranslationLoader
+}
+
+export default function initCmkUi(config: CmkUiConfig): {
+  defineCmkComponent: typeof defineCmkComponent
+} {
+  setTranslationLoader(config.translationLoader)
+  return { defineCmkComponent }
 }

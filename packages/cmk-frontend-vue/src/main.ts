@@ -6,7 +6,7 @@
 import DynamicIconApp from 'cmk-ui-library/components/CmkIcon/CmkDynamicIcon/DynamicIconApp.vue'
 import IconApp from 'cmk-ui-library/components/CmkIcon/IconApp.vue'
 import RnbwApp from 'cmk-ui-library/components/graphics/RnbwApp.vue'
-import defineCmkComponent from 'cmk-ui-library/lib/web-component/defineCmkComponent'
+import initCmkUi from 'cmk-ui-library/lib/initCmkUi'
 
 import { FormApp } from '@/form'
 import { initializeComponentRegistry } from '@/form/private/FormEditDispatcher/dispatch'
@@ -16,6 +16,7 @@ import GraphDesignerApp from '@/graph-designer/GraphDesignerApp.vue'
 import { registerGraphDesignerFormComponents } from '@/graph-designer/registerFormComponents'
 import ModeHostApp from '@/mode-host/ModeHostApp.vue'
 import NotificationParametersOverviewApp from '@/notification/NotificationParametersOverviewApp.vue'
+import { translationLoader } from '@/translationLoader'
 
 import AiExplainThisIssueApp from './ai/AiExplainButtonApp.vue'
 import Dashboard from './dashboard/DashboardApp.vue'
@@ -46,6 +47,9 @@ import WebAuthnRegisterButtonApp from './two-factor-auth/WebAuthnRegisterButtonA
 import UnifiedSearchApp from './unified-search/UnifiedSearchApp.vue'
 import WelcomeApp from './welcome/WelcomeApp.vue'
 import WelcomeSnapin from './welcome/components/snapin/WelcomeSnapin.vue'
+
+// Inject monolithic translation catalog from cmk-frontend-vue.
+const { defineCmkComponent } = initCmkUi({ translationLoader })
 
 initializeComponentRegistry()
 registerGraphDesignerFormComponents()
