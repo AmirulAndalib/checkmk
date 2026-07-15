@@ -63,6 +63,7 @@ py_library(
         "//cmk/gui/openapi/framework:core",
         "//cmk/gui/openapi/framework:types",
         "//cmk/gui/openapi/restful_objects",
+        "//cmk/gui/visuals",
         "//packages/cmk-graphing-engine",
         "//packages/cmk-livestatus-client",
     ],

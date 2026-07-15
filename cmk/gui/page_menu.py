@@ -64,6 +64,10 @@ class Link:
     target: str | None = None
     onclick: str | None = None
     transition: LoadingTransition | None = None
+    # Structured mirror of an `onclick` JS call, for consumers (e.g. the burger menu API) that
+    # need the action and its parameters without parsing the JS string.
+    action_id: str | None = None
+    action_parameters: list[str] | None = None
 
 
 class BasePageMenuItem:
@@ -87,10 +91,21 @@ def make_external_link(url: str) -> PageMenuLink:
     return PageMenuLink(Link(url=url, target="_blank"))
 
 
-def make_javascript_link(javascript: str) -> PageMenuLink:
+def make_javascript_link(
+    javascript: str,
+    *,
+    action_id: str | None = None,
+    action_parameters: list[str] | None = None,
+) -> PageMenuLink:
     # Make all actions close the menu, even actions on the page, like for example toggling of the
     # bulk selection checkboxes
-    return PageMenuLink(Link(onclick=make_javascript_action(javascript)))
+    return PageMenuLink(
+        Link(
+            onclick=make_javascript_action(javascript),
+            action_id=action_id,
+            action_parameters=action_parameters,
+        )
+    )
 
 
 def make_javascript_action(javascript: str) -> str:

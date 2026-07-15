@@ -119,12 +119,20 @@ def page_menu_dropdown_add_to_visual(
                     PageMenuEntry(
                         title=_("Export as JSON"),
                         icon_name=StaticIcon(IconNames.download),
-                        item=make_javascript_link("cmk.popup_menu.graph_export('graph_export')"),
+                        item=make_javascript_link(
+                            "cmk.popup_menu.graph_export('graph_export')",
+                            action_id="export",
+                            action_parameters=["graph_export"],
+                        ),
                     ),
                     PageMenuEntry(
                         title=_("Export as PNG"),
                         icon_name=StaticIcon(IconNames.download),
-                        item=make_javascript_link("cmk.popup_menu.graph_export('graph_image')"),
+                        item=make_javascript_link(
+                            "cmk.popup_menu.graph_export('graph_image')",
+                            action_id="export",
+                            action_parameters=["graph_image"],
+                        ),
                     ),
                 ],
             )

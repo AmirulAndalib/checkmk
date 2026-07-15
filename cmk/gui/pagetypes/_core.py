@@ -1804,7 +1804,9 @@ class OverridableContainer[T_OverridableContainerConfig: OverridableContainerCon
                 title=page.title(),
                 icon_name=cls.type_icon(),
                 item=make_javascript_link(
-                    f"cmk.popup_menu.pagetype_add_to_container({json.dumps(cls.type_name())}, {json.dumps(page.name())});"
+                    f"cmk.popup_menu.pagetype_add_to_container({json.dumps(cls.type_name())}, {json.dumps(page.name())});",
+                    action_id="add_to_container",
+                    action_parameters=[cls.type_name(), page.name()],
                 ),
             )
 

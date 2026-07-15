@@ -102,7 +102,9 @@ class VisualTypeDashboards(VisualType):
                     title=str(dashboard["title"]),
                     icon_name=StaticIcon(IconNames.dashboard),
                     item=make_javascript_link(
-                        "cmk.popup_menu.add_to_visual('dashboards', %s)" % json.dumps(name)
+                        "cmk.popup_menu.add_to_visual('dashboards', %s)" % json.dumps(name),
+                        action_id="add_to_visual",
+                        action_parameters=["dashboards", name],
                     ),
                     name=name,
                 )

@@ -2,6 +2,9 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+
+# mypy: disable-error-code="mutable-override"
+
 import json
 from collections.abc import Mapping
 from typing import Annotated, Literal, Self
@@ -10,6 +13,8 @@ from pydantic import Json
 
 from cmk.graphing_engine import Graph
 from cmk.gui.openapi.framework.model import api_field, api_model
+from cmk.gui.openapi.framework.model.base_models import DomainObjectCollectionModel
+from cmk.gui.type_defs import IconNames
 
 from .._engine_dispatch import serialize_graphs
 
@@ -184,4 +189,88 @@ class GraphFetchResponse:
             "graph is still returned. Empty on success."
         ),
         example=[],
+    )
+
+
+type BurgerMenuActionType = Literal["add_to_container", "add_to_visual", "export"]
+
+
+@api_model
+class BurgerMenuAction:
+    id: BurgerMenuActionType = api_field(description="The action type.", example="add_to_container")
+    parameters: list[str] = api_field(
+        description="The action parameters.", example=["graph_collection", "my_fancy_collection"]
+    )
+
+
+@api_model
+class BurgerMenuItem:
+    label: str = api_field(
+        example="Add to custom graph",
+        description="The label of the action.",
+    )
+    ariaLabel: str = api_field(
+        example="Add to custom graph",
+        description="The aria-label of the action.",
+    )
+    icon: IconNames = api_field(
+        example="plus",
+        description="The icon of the action.",
+    )
+    action: BurgerMenuAction = api_field(
+        example={
+            "id": "add_to_container",
+            "parameters": ["graph_collection", "my_fancy_collection"],
+        },
+        description="The action of the menu item.",
+    )
+
+
+@api_model
+class BurgerMenuGroup:
+    heading: str = api_field(
+        example="Add to",
+        description="The heading of the group.",
+    )
+    items: list[BurgerMenuItem] = api_field(
+        description="A list of action items.",
+    )
+
+
+@api_model
+class BurgerMenuCollection(DomainObjectCollectionModel):
+    domainType: Literal["burger_menu"] = api_field(
+        description="The domain type of the objects in the collection.",
+        example="burger_menu",
+    )
+    value: list[BurgerMenuGroup] = api_field(
+        description="A list of BurgerMenuGroup objects.",
+    )
+
+
+@api_model
+class GraphInternalRepresentation:
+    internal: str = api_field(
+        description="The internal representation of the graph",
+        example="<implementation detail>",
+    )
+
+
+@api_model
+class AddToRequest(GraphInternalRepresentation):
+    family: str = api_field(
+        example="graph_collection",
+        description="The family collection where to add the graph to.",
+    )
+    id: str = api_field(
+        example="my_graph_collection",
+        description="The id of the collection to add the graph to.",
+    )
+
+
+@api_model
+class ExportRequest(GraphInternalRepresentation):
+    target: Literal["graph_export", "graph_image"] = api_field(
+        example="graph_image",
+        description="How to export the graph",
     )
