@@ -17,7 +17,7 @@ from cmk.gui.config import active_config
 from cmk.gui.customer import customer_api
 from cmk.gui.hooks import request_memoize
 from cmk.gui.i18n import _
-from cmk.gui.site_config import site_is_local
+from cmk.gui.site_config import is_distributed_setup_remote_site, site_is_local
 from cmk.gui.user_connection_config_types import (
     ConfigurableUserConnectionSpec,
     HtpasswdUserConnectionConfig,
@@ -269,6 +269,11 @@ def effective_authentication_connections(
     site_config: SiteConfiguration,
 ) -> list[AuthenticationConnectionEntry]:
     """The connections a site actually authenticates users against at runtime."""
+    if is_distributed_setup_remote_site(active_config.sites):
+        # sites.mk is not synchronized to remotes, so `site_config` is only the seeded
+        # local self-default. The connections propagated by get_site_globals(), carrying
+        # per-site ACS URLs and restrictions, are the source of truth here.
+        return active_config.authentication_connections or []
     own = _own_authentication_connections(site_config)
     if own is not None:
         return own
