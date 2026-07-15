@@ -209,8 +209,10 @@ sh_library(
         ".f12",
         "cargo_run",
         "db-endpoint.sh",
+        "permissions-check-run",
         "references/mk_oracle",
         "run",
+        "run-pytests",
         "ssh-run",
         "ssh-run.conf",
         "ssh-run-ci",
@@ -224,6 +226,7 @@ sh_library(
 filegroup(
     name = "windows_ci_scripts",
     srcs = [
+        "permissions-check-run.ps1",
         "references/mk_oracle.ps1",
         "run.ps1",
         "tests/files/ci-scripts/manage-test-registry-set.ps1",
