@@ -244,9 +244,9 @@ azure-identity==1.25.2 \
     --hash=sha256:030dbaa720266c796221c6cdbd1999b408c079032c919fef725fcc348a540fe9 \
     --hash=sha256:1b40060553d01a72ba0d708b9a46d0f61f56312e215d8896d836653ffdc6753d
     # via -r packages/cmk-backup/requirements.in
-azure-mgmt-compute==37.2.0 \
-    --hash=sha256:23499d4d5ad2b2bf40a4c59df2684cc4c9cef0f9672a4e842bb9a1cf6b62f628 \
-    --hash=sha256:70741c26ac94c30408a3b20f4fdfe93e6481e308b3c14a6dbefdfd4794028616
+azure-mgmt-compute==38.1.0 \
+    --hash=sha256:c119b41fd1a52a742bfbf20e6570bba81d22ed665f5bc05e9552382d431044a5 \
+    --hash=sha256:dbbe8355472bf58e9b358041d0124ca6b0fffff79d60aa6d0f094d8644ccffe5
     # via -r tests/dev-requirements.in
 azure-mgmt-core==1.6.0 \
     --hash=sha256:0460d11e85c408b71c727ee1981f74432bc641bb25dfcf1bb4e90a49e776dbc4 \
@@ -254,9 +254,9 @@ azure-mgmt-core==1.6.0 \
     # via
     #   azure-mgmt-compute
     #   azure-mgmt-resource
-azure-mgmt-resource==25.0.0 \
-    --hash=sha256:dc123a9f6509c37299d7716c9090cff0a9d73309b228cc094ea950ce3cca3603 \
-    --hash=sha256:f6f17b2305abe9bf6ec6c92a9410af21a2b0d805cc98e94d80c07220924a045b
+azure-mgmt-resource==26.0.0 \
+    --hash=sha256:54227c5db06d3be4dd4b77ad885b273e9eb2606d1de653c5b534066cfbb60c0c \
+    --hash=sha256:ef36559a4c0843b4272aa584efb455c686e4c3f6357421b38c82f405c01a9a9f
     # via -r tests/dev-requirements.in
 azure-storage-blob==12.30.0 \
     --hash=sha256:2cd74d4d5731e5eb6b8d5c5056ee115a5e88f8fdf22517b739836fda685018be \

@@ -24,12 +24,13 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.compute.models import (
     GalleryArtifactVersionFullSource,
     GalleryImageVersion,
+    GalleryImageVersionProperties,
     GalleryImageVersionPublishingProfile,
     GalleryImageVersionStorageProfile,
     GalleryOSDiskImage,
     TargetRegion,
 )
-from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.resource.resources import ResourceManagementClient
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from cmk.ccc.version import _BaseVersion, ReleaseType, Version
@@ -325,19 +326,21 @@ class AzurePublisher(CloudPublisher):
                 gallery_image_version_name=self.azure_compatible_version(self.version),
                 gallery_image_version=GalleryImageVersion(
                     location=self.LOCATION,
-                    publishing_profile=GalleryImageVersionPublishingProfile(
-                        target_regions=[
-                            TargetRegion(name=self.LOCATION),
-                        ],
-                        storage_account_type=self.STORAGE_ACCOUNT_TYPE,
-                    ),
-                    storage_profile=GalleryImageVersionStorageProfile(
-                        source=GalleryArtifactVersionFullSource(
-                            id=image_id,
+                    properties=GalleryImageVersionProperties(
+                        publishing_profile=GalleryImageVersionPublishingProfile(
+                            target_regions=[
+                                TargetRegion(name=self.LOCATION),
+                            ],
+                            storage_account_type=self.STORAGE_ACCOUNT_TYPE,
                         ),
-                        os_disk_image=GalleryOSDiskImage(
-                            # Taken from previous images
-                            host_caching="ReadWrite",
+                        storage_profile=GalleryImageVersionStorageProfile(
+                            source=GalleryArtifactVersionFullSource(
+                                id=image_id,
+                            ),
+                            os_disk_image=GalleryOSDiskImage(
+                                # Taken from previous images
+                                host_caching="ReadWrite",
+                            ),
                         ),
                     ),
                 ),

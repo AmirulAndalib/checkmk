@@ -3409,16 +3409,16 @@
             "https://files.pythonhosted.org/packages/c2/3a/439a32a5e23e45f6a91f0405949dc66cfe6834aba15a430aebfc063a81e7/azure_identity-1.25.2.tar.gz": "030dbaa720266c796221c6cdbd1999b408c079032c919fef725fcc348a540fe9"
           },
           "azure-mgmt-compute": {
-            "https://files.pythonhosted.org/packages/be/78/8dcdb92dd9f716d08a3ac6b31c31a12cfcf8c430b2c312cbf9cc6e4695e8/azure_mgmt_compute-37.2.0-py3-none-any.whl": "70741c26ac94c30408a3b20f4fdfe93e6481e308b3c14a6dbefdfd4794028616",
-            "https://files.pythonhosted.org/packages/e2/e3/c887e27260754014dc63fc33bf612f1c7f1751f74e80d1aaa32491af3ffa/azure_mgmt_compute-37.2.0.tar.gz": "23499d4d5ad2b2bf40a4c59df2684cc4c9cef0f9672a4e842bb9a1cf6b62f628"
+            "https://files.pythonhosted.org/packages/71/74/d756dbdcc8d43a53950c5d8b1ae7745223ba46205ba6037ec9d448f50062/azure_mgmt_compute-38.1.0.tar.gz": "dbbe8355472bf58e9b358041d0124ca6b0fffff79d60aa6d0f094d8644ccffe5",
+            "https://files.pythonhosted.org/packages/ee/29/06d4e0f00ac41b3b55e30aa565bbc98da1d04f20ec4b66e76b67017b0edd/azure_mgmt_compute-38.1.0-py3-none-any.whl": "c119b41fd1a52a742bfbf20e6570bba81d22ed665f5bc05e9552382d431044a5"
           },
           "azure-mgmt-core": {
             "https://files.pythonhosted.org/packages/3e/99/fa9e7551313d8c7099c89ebf3b03cd31beb12e1b498d575aa19bb59a5d04/azure_mgmt_core-1.6.0.tar.gz": "b26232af857b021e61d813d9f4ae530465255cb10b3dde945ad3743f7a58e79c",
             "https://files.pythonhosted.org/packages/a0/26/c79f962fd3172b577b6f38685724de58b6b4337a51d3aad316a43a4558c6/azure_mgmt_core-1.6.0-py3-none-any.whl": "0460d11e85c408b71c727ee1981f74432bc641bb25dfcf1bb4e90a49e776dbc4"
           },
           "azure-mgmt-resource": {
-            "https://files.pythonhosted.org/packages/92/41/ce12546aa2a20c4f37d061bfa7df3bf8fa72ff01e7557ec330929c72ec7d/azure_mgmt_resource-25.0.0-py3-none-any.whl": "f6f17b2305abe9bf6ec6c92a9410af21a2b0d805cc98e94d80c07220924a045b",
-            "https://files.pythonhosted.org/packages/d7/7e/b3f9d544a94782be9c5ab8123d2fa7fb20cbdf3f5a16b883f308865e1406/azure_mgmt_resource-25.0.0.tar.gz": "dc123a9f6509c37299d7716c9090cff0a9d73309b228cc094ea950ce3cca3603"
+            "https://files.pythonhosted.org/packages/61/e1/c6196381cc6bb3eff9e24f5bf31b7fd962651ddbd6120bc2a4c482a7af16/azure_mgmt_resource-26.0.0.tar.gz": "54227c5db06d3be4dd4b77ad885b273e9eb2606d1de653c5b534066cfbb60c0c",
+            "https://files.pythonhosted.org/packages/e6/6e/3e776a0817ebe3558fbd8d3f98b1bd8fa75a46596e5cf9bb4377960c4611/azure_mgmt_resource-26.0.0-py3-none-any.whl": "ef36559a4c0843b4272aa584efb455c686e4c3f6357421b38c82f405c01a9a9f"
           },
           "azure-storage-blob": {
             "https://files.pythonhosted.org/packages/3b/48/84a820d898267f662b5c06f7cd76fdb8a9e272b44aa9376cef3ec0f6a294/azure_storage_blob-12.30.0.tar.gz": "2cd74d4d5731e5eb6b8d5c5056ee115a5e88f8fdf22517b739836fda685018be",
