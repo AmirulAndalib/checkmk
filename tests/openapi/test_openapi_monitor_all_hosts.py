@@ -14,10 +14,9 @@ from tests.testlib.rest_api_client import ClientRegistry
 
 _SITE_ID = "NO_SITE"
 
-# NOTE: we are a bit contrained on what we can do with the mock livestatus fixture. For instance the
-# stats table does not get updated when adding hosts. So, the limit and meta data counts will not
-# work as expected. Therefore, this module mainly tests that the livestatus are correctly built
-# based on the user input.
+# NOTE: we are a bit contrained on what we can do with the mock livestatus fixture. For instance
+# limits and the ``Stats`` meta counts are not faithfully reflected by the mock. Therefore, this
+# module mainly tests that the livestatus queries are correctly built based on the user input.
 
 
 class TestMonitorHostsAuth:
@@ -50,7 +49,7 @@ class TestMonitorHostsAuth:
             ],
             match_type="loose",
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"], match_type="loose")
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"], match_type="loose")
 
         with mock_livestatus(expect_status_query=True):
             resp = client.list_all(limit=_LIMIT)
@@ -135,7 +134,7 @@ class TestMonitorHosts:
                 f"Limit: {_LIMIT}",
             ]
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"])
 
         with mock_livestatus(expect_status_query=True):
             resp = clients.MonitorHosts.list_all(limit=_LIMIT)
@@ -155,7 +154,7 @@ class TestMonitorHosts:
                 "OrderBy: name asc natural",
             ]
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"])
 
         with mock_livestatus(expect_status_query=True):
             resp = clients.MonitorHosts.list_all(limit=None)
@@ -181,7 +180,7 @@ class TestMonitorHostsQuery:
                 f"Limit: {_LIMIT}",
             ]
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"])
 
         with mock_livestatus(expect_status_query=True):
             resp = clients.MonitorHosts.list_all(limit=_LIMIT, q=query)
@@ -206,7 +205,7 @@ class TestMonitorHostsQuery:
                 f"Limit: {_LIMIT}",
             ]
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"])
         mock_livestatus.expect_query(
             [
                 "GET hosts",
@@ -243,7 +242,7 @@ class TestMonitorHostsFilters:
                 f"Limit: {_LIMIT}",
             ]
         )
-        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+        mock_livestatus.expect_query(["GET hosts", "Stats: state >= 0"])
         mock_livestatus.expect_query(
             [
                 "GET hosts",

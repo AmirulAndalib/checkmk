@@ -23,7 +23,7 @@ from cmk.livestatus_client import (
 )
 from cmk.livestatus_client.expressions import NothingExpression, Or, QueryExpression
 from cmk.livestatus_client.queries import detailed_connection, Query
-from cmk.livestatus_client.tables import Hosts, Status
+from cmk.livestatus_client.tables import Hosts
 
 from ._exceptions import HostNotFoundError
 from ._models import (
@@ -161,26 +161,26 @@ class LiveStatusHostRepository:
         )
 
     def count_total(self) -> int:
-        q = Query([Status.num_hosts])
-        with detailed_connection(self._connection) as conn:
-            return sum(row["num_hosts"] for row in q.iterate(conn))
+        # Counted via ``Stats`` on the hosts table rather than the global ``status.num_hosts``
+        # counter so the ``AuthUser`` filter applies: a user without "see all" counts only the hosts
+        # they may see, while an unrestricted user still counts every host.
+        return self._count_hosts()
 
     def count_matched(self, *, query: str, filters: HostFilter) -> int:
-        # A filtered total can't be read from the ``status`` table. Count the matches server-side
-        # via ``Stats`` instead of transferring and counting every matching row. The ``Query`` class
-        # can't emit ``Stats`` headers yet, so the query is assembled by hand from the shared filter.
-        # The ``Stats`` count is the trailing column of each returned row; summing it across rows
-        # adds up the per-site counts.
-        query_ = _sanitize_query(query)
-        query_filter = (": ".join(line) for line in _build_query_filter(query_).render())
-        stats_query = "\n".join(
-            [
-                f"GET {Hosts.__tablename__}",
-                "Stats: state >= 0",
-                *query_filter,
-                *filters.splitlines(),
-            ]
+        # A filtered total can't be read from the ``status`` table, so the matches are counted
+        # server-side via ``Stats`` instead of transferring and counting every matching row. The
+        # ``Query`` class can't emit ``Stats`` headers yet, so the filter is assembled by hand.
+        query_filter = (
+            ": ".join(line) for line in _build_query_filter(_sanitize_query(query)).render()
         )
+        return self._count_hosts(extra_lines=[*query_filter, *filters.splitlines()])
+
+    def _count_hosts(self, *, extra_lines: Sequence[str] = ()) -> int:
+        # A ``Stats`` count on the hosts table. Runs under the connection's ``AuthUser`` filter, so a
+        # user without "see all" counts only the hosts they may see. The count is the trailing column
+        # of each returned row; summing across rows adds up the per-site counts. A raw ``Stats`` query
+        # returns untyped (string) columns, hence the explicit ``int`` conversion.
+        stats_query = "\n".join([f"GET {Hosts.__tablename__}", "Stats: state >= 0", *extra_lines])
         return sum(int(row[-1]) for row in self._connection.query(stats_query))
 
 
