@@ -19,6 +19,6 @@ const color = defineModel<string>({ required: true })
 
 <template>
   <BaseCell :column-id="columnId" :vertical-align="verticalAlign">
-    <CmkColorPicker v-model="color" boxed />
+    <CmkColorPicker v-model="color" size="small" />
   </BaseCell>
 </template>

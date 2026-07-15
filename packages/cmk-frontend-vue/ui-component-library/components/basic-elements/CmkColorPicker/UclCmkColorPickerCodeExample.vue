@@ -12,5 +12,6 @@ const selectedColor = ref('#ff0000')
 </script>
 
 <template>
-  <CmkColorPicker v-model="selectedColor" />
+  <CmkColorPicker v-model="selectedColor" aria-label="Color" />
+  <CmkColorPicker v-model="selectedColor" size="small" aria-label="Color for AB">AB</CmkColorPicker>
 </template>

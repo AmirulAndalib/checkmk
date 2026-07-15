@@ -4,7 +4,13 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script lang="ts">
-import { type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
+import {
+  type Options,
+  type PanelConfig,
+  type PanelConfigFor
+} from '@ucl/_ucl/components/detail-page'
+
+import { type Sizes } from '@/components/CmkColorPicker.vue'
 
 import codeExample from './UclCmkColorPickerCodeExample.vue?raw'
 
@@ -12,7 +18,7 @@ export const a11yData = [
   {
     keys: ['Tab'],
     description:
-      'Moves keyboard focus to the color input element. While the focus outline is hidden from view, its underlying functionality remains intact.'
+      'Moves keyboard focus to the color input element, showing the browser-default focus outline.'
   },
   {
     keys: [['Shift', 'Tab']],
@@ -35,13 +41,22 @@ export const panelConfig = {
     initialState: '#ff0000',
     help: 'Controls the selected color value in hexadecimal format.'
   },
-  boxed: {
-    type: 'boolean' as const,
-    title: 'Boxed',
-    initialState: false,
-    help: 'When enabled, the swatch is rendered inside a padded box instead of a plain bordered swatch.'
+  size: {
+    type: 'list' as const,
+    title: 'Size',
+    options: [
+      { title: 'Small', name: 'small' },
+      { title: 'Large', name: 'large' }
+    ] satisfies Options<Sizes>[],
+    initialState: 'large' as const
+  },
+  overlay: {
+    type: 'string' as const,
+    title: 'Overlay',
+    initialState: '',
+    help: 'Decorative slot content overlaid on the swatch.'
   }
-} satisfies PanelConfigFor<typeof CmkColorPicker>
+} satisfies PanelConfigFor<typeof CmkColorPicker> & PanelConfig
 </script>
 
 <script setup lang="ts">
@@ -67,7 +82,9 @@ const propState = new PanelStateCreator<typeof CmkColorPicker>().createRef(panel
     <UclDetailPageHeader>CmkColorPicker</UclDetailPageHeader>
 
     <UclDetailPageComponent>
-      <CmkColorPicker v-model="propState.modelValue" :boxed="propState.boxed" />
+      <CmkColorPicker v-model="propState.modelValue" :size="propState.size" aria-label="Color">
+        <template v-if="propState.overlay" #default>{{ propState.overlay }}</template>
+      </CmkColorPicker>
 
       <template #properties>
         <UclPropertiesPanel v-model="propState" :config="panelConfig" />
