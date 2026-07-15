@@ -16,11 +16,13 @@ from .engines.redis import (
     PermissionsHandler,
     RedisSearchEngine,
 )
-from .match_items import ABCMatchItemGenerator as ABCMatchItemGenerator
-from .match_items import match_item_generator_registry as match_item_generator_registry
-from .match_items import MatchItem as MatchItem
-from .match_items import MatchItemGeneratorRegistry as MatchItemGeneratorRegistry
-from .match_items import MatchItems as MatchItems
+from .match_items import (
+    ABCMatchItemGenerator,
+    match_item_generator_registry,
+    MatchItem,
+    MatchItemGeneratorRegistry,
+    MatchItems,
+)
 from .type_defs import SearchPermissionsHandler
 from .unified import UnifiedSearch
 
