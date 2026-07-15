@@ -5,6 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import usei18n from '@/lib/i18n'
 
 import { useGraphInteraction } from '../composables/useGraphInteraction'
@@ -13,6 +15,7 @@ import type { GraphPanelEmits, GraphPanelProps, RequestedTimeRange } from '../ty
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import GraphHeader from './GraphHeader.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
+import { deriveYAxis } from './TimeSeriesGraph/yAxis'
 import type { ConsolidationFn } from './consolidation'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
 import GraphLegend from './legend/GraphLegend.vue'
@@ -62,6 +65,8 @@ function updateConsolidationFunction(val: ConsolidationFn) {
   setConsolidationFunction(val)
   emit('update:consolidationFn', val)
 }
+
+const yAxis = computed(() => deriveYAxis(props.metrics))
 </script>
 
 <template>
@@ -109,7 +114,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
             header: { title: title ?? null, show_graph_time: false },
             name: title ?? '',
             x_axis: null,
-            y_axis: null,
+            y_axis: yAxis,
             show_pin: false,
             font_size_pt: 10
           }"

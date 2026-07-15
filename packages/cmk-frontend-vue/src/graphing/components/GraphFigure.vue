@@ -5,11 +5,14 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useGraphInteraction } from '../composables/useGraphInteraction'
 import type { GraphFigureProps } from '../types'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
+import { deriveYAxis } from './TimeSeriesGraph/yAxis'
 
 const props = withDefaults(defineProps<GraphFigureProps>(), {
   interactive: true,
@@ -29,6 +32,8 @@ const {
   onPinCreate,
   clearPin
 } = useGraphInteraction(() => props.dataTimeRange)
+
+const yAxis = computed(() => deriveYAxis(props.metrics))
 </script>
 
 <template>
@@ -56,7 +61,7 @@ const {
         header: { title: title ?? null, show_graph_time: false },
         name: title ?? '',
         x_axis: null,
-        y_axis: null,
+        y_axis: yAxis,
         show_pin: false,
         font_size_pt: 10
       }"

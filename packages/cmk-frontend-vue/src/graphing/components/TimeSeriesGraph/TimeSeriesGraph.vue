@@ -510,6 +510,12 @@ watch(
   display: none;
 }
 
+/* Match the x-axis label size; without this the D3 axis text renders at the inherited page
+   font size rather than the token the x-axis uses. */
+:deep(.graphing-time-series-graph__y-axis text) {
+  font-size: var(--font-size-small);
+}
+
 :deep(.graphing-time-series-graph__grid-y .tick line) {
   stroke: var(--ux-theme-6, #e0e0e0);
   stroke-dasharray: 2, 2;
