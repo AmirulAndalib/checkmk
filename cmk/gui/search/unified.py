@@ -3,6 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+from collections.abc import Iterable
+from typing import Protocol
+
 from cmk.shared_typing.unified_search import (
     ProviderName,
     SortType,
@@ -12,7 +15,15 @@ from cmk.shared_typing.unified_search import (
 )
 
 from .sorting import get_sorter
-from .type_defs import SearchEngine
+
+
+class SearchEngine(Protocol):
+    def search(
+        self,
+        query: str,
+        *,
+        provider: ProviderName,
+    ) -> Iterable[UnifiedSearchResultItem]: ...
 
 
 class UnifiedSearch:
