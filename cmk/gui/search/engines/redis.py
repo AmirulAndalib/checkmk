@@ -60,8 +60,8 @@ from ..matchers import (
     match_item_generator_registry,
     MatchItemGeneratorRegistry,
 )
+from ..permissions import SearchPermissionsHandler, VisibilityCheck
 from ..routing import CompositePermissionsHandler
-from ..type_defs import SearchPermissionsHandler, VisibilityCheck
 
 
 class IndexNotFoundException(MKGeneralException):

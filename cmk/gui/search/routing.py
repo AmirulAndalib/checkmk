@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from cmk.shared_typing.unified_search import ProviderName
 
 from .matchers import MatchItemGeneratorRegistry
-from .type_defs import SearchPermissionsHandler, VisibilityCheck
+from .permissions import SearchPermissionsHandler, VisibilityCheck
 
 
 class CompositePermissionsHandler:
