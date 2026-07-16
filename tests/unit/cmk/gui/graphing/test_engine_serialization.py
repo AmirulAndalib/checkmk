@@ -30,6 +30,7 @@ from cmk.graphing_engine import (
     ScalarOf,
     ServiceName,
     SINotation,
+    SiteID,
     Stack,
     StandardScientificNotation,
     StrictPrecision,
@@ -157,6 +158,31 @@ def _rich_graphs() -> Sequence[Graph]:
             ],
         ),
     ]
+
+
+def test_rrd_metric_site_id_round_trips() -> None:
+    # A resolved site must survive the self-contained graph JSON, so a same host/service on two sites
+    # stays distinct after a round-trip.
+    metric = RRDMetric(
+        host_name=HostName("h"),
+        service_name=ServiceName("svc"),
+        metric_name=MetricName("m"),
+        site_id=SiteID("mysite"),
+    )
+    attributes = CurveAttributes(
+        title="t",
+        unit=Unit(notation=DecimalNotation(""), precision=AutoPrecision(2)),
+        color="#abcdef",
+    )
+    graph = Graph(
+        name="g",
+        title="G",
+        graph_type="template",
+        lines=[Line(curve=Curve(quantity=metric, attributes=attributes), inverse=False)],
+    )
+    [restored] = graph_codec().deserialize_graphs(serialize_graphs([graph]))
+    [line] = restored.lines
+    assert line.curve.quantity == metric
 
 
 def test_template_round_trip_is_lossless() -> None:

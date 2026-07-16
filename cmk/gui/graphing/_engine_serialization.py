@@ -34,6 +34,7 @@ from cmk.graphing_engine import (
     ScalarOf,
     ServiceName,
     SINotation,
+    SiteID,
     Stack,
     StandardScientificNotation,
     StrictPrecision,
@@ -168,11 +169,13 @@ def _rrd_metric_to_json(quantity: Quantity, codec: QuantityCodec) -> Json:
             if quantity.consolidation_function is None
             else str(quantity.consolidation_function)
         ),
+        "site_id": quantity.site_id,
     }
 
 
 def _rrd_metric_from_json(data: Mapping[str, object], codec: QuantityCodec) -> RRDMetric:
     consolidation_function = data["consolidation_function"]
+    site_id = data.get("site_id")
     return RRDMetric(
         host_name=HostName(ensure_type(data["host_name"], str)),
         service_name=ServiceName(ensure_type(data["service_name"], str)),
@@ -182,6 +185,7 @@ def _rrd_metric_from_json(data: Mapping[str, object], codec: QuantityCodec) -> R
             if consolidation_function is None
             else ConsolidationFunction(ensure_type(consolidation_function, str))
         ),
+        site_id=None if site_id is None else SiteID(ensure_type(site_id, str)),
     )
 
 
