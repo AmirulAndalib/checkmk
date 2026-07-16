@@ -211,6 +211,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/check_mk:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],

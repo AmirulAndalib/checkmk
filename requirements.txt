@@ -4206,6 +4206,7 @@ pytest==9.1.1 \
     #   -r packages/cmk-notification-plugins/dev-requirements.in
     #   -r packages/cmk-plugin-apis/dev-requirements.in
     #   -r packages/cmk-plugins/dev-requirements.in
+    #   -r packages/cmk-profiling/dev-requirements.in
     #   -r packages/cmk-relay-protocols/dev-requirements.in
     #   -r packages/cmk-ruleset-matcher/dev-requirements.in
     #   -r packages/cmk-trace/dev-requirements.in

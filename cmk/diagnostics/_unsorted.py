@@ -79,6 +79,8 @@ OPT_LOCAL_FILES = "local-files"
 OPT_OMD_CONFIG = "omd-config"
 
 
+OPT_GUI_PROFILES = "gui-profiles"
+
 # CEE specific options
 OPT_PERFORMANCE_GRAPHS = "performance-graphs"
 
@@ -110,6 +112,7 @@ _FILES_OPTS = [
     OPT_CHECKMK_CORE_FILES,
     OPT_CHECKMK_LICENSING_FILES,
     OPT_CHECKMK_LOG_FILES,
+    OPT_GUI_PROFILES,
 ]
 
 # +---------------------------------------------------------------------------------+
@@ -156,6 +159,7 @@ def serialize_wato_parameters(
     core_files: set[str] = set()
     licensing_files: set[str] = set()
     log_files: set[str] = set()
+    gui_profile_ids: set[str] = set()
 
     for key, value in sorted(parameters.items()):
         if key == OPT_CHECKMK_CONFIG_FILES:
@@ -169,6 +173,11 @@ def serialize_wato_parameters(
 
         elif key == OPT_CHECKMK_LOG_FILES:
             log_files |= _extract_list_of_files(value)
+
+        elif key == OPT_GUI_PROFILES:
+            # DualListChoice gives a plain list[str] of profile IDs, not the
+            # (title, list) tuple produced by the Checkmk files choosers.
+            gui_profile_ids |= set(value or [])
 
         elif key in [
             OPT_COMP_GLOBAL_SETTINGS,
@@ -212,6 +221,12 @@ def serialize_wato_parameters(
         sorted(log_files)[i : i + max_args] for i in range(0, len(sorted(log_files)), max_args)
     ]:
         chunks.append([OPT_CHECKMK_LOG_FILES, ",".join(log_args)])
+
+    for gui_profile_args in [
+        sorted(gui_profile_ids)[i : i + max_args]
+        for i in range(0, len(sorted(gui_profile_ids)), max_args)
+    ]:
+        chunks.append([OPT_GUI_PROFILES, ",".join(gui_profile_args)])
 
     if not chunks:
         chunks.append([])

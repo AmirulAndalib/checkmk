@@ -35,6 +35,7 @@ from cmk.livestatus_client import (
     BrokerConnections,
     SiteConfigurations,
 )
+from cmk.profiling.backend import ProfilingOptions
 from cmk.ruleset_matcher.tags import TagConfigSpec
 from cmk.utils import paths
 
@@ -718,3 +719,5 @@ class GeneralConfig:
     load_frontend_vue: Literal["static_files", "inject"] = "static_files"
     # Vue experimental feature settings
     vue_experimental_features: dict[str, Any] = field(default_factory=dict)
+    # Performance profile store retention
+    profiling_options: ProfilingOptions = field(default_factory=ProfilingOptions)

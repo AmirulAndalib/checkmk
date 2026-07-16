@@ -61,6 +61,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-crypto",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-profiling:gui",
         "//packages/cmk-trace",
         requirement("apispec"),
         requirement("flask"),

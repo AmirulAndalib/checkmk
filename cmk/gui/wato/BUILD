@@ -181,6 +181,7 @@ py_library(
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
+        "//packages/cmk-profiling:gui",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-werks:tool",
         requirement("cryptography"),

@@ -43,6 +43,7 @@ from cmk.diagnostics import (
     OPT_COMP_LICENSING,
     OPT_COMP_METRIC_BACKEND,
     OPT_COMP_NOTIFICATIONS,
+    OPT_GUI_PROFILES,
     OPT_LOCAL_FILES,
     OPT_OMD_CONFIG,
     OPT_PERFORMANCE_GRAPHS,
@@ -88,6 +89,7 @@ from cmk.gui.utils.urls import (
 from cmk.gui.valuespec import (
     CascadingDropdown,
     Dictionary,
+    DictionaryEntry,
     DualListChoice,
     FixedValue,
     Integer,
@@ -105,6 +107,7 @@ from cmk.gui.watolib.automations import (
 )
 from cmk.gui.watolib.check_mk_automations import create_diagnostics_dump
 from cmk.gui.watolib.mode import ModeRegistry, redirect, WatoMode
+from cmk.profiling.gui import ProfileStore
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 
 _FILE_MAPS = [
@@ -447,8 +450,8 @@ class ModeDiagnostics(WatoMode[object]):
             optional_keys=False,
         )
 
-    def _get_optional_information_elements(self) -> list[tuple[str, ValueSpec[object]]]:
-        elements: list[tuple[str, ValueSpec[object]]] = [
+    def _get_optional_information_elements(self) -> list[DictionaryEntry]:
+        elements: list[DictionaryEntry] = [
             (
                 OPT_LOCAL_FILES,
                 FixedValue(
@@ -514,6 +517,23 @@ class ModeDiagnostics(WatoMode[object]):
                         "<b>Note</b>: Some crash reports may contain sensitive data like "
                         "host names or usernames."
                     ),
+                ),
+            ),
+            (
+                OPT_GUI_PROFILES,
+                DualListChoice(
+                    title=_("GUI Performance Profiles"),
+                    help=_(
+                        "Select which stored GUI request profiles to include. "
+                        "Each profile contains the raw cProfile .profile file and a "
+                        "JSON metadata sidecar (request URL, method, duration, timestamp). "
+                        "Flamegraphs are rendered on demand in the GUI and are not stored. "
+                        "Enable profiling in "
+                        "Global settings > Developer Tools > Performance profiles "
+                        "to collect profiles."
+                    ),
+                    choices=self._get_gui_profile_choices(),
+                    rows=6,
                 ),
             ),
             (
@@ -712,6 +732,12 @@ class ModeDiagnostics(WatoMode[object]):
                     )
                 )
         return elements
+
+    @staticmethod
+    def _get_gui_profile_choices() -> list[tuple[str, str]]:
+        """Return available GUI profiles as (profile_id, display_label) choices."""
+        store = ProfileStore(cmk.utils.paths.profiles_dir)
+        return [(p.profile_id, f"{p.timestamp} — {p.source_info}") for p in store.list_profiles()]
 
     def _get_component_specific_checkmk_files_choices(
         self,

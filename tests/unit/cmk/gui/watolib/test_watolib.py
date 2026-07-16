@@ -152,6 +152,7 @@ def test_registered_configvars() -> None:
         "password_policy",
         "piggyback_max_cachefile_age",
         "profile",
+        "profiling_options",
         "quicksearch_dropdown_limit",
         "quicksearch_search_order",
         "remote_status",

@@ -832,6 +832,7 @@ pkg_tar(
         "//packages/cmk-mkp-tool:pkg_tar",
         "//packages/cmk-plugins:pkg_tar",
         "//packages/cmk-plugin-apis:pkg_tar",
+        "//packages/cmk-profiling:pkg_tar",
         "//packages/cmk-relay-protocols:pkg_tar",
         "//packages/cmk-ruleset-matcher:pkg_tar",
         "//packages/cmk-trace:pkg_tar",

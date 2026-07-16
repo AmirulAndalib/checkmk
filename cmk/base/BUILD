@@ -16,6 +16,7 @@ py_library(
     deps = [
         "//cmk/utils",
         "//packages/cmk-ccc:exceptions",
+        "//packages/cmk-profiling:backend",
     ],
 )
 
@@ -245,6 +246,7 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-crash:crash",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-profiling:backend",
         requirement("requests"),
     ],
 )

@@ -540,6 +540,7 @@ allows = [
   "cmk.logwatch",
   "cmk.piggyback",
   "cmk.product_usage",
+  "cmk.profiling.backend",
   "cmk.relay_fetcher_trigger",
   "cmk.rrd",
   "cmk.server_side_calls_backend",
@@ -1052,6 +1053,8 @@ allows = [
   "cmk.licensing",
   "cmk.piggyback",
   "cmk.product_usage",
+  "cmk.profiling.backend",
+  "cmk.profiling.gui",
   "cmk.server_side_calls_backend",
   "cmk.shared_typing",
   "cmk.backup",
@@ -1158,6 +1161,17 @@ allows = []
 
 [components."cmk.plugins"]
 allows = ["@plugin_apis"]
+
+[components."cmk.profiling.backend"]
+allows = ["cmk.ccc.store", "cmk.shared_typing.profiling_flamegraph"]
+
+[components."cmk.profiling.gui"]
+allows = [
+  "cmk.gui",
+  "cmk.profiling.backend",
+  "cmk.shared_typing.profiling_flamegraph",
+  "cmk.utils.paths",
+]
 
 [components."cmk.product_usage.cli"]
 allows = ["@ccc", "cmk.base", "cmk.product_usage", "cmk.utils.paths"]
