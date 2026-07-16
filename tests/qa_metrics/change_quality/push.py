@@ -245,7 +245,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.from_date is not None:
             logger.info(
                 "Incremental mode: walking commits since %s. "
-                "Re-run with `make qa-metrics-change-quality-full` (--full) "
+                "Re-run with `tests/run_tests.sh qa-metrics-change-quality-full` (--full) "
                 "after changing the metric definition to recompute every row.",
                 args.from_date,
             )

@@ -5,7 +5,7 @@ written to `cmk_change_tested` in the QA Metabase postgres.
 
 ## Run modes
 
-### Incremental — `make qa-metrics-change-quality`
+### Incremental — `tests/run_tests.sh qa-metrics-change-quality`
 
 Default. Reads `MAX(commit_time)` from `cmk_change_tested` for the current
 branch and only walks commits newer than that. Daily / hourly re-runs take
@@ -14,19 +14,19 @@ seconds.
 > **After changing the metric definition** (any of `walk.py`,
 > `detect_test.py`, `components.py`, `rows.py`, …) the incremental mode will
 > _not_ re-derive existing rows — it skips commits already in the DB. Run
-> `make qa-metrics-change-quality-full` to rebuild every row under the new
+> `tests/run_tests.sh qa-metrics-change-quality-full` to rebuild every row under the new
 > logic.
 
 The script also prints this reminder to its INFO log on every incremental
 run, so it's hard to forget.
 
-### Full rebuild — `make qa-metrics-change-quality-full`
+### Full rebuild — `tests/run_tests.sh qa-metrics-change-quality-full`
 
 Ignores the watermark and walks all of git history. Re-derives every row
 under the current code. Use this after every change to the metric
 definition.
 
-### Dry-run — `make qa-metrics-change-quality-dryrun`
+### Dry-run — `tests/run_tests.sh qa-metrics-change-quality-dryrun`
 
 Walks all of history, emits the CSV at
 `$(REPO_PATH)/qa-metrics-change-quality.csv`, does not write to the DB.
