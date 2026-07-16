@@ -71,11 +71,6 @@ function formatTimestamp(iso: string): string {
       </CmkLink>
     </div>
 
-    <section class="monitoring-host-overview-tab__section">
-      <CmkHeading type="h3">{{ _t('Service summary') }}</CmkHeading>
-      <CmkStateCountBar :segments="serviceSegments" />
-    </section>
-
     <dl class="monitoring-host-overview-tab__grid">
       <dt>{{ _t('Host name') }}</dt>
       <dd>{{ data.name }}</dd>
@@ -123,6 +118,11 @@ function formatTimestamp(iso: string): string {
         <HostOverviewLabels :labels="data.labels" />
       </dd>
     </dl>
+
+    <section class="monitoring-host-overview-tab__section">
+      <CmkHeading type="h3">{{ _t('Service summary') }}</CmkHeading>
+      <CmkStateCountBar :segments="serviceSegments" />
+    </section>
 
     <dl class="monitoring-host-overview-tab__grid">
       <dt>{{ _t('Last check') }}</dt>

@@ -9,7 +9,7 @@ import { computed } from 'vue'
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
-import CmkTag, { type Colors } from '@/components/CmkTag.vue'
+import type { Colors } from '@/components/CmkTag.vue'
 
 export interface StateSegment {
   label: TranslatedString
@@ -59,7 +59,11 @@ const ariaLabel = computed<string>(() =>
         :key="index"
         class="cmk-state-count-bar__legend-item"
       >
-        <CmkTag :color="segment.color" variant="fill" size="small" :content="segment.label" />
+        <span
+          class="cmk-state-count-bar__legend-swatch"
+          :class="`cmk-state-count-bar__legend-swatch--${segment.color}`"
+        />
+        <span class="cmk-state-count-bar__legend-label">{{ segment.label }}</span>
         <span class="cmk-state-count-bar__legend-count">{{ segment.count }}</span>
       </li>
     </ul>
@@ -86,44 +90,64 @@ const ariaLabel = computed<string>(() =>
   height: 100%;
 }
 
-.cmk-state-count-bar__segment--success {
+.cmk-state-count-bar__segment--success,
+.cmk-state-count-bar__legend-swatch--success {
   background-color: var(--success);
 }
 
-.cmk-state-count-bar__segment--warning {
+.cmk-state-count-bar__segment--warning,
+.cmk-state-count-bar__legend-swatch--warning {
   background-color: var(--color-warning);
 }
 
-.cmk-state-count-bar__segment--danger {
+.cmk-state-count-bar__segment--danger,
+.cmk-state-count-bar__legend-swatch--danger {
   background-color: var(--color-danger);
 }
 
-.cmk-state-count-bar__segment--unknown {
+.cmk-state-count-bar__segment--unknown,
+.cmk-state-count-bar__legend-swatch--unknown {
   background-color: var(--color-unknown);
 }
 
 /* PENDING and the empty track both use the neutral grey — there is no --color-pending. */
 .cmk-state-count-bar__segment--default,
-.cmk-state-count-bar__segment--empty {
+.cmk-state-count-bar__segment--empty,
+.cmk-state-count-bar__legend-swatch--default {
   background-color: var(--state-count-bar-neutral);
 }
 
 .cmk-state-count-bar__legend {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  place-items: center start;
   gap: var(--dimension-4);
+  width: fit-content;
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
+/* Each item's children join the shared grid (swatch | label | count) so the counts
+   stay aligned in one column across all rows regardless of label width. */
 .cmk-state-count-bar__legend-item {
-  display: flex;
-  align-items: center;
-  gap: var(--dimension-3);
+  display: contents;
 }
 
+/* A slim colour swatch drawn next to the label instead of tinting it; horizontally
+   slim but as tall as the bar above. */
+.cmk-state-count-bar__legend-swatch {
+  flex: none;
+  width: var(--dimension-4);
+  height: var(--dimension-7);
+  border-radius: var(--border-radius);
+}
+
+/* Right-aligned monospace column so the counts stay readable and lined up next to
+   the labels regardless of digit count. */
 .cmk-state-count-bar__legend-count {
+  justify-self: end;
+  font-family: var(--font-family-monospace);
   font-weight: var(--font-weight-bold);
 }
 
