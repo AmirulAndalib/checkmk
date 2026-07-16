@@ -96,7 +96,29 @@ py_wheel(
     # TODO: Duplicated from pyproject.toml
     version = "1.0.0",
     visibility = ["//visibility:public"],
-    deps = [":cmk-werks"],
+    deps = [
+        ":cmk-werks",
+        ":site",
+    ],
+)
+
+py_library(
+    name = "site",
+    srcs = [
+        "cmk/werks/site/__init__.py",
+        "cmk/werks/site/acknowledgement.py",
+    ],
+    imports = ["."],
+    visibility = [
+        "//cmk:__subpackages__",
+        "//omd:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        ":cmk-werks",
+        "//cmk/utils:paths",
+        "//packages/cmk-ccc:store",
+    ],
 )
 
 py_library(
