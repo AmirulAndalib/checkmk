@@ -3708,10 +3708,7 @@ class AutomationActiveCheck:
                     "Passive check - cannot be executed",
                 )
 
-        with redirect_stdout(open(os.devnull, "w")):
-            # The IP lookup used to write to stdout, that is not the case anymore.
-            # The redirect might not be needed anymore.
-            host_attrs = env.config_cache.get_host_attributes(host_name, ip_family, ip_address_of)
+        host_attrs = env.config_cache.get_host_attributes(host_name, ip_family, ip_address_of)
 
         secrets_config = StoredSecrets(
             path=(p := cmk.utils.password_store.pending_secrets_path_site()),
