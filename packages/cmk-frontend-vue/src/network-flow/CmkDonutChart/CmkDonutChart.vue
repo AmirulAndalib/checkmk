@@ -65,17 +65,17 @@ const topSlice = computed(() => props.slices[0])
 </script>
 
 <template>
-  <div class="cmk-donut-chart">
-    <div class="cmk-donut-chart__figure">
+  <div class="network-flow-cmk-donut-chart">
+    <div class="network-flow-cmk-donut-chart__figure">
       <svg
-        class="cmk-donut-chart__svg"
+        class="network-flow-cmk-donut-chart__svg"
         :viewBox="`0 0 ${SIZE} ${SIZE}`"
         role="img"
         preserveAspectRatio="xMidYMid meet"
       >
         <circle
           v-if="!segments.length"
-          class="cmk-donut-chart__empty-track"
+          class="network-flow-cmk-donut-chart__empty-track"
           :cx="CENTER"
           :cy="CENTER"
           :r="RADIUS"
@@ -95,24 +95,35 @@ const topSlice = computed(() => props.slices[0])
           :stroke-dashoffset="segment.offset"
         />
       </svg>
-      <div v-if="topSlice" class="cmk-donut-chart__center">
-        <span class="cmk-donut-chart__center-value">{{ percentText(topSlice.value) }}</span>
-        <span class="cmk-donut-chart__center-label">{{ topSlice.label }}</span>
+      <div v-if="topSlice" class="network-flow-cmk-donut-chart__center">
+        <span class="network-flow-cmk-donut-chart__center-value">{{
+          percentText(topSlice.value)
+        }}</span>
+        <span class="network-flow-cmk-donut-chart__center-label">{{ topSlice.label }}</span>
       </div>
     </div>
 
-    <ul class="cmk-donut-chart__legend">
-      <li v-for="slice in slices" :key="slice.key" class="cmk-donut-chart__legend-item">
-        <span class="cmk-donut-chart__swatch" :style="{ backgroundColor: slice.color }" />
-        <span class="cmk-donut-chart__legend-label">{{ slice.label }}</span>
-        <span class="cmk-donut-chart__legend-value">{{ percentText(slice.value) }}</span>
+    <ul class="network-flow-cmk-donut-chart__legend">
+      <li
+        v-for="slice in slices"
+        :key="slice.key"
+        class="network-flow-cmk-donut-chart__legend-item"
+      >
+        <span
+          class="network-flow-cmk-donut-chart__swatch"
+          :style="{ backgroundColor: slice.color }"
+        />
+        <span class="network-flow-cmk-donut-chart__legend-label">{{ slice.label }}</span>
+        <span class="network-flow-cmk-donut-chart__legend-value">{{
+          percentText(slice.value)
+        }}</span>
       </li>
     </ul>
   </div>
 </template>
 
 <style scoped>
-.cmk-donut-chart {
+.network-flow-cmk-donut-chart {
   display: flex;
   gap: clamp(8px, 3cqw, 24px);
   align-items: center;
@@ -122,7 +133,7 @@ const topSlice = computed(() => props.slices[0])
   container-type: size;
 }
 
-.cmk-donut-chart__figure {
+.network-flow-cmk-donut-chart__figure {
   position: relative;
   flex: 0 0 auto;
   align-self: stretch;
@@ -130,17 +141,17 @@ const topSlice = computed(() => props.slices[0])
   max-height: 100%;
 }
 
-.cmk-donut-chart__svg {
+.network-flow-cmk-donut-chart__svg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.cmk-donut-chart__empty-track {
+.network-flow-cmk-donut-chart__empty-track {
   stroke: var(--ux-theme-4);
 }
 
-.cmk-donut-chart__center {
+.network-flow-cmk-donut-chart__center {
   position: absolute;
   inset: 0;
   display: flex;
@@ -151,20 +162,20 @@ const topSlice = computed(() => props.slices[0])
   text-align: center;
 }
 
-.cmk-donut-chart__center-value {
+.network-flow-cmk-donut-chart__center-value {
   font-size: 1.6em;
   font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
-.cmk-donut-chart__center-label {
+.network-flow-cmk-donut-chart__center-label {
   font-size: 0.85em;
   color: var(--color-mid-grey-50);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.cmk-donut-chart__legend {
+.network-flow-cmk-donut-chart__legend {
   flex: 1;
   min-width: 0;
   padding: 0;
@@ -173,7 +184,7 @@ const topSlice = computed(() => props.slices[0])
   list-style: none;
 }
 
-.cmk-donut-chart__legend-item {
+.network-flow-cmk-donut-chart__legend-item {
   display: flex;
   gap: clamp(4px, 1cqw, 10px);
   align-items: center;
@@ -181,21 +192,21 @@ const topSlice = computed(() => props.slices[0])
   border-bottom: 1px solid var(--ux-theme-6);
 }
 
-.cmk-donut-chart__swatch {
+.network-flow-cmk-donut-chart__swatch {
   flex: 0 0 auto;
   width: 0.75em;
   height: 0.75em;
   border-radius: 2px;
 }
 
-.cmk-donut-chart__legend-label {
+.network-flow-cmk-donut-chart__legend-label {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cmk-donut-chart__legend-value {
+.network-flow-cmk-donut-chart__legend-value {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }

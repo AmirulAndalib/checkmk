@@ -4,7 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import CmkDonutChart, { type DonutSlice } from '@/components/CmkDonutChart'
+import CmkDonutChart, { type DonutSlice } from '@/network-flow/CmkDonutChart'
 
 const slices: DonutSlice[] = [
   { key: 'tls', label: 'TLS', value: 47.2, color: 'var(--color-corporate-green-50)' },

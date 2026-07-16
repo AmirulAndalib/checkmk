@@ -11,11 +11,11 @@ import usei18n from '@/lib/i18n'
 
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
 import CmkLoading from '@/components/CmkLoading.vue'
-import CmkRankedTable from '@/components/CmkRankedTable'
-import type { RankedTableColumn, RankedTableRow } from '@/components/CmkRankedTable'
 
 import type { NetworkFlowTopTableContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
+import CmkRankedTable from '@/network-flow/CmkRankedTable'
+import type { RankedTableColumn, RankedTableRow } from '@/network-flow/CmkRankedTable'
 
 import DashboardContentContainer from '../DashboardContentContainer.vue'
 import type { ContentProps } from '../types.ts'

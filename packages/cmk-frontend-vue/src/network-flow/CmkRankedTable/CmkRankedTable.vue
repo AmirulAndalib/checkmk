@@ -45,16 +45,16 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
 </script>
 
 <template>
-  <table class="cmk-ranked-table">
+  <table class="network-flow-cmk-ranked-table">
     <thead>
       <tr>
         <th
           v-for="column in columns"
           :key="column.key"
-          class="cmk-ranked-table__th"
+          class="network-flow-cmk-ranked-table__th"
           :class="{
-            'cmk-ranked-table__cell--right': isNumeric(column) && !column.bar,
-            'cmk-ranked-table__cell--fit': !column.bar
+            'network-flow-cmk-ranked-table__cell--right': isNumeric(column) && !column.bar,
+            'network-flow-cmk-ranked-table__cell--fit': !column.bar
           }"
         >
           {{ column.title }}
@@ -62,27 +62,29 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, index) in rows" :key="index" class="cmk-ranked-table__row">
+      <tr v-for="(row, index) in rows" :key="index" class="network-flow-cmk-ranked-table__row">
         <td
           v-for="column in columns"
           :key="column.key"
-          class="cmk-ranked-table__td"
+          class="network-flow-cmk-ranked-table__td"
           :class="{
-            'cmk-ranked-table__cell--right': isNumeric(column) && !column.bar,
-            'cmk-ranked-table__cell--fit': !column.bar
+            'network-flow-cmk-ranked-table__cell--right': isNumeric(column) && !column.bar,
+            'network-flow-cmk-ranked-table__cell--fit': !column.bar
           }"
         >
-          <div v-if="column.bar" class="cmk-ranked-table__bar">
-            <span class="cmk-ranked-table__bar-track">
+          <div v-if="column.bar" class="network-flow-cmk-ranked-table__bar">
+            <span class="network-flow-cmk-ranked-table__bar-track">
               <span
-                class="cmk-ranked-table__bar-fill"
+                class="network-flow-cmk-ranked-table__bar-fill"
                 :style="{
                   width: `${barPercent(column, row)}%`,
                   backgroundColor: barColor
                 }"
               />
             </span>
-            <span class="cmk-ranked-table__bar-value">{{ cellText(column, row) }}</span>
+            <span class="network-flow-cmk-ranked-table__bar-value">{{
+              cellText(column, row)
+            }}</span>
           </div>
           <template v-else>{{ cellText(column, row) }}</template>
         </td>
@@ -92,7 +94,7 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
 </template>
 
 <style scoped>
-.cmk-ranked-table {
+.network-flow-cmk-ranked-table {
   width: 100%;
   height: 100%;
   border-collapse: collapse;
@@ -105,7 +107,7 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
   table-layout: auto;
 }
 
-.cmk-ranked-table__th {
+.network-flow-cmk-ranked-table__th {
   padding: clamp(2px, 2cqh, 8px) clamp(6px, 1cqw, 12px);
   font-size: 0.85em;
   font-weight: var(--font-weight-bold);
@@ -117,7 +119,7 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
   border-bottom: 1px solid var(--ux-theme-4);
 }
 
-.cmk-ranked-table__td {
+.network-flow-cmk-ranked-table__td {
   padding: clamp(2px, 2cqh, 8px) clamp(6px, 1cqw, 12px);
   overflow: hidden;
   white-space: nowrap;
@@ -125,30 +127,30 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
 }
 
 /* Zebra striping, using the shared alternating-row background tokens. */
-.cmk-ranked-table__row:nth-child(odd) {
+.network-flow-cmk-ranked-table__row:nth-child(odd) {
   background-color: var(--odd-tr-bg-color);
 }
 
-.cmk-ranked-table__row:nth-child(even) {
+.network-flow-cmk-ranked-table__row:nth-child(even) {
   background-color: var(--even-tr-bg-color);
 }
 
-.cmk-ranked-table__cell--right {
+.network-flow-cmk-ranked-table__cell--right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-.cmk-ranked-table__cell--fit {
+.network-flow-cmk-ranked-table__cell--fit {
   width: 1%;
 }
 
-.cmk-ranked-table__bar {
+.network-flow-cmk-ranked-table__bar {
   display: flex;
   align-items: center;
   gap: clamp(6px, 1cqw, 12px);
 }
 
-.cmk-ranked-table__bar-track {
+.network-flow-cmk-ranked-table__bar-track {
   flex: 1;
   height: clamp(4px, 1.2cqh, 7px);
   overflow: hidden;
@@ -156,13 +158,13 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
   border-radius: 99999px;
 }
 
-.cmk-ranked-table__bar-fill {
+.network-flow-cmk-ranked-table__bar-fill {
   display: block;
   height: 100%;
   border-radius: 99999px;
 }
 
-.cmk-ranked-table__bar-value {
+.network-flow-cmk-ranked-table__bar-value {
   min-width: 5.5em;
   font-variant-numeric: tabular-nums;
   text-align: right;

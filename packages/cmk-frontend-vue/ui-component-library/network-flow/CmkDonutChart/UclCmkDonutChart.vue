@@ -12,7 +12,7 @@ import {
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
 
-import CmkDonutChart, { type DonutSlice } from '@/components/CmkDonutChart'
+import CmkDonutChart, { type DonutSlice } from '@/network-flow/CmkDonutChart'
 
 import codeExample from './UclCmkDonutChartCodeExample.vue?raw'
 

@@ -5,8 +5,8 @@
  */
 import { render } from '@testing-library/vue'
 
-import CmkDonutChart from '@/components/CmkDonutChart/CmkDonutChart.vue'
-import type { DonutSlice } from '@/components/CmkDonutChart/types'
+import CmkDonutChart from '@/network-flow/CmkDonutChart/CmkDonutChart.vue'
+import type { DonutSlice } from '@/network-flow/CmkDonutChart/types'
 
 const SLICES: DonutSlice[] = [
   { key: 'tls', label: 'TLS', value: 90, color: 'rgb(1, 2, 3)' },
@@ -22,13 +22,13 @@ test('renders one arc segment and one legend entry per slice', () => {
 
   // The empty-track circle is only rendered when there are no slices.
   expect(container.querySelectorAll('circle')).toHaveLength(2)
-  expect(container.querySelectorAll('.cmk-donut-chart__legend-item')).toHaveLength(2)
+  expect(container.querySelectorAll('.network-flow-cmk-donut-chart__legend-item')).toHaveLength(2)
 })
 
 test('derives percentages from the sum of all slice values', () => {
   const { container } = renderChart()
 
-  const values = [...container.querySelectorAll('.cmk-donut-chart__legend-value')].map(
+  const values = [...container.querySelectorAll('.network-flow-cmk-donut-chart__legend-value')].map(
     (el) => el.textContent
   )
   // 90 / 150 = 60%, 60 / 150 = 40%.
@@ -38,8 +38,12 @@ test('derives percentages from the sum of all slice values', () => {
 test('highlights the top slice in the center', () => {
   const { container } = renderChart()
 
-  expect(container.querySelector('.cmk-donut-chart__center-value')).toHaveTextContent('60.0%')
-  expect(container.querySelector('.cmk-donut-chart__center-label')).toHaveTextContent('TLS')
+  expect(container.querySelector('.network-flow-cmk-donut-chart__center-value')).toHaveTextContent(
+    '60.0%'
+  )
+  expect(container.querySelector('.network-flow-cmk-donut-chart__center-label')).toHaveTextContent(
+    'TLS'
+  )
 })
 
 test('colors each arc segment with its slice color', () => {
@@ -55,6 +59,6 @@ test('renders an empty track and no center when there are no slices', () => {
   const { container } = renderChart([])
 
   expect(container.querySelectorAll('circle')).toHaveLength(1)
-  expect(container.querySelector('.cmk-donut-chart__empty-track')).not.toBeNull()
-  expect(container.querySelector('.cmk-donut-chart__center')).toBeNull()
+  expect(container.querySelector('.network-flow-cmk-donut-chart__empty-track')).not.toBeNull()
+  expect(container.querySelector('.network-flow-cmk-donut-chart__center')).toBeNull()
 })

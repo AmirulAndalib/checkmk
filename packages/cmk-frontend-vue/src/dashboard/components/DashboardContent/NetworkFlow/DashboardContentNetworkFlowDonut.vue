@@ -10,11 +10,11 @@ import { CmkApiError } from '@/lib/error'
 import usei18n from '@/lib/i18n'
 
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
-import CmkDonutChart, { type DonutSlice } from '@/components/CmkDonutChart'
 import CmkLoading from '@/components/CmkLoading.vue'
 
 import type { NetworkFlowDonutContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
+import CmkDonutChart, { type DonutSlice } from '@/network-flow/CmkDonutChart'
 
 import DashboardContentContainer from '../DashboardContentContainer.vue'
 import type { ContentProps } from '../types.ts'

@@ -14,6 +14,7 @@ import { pages as graphingPages } from '../graphing'
 import { pages as i18nPages } from '../i18n'
 import { pages as metricBackendPages } from '../metric-backend'
 import { pages as monitoringPages } from '../monitoring'
+import { pages as networkFlowPages } from '../network-flow'
 import { pages as twoFactorAuthPages } from '../two-factor-authentication'
 import UclCmkBadge from './basic-elements/CmkBadge/UclCmkBadge.vue'
 import UclCmkButton from './basic-elements/CmkButton/UclCmkButton.vue'
@@ -31,7 +32,6 @@ import UclCmkAccordionStepPanel from './content-organization/CmkAccordionStepPan
 import UclCmkCatalogPanel from './content-organization/CmkCatalogPanel/UclCmkCatalogPanel.vue'
 import UclCmkCollapsible from './content-organization/CmkCollapsible/UclCmkCollapsible.vue'
 import UclCmkFlyout from './content-organization/CmkFlyout/UclCmkFlyout.vue'
-import UclCmkRankedTable from './content-organization/CmkRankedTable/UclCmkRankedTable.vue'
 import UclCmkScrollContainer from './content-organization/CmkScrollContainer/UclCmkScrollContainer.vue'
 import UclCmkSlideIn from './content-organization/CmkSlideIn/UclCmkSlideIn.vue'
 import UclCmkSlideInDialog from './content-organization/CmkSlideInDialog/UclCmkSlideInDialog.vue'
@@ -113,7 +113,6 @@ const contentOrganizationPages = [
   new Page('CmkCatalogPanel', UclCmkCatalogPanel),
   new Page('CmkCollapsible', UclCmkCollapsible),
   new Page('CmkFlyout', UclCmkFlyout),
-  new Page('CmkRankedTable', UclCmkRankedTable),
   new Page('CmkScrollContainer', UclCmkScrollContainer),
   new Page('CmkSlideIn', UclCmkSlideIn),
   new Page('CmkSlideInDialog', UclCmkSlideInDialog),
@@ -218,6 +217,7 @@ export const roots = [
     new Folder('I18n', i18nPages),
     new Folder('Metric backend', metricBackendPages),
     new Folder('Monitoring', monitoringPages),
+    new Folder('Network flow', networkFlowPages),
     new Folder('Two Factor Authentication', twoFactorAuthPages)
   ])
 ]

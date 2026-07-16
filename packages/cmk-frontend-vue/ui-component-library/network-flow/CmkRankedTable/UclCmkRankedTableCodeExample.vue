@@ -7,7 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import CmkRankedTable, {
   type RankedTableColumn,
   type RankedTableRow
-} from '@/components/CmkRankedTable'
+} from '@/network-flow/CmkRankedTable'
 
 const columns: RankedTableColumn[] = [
   { key: 'host', title: 'Host', render: 'text', bar: false },

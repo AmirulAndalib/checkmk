@@ -31,7 +31,7 @@ import {
 import CmkRankedTable, {
   type RankedTableColumn,
   type RankedTableRow
-} from '@/components/CmkRankedTable'
+} from '@/network-flow/CmkRankedTable'
 
 defineProps<{ screenshotMode: boolean }>()
 
