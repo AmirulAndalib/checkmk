@@ -44,7 +44,7 @@ def _impl(ctx):
         modules.extend([
             ADD_TESTS_TPL.format(test = _file_to_module(file))
             for file in src.files.to_list()
-            if file.is_source
+            if file.is_source and file.extension == "py"
         ])
     runner = ctx.actions.declare_file(ctx.attr.name)
     content = DOCTEST_TPL.format("\n".join(modules))
