@@ -262,6 +262,11 @@ class LockfileV9(BaseModel):
 
         for import_info in self.importers.values():
             for name, info in import_info.get("dependencies", {}).items():
+                if info.version.version.startswith("link:"):
+                    # Workspace packages are first party code and have no entry in the
+                    # "packages" section. Their third party dependencies are still
+                    # covered, as every workspace package is an importer of its own.
+                    continue
                 self._used_dep_ids(
                     prod_dependencies,
                     package_components,
@@ -269,6 +274,8 @@ class LockfileV9(BaseModel):
                 )
 
             for name, info in import_info.get("devDependencies", {}).items():
+                if info.version.version.startswith("link:"):
+                    continue
                 self._used_dep_ids(
                     dev_dependencies,
                     package_components,
