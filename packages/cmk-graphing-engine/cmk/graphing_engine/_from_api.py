@@ -73,6 +73,7 @@ class _ParseContext:
         return self.quantity_builder(
             [
                 RRDMetric(
+                    site_id=service.site_id,
                     host_name=service.host_name,
                     service_name=service.service_name,
                     metric_name=MetricName(metric_name),
@@ -84,6 +85,7 @@ class _ParseContext:
     def scalar(self, metric_name: str) -> RRDMetric:
         service = self.services[0]
         return RRDMetric(
+            site_id=service.site_id,
             host_name=service.host_name,
             service_name=service.service_name,
             metric_name=MetricName(metric_name),

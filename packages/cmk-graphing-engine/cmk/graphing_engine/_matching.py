@@ -100,6 +100,7 @@ def _add_predictive_lines(
                     Line(
                         curve=build_curve(
                             RRDMetric(
+                                site_id=service.site_id,
                                 host_name=service.host_name,
                                 service_name=service.service_name,
                                 metric_name=predictive,
@@ -154,12 +155,15 @@ def build_matched_graphs(
     quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Sequence[Graph]:
     names_by_service = fetch_metric_names(services)
+    # The metric-name fetch returns the services tagged with their resolved site; build from those so
+    # the metrics carry it.
+    resolved = list(names_by_service)
     available: frozenset[MetricName] = (
         frozenset[MetricName]().union(*names_by_service.values())
         if names_by_service
         else frozenset()
     )
-    single_service = services[0] if len(services) == 1 else None
+    single_service = resolved[0] if len(resolved) == 1 else None
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
 
@@ -167,11 +171,12 @@ def build_matched_graphs(
         return quantity_builder(
             [
                 RRDMetric(
+                    site_id=service.site_id,
                     host_name=service.host_name,
                     service_name=service.service_name,
                     metric_name=name,
                 )
-                for service in services
+                for service in resolved
             ]
         )
 
@@ -200,6 +205,7 @@ def build_matched_graphs(
         if single_service is None:
             return []
         metric = RRDMetric(
+            site_id=single_service.site_id,
             host_name=single_service.host_name,
             service_name=single_service.service_name,
             metric_name=name,
@@ -222,7 +228,7 @@ def build_matched_graphs(
         _collect(
             parse_graph_from_api(
                 plugin,
-                services,
+                resolved,
                 localizer,
                 registered_metrics,
                 graph_type=graph_type,
