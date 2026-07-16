@@ -208,11 +208,13 @@ sh_library(
     srcs = [
         ".f12",
         "cargo_run",
+        "db-endpoint.sh",
         "references/mk_oracle",
         "run",
         "ssh-run",
         "ssh-run.conf",
         "ssh-run-ci",
+        "test-db-endpoints.conf",
         "tests/files/docker/run-db.sh",
         "tests/test_cmd_line.sh",
         "tools/call-ora",
