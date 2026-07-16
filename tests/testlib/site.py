@@ -1467,7 +1467,7 @@ class Site:
                     )
                     return None
                 raise
-            logger.info(
+            logger.debug(
                 "_get_activation_final_status: status for %(activation_id)r: %(status)s",
                 {"activation_id": activation_id, "status": status},
             )
@@ -1486,7 +1486,7 @@ class Site:
                     "/domain-types/activation_run/collections/running"
                 )
             except requests.exceptions.ConnectionError:
-                logger.info("wait_for_no_running_activations: connection error while polling")
+                logger.debug("wait_for_no_running_activations: connection error while polling")
                 # The site restart triggered by the activation may kill httpd while we poll.
                 return False
             if response.status_code != 200:
@@ -1496,7 +1496,7 @@ class Site:
                 )
                 return False
             running = response.json()["value"]
-            logger.info(
+            logger.debug(
                 "wait_for_no_running_activations: running entries: %(entries)s",
                 {
                     "entries": [
@@ -1519,7 +1519,7 @@ class Site:
             condition_name="no running activations",
         )
 
-        logger.info(
+        logger.debug(
             "wait_for_no_running_activations: seen activation IDs: %(activation_ids)s",
             {"activation_ids": seen_activation_ids},
         )
@@ -1530,7 +1530,7 @@ class Site:
 
         final_status = self._get_activation_final_status(activation_id, timeout, interval)
         if final_status is not None:
-            logger.info(
+            logger.debug(
                 "wait_for_no_running_activations: final status for %(activation_id)r: %(final_status)s",
                 {"activation_id": activation_id, "final_status": final_status},
             )
