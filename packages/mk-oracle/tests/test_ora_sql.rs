@@ -21,7 +21,8 @@ mod common;
 
 use crate::common::tools::{
     make_mini_config, make_mini_config_cdb_root, make_mini_config_custom_instance,
-    make_mini_config_pdb, make_mini_config_with_sid, make_wallet_config,
+    make_mini_config_pdb, make_mini_config_pdb_builtin_then_custom,
+    make_mini_config_pdb_custom_then_builtin, make_mini_config_with_sid, make_wallet_config,
     platform::add_runtime_to_path, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
 };
 use mk_oracle::config::authentication::{AuthType, Authentication, Role, SqlDbEndpoint};
@@ -1518,6 +1519,101 @@ async fn test_pdb_wildcard_pattern_targets_all_discovered_pdbs() {
             "expected subsection header for PDB {pdb}: {output}"
         );
     }
+}
+
+// TC-ORA-144
+#[tokio::test(flavor = "multi_thread")]
+async fn test_pdb_scoped_query_reverts_to_cdb_root_builtin_then_custom() {
+    use mk_oracle::ora_sql::pdbs::Pdbs;
+    add_runtime_to_path();
+    let Some(endpoint) = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_EXT).ok() else {
+        return;
+    };
+    let sid = endpoint
+        .sid
+        .as_deref()
+        .unwrap_or(&endpoint.service_name)
+        .to_uppercase();
+
+    let discovery_config = make_mini_config_pdb(&endpoint, &[".*"]);
+    let spot = backend::make_spot(&discovery_config.endpoint()).unwrap();
+    let conn = spot
+        .connect(None)
+        .expect("Connect failed, check environment variables");
+    let discovered = Pdbs::discover(&conn).expect("PDB discovery failed");
+    let pdb = discovered
+        .names()
+        .first()
+        .expect("test endpoint must expose at least one PDB for this scenario")
+        .as_ref()
+        .to_string();
+
+    let config = make_mini_config_pdb_builtin_then_custom(&endpoint, &pdb);
+    let env = Env::default();
+    let output = generate_data(&config, &env).await.unwrap().join("\n");
+
+    let builtin_pos = output
+        .find(&format!("[[[{sid}|probe_builtin]]]\nCDB$ROOT"))
+        .unwrap_or_else(|| panic!("expected leading probe to see CDB$ROOT: {output}"));
+    let pdb_pos = output
+        .find(&format!("[[[{sid}_{pdb}|probe_pdb]]]\n{pdb}"))
+        .unwrap_or_else(|| panic!("expected PDB-scoped probe to see {pdb}: {output}"));
+    let followup_pos = output
+        .find(&format!("[[[{sid}|probe_followup]]]\nCDB$ROOT"))
+        .unwrap_or_else(|| panic!("expected follow-up probe to see CDB$ROOT again: {output}"));
+
+    assert!(
+        builtin_pos < pdb_pos && pdb_pos < followup_pos,
+        "expected probes in order builtin -> pdb -> followup; \
+         out-of-order output means the PDB switch didn't revert to CDB$ROOT \
+         before the follow-up query ran: {output}"
+    );
+}
+
+// TC-ORA-144
+#[tokio::test(flavor = "multi_thread")]
+async fn test_pdb_scoped_query_reverts_to_cdb_root_custom_then_builtin() {
+    use mk_oracle::ora_sql::pdbs::Pdbs;
+    add_runtime_to_path();
+    let Some(endpoint) = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_EXT).ok() else {
+        return;
+    };
+    let sid = endpoint
+        .sid
+        .as_deref()
+        .unwrap_or(&endpoint.service_name)
+        .to_uppercase();
+
+    let discovery_config = make_mini_config_pdb(&endpoint, &[".*"]);
+    let spot = backend::make_spot(&discovery_config.endpoint()).unwrap();
+    let conn = spot
+        .connect(None)
+        .expect("Connect failed, check environment variables");
+    let discovered = Pdbs::discover(&conn).expect("PDB discovery failed");
+    let pdb = discovered
+        .names()
+        .first()
+        .expect("test endpoint must expose at least one PDB for this scenario")
+        .as_ref()
+        .to_string();
+
+    let config = make_mini_config_pdb_custom_then_builtin(&endpoint, &pdb);
+    let env = Env::default();
+    let output = generate_data(&config, &env).await.unwrap().join("\n");
+
+    let pdb_pos = output
+        .find(&format!("[[[{sid}_{pdb}|probe_pdb]]]\n{pdb}"))
+        .unwrap_or_else(|| panic!("expected PDB-scoped probe to see {pdb}: {output}"));
+    let followup_pos = output
+        .find(&format!("[[[{sid}|probe_followup]]]\nCDB$ROOT"))
+        .unwrap_or_else(|| panic!("expected follow-up probe to see CDB$ROOT: {output}"));
+
+    assert!(
+        pdb_pos < followup_pos,
+        "expected probe_pdb before probe_followup; \
+         out-of-order output means the PDB switch didn't revert to CDB$ROOT \
+         before the follow-up query ran: {output}"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]

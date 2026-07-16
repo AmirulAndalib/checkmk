@@ -357,3 +357,77 @@ oracle:
     );
     Config::from_string(config_str).unwrap().unwrap()
 }
+
+/// Probe order: CDB-root, PDB-scoped, CDB-root (TC-ORA-144).
+pub fn make_mini_config_pdb_builtin_then_custom(endpoint: &SqlDbEndpoint, pdb: &str) -> Config {
+    let config_str = format!(
+        r#"
+---
+oracle:
+  main:
+    authentication:
+       username: "{user}"
+       password: "{pwd}"
+       type: standard
+       role: ""
+    connection:
+       hostname: {host}
+       port: {port}
+       timeout: 15
+       service_name: {service}
+    discovery:
+       detect: no
+    custom_metrics:
+      - probe_builtin:
+          sql: "SELECT SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL"
+      - probe_pdb:
+          sql: "SELECT SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL"
+          pdbs: ["{pdb}"]
+      - probe_followup:
+          sql: "SELECT SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL"
+"#,
+        user = endpoint.user,
+        pwd = endpoint.pwd,
+        host = endpoint.host,
+        port = endpoint.port,
+        service = endpoint.service_name,
+        pdb = pdb,
+    );
+    Config::from_string(config_str).unwrap().unwrap()
+}
+
+/// Probe order: PDB-scoped, CDB-root (TC-ORA-144).
+pub fn make_mini_config_pdb_custom_then_builtin(endpoint: &SqlDbEndpoint, pdb: &str) -> Config {
+    let config_str = format!(
+        r#"
+---
+oracle:
+  main:
+    authentication:
+       username: "{user}"
+       password: "{pwd}"
+       type: standard
+       role: ""
+    connection:
+       hostname: {host}
+       port: {port}
+       timeout: 15
+       service_name: {service}
+    discovery:
+       detect: no
+    custom_metrics:
+      - probe_pdb:
+          sql: "SELECT SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL"
+          pdbs: ["{pdb}"]
+      - probe_followup:
+          sql: "SELECT SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL"
+"#,
+        user = endpoint.user,
+        pwd = endpoint.pwd,
+        host = endpoint.host,
+        port = endpoint.port,
+        service = endpoint.service_name,
+        pdb = pdb,
+    );
+    Config::from_string(config_str).unwrap().unwrap()
+}
