@@ -3,6 +3,7 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
@@ -260,6 +261,30 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/parser",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-plugin-apis:agent_based",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":checker-plugin",
+        ":fetcher-protocol",
+        ":fetchers",
+        ":helper-interface",
+        ":inventory",
+        ":lib",
+        ":section-parser",
+        ":snmp-backends",
+        ":snmplib",
+        ":sources",
+        ":specs",
+        ":subclass-discovery",
+        "//packages/cmk-check-engine/cmk/checkengine/checking",
+        "//packages/cmk-check-engine/cmk/checkengine/discovery",
+        "//packages/cmk-check-engine/cmk/checkengine/parser",
+        "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
+        "//packages/cmk-check-engine/cmk/checkengine/plugins",
     ],
 )
 
