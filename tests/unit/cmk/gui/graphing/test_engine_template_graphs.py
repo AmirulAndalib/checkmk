@@ -27,6 +27,7 @@ from cmk.graphing_engine import (
     TimeRange,
     TimeSeries,
 )
+from cmk.gui.graphing._engine_dispatch import CommonGraphOptions
 from cmk.gui.graphing._engine_rrd import RawPerformanceValue
 from cmk.gui.graphing._engine_template_graphs import (
     build_template_graphs,
@@ -107,8 +108,10 @@ def test_template_lifecycle_discover_and_update() -> None:
 
     evaluated = evaluate_template_graphs(
         graphs=graphs,
-        consolidation_function=ConsolidationFunction.MAX,
-        time_range=_DISCOVERY_RANGE,
+        options=CommonGraphOptions(
+            consolidation_function=ConsolidationFunction.MAX,
+            time_range=_DISCOVERY_RANGE,
+        ),
         fetch_data=fetch_data,
     )
 

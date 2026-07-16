@@ -10,9 +10,9 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 
 from cmk.ccc.plugin_registry import Registry
-from cmk.graphing_engine import EvaluatedGraph, Graph
+from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
 
-from ._engine_serialization import ensure_type, Json
+from ._engine_serialization import consolidation_function_of, ensure_type, Json, time_range_of
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -20,6 +20,21 @@ class GraphDataRequest:
     graph_type: str
     graphs: Mapping[str, object]
     options: Mapping[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, kw_only=True)
+class CommonGraphOptions:
+    # The options common to every graph type's evaluation. A graph type only defines its own options
+    # dataclass when it needs more than these (e.g. combined graphs add their combination mode).
+    consolidation_function: ConsolidationFunction
+    time_range: TimeRange
+
+    @classmethod
+    def from_request_options(cls, options: Mapping[str, object]) -> CommonGraphOptions:
+        return cls(
+            consolidation_function=consolidation_function_of(options),
+            time_range=time_range_of(options),
+        )
 
 
 @dataclass(frozen=True)

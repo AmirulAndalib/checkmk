@@ -12,28 +12,25 @@ from cmk.ccc.exceptions import MKGeneralException
 from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing_engine import (
     build_matched_graphs,
-    ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
     Graph,
     RRDFetchData,
     RRDFetchMetricNames,
     Service,
-    TimeRange,
 )
 from cmk.gui.config import active_config
 from cmk.gui.i18n import _, translate_to_current_language
 
 from ._engine_dispatch import (
+    CommonGraphOptions,
     EngineGraphDispatcher,
     GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
 from ._engine_rrd import EngineRRDFetchData
 from ._engine_serialization import (
-    consolidation_function_of,
     graph_codec,
-    time_range_of,
 )
 from ._from_api import GraphFromAPI
 
@@ -75,13 +72,12 @@ def build_template_graphs(
 def evaluate_template_graphs(
     *,
     graphs: Sequence[Graph],
-    consolidation_function: ConsolidationFunction,
-    time_range: TimeRange,
+    options: CommonGraphOptions,
     fetch_data: RRDFetchData,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
-        consolidation_function=consolidation_function,
-        time_range=time_range,
+        consolidation_function=options.consolidation_function,
+        time_range=options.time_range,
         graphs=graphs,
         fetch_data=fetch_data,
     )
@@ -90,8 +86,7 @@ def evaluate_template_graphs(
 def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Sequence[EvaluatedGraph]:
     return evaluate_template_graphs(
         graphs=graph_codec().deserialize_graphs(request.graphs),
-        consolidation_function=consolidation_function_of(request.options),
-        time_range=time_range_of(request.options),
+        options=CommonGraphOptions.from_request_options(request.options),
         fetch_data=EngineRRDFetchData(
             site_id=None,
             debug=active_config.debug,
