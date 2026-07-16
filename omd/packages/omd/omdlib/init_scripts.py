@@ -62,56 +62,116 @@ def call_init_scripts(
 
 def check_status(
     site_dir: str,
+    *,
     verbose: bool,
     display: bool = True,
     daemon: str | None = None,
     bare: bool = False,
 ) -> int:
-    num_running = 0
-    num_unused = 0
-    num_stopped = 0
+    if not daemon:
+        return _check_status_all(site_dir, verbose=verbose, display=display, bare=bare)
+    return _check_status_daemon(site_dir, daemon, verbose=verbose, display=display, bare=bare)
+
+
+def _check_status_all(
+    site_dir: str,
+    *,
+    verbose: bool,
+    display: bool,
+    bare: bool,
+) -> int:
     rc_dir, scripts = _init_scripts(site_dir)
-    components = [s.split("-", 1)[-1] for s in scripts]
-    if daemon and daemon not in components:
+    return _check_scripts_status(
+        rc_dir,
+        scripts,
+        verbose=verbose,
+        display=display,
+        bare=bare,
+    )
+
+
+def _check_status_daemon(
+    site_dir: str,
+    daemon: str,
+    *,
+    verbose: bool,
+    display: bool,
+    bare: bool,
+) -> int:
+    rc_dir, scripts = _init_scripts(site_dir)
+    daemon_scripts = [s for s in scripts if s.split("-", 1)[-1] == daemon]
+    if not daemon_scripts:
         if not bare:
             sys.stderr.write("ERROR: This daemon does not exist.\n")
         return 3
-    for script in scripts:
-        komponent = script.split("/")[-1].split("-", 1)[-1]
-        if daemon and komponent != daemon:
-            continue
+    return _check_scripts_status(
+        rc_dir, daemon_scripts, verbose=verbose, display=display, bare=bare
+    )
 
-        state = subprocess.call(
-            [os.path.join(rc_dir, script), "status"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+
+def _check_scripts_status(
+    rc_dir: str,
+    scripts: list[str],
+    *,
+    verbose: bool,
+    display: bool,
+    bare: bool,
+) -> int:
+    states = [
+        _check_script_status(
+            os.path.join(rc_dir, script),
+            script.split("/")[-1].split("-", 1)[-1],
+            verbose=verbose,
+            display=display,
+            bare=bare,
         )
+        for script in scripts
+    ]
+    return _summarize_status(states, display=display, bare=bare)
 
-        if display and (state != 5 or verbose):
-            if bare:
-                sys.stdout.write(komponent + " ")
-            else:
-                sys.stdout.write("%-20s" % (komponent + ":"))
-                sys.stdout.write(tty.bold)
 
+def _check_script_status(
+    rc_script: str,
+    daemon: str,
+    *,
+    verbose: bool,
+    display: bool,
+    bare: bool,
+) -> int:
+    state = subprocess.call(
+        [rc_script, "status"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    if display and (state != 5 or verbose):
         if bare:
-            if state != 5 or verbose:
-                sys.stdout.write("%d\n" % state)
-
-        if state == 0:
-            if display and not bare:
-                sys.stdout.write(tty.green + "running\n")
-            num_running += 1
-        elif state == 5:
-            if display and verbose and not bare:
-                sys.stdout.write(tty.blue + "unused\n")
-            num_unused += 1
+            sys.stdout.write(daemon + " ")
         else:
-            if display and not bare:
-                sys.stdout.write(tty.red + "stopped\n")
-            num_stopped += 1
+            sys.stdout.write("%-20s" % (daemon + ":"))
+            sys.stdout.write(tty.bold)
+
+    if bare:
+        if state != 5 or verbose:
+            sys.stdout.write("%d\n" % state)
+
+    if state == 0:
         if display and not bare:
-            sys.stdout.write(tty.normal)
+            sys.stdout.write(tty.green + "running\n")
+    elif state == 5:
+        if display and verbose and not bare:
+            sys.stdout.write(tty.blue + "unused\n")
+    elif display and not bare:
+        sys.stdout.write(tty.red + "stopped\n")
+    if display and not bare:
+        sys.stdout.write(tty.normal)
+
+    return state
+
+
+def _summarize_status(states: list[int], *, display: bool, bare: bool) -> int:
+    num_running = sum(1 for state in states if state == 0)
+    num_stopped = sum(1 for state in states if state not in (0, 5))
 
     if num_stopped > 0 and num_running == 0:
         exit_code = 1
