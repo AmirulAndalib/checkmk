@@ -126,10 +126,10 @@ function formatTimestamp(iso: string): string {
 
     <dl class="monitoring-host-overview-tab__grid">
       <dt>{{ _t('Last check') }}</dt>
-      <dd>{{ timeSince(data.last_check) }}</dd>
+      <dd>{{ formatTimestamp(data.last_check) }}</dd>
 
       <dt>{{ _t('Age') }}</dt>
-      <dd>{{ formatTimestamp(data.last_state_change) }}</dd>
+      <dd>{{ timeSince(data.last_state_change) }}</dd>
     </dl>
 
     <section class="monitoring-host-overview-tab__relations">
