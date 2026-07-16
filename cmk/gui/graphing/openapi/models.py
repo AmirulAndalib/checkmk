@@ -150,3 +150,18 @@ class GraphFetchResponse:
     )
     metrics: list[ApiMetric] = api_field(description="The new metrics.")
     horizontal_lines: list[ApiHorizontalLine] = api_field(description="The new horizontal lines.")
+    warnings: list[str] = api_field(
+        description=(
+            "Non-fatal warnings about the fetched data, e.g. a query whose result was truncated "
+            "because it hit the maximum number of time series. Empty when there is nothing to warn "
+            "about."
+        ),
+        example=[],
+    )
+    errors: list[str] = api_field(
+        description=(
+            "Non-fatal errors that occurred while fetching individual metrics; the rest of the "
+            "graph is still returned. Empty on success."
+        ),
+        example=[],
+    )

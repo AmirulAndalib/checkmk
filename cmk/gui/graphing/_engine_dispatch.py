@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from cmk.ccc.plugin_registry import Registry
 from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
 
+from ._engine_rrd import FetchDiagnostics
 from ._engine_serialization import consolidation_function_of, ensure_type, Json, time_range_of
 
 
@@ -37,11 +38,19 @@ class CommonGraphOptions:
         )
 
 
+@dataclass(frozen=True, kw_only=True)
+class EvaluatedGraphs:
+    # The evaluated graphs plus the non-fatal fetch diagnostics (hit series caps, fetch errors) the
+    # caller surfaces to the user - the engine evaluation itself stays diagnostics-free.
+    graphs: Sequence[EvaluatedGraph]
+    diagnostics: FetchDiagnostics
+
+
 @dataclass(frozen=True)
 class EngineGraphDispatcher:
     graph_type: str
     serialize: Callable[[Sequence[Graph]], Json]
-    evaluate: Callable[[GraphDataRequest], Sequence[EvaluatedGraph]]
+    evaluate: Callable[[GraphDataRequest], EvaluatedGraphs]
 
 
 class EngineGraphDispatcherRegistry(Registry[EngineGraphDispatcher]):
@@ -63,5 +72,5 @@ def serialize_graphs(graphs: Sequence[Graph]) -> Json:
     return {"graphs": serialized}
 
 
-def evaluate_graphs(request: GraphDataRequest) -> Sequence[EvaluatedGraph]:
+def evaluate_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
     return engine_graph_dispatcher_registry[request.graph_type].evaluate(request)

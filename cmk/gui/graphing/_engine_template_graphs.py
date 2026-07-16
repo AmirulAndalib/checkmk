@@ -25,6 +25,7 @@ from cmk.gui.i18n import _, translate_to_current_language
 from ._engine_dispatch import (
     CommonGraphOptions,
     EngineGraphDispatcher,
+    EvaluatedGraphs,
     GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
@@ -85,15 +86,19 @@ def evaluate_template_graphs(
     )
 
 
-def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Sequence[EvaluatedGraph]:
-    return evaluate_template_graphs(
-        graphs=_CODEC.deserialize_graphs(request.graphs),
-        options=CommonGraphOptions.from_request_options(request.options),
-        fetch_data=EngineRRDFetchData(
-            site_id=None,
-            debug=active_config.debug,
-            registered_translations=registered_translations(),
+def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
+    fetch_data = EngineRRDFetchData(
+        site_id=None,
+        debug=active_config.debug,
+        registered_translations=registered_translations(),
+    )
+    return EvaluatedGraphs(
+        graphs=evaluate_template_graphs(
+            graphs=_CODEC.deserialize_graphs(request.graphs),
+            options=CommonGraphOptions.from_request_options(request.options),
+            fetch_data=fetch_data,
         ),
+        diagnostics=fetch_data.diagnostics,
     )
 
 

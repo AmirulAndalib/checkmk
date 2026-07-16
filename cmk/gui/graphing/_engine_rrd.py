@@ -10,7 +10,7 @@ import re
 import shlex
 import time
 from collections.abc import Collection, Iterator, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from statistics import fmean
 from typing import assert_never
 
@@ -505,11 +505,30 @@ def _chop_last_empty_step(
     }
 
 
+@dataclass(frozen=True, kw_only=True)
+class QueryLimitReached:
+    # A fan-out query hit its backend series cap, so its result is truncated.
+    metric_name: str
+    max_series: int
+    num_series: int
+
+
+@dataclass
+class FetchDiagnostics:
+    # Non-fatal fetch diagnostics surfaced to the caller: query series caps that were hit and
+    # per-query fetch errors. Only the metric-backend fetch fills these today; the RRD fetch leaves
+    # them empty. Mutable so the fetch can accumulate into it while resolving the data.
+    limits_reached: list[QueryLimitReached] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+
+
 @dataclass(frozen=True)
 class EngineRRDFetchData:
     site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
+    # Accumulated while fetching; read by the dispatcher into the evaluated result.
+    diagnostics: FetchDiagnostics = field(default_factory=FetchDiagnostics, compare=False)
 
     def __call__(
         self,

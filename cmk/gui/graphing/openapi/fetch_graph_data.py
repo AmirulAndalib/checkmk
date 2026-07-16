@@ -56,13 +56,17 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
             title="Graph evaluation failed",
             detail=f"Failed to evaluate graph: {exc}",
         ) from exc
-    if len(evaluated) != 1:
+    if len(evaluated.graphs) != 1:
         raise ProblemException(
             status=500,
             title="Graph evaluation failed",
-            detail=f"Expected exactly one graph to be evaluated, but got {len(evaluated)}",
+            detail=f"Expected exactly one graph to be evaluated, but got {len(evaluated.graphs)}",
         )
-    return evaluated_to_response(evaluated[0], fallback_time_range=time_range)
+    return evaluated_to_response(
+        evaluated.graphs[0],
+        fallback_time_range=time_range,
+        diagnostics=evaluated.diagnostics,
+    )
 
 
 ENDPOINT_FETCH_GRAPH_DATA = VersionedEndpoint(

@@ -9,10 +9,11 @@ import pytest
 
 from livestatus import MKLivestatusSocketError
 
-from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph
-from cmk.gui.graphing._engine_dispatch import GraphDataRequest, serialize_graphs
+from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
+from cmk.gui.graphing._engine_dispatch import EvaluatedGraphs, GraphDataRequest, serialize_graphs
+from cmk.gui.graphing._engine_rrd import FetchDiagnostics, QueryLimitReached
 from cmk.gui.graphing.openapi import fetch_graph_data as fetch_graph_data_module
-from cmk.gui.graphing.openapi._serialize import api_consolidation_to_engine
+from cmk.gui.graphing.openapi._serialize import api_consolidation_to_engine, evaluated_to_response
 from cmk.gui.graphing.openapi.fetch_graph_data import fetch_graph_data_v1
 from cmk.gui.graphing.openapi.models import ApiTimeRange, GraphFetchRequest
 from cmk.gui.openapi.utils import ProblemException
@@ -30,6 +31,31 @@ def test_consolidation_function_mapping(
     value: Literal["min", "max", "avg"], expected: ConsolidationFunction
 ) -> None:
     assert api_consolidation_to_engine(value) == expected
+
+
+def test_evaluated_to_response_surfaces_fetch_diagnostics() -> None:
+    # A hit series cap becomes a warning; a per-query fetch error becomes an error entry.
+    response = evaluated_to_response(
+        EvaluatedGraph(name="g", title="t", vertical_range=None, stacks=[], lines=[]),
+        fallback_time_range=TimeRange(start=0, end=60, step=10),
+        diagnostics=FetchDiagnostics(
+            limits_reached=[QueryLimitReached(metric_name="cpu", max_series=100, num_series=100)],
+            errors=["metric backend unavailable"],
+        ),
+    )
+    assert response.errors == ["metric backend unavailable"]
+    assert len(response.warnings) == 1
+    assert "cpu" in response.warnings[0]
+
+
+def test_evaluated_to_response_has_no_diagnostics_by_default() -> None:
+    response = evaluated_to_response(
+        EvaluatedGraph(name="g", title="t", vertical_range=None, stacks=[], lines=[]),
+        fallback_time_range=TimeRange(start=0, end=60, step=10),
+        diagnostics=FetchDiagnostics(),
+    )
+    assert response.warnings == []
+    assert response.errors == []
 
 
 @pytest.mark.usefixtures("load_config")
@@ -120,9 +146,12 @@ def test_fetch_graph_data_multiple_internal_graphs_raises_500() -> None:
 def _capture_request(
     monkeypatch: pytest.MonkeyPatch, captured: dict[str, GraphDataRequest]
 ) -> None:
-    def _capture(request: GraphDataRequest) -> list[EvaluatedGraph]:
+    def _capture(request: GraphDataRequest) -> EvaluatedGraphs:
         captured["request"] = request
-        return [EvaluatedGraph(name="g", title="t", vertical_range=None, stacks=[], lines=[])]
+        return EvaluatedGraphs(
+            graphs=[EvaluatedGraph(name="g", title="t", vertical_range=None, stacks=[], lines=[])],
+            diagnostics=FetchDiagnostics(),
+        )
 
     monkeypatch.setattr(fetch_graph_data_module, "evaluate_graphs", _capture)
 

@@ -19,7 +19,9 @@ from cmk.graphing_engine import (
     Unit,
 )
 from cmk.graphing_engine import TimeRange as EngineTimeRange
+from cmk.gui.i18n import _
 
+from .._engine_rrd import FetchDiagnostics
 from .models import (
     ApiConsolidation,
     ApiHorizontalLine,
@@ -49,7 +51,10 @@ def api_time_range_to_engine(time_range: ApiTimeRange) -> EngineTimeRange:
 
 
 def evaluated_to_response(
-    evaluated: EvaluatedGraph, *, fallback_time_range: EngineTimeRange
+    evaluated: EvaluatedGraph,
+    *,
+    fallback_time_range: EngineTimeRange,
+    diagnostics: FetchDiagnostics,
 ) -> GraphFetchResponse:
     """Map the evaluated graph to the data-only response (metrics, horizontal lines, resampled range)."""
     metrics: list[ApiMetric] = []
@@ -95,6 +100,15 @@ def evaluated_to_response(
         ),
         metrics=metrics,
         horizontal_lines=horizontal_lines,
+        warnings=[
+            _(
+                "The query for '%(metric)s' matched more than %(max)d time series, so the result "
+                "is truncated. Please narrow down the query."
+            )
+            % {"metric": limit.metric_name, "max": limit.max_series}
+            for limit in diagnostics.limits_reached
+        ],
+        errors=list(diagnostics.errors),
     )
 
 
