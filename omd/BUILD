@@ -601,22 +601,44 @@ pkg_files(
     srcs = [
         "//agents/windows:agents",
     ],
-    prefix = "agents/windows",
+    prefix = "share/check_mk/agents/windows",
     strip_prefix = strip_prefix.from_pkg(""),
     tags = ["no-python-extension-checker"],
+)
+
+pkg_files(
+    name = "agents_windows_cfg_examples",
+    srcs = ["//agents/windows:cfg_examples"],
+    attributes = pkg_attributes(mode = "0555"),
+    prefix = "share/check_mk/agents/windows",
+    strip_prefix = strip_prefix.from_pkg(""),
+)
+
+pkg_files(
+    name = "agents_windows_mrpe",
+    srcs = ["//agents/windows:mrpe"],
+    attributes = pkg_attributes(mode = "0555"),
+    prefix = "share/check_mk/agents/windows",
+    strip_prefix = strip_prefix.from_pkg(""),
+)
+
+pkg_files(
+    name = "agents_windows_plugins",
+    srcs = ["//agents/windows/plugins"],
+    attributes = pkg_attributes(mode = "0555"),
+    prefix = "share/check_mk/agents/windows/plugins",
+    strip_prefix = strip_prefix.from_pkg(""),
 )
 
 pkg_tar(
     name = "agents_windows",
     srcs = [
+        ":agents_windows_cfg_examples",
         ":agents_windows_ext_built",
-        "//agents/windows:cfg_examples",
-        "//agents/windows:mrpe",
-        "//agents/windows/plugins",
+        ":agents_windows_mrpe",
+        ":agents_windows_plugins",
     ],
-    package_dir = "share/check_mk",
     stamp = 1,
-    strip_prefix = ".",
     tags = ["no-python-extension-checker"],
 )
 
@@ -627,13 +649,18 @@ pkg_files(
     prefix = "share/check_mk/agents/scripts",
 )
 
+pkg_files(
+    name = "agents_scripts_super_server_files",
+    srcs = ["//agents:super-server"],
+    attributes = pkg_attributes(mode = "0755"),
+    prefix = "share/check_mk/agents",
+    strip_prefix = strip_prefix.from_pkg(""),
+)
+
 pkg_tar(
     name = "agents_scripts_super_server",
-    srcs = ["//agents:super-server"],
-    mode = "0755",
-    package_dir = "share/check_mk",
+    srcs = [":agents_scripts_super_server_files"],
     stamp = 1,
-    strip_prefix = "scripts",
 )
 
 pkg_files(
