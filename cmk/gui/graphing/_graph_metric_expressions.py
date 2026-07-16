@@ -132,6 +132,12 @@ class SumRate:
 
 
 @dataclass(frozen=True, kw_only=True)
+class SumLastRaw:
+    lookback_seconds: float
+    type_: Literal["sum_last_raw"] = "sum_last_raw"
+
+
+@dataclass(frozen=True, kw_only=True)
 class HistogramQuantile:
     lookback_seconds: float
     percentile: float
@@ -139,7 +145,7 @@ class HistogramQuantile:
 
 
 type ConsolidationFunction = (
-    GaugeLast | GaugeMax | GaugeAvg | GaugeMin | SumRate | HistogramQuantile
+    GaugeLast | GaugeMax | GaugeAvg | GaugeMin | SumRate | SumLastRaw | HistogramQuantile
 )
 
 

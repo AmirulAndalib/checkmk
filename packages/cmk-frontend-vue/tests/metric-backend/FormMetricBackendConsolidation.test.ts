@@ -74,6 +74,18 @@ test('a sum metric shows the rate function and no quantile input', async () => {
   expect(models.aggregationHistogramPercentile.value).toBe(90)
 })
 
+test('a sum metric offers the rate and last-recorded-raw functions', async () => {
+  renderConsolidation({ metricTypes: ['sum'] })
+
+  await userEvent.click(chip())
+  await userEvent.click(screen.getByRole('combobox', { name: 'Consolidation function' }))
+
+  await waitFor(() => {
+    expect(screen.getByRole('option', { name: 'Rate' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Last recorded value (raw)' })).toBeVisible()
+  })
+})
+
 test('a gauge metric shows the last-value function by default', () => {
   renderConsolidation({ metricTypes: ['gauge'] })
 

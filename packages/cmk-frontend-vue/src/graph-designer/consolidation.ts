@@ -41,6 +41,8 @@ export function buildConsolidationFunction(
       return { type: 'gauge', function: 'gauge_min', lookback_seconds: lookbackSeconds }
     case 'sum_rate':
       return { type: 'sum', function: 'sum_rate', lookback_seconds: lookbackSeconds }
+    case 'sum_last_raw':
+      return { type: 'sum', function: 'sum_last_raw', lookback_seconds: lookbackSeconds }
     case 'histogram_quantile':
       return {
         type: 'histogram',
