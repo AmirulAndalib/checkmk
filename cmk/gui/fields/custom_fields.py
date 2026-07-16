@@ -148,7 +148,7 @@ class AuxTagIDField(fields.String):
             description=description,
             example=example,
             pattern=r"^[-0-9a-zA-Z_]+\Z",
-            allow_none=True,
+            allow_none=False,
             **kwargs,
         )
         self.presence = presence

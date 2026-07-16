@@ -4,6 +4,12 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from typing import get_args
 
+from cmk.gui.openapi.endpoints.aux_tags.schemas import (
+    AuxTagID,
+    AuxTagIDShouldExist,
+    AuxTagIDShouldExistShouldBeCustom,
+)
+from cmk.gui.openapi.restful_objects.params import marshmallow_to_openapi
 from cmk.gui.openapi.restful_objects.type_defs import TagGroup
 from cmk.gui.openapi.spec.spec_generator.generate_api_spec import _redoc_spec
 
@@ -18,3 +24,13 @@ def test_redoc_spec_tag_group_completness() -> None:
     spec = _redoc_spec()
     spec_tag_groups = {el["name"] for el in spec["x-tagGroups"]}
     assert spec_tag_groups == set(get_args(TagGroup))
+
+
+def test_aux_tag_path_parameter_is_not_nullable_in_openapi_spec() -> None:
+    for schema in (AuxTagIDShouldExist, AuxTagIDShouldExistShouldBeCustom, AuxTagID):
+        aux_tag_parameter = marshmallow_to_openapi([schema], "path")[0]
+        assert aux_tag_parameter["required"] is True
+        schema_spec = aux_tag_parameter["schema"]
+        assert isinstance(schema_spec, dict)
+        assert schema_spec["type"] == "string"
+        assert "allowEmptyValue" not in aux_tag_parameter
