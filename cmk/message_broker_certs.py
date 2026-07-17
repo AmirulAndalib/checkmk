@@ -4,6 +4,10 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 """Ensure the message broker certificates are created"""
 
+# NOTE: Dummy no-op comment added to demonstrate the Default Change Validation
+# (Medium Chain) pipeline. This change carries no functional effect and can be
+# abandoned once the pipeline run has been observed.
+
 import argparse
 import logging
 import sys
