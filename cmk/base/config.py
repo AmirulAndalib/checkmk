@@ -633,7 +633,10 @@ def load_packed_config(config_path: Path) -> Mapping[str, Any]:
 
     """
     return {
-        **get_default_config(),
+        # We need to add the variables we filtered out here, because currently
+        # We have to construct the full `LoadedConfig` (even if we don't need
+        # it). This can go once we can serialize a dedicated datastructure.
+        **PackedConfigGenerator.SKIPPED_CONFIG_VARIABLE_NAMES,
         **PackedConfigStore.from_serial(config_path).read(),
     }
 
@@ -854,17 +857,17 @@ class PackedConfigGenerator:
 
     # These variables are part of the Checkmk configuration, but are not needed
     # by the Checkmk keepalive mode, so exclude them from the packed config
-    _SKIPPED_CONFIG_VARIABLE_NAMES = {
-        "define_contactgroups",
-        "define_hostgroups",
-        "define_servicegroups",
-        "service_contactgroups",
-        "host_contactgroups",
-        "service_groups",
-        "host_groups",
-        "contacts",
-        "timeperiods",
-        "extra_nagios_conf",
+    SKIPPED_CONFIG_VARIABLE_NAMES = {
+        "define_contactgroups": {},
+        "define_hostgroups": {},
+        "define_servicegroups": {},
+        "service_contactgroups": [],
+        "host_contactgroups": [],
+        "service_groups": [],
+        "host_groups": [],
+        "contacts": {},
+        "timeperiods": {},
+        "extra_nagios_conf": "",
     }
 
     def __init__(
@@ -947,15 +950,10 @@ class PackedConfigGenerator:
         # Add modified Checkmk base settings
         #
 
-        helper_config_variables = set(self._loaded_config) - self._SKIPPED_CONFIG_VARIABLE_NAMES
-        variable_defaults = get_default_config()
+        helper_config_variables = set(self._loaded_config) - set(self.SKIPPED_CONFIG_VARIABLE_NAMES)
 
         for varname in helper_config_variables:
             val = self._loaded_config[varname]
-            default_value = variable_defaults[varname]
-
-            if val == default_value:
-                continue
 
             if varname in filter_var_functions:
                 val = filter_var_functions[varname](val)
