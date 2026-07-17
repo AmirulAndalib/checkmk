@@ -19,11 +19,11 @@ from cmk.shared_typing.unified_search import (
     UnifiedSearchResultCounts,
 )
 
-from .collapsing import get_collapser
-from .engines.livestatus import LivestatusSearchEngine
-from .engines.redis import RedisSearchEngine
+from ._collapsing import get_collapser
+from ._engines._livestatus import LivestatusSearchEngine
+from ._engines._redis import RedisSearchEngine
+from ._unified import UnifiedSearch
 from .permissions import search_permissions_handler_registry
-from .unified import UnifiedSearch
 
 # Before making this something configurable, we want to first hardcode this setting to a reasonable
 # value and get feedback from users.

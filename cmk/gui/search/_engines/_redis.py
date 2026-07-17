@@ -44,13 +44,13 @@ from cmk.utils.setup_search_index import (
     updates_requested,
 )
 
+from .._routing import CompositePermissionsHandler
 from ..matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
     MatchItemGeneratorRegistry,
 )
 from ..permissions import SearchPermissionsHandler, VisibilityCheck
-from ..routing import CompositePermissionsHandler
 from ._helpers import transform_legacy_results_to_unified
 
 

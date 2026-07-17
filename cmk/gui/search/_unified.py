@@ -14,7 +14,7 @@ from cmk.shared_typing.unified_search import (
     UnifiedSearchResultItem,
 )
 
-from .sorting import get_sorter
+from ._sorting import get_sorter
 
 
 class SearchEngine(Protocol):
