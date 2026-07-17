@@ -9,11 +9,16 @@ import contextlib
 import os
 import subprocess
 import sys
-from typing import Literal
+from typing import Literal, NamedTuple
 
 from cmk.ccc import tty
 from cmk.utils.local_secrets import SiteInternalSecret
 from cmk.utils.security_event import log_security_event, SiteStartStoppedEvent
+
+
+class _InitScript(NamedTuple):
+    daemon: str
+    executable: str
 
 
 def call_init_scripts(
@@ -51,10 +56,10 @@ def call_init_scripts(
             success = True
 
             for script in scripts:
-                if exclude_daemons and script in exclude_daemons:
+                if exclude_daemons and script.executable in exclude_daemons:
                     continue
 
-                if not _call_init_script(f"{rc_dir}/{script}", command):
+                if not _call_init_script(f"{rc_dir}/{script.executable}", command):
                     success = False
 
     return 0 if success else 2
@@ -99,7 +104,7 @@ def _check_status_daemon(
     bare: bool,
 ) -> int:
     rc_dir, scripts = _init_scripts(site_dir)
-    daemon_scripts = [s for s in scripts if s.split("-", 1)[-1] == daemon]
+    daemon_scripts = [script for script in scripts if script.daemon == daemon]
     if not daemon_scripts:
         if not bare:
             sys.stderr.write("ERROR: This daemon does not exist.\n")
@@ -111,7 +116,7 @@ def _check_status_daemon(
 
 def _check_scripts_status(
     rc_dir: str,
-    scripts: list[str],
+    scripts: list[_InitScript],
     *,
     verbose: bool,
     display: bool,
@@ -119,8 +124,8 @@ def _check_scripts_status(
 ) -> int:
     states = [
         _check_script_status(
-            os.path.join(rc_dir, script),
-            script.split("/")[-1].split("-", 1)[-1],
+            os.path.join(rc_dir, script.executable),
+            script.daemon,
             verbose=verbose,
             display=display,
             bare=bare,
@@ -194,11 +199,11 @@ def _summarize_status(states: list[int], *, display: bool, bare: bool) -> int:
     return exit_code
 
 
-def _init_scripts(site_dir: str) -> tuple[str, list[str]]:
+def _init_scripts(site_dir: str) -> tuple[str, list[_InitScript]]:
     rc_dir = f"{site_dir}/etc/rc.d"
     try:
         scripts = sorted(os.listdir(rc_dir))
-        return rc_dir, scripts
+        return rc_dir, [_InitScript(script.split("-", 1)[-1], script) for script in scripts]
     except Exception:
         return rc_dir, []
 
