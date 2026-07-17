@@ -18,6 +18,7 @@ import DashboardContentTimeSeriesGraph from './DashboardContentTimeSeriesGraph.v
 import DashboardContentTopList from './DashboardContentTopList.vue'
 import DashboardContentUserMessages from './DashboardContentUserMessages.vue'
 import DashboardContentNetworkFlowDonut from './NetworkFlow/DashboardContentNetworkFlowDonut.vue'
+import DashboardContentNetworkFlowKpiStatCard from './NetworkFlow/DashboardContentNetworkFlowKpiStatCard.vue'
 import DashboardContentNetworkFlowTopTable from './NetworkFlow/DashboardContentNetworkFlowTopTable.vue'
 import { CONTENT_FIGURE_TYPES, GRAPH_TYPES, NTOP_TYPES } from './types.ts'
 </script>
@@ -50,6 +51,8 @@ function contentTypeToComponent(contentType: string): Component {
       return DashboardContentNetworkFlowTopTable
     case contentType === 'network_flow_donut':
       return DashboardContentNetworkFlowDonut
+    case contentType === 'network_flow_kpi_stat_card':
+      return DashboardContentNetworkFlowKpiStatCard
     case contentType === 'user_messages':
       return DashboardContentUserMessages
     case contentType === 'sidebar_element':

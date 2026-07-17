@@ -30,11 +30,13 @@ import { DashboardLayout, DashboardOwnerType } from '@/dashboard/types/dashboard
 import type { ContextFilter, ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type {
   ComputedNetworkFlowDonutResponse,
+  ComputedNetworkFlowKpiStatCardResponse,
   ComputedNetworkFlowTopTableResponse,
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
   EffectiveWidgetFilterContext,
   NetworkFlowDonutContent,
+  NetworkFlowKpiStatCardContent,
   NetworkFlowTopTableContent,
   TopListContent,
   VisualContext,
@@ -287,6 +289,20 @@ export const dashboardAPI = {
         ...CONTENT_TYPE_HEADER,
         body: { content, context }
       })
+    )
+  },
+  computeNetworkFlowKpiStatCardData: async (
+    content: NetworkFlowKpiStatCardContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowKpiStatCardResponse> => {
+    return unwrap(
+      await client.POST(
+        '/domain-types/dashboard/actions/compute-network-flow-kpi-stat-card/invoke',
+        {
+          ...CONTENT_TYPE_HEADER,
+          body: { content, context }
+        }
+      )
     )
   }
 }
