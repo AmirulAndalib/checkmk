@@ -618,7 +618,7 @@ def load(
     return loading_result
 
 
-def load_packed_config(config_path: Path) -> Mapping[str, Any]:
+def load_packed_config(config_path: Path) -> Mapping[str, object]:
     """Load the configuration for the CMK helpers of CMC
 
     These files are written by PackedConfig().
@@ -827,20 +827,25 @@ def get_config_file_paths(with_conf_d: bool) -> list[Path]:
     return list_of_files
 
 
-def save_packed_config(
-    config_path: Path,
-    config_cache: ConfigCache,
+def make_packed_config_writer(
+    config: Mapping[str, object],
     hosts_config: Hosts,
-) -> None:
-    """Create and store a precompiled configuration for Checkmk helper processes"""
-    base_config = config_cache.base_config
-    PackedConfigStore.from_serial(config_path).write(
-        PackedConfigGenerator(
-            config_cache,
-            hosts_config,
-            {f.name: getattr(base_config, f.name) for f in dataclasses.fields(base_config)},
-        ).generate()
-    )
+    is_online: Callable[[HostName], bool],
+    is_active: Callable[[HostName], bool],
+) -> Callable[[Path], None]:
+
+    def write(config_path: Path) -> None:
+        """Create and store a precompiled configuration for Checkmk helper processes"""
+        PackedConfigStore.from_serial(config_path).write(
+            PackedConfigGenerator(
+                hosts_config,
+                config,
+                is_online=is_online,
+                is_active=is_active,
+            ).generate()
+        )
+
+    return write
 
 
 class PackedConfigGenerator:
@@ -872,20 +877,22 @@ class PackedConfigGenerator:
 
     def __init__(
         self,
-        config_cache: ConfigCache,
         hosts_config: Hosts,
         loaded_config: Mapping[str, object],
+        is_online: Callable[[HostName], bool],
+        is_active: Callable[[HostName], bool],
     ) -> None:
-        self._config_cache = config_cache
         self._hosts_config = hosts_config
         self._loaded_config = loaded_config
+        self._is_online = is_online
+        self._is_active = is_active
 
     def generate(self) -> Mapping[str, object]:
         # These functions purpose is to filter out hosts which are monitored on different sites
         active_hosts = frozenset(
             hn
             for hn in itertools.chain(self._hosts_config.hosts, self._hosts_config.clusters)
-            if self._config_cache.is_active(hn) and self._config_cache.is_online(hn)
+            if self._is_active(hn) and self._is_online(hn)
         )
 
         def filter_all_hosts(all_hosts_orig: list[HostName]) -> list[HostName]:
@@ -904,9 +911,7 @@ class PackedConfigGenerator:
                 clustername = HostName(cluster_entry.split("|", 1)[0])
                 # Include offline cluster HOSTS.
                 # Otherwise, services clustered to those hosts will wrongly be checked by the NODES.
-                if clustername in self._hosts_config.clusters and self._config_cache.is_active(
-                    clustername
-                ):
+                if clustername in self._hosts_config.clusters and self._is_active(clustername):
                     # But exclude offline cluster NODES.
                     # Otherwise, the check on the cluster HOST will fail.
                     clusters_red[cluster_entry] = [
@@ -968,14 +973,14 @@ class PackedConfigStore:
     def make_packed_config_store_path(cls, config_path: Path) -> Path:
         return config_path / "precompiled_check_config.mk"
 
-    def write(self, helper_config: Mapping[str, Any]) -> None:
+    def write(self, helper_config: Mapping[str, object]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp_path = self.path.with_suffix(f"{self.path.suffix}.compiled")
         with tmp_path.open("wb") as compiled_file:
             pickle.dump(helper_config, compiled_file)
         tmp_path.rename(self.path)
 
-    def read(self) -> Mapping[str, Any]:
+    def read(self) -> Mapping[str, object]:
         with self.path.open("rb") as f:
             return pickle.load(f)  # nosec B301 # BNS:c3c5e9
 
@@ -1526,12 +1531,6 @@ class ConfigCache:
             parser=str,
         )
         return self
-
-    @property
-    def base_config(self) -> BaseConfig:
-        # Currently needed for save_packed_config.
-        # Please do not use this.
-        return self._loaded_config
 
     def make_passive_service_name_config(
         self,

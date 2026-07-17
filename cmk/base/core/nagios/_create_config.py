@@ -149,6 +149,7 @@ class NagiosCore(MonitoringCore):
         *,
         hosts_to_update: set[HostName] | None = None,
         service_depends_on: Callable[[HostAddress, ServiceName], Sequence[ServiceName]],
+        checker_config_writer: Callable[[Path], None],
     ) -> None:
         self._config_cache = config_cache
         self._core_objects_config = core_objects_config
@@ -184,6 +185,7 @@ class NagiosCore(MonitoringCore):
                 if self.nagios_core_config.delay_precompile
                 else PrecompileMode.INSTANT
             ),
+            checker_config_writer=checker_config_writer,
         )
 
     def _create_core_config(
@@ -265,6 +267,7 @@ class NagiosCore(MonitoringCore):
         ip_address_of: ip_lookup.IPLookup,
         *,
         precompile_mode: PrecompileMode,
+        checker_config_writer: Callable[[Path], None],
     ) -> None:
         with suppress(IOError):
             sys.stdout.write("Precompiling host checks...")
@@ -279,6 +282,7 @@ class NagiosCore(MonitoringCore):
             get_ip_stack_config,
             ip_address_of,
             precompile_mode=precompile_mode,
+            checker_config_writer=checker_config_writer,
         )
         with suppress(IOError):
             sys.stdout.write(tty.ok + "\n")

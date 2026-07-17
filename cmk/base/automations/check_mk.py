@@ -26,7 +26,7 @@ import time
 import uuid
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import redirect_stderr, redirect_stdout, suppress
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Literal
@@ -1305,6 +1305,12 @@ def _execute_autodiscovery(
         core_objects_config = config.CoreObjectsConfig(
             env.loaded_config, env.ruleset_matcher, env.label_manager
         )
+        checker_config_writer = config.make_packed_config_writer(
+            {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
+            hosts_config,
+            is_online=env.config_cache.is_online,
+            is_active=env.config_cache.is_active,
+        )
 
         if env.loaded_config.monitoring_core == "cmc":
             do_reload(
@@ -1334,6 +1340,7 @@ def _execute_autodiscovery(
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=notify_relay,
+                checker_config_writer=checker_config_writer,
             )
         else:
             do_restart(
@@ -1362,6 +1369,7 @@ def _execute_autodiscovery(
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=notify_relay,
+                checker_config_writer=checker_config_writer,
             )
     finally:
         cache_manager.clear_all()
@@ -2584,8 +2592,17 @@ def _execute_silently(
         env.loaded_config, env.ruleset_matcher, env.label_manager
     )
     hosts_config = rctx.hosts_config
+
     # Config generation logic writes directly to STDOUT. We discard it here.
     # TODO: Should we not capture and forward it to the logs?
+
+    checker_config_writer = config.make_packed_config_writer(
+        {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
+        hosts_config,
+        is_online=config_cache.is_online,
+        is_active=config_cache.is_active,
+    )
+
     with redirect_stdout(open(os.devnull, "w")):
         try:
             do_restart(
@@ -2613,6 +2630,7 @@ def _execute_silently(
                 ),
                 bake_on_restart=rctx.bake_on_restart,
                 notify_relay=rctx.notify_relay,
+                checker_config_writer=checker_config_writer,
             )
         except (MKBailOut, MKGeneralException) as e:
             raise MKAutomationError(str(e))

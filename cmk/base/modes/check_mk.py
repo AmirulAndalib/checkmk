@@ -16,6 +16,7 @@ import sys
 import time
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
 from contextlib import redirect_stdout, suppress
+from dataclasses import fields
 from pathlib import Path
 from typing import Final, Literal, NamedTuple, TypedDict
 
@@ -1634,6 +1635,7 @@ def _mode_update(app: CheckmkBaseApp) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1703,6 +1705,12 @@ def _mode_update(app: CheckmkBaseApp) -> None:
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+                checker_config_writer=config.make_packed_config_writer(
+                    raw_config,
+                    hosts_config,
+                    is_online=loading_result.config_cache.is_online,
+                    is_active=loading_result.config_cache.is_active,
+                ),
             )
     except Exception as e:
         console.error(f"Configuration Error: {e}", file=sys.stderr)
@@ -1744,6 +1752,7 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1810,6 +1819,12 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+        checker_config_writer=config.make_packed_config_writer(
+            raw_config,
+            hosts_config,
+            is_online=loading_result.config_cache.is_online,
+            is_active=loading_result.config_cache.is_active,
+        ),
     )
     for warning in ip_address_of.error_handler.format_errors():
         console.warning(tty.format_warning(f"\n{warning}"))
@@ -1845,6 +1860,7 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1911,6 +1927,12 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+        checker_config_writer=config.make_packed_config_writer(
+            raw_config,
+            hosts_config,
+            is_online=loading_result.config_cache.is_online,
+            is_active=loading_result.config_cache.is_active,
+        ),
     )
     for warning in ip_address_of.error_handler.format_errors():
         console.warning(tty.format_warning(f"\n{warning}"))
