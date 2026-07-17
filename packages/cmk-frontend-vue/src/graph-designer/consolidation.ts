@@ -43,6 +43,8 @@ export function buildConsolidationFunction(
       return { type: 'sum', function: 'sum_rate', lookback_seconds: lookbackSeconds }
     case 'sum_last_raw':
       return { type: 'sum', function: 'sum_last_raw', lookback_seconds: lookbackSeconds }
+    case 'sum_delta':
+      return { type: 'sum', function: 'sum_delta', lookback_seconds: lookbackSeconds }
     case 'histogram_quantile':
       return {
         type: 'histogram',

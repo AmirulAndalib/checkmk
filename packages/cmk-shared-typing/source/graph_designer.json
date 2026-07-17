@@ -142,7 +142,7 @@
       "title": "consolidation_sum",
       "properties": {
         "type": { "type": "string", "enum": ["sum"] },
-        "function": { "type": "string", "enum": ["sum_rate", "sum_last_raw"] },
+        "function": { "type": "string", "enum": ["sum_rate", "sum_last_raw", "sum_delta"] },
         "lookback_seconds": { "type": "number" }
       },
       "required": ["type", "function", "lookback_seconds"]

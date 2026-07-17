@@ -138,6 +138,12 @@ class SumLastRaw:
 
 
 @dataclass(frozen=True, kw_only=True)
+class SumDelta:
+    lookback_seconds: float
+    type_: Literal["sum_delta"] = "sum_delta"
+
+
+@dataclass(frozen=True, kw_only=True)
 class HistogramQuantile:
     lookback_seconds: float
     percentile: float
@@ -163,6 +169,7 @@ type ConsolidationFunction = (
     | GaugeMin
     | SumRate
     | SumLastRaw
+    | SumDelta
     | HistogramQuantile
     | HistogramCountDelta
     | HistogramCountRate

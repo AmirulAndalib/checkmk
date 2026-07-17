@@ -74,7 +74,7 @@ test('a sum metric shows the rate function and no quantile input', async () => {
   expect(models.aggregationHistogramPercentile.value).toBe(90)
 })
 
-test('a sum metric offers the rate and last-recorded-raw functions', async () => {
+test('a sum metric offers the rate, last-recorded-raw and delta functions', async () => {
   renderConsolidation({ metricTypes: ['sum'] })
 
   await userEvent.click(chip())
@@ -83,6 +83,7 @@ test('a sum metric offers the rate and last-recorded-raw functions', async () =>
   await waitFor(() => {
     expect(screen.getByRole('option', { name: 'Rate' })).toBeVisible()
     expect(screen.getByRole('option', { name: 'Last recorded value (raw)' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Delta' })).toBeVisible()
   })
 })
 
