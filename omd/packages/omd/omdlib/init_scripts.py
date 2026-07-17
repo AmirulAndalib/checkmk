@@ -44,18 +44,23 @@ def call_init_scripts(
             log_security_event(SiteStartStoppedEvent(event="stop", daemon=daemon))
 
         if daemon:
-            success = _call_init_script(f"{site_dir}/etc/init.d/{daemon}", command)
-
+            daemon_scripts = [s.executable for s in _daemon_init_scripts(daemon, site_dir)]
+            if not daemon_scripts:
+                sys.stderr.write("ERROR: This daemon does not exist.\n")
+                return 2
+            # Materialize the results to call every script even if one fails.
+            results = [_call_init_script(script, command) for script in daemon_scripts]
+            success = all(results)
         else:
             # Call stop scripts in reverse order. If daemon is set,
             # then only that start script will be affected
-            rc_dir, scripts = _init_scripts(site_dir)
+            scripts = _init_scripts(site_dir)
             if command == "stop":
                 scripts.reverse()
             success = True
 
             for script in scripts:
-                if not _call_init_script(f"{rc_dir}/{script.executable}", command):
+                if not _call_init_script(script.executable, command):
                     success = False
 
     return 0 if success else 2
@@ -81,9 +86,8 @@ def _check_status_all(
     display: bool,
     bare: bool,
 ) -> int:
-    rc_dir, scripts = _init_scripts(site_dir)
+    scripts = _init_scripts(site_dir)
     return _check_scripts_status(
-        rc_dir,
         scripts,
         verbose=verbose,
         display=display,
@@ -99,19 +103,15 @@ def _check_status_daemon(
     display: bool,
     bare: bool,
 ) -> int:
-    rc_dir, scripts = _init_scripts(site_dir)
-    daemon_scripts = [script for script in scripts if script.daemon == daemon]
+    daemon_scripts = _daemon_init_scripts(daemon, site_dir)
     if not daemon_scripts:
         if not bare:
             sys.stderr.write("ERROR: This daemon does not exist.\n")
         return 3
-    return _check_scripts_status(
-        rc_dir, daemon_scripts, verbose=verbose, display=display, bare=bare
-    )
+    return _check_scripts_status(daemon_scripts, verbose=verbose, display=display, bare=bare)
 
 
 def _check_scripts_status(
-    rc_dir: str,
     scripts: list[_InitScript],
     *,
     verbose: bool,
@@ -120,8 +120,7 @@ def _check_scripts_status(
 ) -> int:
     states = [
         _check_script_status(
-            os.path.join(rc_dir, script.executable),
-            script.daemon,
+            script,
             verbose=verbose,
             display=display,
             bare=bare,
@@ -132,24 +131,23 @@ def _check_scripts_status(
 
 
 def _check_script_status(
-    rc_script: str,
-    daemon: str,
+    script: _InitScript,
     *,
     verbose: bool,
     display: bool,
     bare: bool,
 ) -> int:
     state = subprocess.call(
-        [rc_script, "status"],
+        [script.executable, "status"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
 
     if display and (state != 5 or verbose):
         if bare:
-            sys.stdout.write(daemon + " ")
+            sys.stdout.write(script.daemon + " ")
         else:
-            sys.stdout.write("%-20s" % (daemon + ":"))
+            sys.stdout.write("%-20s" % (script.daemon + ":"))
             sys.stdout.write(tty.bold)
 
     if bare:
@@ -195,20 +193,31 @@ def _summarize_status(states: list[int], *, display: bool, bare: bool) -> int:
     return exit_code
 
 
-def _init_scripts(site_dir: str) -> tuple[str, list[_InitScript]]:
+def _daemon_init_scripts(daemon: str, site_dir: str) -> list[_InitScript]:
+    daemon_scripts = [script for script in _init_scripts(site_dir) if script.daemon == daemon]
+    if daemon_scripts:
+        return daemon_scripts
+    # We symlink the core script here, so let's keep reading this directory for backward
+    # compatibility.
+    init_d_exectuable = os.path.join("etc/init.d/", daemon)
+    if os.path.exists(init_d_exectuable):
+        return [_InitScript(daemon=daemon, executable=init_d_exectuable)]
+    return []
+
+
+def _init_scripts(site_dir: str) -> list[_InitScript]:
     rc_dir = f"{site_dir}/etc/rc.d"
     try:
         scripts = sorted(os.listdir(rc_dir))
-        return rc_dir, [_InitScript(script.split("-", 1)[-1], script) for script in scripts]
+        return [
+            _InitScript(script.split("-", 1)[-1], os.path.join(rc_dir, script))
+            for script in scripts
+        ]
     except Exception:
-        return rc_dir, []
+        return []
 
 
 def _call_init_script(scriptpath: str, command: str) -> bool:
-    if not os.path.exists(scriptpath):
-        sys.stderr.write("ERROR: This daemon does not exist.\n")
-        return False
-
     try:
         return subprocess.call([scriptpath, command]) in [0, 5]
     except OSError as e:
