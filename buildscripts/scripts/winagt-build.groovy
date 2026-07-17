@@ -16,6 +16,11 @@ void main() {
     def use_azure = (params.SIGN_METHOD == "azure");
     def sign_target = use_azure ? "agent_with_sign_azure" : "agent_with_sign";
 
+    // Strip any quotes: on Windows agents `make print-%` echoes the value wrapped in
+    // single quotes (defines.make), which cmd.exe does not strip, so branch_name may
+    // arrive as e.g. '3.0.0'. Azure's CorrelationId is an opaque tracking string.
+    def correlation_id = "${branch_name}_${env.AZURE_ARTIFACT_SIGNING_CORRELATION_ID_SUFFIX}".replaceAll("['\"]", "");
+
     dir("${checkout_dir}") {
         stage("make setversion") {
             bat("make -C agents\\wnx NEW_VERSION='${cmk_version}' setversion")
@@ -49,6 +54,7 @@ void main() {
                 "AZURE_ARTIFACT_SIGNING_PROFILE=${env.AZURE_ARTIFACT_SIGNING_PROFILE}",
                 "AZURE_ARTIFACT_SIGNING_TENANT_ID=${env.AZURE_ARTIFACT_SIGNING_TENANT_ID}",
                 "AZURE_ARTIFACT_SIGNING_CLIENT_ID=${env.AZURE_ARTIFACT_SIGNING_CLIENT_ID}",
+                "AZURE_ARTIFACT_SIGNING_CORRELATION_ID=${correlation_id}",
             ]) {
                 windows.build(
                     TARGET: sign_target,

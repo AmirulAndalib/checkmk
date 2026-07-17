@@ -12,6 +12,11 @@ void main() {
     def cmk_vers_rc_aware = versioning.get_cmk_version(branch_name, branch_version, params.VERSION);
     def cmk_version = versioning.strip_rc_number_from_version(cmk_vers_rc_aware);
 
+    // Strip any quotes: on Windows agents `make print-%` echoes the value wrapped in
+    // single quotes (defines.make), which cmd.exe does not strip, so branch_name may
+    // arrive as e.g. '3.0.0'. Azure's CorrelationId is an opaque tracking string.
+    def correlation_id = "${branch_name}_${env.AZURE_ARTIFACT_SIGNING_CORRELATION_ID_SUFFIX}".replaceAll("['\"]", "");
+
     def edition = params.EDITION;
     // When FORCE_SIGN parameter is present we honour it. Otherwise we sign the MSI.
     def should_sign = (params.FORCE_SIGN == null) || (params.FORCE_SIGN == true);
@@ -40,6 +45,7 @@ void main() {
                     "AZURE_ARTIFACT_SIGNING_ENDPOINT=${env.AZURE_ARTIFACT_SIGNING_ENDPOINT}",
                     "AZURE_ARTIFACT_SIGNING_PROFILE=${env.AZURE_ARTIFACT_SIGNING_PROFILE}",
                     "AZURE_ARTIFACT_SIGNING_TENANT_ID=${env.AZURE_ARTIFACT_SIGNING_TENANT_ID}",
+                    "AZURE_ARTIFACT_SIGNING_CORRELATION_ID=${correlation_id}",
                 ]) {
                     windows.build(
                         TARGET: sign_target,

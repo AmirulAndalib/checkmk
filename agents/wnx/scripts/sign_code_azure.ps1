@@ -18,6 +18,7 @@
 #   AZURE_ARTIFACT_SIGNING_TENANT_ID      Azure AD tenant ID
 #   AZURE_ARTIFACT_SIGNING_CLIENT_ID      Service principal client ID
 #   AZURE_ARTIFACT_SIGNING_CLIENT_SECRET  Service principal client secret (sensitive)
+#   AZURE_ARTIFACT_SIGNING_CORRELATION_ID see https://learn.microsoft.com/en-us/azure/artifact-signing/how-to-signing-integrations#create-a-json-file
 [CmdletBinding()]
 param([Parameter(Mandatory = $true)][string]$FilePath)
 
@@ -34,7 +35,7 @@ Import-Module ArtifactSigning -ErrorAction Stop
 
 foreach ($var in @('AZURE_ARTIFACT_SIGNING_ENDPOINT', 'AZURE_ARTIFACT_SIGNING_ACCOUNT',
         'AZURE_ARTIFACT_SIGNING_PROFILE', 'AZURE_ARTIFACT_SIGNING_TENANT_ID',
-        'AZURE_ARTIFACT_SIGNING_CLIENT_ID', 'AZURE_ARTIFACT_SIGNING_CLIENT_SECRET')) {
+        'AZURE_ARTIFACT_SIGNING_CLIENT_ID', 'AZURE_ARTIFACT_SIGNING_CLIENT_SECRET', 'AZURE_ARTIFACT_SIGNING_CORRELATION_ID')) {
     if (-not [Environment]::GetEnvironmentVariable($var)) {
         Write-Error "Required environment variable $var is not set"
     }
@@ -52,6 +53,7 @@ try {
         -Endpoint              $env:AZURE_ARTIFACT_SIGNING_ENDPOINT `
         -CodeSigningAccountName $env:AZURE_ARTIFACT_SIGNING_ACCOUNT `
         -CertificateProfileName $env:AZURE_ARTIFACT_SIGNING_PROFILE `
+        -CorrelationId         $env:AZURE_ARTIFACT_SIGNING_CORRELATION_ID `
         -Files                 $FilePath `
         -FileDigest            SHA256 `
         -TimestampRfc3161      "http://timestamp.acs.microsoft.com" `
