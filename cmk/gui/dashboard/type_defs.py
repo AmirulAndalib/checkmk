@@ -169,6 +169,7 @@ NetworkFlowKpiStatCardMetric = Literal[
     "total_flows",
     "active_asn",
     "peak_throughput",
+    "avg_throughput",
 ]
 
 

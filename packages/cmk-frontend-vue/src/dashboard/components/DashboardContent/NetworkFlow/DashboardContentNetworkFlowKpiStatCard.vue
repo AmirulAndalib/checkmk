@@ -47,7 +47,8 @@ const METRIC_PRESENTATION: Record<NetworkFlowKpiStatCardContent['metric'], Metri
   active_hosts: { formatter: COUNT, deltaSemantics: 'neutral' },
   total_flows: { formatter: COUNT, deltaSemantics: 'neutral' },
   active_asn: { formatter: COUNT, deltaSemantics: 'neutral' },
-  peak_throughput: { formatter: THROUGHPUT, deltaSemantics: 'neutral' }
+  peak_throughput: { formatter: THROUGHPUT, deltaSemantics: 'neutral' },
+  avg_throughput: { formatter: THROUGHPUT, deltaSemantics: 'neutral' }
 }
 
 interface CardData {

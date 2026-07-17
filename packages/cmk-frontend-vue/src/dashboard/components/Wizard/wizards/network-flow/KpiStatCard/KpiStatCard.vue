@@ -40,7 +40,8 @@ const metricOptions: Suggestions = {
     { name: 'active_hosts', title: _t('Active hosts') },
     { name: 'total_flows', title: _t('Total flows') },
     { name: 'active_asn', title: _t('Active ASN') },
-    { name: 'peak_throughput', title: _t('Peak throughput') }
+    { name: 'peak_throughput', title: _t('Peak throughput') },
+    { name: 'avg_throughput', title: _t('Avg throughput') }
   ]
 }
 
