@@ -7,7 +7,7 @@
 import pytest
 
 from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
-from cmk.gui.search import MatchItem
+from cmk.gui.search.matchers import MatchItem
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.wato._snapins import get_wato_menu_items
 from cmk.shared_typing.main_menu import NavItemTopic, NavItemTopicEntry

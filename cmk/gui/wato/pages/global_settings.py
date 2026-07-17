@@ -43,7 +43,7 @@ from cmk.gui.page_menu import (
     PageMenuSearch,
     PageMenuTopic,
 )
-from cmk.gui.search import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItem,
     MatchItemGeneratorRegistry,

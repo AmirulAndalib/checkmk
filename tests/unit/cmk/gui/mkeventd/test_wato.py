@@ -14,7 +14,7 @@ import cmk.ec.export as ec
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.gui.mkeventd import wato as mkeventd_wato
-from cmk.gui.search import MatchItem
+from cmk.gui.search.matchers import MatchItem
 from cmk.gui.utils.roles import UserPermissions
 
 

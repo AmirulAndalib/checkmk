@@ -20,7 +20,7 @@ py_library(
         "//cmk/gui:html_toolkit",
         "//cmk/gui:page_toolkit",
         "//cmk/gui:view_toolkit",
-        "//cmk/gui/search",
+        "//cmk/gui/search:matchers",
         "//cmk/gui/utils:roles",
         "//cmk/gui/utils:transaction_manager",
         "//cmk/gui/utils:urls",

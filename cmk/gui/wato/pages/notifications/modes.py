@@ -81,7 +81,7 @@ from cmk.gui.page_menu import (
 )
 from cmk.gui.quick_setup.v0_unstable._registry import quick_setup_registry
 from cmk.gui.rule_specs.legacy_converter import convert_to_legacy_valuespec
-from cmk.gui.search import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItem,
     MatchItemGeneratorRegistry,

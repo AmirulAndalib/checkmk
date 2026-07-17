@@ -27,7 +27,7 @@ from cmk.gui.page_menu import (
     PageMenuEntry,
     PageMenuTopic,
 )
-from cmk.gui.search import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItem,
     MatchItemGeneratorRegistry,

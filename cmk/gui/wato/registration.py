@@ -13,7 +13,7 @@ from cmk.gui.pages import PageEndpoint, PageRegistry
 from cmk.gui.painter.v0 import PainterRegistry
 from cmk.gui.permissions import PermissionRegistry, PermissionSectionRegistry
 from cmk.gui.quick_setup.v0_unstable._registry import QuickSetupRegistry
-from cmk.gui.search import MatchItemGeneratorRegistry
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 from cmk.gui.sidebar import SnapinRegistry
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.views.icon import IconRegistry

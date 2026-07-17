@@ -21,12 +21,17 @@ from cmk.automations.results import GetConfigurationResult
 from cmk.gui.config import Config
 from cmk.gui.i18n import localize
 from cmk.gui.logged_in import LoggedInNobody
-from cmk.gui.search import ABCMatchItemGenerator, MatchItem, MatchItemGeneratorRegistry, MatchItems
 from cmk.gui.search.engines.redis import (
     _SearchResultWithVisibilityCheck,
     IndexBuilder,
     IndexNotFoundException,
     IndexSearcher,
+)
+from cmk.gui.search.matchers import (
+    ABCMatchItemGenerator,
+    MatchItem,
+    MatchItemGeneratorRegistry,
+    MatchItems,
 )
 from cmk.gui.search.permissions import SearchPermissionsHandler, VisibilityCheck
 from cmk.gui.session_context import _UserContext
@@ -460,7 +465,7 @@ class TestRealisticSearch:
 
     @pytest.fixture()
     def real_index_builder(self, clean_redis_client: "Redis") -> IndexBuilder:
-        from cmk.gui.search import match_item_generator_registry
+        from cmk.gui.search.matchers import match_item_generator_registry
 
         return IndexBuilder(match_item_generator_registry, clean_redis_client)
 

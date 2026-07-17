@@ -12,7 +12,7 @@ py_cmk_test(
     deps = [
         "//cmk/gui:core_toolkit",
         "//cmk/gui/mkeventd",
-        "//cmk/gui/search",
+        "//cmk/gui/search:matchers",
         "//cmk/gui/utils:roles",
         "//cmk/gui/views:icon",
         "//packages/cmk-ec",

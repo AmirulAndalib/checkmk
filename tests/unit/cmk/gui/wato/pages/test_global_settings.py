@@ -9,7 +9,7 @@ from pytest import MonkeyPatch
 
 from cmk.ccc.version import Edition
 from cmk.gui.i18n import _l
-from cmk.gui.search import MatchItem
+from cmk.gui.search.matchers import MatchItem
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.valuespec import TextInput
 from cmk.gui.wato.pages.global_settings import DefaultModeEditGlobals, MatchItemGeneratorSettings

@@ -14,7 +14,7 @@ from cmk.gui.openapi.restful_objects.registry import EndpointRegistry
 from cmk.gui.pagetypes import BuiltinPagetypeTopicRegistry
 from cmk.gui.painter.v0 import PainterRegistry
 from cmk.gui.permissions import PermissionRegistry, PermissionSectionRegistry
-from cmk.gui.search import match_item_generator_registry
+from cmk.gui.search.matchers import match_item_generator_registry
 from cmk.gui.sidebar import SnapinRegistry
 from cmk.gui.views.command import CommandRegistry
 from cmk.gui.views.icon import IconRegistry

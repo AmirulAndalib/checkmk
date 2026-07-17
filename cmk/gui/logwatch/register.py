@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.gui.pages import PageRegistry
-from cmk.gui.search import MatchItemGeneratorRegistry
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 from cmk.gui.watolib.mode import ModeRegistry
 from cmk.gui.watolib.rulespecs import RulespecRegistry
 

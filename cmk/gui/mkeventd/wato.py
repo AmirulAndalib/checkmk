@@ -62,7 +62,7 @@ from cmk.gui.page_menu import (
 )
 from cmk.gui.permissions import Permission, PermissionRegistry
 from cmk.gui.rule_specs.legacy_converter import convert_dictionary_formspec_to_valuespec
-from cmk.gui.search import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItem,
     MatchItemGeneratorRegistry,

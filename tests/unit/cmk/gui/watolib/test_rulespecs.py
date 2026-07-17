@@ -14,7 +14,7 @@ import cmk.gui.watolib.rulespecs
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.plugins.wato.utils import TimeperiodValuespec
 from cmk.gui.rule_specs.legacy_converter import GENERATED_GROUP_PREFIX
-from cmk.gui.search import MatchItem
+from cmk.gui.search.matchers import MatchItem
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.valuespec import Dictionary, FixedValue, TextInput
 from cmk.gui.watolib.main_menu import main_module_registry

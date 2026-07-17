@@ -39,7 +39,7 @@ from cmk.gui.config import get_default_config, make_config_object
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.logged_in import user as logged_in_user
-from cmk.gui.search import MatchItem
+from cmk.gui.search.matchers import MatchItem
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.watolib import hosts_and_folders
 from cmk.gui.watolib.audit_log import AuditLogStore, make_audit_log_change_hook

@@ -23,7 +23,7 @@ from cmk.gui.main_menu import (
 from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
 from cmk.gui.main_menu_types import MainMenuItem
 from cmk.gui.permissions import permission_registry
-from cmk.gui.search import MatchItemGeneratorRegistry
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 from cmk.gui.sidebar import (
     footnotelinks,
     make_main_menu,

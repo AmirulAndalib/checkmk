@@ -5,7 +5,7 @@
 
 from cmk.ccc.version import Edition
 from cmk.gui.quick_setup.v0_unstable._registry import QuickSetupRegistry
-from cmk.gui.search import MatchItemGeneratorRegistry
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 from cmk.gui.watolib.automation_commands import AutomationCommandRegistry
 from cmk.gui.watolib.mode import ModeRegistry
 

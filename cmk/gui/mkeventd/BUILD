@@ -32,7 +32,7 @@ py_library(
         "//cmk/gui/pagetypes",
         "//cmk/gui/painter:v0_base",
         "//cmk/gui/rule_specs:legacy_converter",
-        "//cmk/gui/search",
+        "//cmk/gui/search:matchers",
         "//cmk/gui/sidebar",
         "//cmk/gui/utils:autocompleter_config",
         "//cmk/gui/utils:csrf_token",

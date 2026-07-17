@@ -79,7 +79,7 @@ from cmk.gui.quick_setup.html import (
     quick_setup_render_link,
     quick_setup_source_cell,
 )
-from cmk.gui.search import (
+from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItem,
     MatchItemGeneratorRegistry,
