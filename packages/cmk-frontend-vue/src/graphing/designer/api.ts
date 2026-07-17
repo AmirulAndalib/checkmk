@@ -25,6 +25,11 @@ export async function resolveMetricColor(metricName: string): Promise<string | n
   return response.color ?? null
 }
 
+/** List summaries of all accessible custom graphs (own and published-to-me). */
+export async function listCustomGraphMetadata() {
+  return unwrap(await client.GET('/domain-types/custom_graph_metadata/collections/all'))
+}
+
 /** Evaluate an unsaved custom-graph definition over a time range (preview). */
 export async function fetchCustomGraphData(body: FetchCustomGraphDataRequest) {
   return unwrap(

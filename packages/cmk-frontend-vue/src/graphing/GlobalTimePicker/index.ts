@@ -9,6 +9,8 @@ export { default as GlobalTimePickerApp } from './GlobalTimePickerApp.vue'
 export { useGlobalTimeRange } from './useGlobalTimeRange'
 export type { ActiveTimeRange, GlobalTimeRange } from './useGlobalTimeRange'
 
+export { rollingRange } from './private/timeRange'
+
 export type {
   CustomGraphTimeRange,
   GlobalTimePickerProps
