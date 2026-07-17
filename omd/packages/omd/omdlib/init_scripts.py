@@ -25,7 +25,6 @@ def call_init_scripts(
     site_dir: str,
     command: Literal["start", "stop", "restart", "reload", "status"],
     daemon: str | None = None,
-    exclude_daemons: list[str] | None = None,
 ) -> Literal[0, 2]:
     # Restart: Do not restart each service after another,
     # but first do stop all, then start all again! This
@@ -56,9 +55,6 @@ def call_init_scripts(
             success = True
 
             for script in scripts:
-                if exclude_daemons and script.executable in exclude_daemons:
-                    continue
-
                 if not _call_init_script(f"{rc_dir}/{script.executable}", command):
                     success = False
 
