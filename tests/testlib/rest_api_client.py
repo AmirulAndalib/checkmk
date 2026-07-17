@@ -1346,6 +1346,28 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def discover_average_scatterplot_graphs(
+        self,
+        context: Mapping[str, Mapping[str, str]],
+        metric: str,
+        metric_color: str | None = None,
+        average_color: str | None = None,
+        median_color: str | None = None,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/discover_average_scatterplot_graphs/invoke",
+            body={
+                "context": context,
+                "metric": metric,
+                "metric_color": metric_color,
+                "average_color": average_color,
+                "median_color": median_color,
+            },
+            expect_ok=expect_ok,
+        )
+
     def get_pin(self, expect_ok: bool = True) -> Response:
         return self.request(
             "get",

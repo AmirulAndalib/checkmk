@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+from ._display import metric_display_attributes
 from ._evaluate import (
     evaluate_graphs,
     EvaluatedCurve,
@@ -132,5 +133,6 @@ __all__ = [
     "build_matched_graphs",
     "build_curve",
     "evaluate_graphs",
+    "metric_display_attributes",
     "parse_graph_from_api",
 ]
