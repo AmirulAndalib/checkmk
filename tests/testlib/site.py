@@ -1897,7 +1897,7 @@ class Site:
         ]
 
     def report_crashes(self, ignore_bakery_crashes: bool = False) -> None:
-        logger.info("Checking crash reports for site %(site_id)s", {"site_id": self.id})
+        logger.debug("Checking crash reports for site %(site_id)s", {"site_id": self.id})
         for crash_dir in self.crash_reports_dirs():
             if crash_dir in self.known_crashes:
                 continue
