@@ -144,8 +144,21 @@ class HistogramQuantile:
     type_: Literal["histogram_quantile"] = "histogram_quantile"
 
 
+@dataclass(frozen=True, kw_only=True)
+class HistogramCountDelta:
+    lookback_seconds: float
+    type_: Literal["histogram_count_delta"] = "histogram_count_delta"
+
+
 type ConsolidationFunction = (
-    GaugeLast | GaugeMax | GaugeAvg | GaugeMin | SumRate | SumLastRaw | HistogramQuantile
+    GaugeLast
+    | GaugeMax
+    | GaugeAvg
+    | GaugeMin
+    | SumRate
+    | SumLastRaw
+    | HistogramQuantile
+    | HistogramCountDelta
 )
 
 

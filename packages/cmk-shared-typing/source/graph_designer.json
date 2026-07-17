@@ -152,7 +152,10 @@
       "title": "consolidation_histogram",
       "properties": {
         "type": { "type": "string", "enum": ["histogram"] },
-        "function": { "type": "string", "enum": ["histogram_quantile"] },
+        "function": {
+          "type": "string",
+          "enum": ["histogram_quantile", "histogram_count_delta"]
+        },
         "lookback_seconds": { "type": "number" },
         "percentile": { "type": "number" }
       },

@@ -107,14 +107,16 @@ test('a gauge metric offers the last, max, avg and min functions', async () => {
   })
 })
 
-test('the offered function is fixed to the single backend-supported one', async () => {
+test('a histogram metric offers the quantile and count delta functions', async () => {
   renderConsolidation({ metricTypes: ['histogram'] })
 
   await userEvent.click(chip())
+  await userEvent.click(screen.getByRole('combobox', { name: 'Consolidation function' }))
 
-  // A single supported function leaves nothing to choose, so it renders read-only.
-  expect(screen.queryByRole('combobox', { name: 'Consolidation function' })).toBeNull()
-  expect(screen.getByText('Quantile')).toBeVisible()
+  await waitFor(() => {
+    expect(screen.getByRole('option', { name: 'Quantile' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Count delta' })).toBeVisible()
+  })
 })
 
 test('editing the lookback writes back to the aggregation-lookback model', async () => {
