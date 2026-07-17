@@ -9,7 +9,7 @@ import MetricsTable from '@/graphing/designer/components/MetricsTable.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
 import type { DesignerItem } from '@/graphing/designer/drafts'
 
-import { constantItem, formulaItem, rrdMetricItem } from '../fixtures'
+import { constantItem, formulaItem, metricBackendItem, rrdMetricItem } from '../fixtures'
 
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
 const THRESHOLDS = { warning: '#ffd000', critical: '#ff3232' }
@@ -28,7 +28,7 @@ test('adding a source appends an auto-expanded draft row', async () => {
   expect(store.items.value.map((item) => item.id)).toEqual(['A', 'B'])
   expect(store.items.value[1]).toMatchObject({ type: 'rrd_metric', host_name: null })
   // The new row opens expanded, showing its source configuration form.
-  expect(await screen.findByText('Single metric')).toBeInTheDocument()
+  expect(await screen.findByText('Host name')).toBeInTheDocument()
 })
 
 test('adding a constant line opens the constant form', async () => {
@@ -121,4 +121,10 @@ test('title edits patch the row', async () => {
   const { store } = renderTable([rrdMetricItem('A')])
   await fireEvent.update(screen.getByLabelText('Title'), 'My title')
   expect(store.items.value[0]!.title).toBe('My title')
+})
+
+test('a metric_backend row expands to a placeholder', async () => {
+  renderTable([metricBackendItem('A')])
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(await screen.findByText('This source type cannot be edited here yet.')).toBeInTheDocument()
 })

@@ -83,41 +83,31 @@ const selectedIds = computed<ItemId[]>(() => {
     .map(([id]) => id)
 })
 
-/** The addable source types: dropdown title plus the draft each one starts from. */
-const SOURCE_TYPES = {
-  rrd_metric: {
-    title: _t('Checkmk RRD'),
-    newDraft: (id: ItemId) => newRrdMetricDraft(id, store.nextColor.value)
-  },
-  constant: {
-    title: _t('Constant line'),
-    newDraft: (id: ItemId) => newConstantDraft(id, store.nextColor.value)
-  },
-  scalar: {
-    title: _t('Service reference line'),
-    newDraft: (id: ItemId) =>
-      newScalarDraft(id, scalarColor('warning', store.nextColor.value, thresholds))
-  }
+/** The addable source types and their dropdown titles; rrd_query is reached via the in-form toggle. */
+const ADDABLE_SOURCES = {
+  rrd_metric: _t('Checkmk RRD'),
+  constant: _t('Constant line'),
+  scalar: _t('Service reference line')
 }
 
 const addSourceSuggestions = {
   type: 'fixed' as const,
-  suggestions: Object.entries(SOURCE_TYPES).map(([name, source]) => ({
-    name,
-    title: source.title
-  }))
-}
-
-/** Whether the row's type has an expandable source form below the table row. */
-function hasSourceForm(value: string): value is keyof typeof SOURCE_TYPES {
-  return value in SOURCE_TYPES
+  suggestions: Object.entries(ADDABLE_SOURCES).map(([name, title]) => ({ name, title }))
 }
 
 function onAddSource(value: string): void {
-  if (!hasSourceForm(value)) {
-    return
-  }
-  const id = store.addItem((assigned) => SOURCE_TYPES[value].newDraft(assigned))
+  const id = store.addItem((assigned): DesignerItem => {
+    switch (value) {
+      case 'rrd_metric':
+        return newRrdMetricDraft(assigned, store.nextColor.value)
+      case 'constant':
+        return newConstantDraft(assigned, store.nextColor.value)
+      case 'scalar':
+        return newScalarDraft(assigned, scalarColor('warning', store.nextColor.value, thresholds))
+      default:
+        throw new Error(`Unknown source type: ${value}`)
+    }
+  })
   expandedRows.value = { ...expandedRows.value, [id]: true }
 }
 
@@ -218,7 +208,6 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
           />
           <BaseCell v-else column-id="color" vertical-align="middle" />
           <CollapsibleCell
-            v-if="hasSourceForm(row.type)"
             column-id="title"
             vertical-align="middle"
             :expanded="expandedRows[row.id] === true"
@@ -231,14 +220,6 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
               @update:model-value="onTitleChange(row, $event)"
             />
           </CollapsibleCell>
-          <BaseCell v-else column-id="title" vertical-align="middle">
-            <CmkInput
-              :model-value="row.title"
-              :aria-label="_t('Title')"
-              field-size="large"
-              @update:model-value="onTitleChange(row, $event)"
-            />
-          </BaseCell>
           <DropdownCell
             column-id="line_style"
             vertical-align="middle"
@@ -268,7 +249,17 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
             :colspan="columns.length - titleColumnIndex"
             class="graphing-metrics-table__expansion"
           >
-            <div class="graphing-metrics-table__editor-panel">
+            <p
+              v-if="
+                row.type === 'rrd_formula' ||
+                row.type === 'rrd_query' ||
+                row.type === 'metric_backend'
+              "
+              class="graphing-metrics-table__placeholder"
+            >
+              {{ _t('This source type cannot be edited here yet.') }}
+            </p>
+            <div v-else class="graphing-metrics-table__editor-panel">
               <RrdMetricForm v-if="row.type === 'rrd_metric'" :item="row" :store="store" />
               <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
               <ServiceReferenceLineForm
@@ -362,6 +353,13 @@ body[data-theme='modern-dark'] .graphing-metrics-table {
   overflow: hidden;
   border: 1px solid var(--graphing-metrics-table-panel-border);
   border-radius: var(--border-radius);
+}
+
+.graphing-metrics-table__placeholder {
+  margin: 0;
+  padding: var(--dimension-7);
+  opacity: 0.6;
+  font-style: italic;
 }
 
 /* Fill the source cell without the global 10em floor forcing the column wider. */
