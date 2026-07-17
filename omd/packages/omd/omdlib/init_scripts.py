@@ -75,40 +75,14 @@ def check_status(
     bare: bool = False,
 ) -> int:
     if not daemon:
-        return _check_status_all(site_dir, verbose=verbose, display=display, bare=bare)
-    return _check_status_daemon(site_dir, daemon, verbose=verbose, display=display, bare=bare)
-
-
-def _check_status_all(
-    site_dir: str,
-    *,
-    verbose: bool,
-    display: bool,
-    bare: bool,
-) -> int:
-    scripts = _init_scripts(site_dir)
-    return _check_scripts_status(
-        scripts,
-        verbose=verbose,
-        display=display,
-        bare=bare,
-    )
-
-
-def _check_status_daemon(
-    site_dir: str,
-    daemon: str,
-    *,
-    verbose: bool,
-    display: bool,
-    bare: bool,
-) -> int:
-    daemon_scripts = _daemon_init_scripts(daemon, site_dir)
-    if not daemon_scripts:
-        if not bare:
-            sys.stderr.write("ERROR: This daemon does not exist.\n")
-        return 3
-    return _check_scripts_status(daemon_scripts, verbose=verbose, display=display, bare=bare)
+        scripts = _init_scripts(site_dir)
+    else:
+        scripts = _daemon_init_scripts(daemon, site_dir)
+        if not scripts:
+            if not bare:
+                sys.stderr.write("ERROR: This daemon does not exist.\n")
+            return 3
+    return _check_scripts_status(scripts, verbose=verbose, display=display, bare=bare)
 
 
 def _check_scripts_status(
