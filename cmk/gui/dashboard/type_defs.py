@@ -144,7 +144,7 @@ class TopListDashletConfig(DashletConfig):
 NetworkFlowTopTableDimension = Literal[
     "local_hosts", "remote_hosts", "applications", "autonomous_systems"
 ]
-NetworkFlowBarAccent = Literal["blue", "magenta", "green", "yellow", "orange", "purple"]
+NetworkFlowBarAccent = Literal["blue", "magenta", "green", "yellow", "orange", "purple", "red"]
 
 
 class NetworkFlowTopTableDashletConfig(DashletConfig):

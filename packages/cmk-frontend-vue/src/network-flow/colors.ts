@@ -4,7 +4,15 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 
-export type ChartColor = 'blue' | 'green' | 'grey' | 'magenta' | 'orange' | 'purple' | 'yellow'
+export type ChartColor =
+  | 'blue'
+  | 'green'
+  | 'grey'
+  | 'magenta'
+  | 'orange'
+  | 'purple'
+  | 'red'
+  | 'yellow'
 
 export const CHART_COLOR_CSS: Record<ChartColor, string> = {
   blue: 'var(--color-light-blue-50)',
@@ -13,6 +21,7 @@ export const CHART_COLOR_CSS: Record<ChartColor, string> = {
   magenta: 'var(--color-pink-50)',
   orange: 'var(--color-orange-50)',
   purple: 'var(--color-purple-50)',
+  red: 'var(--color-light-red-50)',
   yellow: 'var(--color-yellow-50)'
 }
 

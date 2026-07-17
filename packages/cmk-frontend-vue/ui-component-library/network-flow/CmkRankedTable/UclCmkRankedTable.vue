@@ -21,6 +21,7 @@ export const panelConfig = {
       { title: 'Magenta', name: 'magenta' },
       { title: 'Orange', name: 'orange' },
       { title: 'Purple', name: 'purple' },
+      { title: 'Red', name: 'red' },
       { title: 'Yellow', name: 'yellow' }
     ] satisfies Options<ChartColor>[],
     initialState: 'green' as const
