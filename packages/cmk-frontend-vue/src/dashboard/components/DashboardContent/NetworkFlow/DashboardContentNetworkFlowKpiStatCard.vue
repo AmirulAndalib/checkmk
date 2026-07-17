@@ -37,6 +37,8 @@ interface MetricPresentation {
 const BYTES = new SIFormatter('B', { type: 'strict', digits: 2 })
 // Unitless activity counts: 532 → "532", 4_300 → "4.3 K".
 const COUNT = new SIFormatter('', { type: 'strict', digits: 1 })
+// Rates in bits per second, in the mockups' unit style: 3_200_000_000 → "3.20 Gbps".
+const THROUGHPUT = new SIFormatter('bps', { type: 'strict', digits: 2 })
 
 const METRIC_PRESENTATION: Record<NetworkFlowKpiStatCardContent['metric'], MetricPresentation> = {
   total_bytes: { formatter: BYTES, deltaSemantics: 'neutral' },
@@ -44,7 +46,8 @@ const METRIC_PRESENTATION: Record<NetworkFlowKpiStatCardContent['metric'], Metri
   egress_bytes: { formatter: BYTES, deltaSemantics: 'neutral' },
   active_hosts: { formatter: COUNT, deltaSemantics: 'neutral' },
   total_flows: { formatter: COUNT, deltaSemantics: 'neutral' },
-  active_asn: { formatter: COUNT, deltaSemantics: 'neutral' }
+  active_asn: { formatter: COUNT, deltaSemantics: 'neutral' },
+  peak_throughput: { formatter: THROUGHPUT, deltaSemantics: 'neutral' }
 }
 
 interface CardData {

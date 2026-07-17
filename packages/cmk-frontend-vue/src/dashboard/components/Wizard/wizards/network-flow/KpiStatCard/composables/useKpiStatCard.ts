@@ -30,7 +30,8 @@ const suggestedAccent: Record<Metric, Accent> = {
   egress_bytes: 'magenta',
   active_hosts: 'green',
   total_flows: 'blue',
-  active_asn: 'green'
+  active_asn: 'green',
+  peak_throughput: 'yellow'
 }
 
 export interface UseKpiStatCard extends UseWidgetHandler, UseWidgetVisualizationOptions {
@@ -50,7 +51,8 @@ export function useKpiStatCard(currentSpec: WidgetSpec | null): UseKpiStatCard {
     egress_bytes: _t('Egress bytes'),
     active_hosts: _t('Active hosts'),
     total_flows: _t('Total flows'),
-    active_asn: _t('Active ASN')
+    active_asn: _t('Active ASN'),
+    peak_throughput: _t('Peak throughput')
   }
 
   const currentContent =
