@@ -15,6 +15,7 @@ import CmkHtml from '@/components/CmkHtml.vue'
 import CmkIcon from '@/components/CmkIcon'
 
 import type {
+  AverageScatterplotContent,
   CombinedGraphContent,
   PerformanceGraphContent,
   SingleTimeseriesContent
@@ -29,7 +30,12 @@ type DiscoveredGraph = components['schemas']['ApiDiscoveredGraph']
 const { _t } = usei18n()
 const props =
   defineProps<
-    ContentProps<PerformanceGraphContent | SingleTimeseriesContent | CombinedGraphContent>
+    ContentProps<
+      | PerformanceGraphContent
+      | SingleTimeseriesContent
+      | CombinedGraphContent
+      | AverageScatterplotContent
+    >
   >()
 
 const shell = ref<DiscoveredGraph | null>(null)
@@ -57,6 +63,12 @@ const resolveTimeseriesColor = (color: SingleTimeseriesContent['color']): string
     return null
   }
   return color === 'default_theme' ? DEFAULT_THEME_COLOR : color
+}
+
+const resolveScatterplotColor = (
+  color: AverageScatterplotContent['metric_color']
+): string | null => {
+  return color === 'default' ? null : color
 }
 
 type GraphDiscovery =
@@ -115,6 +127,22 @@ const discoverGraphs = async (): Promise<GraphDiscovery> => {
           }
         })
       )
+    case 'average_scatterplot':
+      return unwrap(
+        await client.POST(
+          '/domain-types/graph/actions/discover_average_scatterplot_graphs/invoke',
+          {
+            params: { header: { 'Content-Type': 'application/json' } },
+            body: {
+              context: props.effective_filter_context.filters,
+              metric: content.metric,
+              metric_color: resolveScatterplotColor(content.metric_color),
+              average_color: resolveScatterplotColor(content.average_color),
+              median_color: resolveScatterplotColor(content.median_color)
+            }
+          }
+        )
+      )
     default:
       staticAssertNever(content)
       return { graphs: [] }
@@ -167,6 +195,12 @@ const discoveryKey = computed(() => {
         graph_template: content.graph_template,
         context: props.effective_filter_context.filters
       }
+    case 'average_scatterplot':
+      return {
+        metric: content.metric,
+        colors: [content.metric_color, content.average_color, content.median_color],
+        context: props.effective_filter_context.filters
+      }
     default:
       staticAssertNever(content)
       return {}
@@ -178,8 +212,18 @@ watch(
   () => void loadGraph()
 )
 
-const showLegend = computed(() => props.content.graph_render_options?.show_legend ?? false)
-const showTimestamp = computed(() => props.content.graph_render_options?.show_graph_time ?? false)
+// The figure-based average scatterplot has neither graph render options nor the graph
+// contents' timerange field (its range lives in time_range).
+const graphRenderOptions = computed(() => {
+  const content = props.content
+  return 'graph_render_options' in content ? content.graph_render_options : undefined
+})
+const timerange = computed(() => {
+  const content = props.content
+  return content.type === 'average_scatterplot' ? content.time_range : content.timerange
+})
+const showLegend = computed(() => graphRenderOptions.value?.show_legend ?? false)
+const showTimestamp = computed(() => graphRenderOptions.value?.show_graph_time ?? false)
 const combinationMode = computed(() => {
   const content = props.content
   return content.type === 'combined_graph' ? content.presentation : null
@@ -217,7 +261,7 @@ onMounted(() => {
         v-else-if="shell"
         :graph-type="shell.graph_type"
         :internal="shell.internal"
-        :timerange="content.timerange"
+        :timerange="timerange"
         :combination-mode="combinationMode"
         :show-legend="showLegend"
         :show-timestamp="showTimestamp"
