@@ -8,7 +8,8 @@ import { selectOrdinalForm } from '@/lib/i18n/pluralForm'
 import type { TranslatedString } from '@/lib/i18nString'
 
 import { type Formula, isArithmetic, serializeFormula } from '../calculation/formula'
-import type { GraphItem, ScalarItem } from '../types'
+import type { DesignerItem } from '../drafts'
+import type { ScalarItem } from '../types'
 
 export function useItemDescription() {
   const { _t, _tp, currentLanguage } = usei18n()
@@ -49,7 +50,7 @@ export function useItemDescription() {
   }
 
   /** Detail label for an item: `= A + B`, `95th percentile of B`, `host > service > metric`, … */
-  function describeItem(item: GraphItem): TranslatedString {
+  function describeItem(item: DesignerItem): TranslatedString {
     switch (item.type) {
       case 'rrd_metric':
         return untranslated(`${item.host_name} > ${item.service_name} > ${item.metric_name}`)

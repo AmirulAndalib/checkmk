@@ -40,6 +40,7 @@ import {
 import { type ItemId, isSingleLine, parseLineType } from '../types'
 import DeleteWithDependentsPopup from './DeleteWithDependentsPopup.vue'
 import ConstantLineForm from './forms/ConstantLineForm.vue'
+import FormulaForm from './forms/FormulaForm.vue'
 import RrdMetricForm from './forms/RrdMetricForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
@@ -249,12 +250,9 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
             :colspan="columns.length - titleColumnIndex"
             class="graphing-metrics-table__expansion"
           >
+            <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
             <p
-              v-if="
-                row.type === 'rrd_formula' ||
-                row.type === 'rrd_query' ||
-                row.type === 'metric_backend'
-              "
+              v-else-if="row.type === 'rrd_query' || row.type === 'metric_backend'"
               class="graphing-metrics-table__placeholder"
             >
               {{ _t('This source type cannot be edited here yet.') }}

@@ -123,6 +123,12 @@ test('title edits patch the row', async () => {
   expect(store.items.value[0]!.title).toBe('My title')
 })
 
+test('a formula row expands to the read-only formula form', async () => {
+  renderTable([formulaItem('A', { ast: { op: 'num', value: 5 } })])
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(await screen.findByRole('button', { name: /= 5/ })).toBeInTheDocument()
+})
+
 test('a metric_backend row expands to a placeholder', async () => {
   renderTable([metricBackendItem('A')])
   await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
