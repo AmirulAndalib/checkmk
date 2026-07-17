@@ -5,9 +5,11 @@
 from typing import Literal, override, Self
 
 from cmk.gui.dashboard.type_defs import (
-    NetworkFlowBarAccent,
+    NetworkFlowAccent,
     NetworkFlowDonutDashletConfig,
     NetworkFlowDonutDimension,
+    NetworkFlowKpiStatCardDashletConfig,
+    NetworkFlowKpiStatCardMetric,
     NetworkFlowTopTableDashletConfig,
     NetworkFlowTopTableDimension,
 )
@@ -25,7 +27,7 @@ class NetworkFlowTopTableContent(BaseWidgetContent):
         description="Which entity dimension to rank (local hosts, remote hosts, applications "
         "or autonomous systems)."
     )
-    accent: NetworkFlowBarAccent = api_field(description="Accent color of the inline bars.")
+    accent: NetworkFlowAccent = api_field(description="Accent color of the inline bars.")
     limit_to: int = api_field(description="Maximum number of rows to display.")
 
     @classmethod
@@ -83,4 +85,43 @@ class NetworkFlowDonutContent(BaseWidgetContent):
             type=self.internal_type(),
             dimension=self.dimension,
             limit_to=self.limit_to,
+        )
+
+
+@api_model
+class NetworkFlowKpiStatCardContent(BaseWidgetContent):
+    type: Literal["network_flow_kpi_stat_card"] = api_field(
+        description="Displays a single headline network flow metric with an optional change "
+        "indicator and a trend sparkline."
+    )
+    metric: NetworkFlowKpiStatCardMetric = api_field(
+        description="Which metric to display (byte volumes or activity counts). The unit "
+        "formatting follows the metric."
+    )
+    accent: NetworkFlowAccent = api_field(description="Accent color of the sparkline.")
+    show_delta: bool = api_field(
+        description="Whether to show the change versus the previous period."
+    )
+
+    @classmethod
+    @override
+    def internal_type(cls) -> str:
+        return "network_flow_kpi_stat_card"
+
+    @classmethod
+    def from_internal(cls, config: NetworkFlowKpiStatCardDashletConfig) -> Self:
+        return cls(
+            type="network_flow_kpi_stat_card",
+            metric=config["metric"],
+            accent=config["accent"],
+            show_delta=config["show_delta"],
+        )
+
+    @override
+    def to_internal(self) -> NetworkFlowKpiStatCardDashletConfig:
+        return NetworkFlowKpiStatCardDashletConfig(
+            type=self.internal_type(),
+            metric=self.metric,
+            accent=self.accent,
+            show_delta=self.show_delta,
         )
