@@ -26,6 +26,7 @@ import type {
 } from '@/dashboard/types/widget'
 
 import Donut from '../Donut/Donut.vue'
+import KpiStatCard from '../KpiStatCard/KpiStatCard.vue'
 import TopTable from '../TopTable/TopTable.vue'
 import { type GetValidWidgetProps, NetworkFlowWidgetType } from '../types'
 
@@ -48,7 +49,8 @@ const emit = defineEmits<{
 
 const availableWidgets: WidgetItemList = [
   { id: NetworkFlowWidgetType.TOP_TABLE, label: _t('Top-N table'), icon: 'networking' },
-  { id: NetworkFlowWidgetType.DONUT, label: _t('Donut'), icon: 'pie-chart' }
+  { id: NetworkFlowWidgetType.DONUT, label: _t('Donut'), icon: 'pie-chart' },
+  { id: NetworkFlowWidgetType.KPI_STAT_CARD, label: _t('KPI stat card'), icon: 'graph' }
 ]
 const enabledWidgets = computed(() => {
   return availableWidgets.map((item) => item.id)
@@ -65,12 +67,14 @@ const selectedWidget = ref<NetworkFlowWidgetType>(
 
 const topTableRef = useTemplateRef<InstanceType<typeof TopTable>>('topTableRef')
 const donutRef = useTemplateRef<InstanceType<typeof Donut>>('donutRef')
+const kpiStatCardRef = useTemplateRef<InstanceType<typeof KpiStatCard>>('kpiStatCardRef')
 const widgetRefs: Record<
   NetworkFlowWidgetType,
   Readonly<ShallowRef<GetValidWidgetProps | null>>
 > = {
   [NetworkFlowWidgetType.TOP_TABLE]: topTableRef,
-  [NetworkFlowWidgetType.DONUT]: donutRef
+  [NetworkFlowWidgetType.DONUT]: donutRef,
+  [NetworkFlowWidgetType.KPI_STAT_CARD]: kpiStatCardRef
 }
 
 function gotoNextStage() {
@@ -135,6 +139,13 @@ function gotoNextStage() {
   <Donut
     v-show="selectedWidget === NetworkFlowWidgetType.DONUT"
     ref="donutRef"
+    :dashboard-key="dashboardKey"
+    :edit-widget-spec="editWidgetSpec"
+  />
+
+  <KpiStatCard
+    v-show="selectedWidget === NetworkFlowWidgetType.KPI_STAT_CARD"
+    ref="kpiStatCardRef"
     :dashboard-key="dashboardKey"
     :edit-widget-spec="editWidgetSpec"
   />
