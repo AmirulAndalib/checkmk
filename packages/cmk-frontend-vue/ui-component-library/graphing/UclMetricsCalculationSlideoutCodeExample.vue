@@ -4,11 +4,12 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { MetricsCalculationSlideout, type RefVisibility } from '@/graphing/designer/calculation'
+import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
+import { isComplete } from '@/graphing/designer/drafts'
 import type { FormulaDraft, GraphItem, ItemId } from '@/graphing/designer/types'
-import { useGraphItems } from '@/graphing/designer/useGraphItems'
 
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
 
@@ -29,6 +30,7 @@ const seed: GraphItem[] = [
 ]
 
 const store = useGraphItems(PALETTE, seed)
+const completeItems = computed(() => store.items.value.filter(isComplete))
 const open = ref(true)
 
 function applyRefVisibility(refVisibility: RefVisibility): void {
@@ -38,12 +40,12 @@ function applyRefVisibility(refVisibility: RefVisibility): void {
 }
 
 function onAdd(draft: FormulaDraft, refVisibility: RefVisibility): void {
-  store.add(draft)
+  store.addFormula(draft)
   applyRefVisibility(refVisibility)
 }
 
 function onUpdate(id: ItemId, draft: FormulaDraft, refVisibility: RefVisibility): void {
-  store.update(id, draft)
+  store.updateFormula(id, draft)
   applyRefVisibility(refVisibility)
 }
 
@@ -58,7 +60,7 @@ function onDelete(id: ItemId): void {
 <template>
   <MetricsCalculationSlideout
     :open="open"
-    :items="store.items.value"
+    :items="completeItems"
     :next-id="store.nextId.value"
     :next-color="store.nextColor.value"
     @add="onAdd"

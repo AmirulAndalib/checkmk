@@ -5,6 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { DialogTitle } from 'reka-ui'
+import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
@@ -13,45 +14,49 @@ import CmkPopup from '@/components/CmkPopup.vue'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
-import { useItemDescription } from './composables/useItemDescription'
-import type { GraphItem, ItemId } from './types'
+import { useItemDescription } from '../composables/useItemDescription'
+import type { GraphItem, ItemId } from '../types'
 
 const { _t } = usei18n()
 
-const { calculationId, dependents } = defineProps<{
+const { ids, dependents } = defineProps<{
   open: boolean
-  /** The calculation the user asked to delete. */
-  calculationId: ItemId
-  /** Formulas that (transitively) reference it; they are deleted along with it on confirm. */
-  dependents: GraphItem[]
+  /** The rows the user asked to delete. */
+  ids: readonly ItemId[]
+  /** Formulas that (transitively) reference them; they are deleted along with them on confirm. */
+  dependents: readonly GraphItem[]
 }>()
 
 const emit = defineEmits<{
-  /** Delete the calculation and all its dependents. */
+  /** Delete the rows and all their dependents. */
   confirm: []
   close: []
 }>()
 
 const { describeItem } = useItemDescription()
+
+const joinedIds = computed(() => ids.join(', '))
 </script>
 
 <template>
   <CmkPopup :open="open" @close="emit('close')">
-    <div class="graphing-delete-calculation-popup">
+    <div class="graphing-delete-with-dependents-popup">
       <DialogTitle>
         <CmkHeading type="h2">
-          {{ _t('Delete calculation %{id}?', { id: calculationId }) }}
+          {{ _t('Delete %{ids}?', { ids: joinedIds }) }}
         </CmkHeading>
       </DialogTitle>
       <CmkParagraph>
-        {{ _t('The following calculations reference it and will be deleted as well:') }}
+        {{
+          _t('The following calculations reference the selected rows and will be deleted as well:')
+        }}
       </CmkParagraph>
-      <ul class="graphing-delete-calculation-popup__dependents">
+      <ul class="graphing-delete-with-dependents-popup__dependents">
         <li v-for="dependent in dependents" :key="dependent.id">
           {{ dependent.id }} — {{ describeItem(dependent) }}
         </li>
       </ul>
-      <div class="graphing-delete-calculation-popup__buttons">
+      <div class="graphing-delete-with-dependents-popup__buttons">
         <CmkButton variant="danger" @click="emit('confirm')">
           {{ _t('Delete all') }}
         </CmkButton>
@@ -64,18 +69,18 @@ const { describeItem } = useItemDescription()
 </template>
 
 <style scoped>
-.graphing-delete-calculation-popup {
+.graphing-delete-with-dependents-popup {
   display: flex;
   flex-direction: column;
   gap: var(--dimension-6);
 }
 
-.graphing-delete-calculation-popup__dependents {
+.graphing-delete-with-dependents-popup__dependents {
   margin: 0;
   padding-left: var(--dimension-8);
 }
 
-.graphing-delete-calculation-popup__buttons {
+.graphing-delete-with-dependents-popup__buttons {
   display: flex;
   gap: var(--dimension-4);
 }

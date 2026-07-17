@@ -5,26 +5,31 @@
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
 
-import DeleteCalculationPopup from '@/graphing/designer/DeleteCalculationPopup.vue'
+import DeleteWithDependentsPopup from '@/graphing/designer/components/DeleteWithDependentsPopup.vue'
 
-import { formulaItem } from './fixtures'
+import { formulaItem } from '../fixtures'
 
 // The dialog mounts its content on the open transition, so open starts false.
-async function renderPopup() {
+async function renderPopup(ids: string[] = ['D']) {
   const props = {
     open: false,
-    calculationId: 'D',
+    ids,
     dependents: [formulaItem('F', { ast: { op: 'ref', id: 'D' } })]
   }
-  const utils = render(DeleteCalculationPopup, { props })
+  const utils = render(DeleteWithDependentsPopup, { props })
   await utils.rerender({ ...props, open: true })
   return utils
 }
 
 test('lists the dependents that will be deleted as well', async () => {
   await renderPopup()
-  expect(screen.getByText('Delete calculation D?')).toBeInTheDocument()
+  expect(screen.getByText('Delete D?')).toBeInTheDocument()
   expect(screen.getByText(/F — = D/)).toBeInTheDocument()
+})
+
+test('names every row of a bulk deletion', async () => {
+  await renderPopup(['A', 'B'])
+  expect(screen.getByText('Delete A, B?')).toBeInTheDocument()
 })
 
 test('confirming emits confirm, cancelling emits close', async () => {

@@ -10,19 +10,20 @@ import {
   UclDetailPageHeader,
   UclDetailPageLayout
 } from '@ucl/_ucl/components/detail-page'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import CmkButton from '@/components/CmkButton'
 
-import DeleteCalculationPopup from '@/graphing/designer/DeleteCalculationPopup.vue'
 import { MetricsCalculationSlideout, type RefVisibility } from '@/graphing/designer/calculation'
+import DeleteWithDependentsPopup from '@/graphing/designer/components/DeleteWithDependentsPopup.vue'
+import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
+import { isComplete } from '@/graphing/designer/drafts'
 import {
   DEFAULT_TITLE_MACRO,
   type FormulaDraft,
   type GraphItem,
   type ItemId
 } from '@/graphing/designer/types'
-import { useGraphItems } from '@/graphing/designer/useGraphItems'
 
 import codeExample from './UclMetricsCalculationSlideoutCodeExample.vue?raw'
 
@@ -114,6 +115,7 @@ const seed: GraphItem[] = [
 ]
 
 const store = useGraphItems(PALETTE, seed)
+const completeItems = computed(() => store.items.value.filter(isComplete))
 const open = ref(false)
 
 function applyRefVisibility(refVisibility: RefVisibility): void {
@@ -123,12 +125,12 @@ function applyRefVisibility(refVisibility: RefVisibility): void {
 }
 
 function onAdd(draft: FormulaDraft, refVisibility: RefVisibility): void {
-  store.add(draft)
+  store.addFormula(draft)
   applyRefVisibility(refVisibility)
 }
 
 function onUpdate(id: ItemId, draft: FormulaDraft, refVisibility: RefVisibility): void {
-  store.update(id, draft)
+  store.updateFormula(id, draft)
   applyRefVisibility(refVisibility)
 }
 
@@ -164,7 +166,7 @@ function onConfirmDelete(): void {
 
       <MetricsCalculationSlideout
         :open="open"
-        :items="store.items.value"
+        :items="completeItems"
         :next-id="store.nextId.value"
         :next-color="store.nextColor.value"
         @add="onAdd"
@@ -172,10 +174,10 @@ function onConfirmDelete(): void {
         @delete="onDelete"
         @close="open = false"
       />
-      <DeleteCalculationPopup
+      <DeleteWithDependentsPopup
         v-if="pendingDelete !== null"
         open
-        :calculation-id="pendingDelete.id"
+        :ids="[pendingDelete.id]"
         :dependents="pendingDelete.dependents"
         @confirm="onConfirmDelete"
         @close="pendingDelete = null"
