@@ -202,6 +202,7 @@ COMMUNITY_WHEELS = [
     "//packages/cmk-plugins:wheel-graylog",
     "//packages/cmk-plugins:wheel-ibm_imm",
     "//packages/cmk-plugins:wheel-ibm_mq",
+    "//packages/cmk-plugins:wheel-ibm_rsa",
     "//packages/cmk-plugins:wheel-ipmi",
     "//packages/cmk-plugins:wheel-jenkins",
     "//packages/cmk-plugins:wheel-kube",
