@@ -548,6 +548,10 @@ def handle_ip_lookup_failure(host_name: HostName, exc: Exception) -> None:
 
 def get_default_config() -> dict[str, Any]:
     """Provides a dictionary containing the Check_MK default configuration"""
+    # Note: variable_defaults contains a lot of additional values not part of
+    # BaseConfig:
+    # Type definitions that are leaked by the '*' import, but also deprecated actual
+    # config values.
     return {
         key: copy.deepcopy(value) if isinstance(value, dict | list) else value
         for key, value in default_config.__dict__.items()
@@ -850,7 +854,7 @@ class PackedConfigGenerator:
 
     # These variables are part of the Checkmk configuration, but are not needed
     # by the Checkmk keepalive mode, so exclude them from the packed config
-    _skipped_config_variable_names = [
+    _SKIPPED_CONFIG_VARIABLE_NAMES = {
         "define_contactgroups",
         "define_hostgroups",
         "define_servicegroups",
@@ -861,7 +865,7 @@ class PackedConfigGenerator:
         "contacts",
         "timeperiods",
         "extra_nagios_conf",
-    ]
+    }
 
     def __init__(
         self,
@@ -943,20 +947,12 @@ class PackedConfigGenerator:
         # Add modified Checkmk base settings
         #
 
+        helper_config_variables = set(self._loaded_config) - self._SKIPPED_CONFIG_VARIABLE_NAMES
         variable_defaults = get_default_config()
 
-        for varname, default_value in variable_defaults.items():
-            if varname in self._skipped_config_variable_names:
-                continue
-
-            try:
-                val = self._loaded_config[varname]
-            except KeyError:
-                # Note: variable_defaults contains a lot of additional values not part of
-                # self._loaded_config:
-                # Type definitions that are leaked by the '*' import, but also deprecated actual
-                # config values. We simply skip them, they are not needed here.
-                continue
+        for varname in helper_config_variables:
+            val = self._loaded_config[varname]
+            default_value = variable_defaults[varname]
 
             if val == default_value:
                 continue
