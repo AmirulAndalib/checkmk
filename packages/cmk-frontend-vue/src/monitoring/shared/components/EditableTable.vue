@@ -231,5 +231,6 @@ body[data-theme='facelift'] .monitoring-editable-table__row-group--dragging :dee
   bottom: v-bind(borderSpacing);
   z-index: 2;
   background: var(--ux-theme-2);
+  box-shadow: 0 0 0 1px var(--ux-theme-4);
 }
 </style>

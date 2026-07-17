@@ -1,0 +1,54 @@
+<!--
+Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+conditions defined in the file COPYING, which is part of this source code package.
+-->
+<script setup lang="ts">
+import usei18n from '@/lib/i18n'
+
+import CmkLabel from '@/components/CmkLabel.vue'
+import CmkInput from '@/components/user-input/CmkInput.vue'
+
+import type { GraphItemsStore } from '../../composables/useGraphItems'
+import type { DraftConstantItem } from '../../drafts'
+
+const { item, store } = defineProps<{
+  item: DraftConstantItem
+  store: GraphItemsStore
+}>()
+
+const { _t } = usei18n()
+
+function onValueChange(value: number | undefined): void {
+  store.replace({ ...item, value: value ?? null })
+}
+</script>
+
+<template>
+  <div class="graphing-constant-line-form">
+    <div class="graphing-constant-line-form__field">
+      <CmkLabel variant="subtitle">{{ _t('Value') }}</CmkLabel>
+      <CmkInput
+        :model-value="item.value ?? undefined"
+        type="number"
+        :placeholder="_t('Enter value')"
+        @update:model-value="onValueChange"
+      />
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.graphing-constant-line-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dimension-5);
+  padding: var(--dimension-7);
+}
+
+.graphing-constant-line-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dimension-3);
+}
+</style>

@@ -1,0 +1,124 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+
+import MetricsTable from '@/graphing/designer/components/MetricsTable.vue'
+import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
+import type { DesignerItem } from '@/graphing/designer/drafts'
+
+import { constantItem, formulaItem, rrdMetricItem } from '../fixtures'
+
+const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
+const THRESHOLDS = { warning: '#ffd000', critical: '#ff3232' }
+
+function renderTable(seed: DesignerItem[] = []) {
+  const store = useGraphItems(PALETTE, seed)
+  const utils = render(MetricsTable, { props: { store, thresholds: THRESHOLDS } })
+  return { store, ...utils }
+}
+
+test('adding a source appends an auto-expanded draft row', async () => {
+  const { store } = renderTable([rrdMetricItem('A')])
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  await fireEvent.click(await screen.findByRole('option', { name: 'Checkmk RRD' }))
+
+  expect(store.items.value.map((item) => item.id)).toEqual(['A', 'B'])
+  expect(store.items.value[1]).toMatchObject({ type: 'rrd_metric', host_name: null })
+  // The new row opens expanded, showing its source configuration form.
+  expect(await screen.findByText('Single metric')).toBeInTheDocument()
+})
+
+test('adding a constant line opens the constant form', async () => {
+  const { store } = renderTable()
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  await fireEvent.click(await screen.findByRole('option', { name: 'Constant line' }))
+
+  expect(store.items.value[0]).toMatchObject({ type: 'constant', value: null })
+  expect(await screen.findByPlaceholderText('Enter value')).toBeInTheDocument()
+})
+
+test('adding a service reference line opens the scalar form', async () => {
+  const { store } = renderTable()
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  await fireEvent.click(await screen.findByRole('option', { name: 'Service reference line' }))
+
+  expect(store.items.value[0]).toMatchObject({
+    type: 'scalar',
+    scalar_type: 'warning',
+    color: THRESHOLDS.warning,
+    host_name: null
+  })
+  expect(await screen.findByRole('combobox', { name: 'Threshold type' })).toBeInTheDocument()
+})
+
+test('deleting an unreferenced row needs no confirmation', async () => {
+  const { store } = renderTable([rrdMetricItem('A')])
+  await fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+
+  expect(store.items.value).toHaveLength(0)
+  expect(screen.queryByText('Delete A?')).not.toBeInTheDocument()
+})
+
+test('deleting a referenced row asks and cascades to its dependents', async () => {
+  const { store } = renderTable([
+    rrdMetricItem('A'),
+    formulaItem('B', { ast: { op: 'ref', id: 'A' } })
+  ])
+  const [deleteA] = screen.getAllByRole('button', { name: 'Delete' })
+  await fireEvent.click(deleteA!)
+
+  expect(await screen.findByText('Delete A?')).toBeInTheDocument()
+  expect(store.items.value).toHaveLength(2)
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Delete all' }))
+  expect(store.items.value).toHaveLength(0)
+})
+
+test('selecting rows reveals the bulk actions; bulk clone copies and clears the selection', async () => {
+  const { store } = renderTable([rrdMetricItem('A'), constantItem('B')])
+  expect(screen.queryByRole('button', { name: 'Clone selected sources' })).not.toBeInTheDocument()
+
+  const [selectA] = screen.getAllByLabelText('Select row')
+  await fireEvent.click(selectA!)
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Clone selected sources' }))
+  expect(store.items.value.map((item) => item.id)).toEqual(['A', 'C', 'B'])
+  expect(screen.queryByRole('button', { name: 'Clone selected sources' })).not.toBeInTheDocument()
+})
+
+test('bulk delete of a referenced row routes through the confirmation', async () => {
+  const { store } = renderTable([
+    rrdMetricItem('A'),
+    formulaItem('B', { ast: { op: 'ref', id: 'A' } })
+  ])
+  const [selectA] = screen.getAllByLabelText('Select row')
+  await fireEvent.click(selectA!)
+  await fireEvent.click(screen.getByRole('button', { name: 'Delete selected sources' }))
+
+  await fireEvent.click(await screen.findByRole('button', { name: 'Delete all' }))
+  expect(store.items.value).toHaveLength(0)
+})
+
+test('a selected row deleted outside the table drops out of the bulk actions', async () => {
+  const { store } = renderTable([rrdMetricItem('A'), constantItem('B')])
+  const [selectA] = screen.getAllByLabelText('Select row')
+  await fireEvent.click(selectA!)
+  expect(screen.getByRole('button', { name: 'Delete selected sources' })).toBeInTheDocument()
+
+  // E.g. deleted through the calculation slideout, which bypasses the table's own flow.
+  store.remove('A')
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('button', { name: 'Delete selected sources' })
+    ).not.toBeInTheDocument()
+  })
+})
+
+test('title edits patch the row', async () => {
+  const { store } = renderTable([rrdMetricItem('A')])
+  await fireEvent.update(screen.getByLabelText('Title'), 'My title')
+  expect(store.items.value[0]!.title).toBe('My title')
+})

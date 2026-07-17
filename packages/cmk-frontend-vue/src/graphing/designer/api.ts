@@ -14,6 +14,17 @@ export type CustomGraphMetric = components['schemas']['CustomGraphMetric']
 
 const CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' } as const
 
+/** Resolve a registered metric's canonical color, or `null` if it is not registered. */
+export async function resolveMetricColor(metricName: string): Promise<string | null> {
+  const response = unwrap(
+    await client.POST('/domain-types/graph/actions/resolve_color/invoke', {
+      params: { header: CONTENT_TYPE_HEADER },
+      body: { metric_name: metricName }
+    })
+  )
+  return response.color ?? null
+}
+
 /** Evaluate an unsaved custom-graph definition over a time range (preview). */
 export async function fetchCustomGraphData(body: FetchCustomGraphDataRequest) {
   return unwrap(

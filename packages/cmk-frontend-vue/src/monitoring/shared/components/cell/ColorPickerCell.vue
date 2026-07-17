@@ -19,6 +19,22 @@ const color = defineModel<string>({ required: true })
 
 <template>
   <BaseCell :column-id="columnId" :vertical-align="verticalAlign">
-    <CmkColorPicker v-model="color" size="small" />
+    <CmkColorPicker
+      v-model="color"
+      size="small"
+      class="monitoring-color-picker-cell"
+      :class="{ 'monitoring-color-picker-cell--vertical-middle': verticalAlign === 'middle' }"
+    />
   </BaseCell>
 </template>
+
+<style scoped>
+/* The swatch is inline-flex; align it explicitly instead of on the text baseline. */
+.monitoring-color-picker-cell {
+  vertical-align: top;
+}
+
+.monitoring-color-picker-cell--vertical-middle {
+  vertical-align: middle;
+}
+</style>
