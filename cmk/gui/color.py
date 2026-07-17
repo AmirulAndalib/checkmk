@@ -180,6 +180,11 @@ def get_palette_color_by_index(
     return f"{color_key}/{shading}"
 
 
+def get_default_metric_palette() -> list[str]:
+    """The metric auto-assignment palette in ``get_palette_color_by_index`` order, as hex."""
+    return [parse_color_into_hexrgb(f"{key}/a") for key in sorted(_cmk_color_palette)]
+
+
 def get_next_random_palette_color() -> str:
     keys = list(_cmk_color_palette.keys())
     if "random_color_index" in g:

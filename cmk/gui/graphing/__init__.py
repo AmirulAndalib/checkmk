@@ -19,6 +19,7 @@ from ._from_api import (
     perfometers_from_api,
     RegisteredMetric,
 )
+from ._frontend import default_time_range_seconds, global_time_picker_props
 from ._graph_display_config import (
     GraphDisplayConfigHTML,
     GraphDisplayConfigImage,
@@ -165,6 +166,8 @@ __all__ = [
     "compute_translated_metrics",
     "check_metrics",
     "compute_graph_artwork",
+    "default_time_range_seconds",
+    "global_time_picker_props",
     "iter_graph_artworks",
     "compute_pdf_graph_ranges",
     "get_first_matching_perfometer",
