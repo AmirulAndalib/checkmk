@@ -9,6 +9,7 @@ import contextlib
 import os
 import subprocess
 import sys
+from collections.abc import Iterable, Reversible
 from typing import Literal, NamedTuple
 
 from cmk.ccc import tty
@@ -23,7 +24,7 @@ class _InitScript(NamedTuple):
 
 def call_init_scripts(
     site_dir: str,
-    command: Literal["start", "stop", "restart", "reload", "status"],
+    command: Literal["start", "stop", "restart", "reload"],
     daemon: str | None = None,
 ) -> Literal[0, 2]:
     if daemon:
@@ -33,34 +34,36 @@ def call_init_scripts(
             return 2
     else:
         executables = [s.executable for s in _init_scripts(site_dir)]
-    # Restart: Do not restart each service after another,
-    # but first do stop all, then start all again! This
-    # preserves the order.
-    if command == "restart":
-        log_security_event(SiteStartStoppedEvent(event="restart", daemon=daemon))
-        code_stop = call_init_scripts(site_dir, "stop", daemon)
-        code_start = call_init_scripts(site_dir, "start", daemon)
-        return 0 if (code_stop, code_start) == (0, 0) else 2
 
-    # OMD guarantees OMD_ROOT to be the current directory
+    # OMD guarantees OMD_ROOT to be the current directory for the init scripts, regardless
+    # of the working directory of the caller.
     with contextlib.chdir(site_dir):
-        if command == "start":
-            log_security_event(SiteStartStoppedEvent(event="start", daemon=daemon))
-            SiteInternalSecret().regenerate()
-        elif command == "stop":
-            log_security_event(SiteStartStoppedEvent(event="stop", daemon=daemon))
+        match command:
+            case "restart":
+                # Do not restart each service after another, but first do stop all,
+                # then start all again! This preserves the order.
+                log_security_event(SiteStartStoppedEvent(event="restart", daemon=daemon))
+                code_stop = _call_init_scripts_stop(executables, daemon)
+                code_start = _call_init_scripts_start(executables, daemon)
+                return 0 if (code_stop, code_start) == (0, 0) else 2
+            case "start":
+                return _call_init_scripts_start(executables, daemon)
+            case "stop":
+                return _call_init_scripts_stop(executables, daemon)
+            case "reload":
+                return _call_init_scripts(executables, "reload")
 
-        # Call stop scripts in reverse order. If daemon is set,
-        # then only that start script will be affected
-        if command == "stop":
-            executables.reverse()
 
-        success = True
-        for script in executables:
-            if not _call_init_script(script, command):
-                success = False
+def _call_init_scripts_start(executables: Iterable[str], daemon: str | None) -> Literal[0, 2]:
+    log_security_event(SiteStartStoppedEvent(event="start", daemon=daemon))
+    SiteInternalSecret().regenerate()
+    return _call_init_scripts(executables, "start")
 
-    return 0 if success else 2
+
+def _call_init_scripts_stop(executables: Reversible[str], daemon: str | None) -> Literal[0, 2]:
+    log_security_event(SiteStartStoppedEvent(event="stop", daemon=daemon))
+    # Call stop scripts in reverse order.
+    return _call_init_scripts(reversed(executables), "stop")
 
 
 def check_status(
@@ -212,6 +215,12 @@ def _init_scripts(site_dir: str) -> list[_InitScript]:
         ]
     except Exception:
         return []
+
+
+def _call_init_scripts(scripts: Iterable[str], command: str) -> Literal[0, 2]:
+    # Materialize the results to call every script even if one fails.
+    results = [_call_init_script(script, command) for script in scripts]
+    return 0 if all(results) else 2
 
 
 def _call_init_script(scriptpath: str, command: str) -> bool:
