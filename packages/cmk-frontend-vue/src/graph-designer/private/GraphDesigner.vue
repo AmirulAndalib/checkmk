@@ -812,6 +812,7 @@ function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationF
     case 'sum_rate':
     case 'sum_last_raw':
     case 'histogram_count_delta':
+    case 'histogram_count_rate':
       return b.function === a.function && a.lookback_seconds === b.lookback_seconds
     case 'histogram_quantile':
       return (

@@ -154,7 +154,7 @@
         "type": { "type": "string", "enum": ["histogram"] },
         "function": {
           "type": "string",
-          "enum": ["histogram_quantile", "histogram_count_delta"]
+          "enum": ["histogram_quantile", "histogram_count_delta", "histogram_count_rate"]
         },
         "lookback_seconds": { "type": "number" },
         "percentile": { "type": "number" }

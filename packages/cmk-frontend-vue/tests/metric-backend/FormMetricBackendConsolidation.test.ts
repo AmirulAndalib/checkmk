@@ -107,7 +107,7 @@ test('a gauge metric offers the last, max, avg and min functions', async () => {
   })
 })
 
-test('a histogram metric offers the quantile and count delta functions', async () => {
+test('a histogram metric offers the quantile, count delta and count rate functions', async () => {
   renderConsolidation({ metricTypes: ['histogram'] })
 
   await userEvent.click(chip())
@@ -116,6 +116,7 @@ test('a histogram metric offers the quantile and count delta functions', async (
   await waitFor(() => {
     expect(screen.getByRole('option', { name: 'Quantile' })).toBeVisible()
     expect(screen.getByRole('option', { name: 'Count delta' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Count rate' })).toBeVisible()
   })
 })
 

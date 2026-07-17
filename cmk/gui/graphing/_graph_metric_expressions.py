@@ -150,6 +150,12 @@ class HistogramCountDelta:
     type_: Literal["histogram_count_delta"] = "histogram_count_delta"
 
 
+@dataclass(frozen=True, kw_only=True)
+class HistogramCountRate:
+    lookback_seconds: float
+    type_: Literal["histogram_count_rate"] = "histogram_count_rate"
+
+
 type ConsolidationFunction = (
     GaugeLast
     | GaugeMax
@@ -159,6 +165,7 @@ type ConsolidationFunction = (
     | SumLastRaw
     | HistogramQuantile
     | HistogramCountDelta
+    | HistogramCountRate
 )
 
 
