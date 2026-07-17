@@ -41,7 +41,7 @@ import { type ItemId, isSingleLine, parseLineType } from '../types'
 import DeleteWithDependentsPopup from './DeleteWithDependentsPopup.vue'
 import ConstantLineForm from './forms/ConstantLineForm.vue'
 import FormulaForm from './forms/FormulaForm.vue'
-import RrdMetricForm from './forms/RrdMetricForm.vue'
+import RrdForm from './forms/RrdForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
 const { store, thresholds } = defineProps<{
@@ -252,13 +252,17 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
           >
             <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
             <p
-              v-else-if="row.type === 'rrd_query' || row.type === 'metric_backend'"
+              v-else-if="row.type === 'metric_backend'"
               class="graphing-metrics-table__placeholder"
             >
               {{ _t('This source type cannot be edited here yet.') }}
             </p>
             <div v-else class="graphing-metrics-table__editor-panel">
-              <RrdMetricForm v-if="row.type === 'rrd_metric'" :item="row" :store="store" />
+              <RrdForm
+                v-if="row.type === 'rrd_metric' || row.type === 'rrd_query'"
+                :item="row"
+                :store="store"
+              />
               <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
               <ServiceReferenceLineForm
                 v-else-if="row.type === 'scalar'"

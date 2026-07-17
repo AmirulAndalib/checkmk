@@ -20,12 +20,15 @@ const {
   modelValue,
   context,
   placeholder,
-  required = false
+  required = false,
+  showIndependentOfContext = false
 } = defineProps<{
   modelValue: string | null
   context: ConfiguredFilters
   placeholder?: TranslatedString
   required?: boolean
+  /** Resolve metric suggestions from the filter context even without an exact host+service. */
+  showIndependentOfContext?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -36,7 +39,10 @@ const { _t } = usei18n()
 
 const metricAutocompleter = computed<Autocompleter>(() => ({
   fetch_method: 'rest_autocomplete',
-  data: { ident: 'monitored_metrics', params: { strict: true, context } }
+  data: {
+    ident: 'monitored_metrics',
+    params: { show_independent_of_context: showIndependentOfContext, strict: true, context }
+  }
 }))
 </script>
 

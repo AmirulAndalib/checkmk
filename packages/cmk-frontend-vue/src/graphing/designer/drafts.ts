@@ -26,13 +26,14 @@ export type DraftRRDMetricItem = WithNullable<
   RRDMetricItem,
   'host_name' | 'service_name' | 'metric_name'
 >
+export type DraftRRDQueryItem = WithNullable<RRDQueryItem, 'metric_name'>
 export type DraftConstantItem = WithNullable<ConstantItem, 'value'>
 export type DraftScalarItem = WithNullable<ScalarItem, 'host_name' | 'service_name' | 'metric_name'>
 
 /** What the designer table holds; every `GraphItem` is assignable to it. */
 export type DesignerItem =
   | DraftRRDMetricItem
-  | RRDQueryItem
+  | DraftRRDQueryItem
   | MetricBackendItem
   | DraftConstantItem
   | DraftScalarItem
@@ -47,6 +48,7 @@ export function isComplete(item: DesignerItem): item is GraphItem {
     case 'constant':
       return item.value !== null
     case 'rrd_query':
+      return item.metric_name !== null
     case 'metric_backend':
     case 'rrd_formula':
       return true
@@ -98,6 +100,52 @@ export function newRrdMetricDraft(id: ItemId, color: string): DraftRRDMetricItem
     service_name: null,
     metric_name: null,
     consolidation: 'avg'
+  }
+}
+
+export function newRrdQueryDraft(id: ItemId): DraftRRDQueryItem {
+  return {
+    id,
+    type: 'rrd_query',
+    title: DEFAULT_TITLE_MACRO,
+    line_type: 'line',
+    mirrored: false,
+    visible: true,
+    context: {},
+    metric_name: null,
+    consolidation: 'avg'
+  }
+}
+
+/** Switches a single-metric draft to a dynamic query, keeping the metric and consolidation. */
+export function rrdMetricToQueryDraft(item: DraftRRDMetricItem): DraftRRDQueryItem {
+  return {
+    id: item.id,
+    type: 'rrd_query',
+    title: item.title,
+    line_type: item.line_type,
+    mirrored: item.mirrored,
+    visible: item.visible,
+    context: {},
+    metric_name: item.metric_name,
+    consolidation: item.consolidation
+  }
+}
+
+/** Switches a dynamic query back to a single metric; the query filters cannot be mapped over. */
+export function rrdQueryToMetricDraft(item: DraftRRDQueryItem, color: string): DraftRRDMetricItem {
+  return {
+    id: item.id,
+    type: 'rrd_metric',
+    title: item.title,
+    line_type: item.line_type,
+    mirrored: item.mirrored,
+    visible: item.visible,
+    color,
+    host_name: null,
+    service_name: null,
+    metric_name: item.metric_name,
+    consolidation: item.consolidation
   }
 }
 
