@@ -117,11 +117,7 @@ def precompile_hostchecks(
     ip_address_of: IPLookup,
     *,
     precompile_mode: PrecompileMode,
-    checker_config_writer: Callable[[Path], None],
 ) -> None:
-    console.verbose("Creating checker config...")
-    checker_config_writer(config_path)
-
     console.verbose("Precompiling host checks...")
 
     host_check_store = HostCheckStore()

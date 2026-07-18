@@ -8,7 +8,6 @@
 import abc
 import socket
 from collections.abc import Callable, Mapping, Sequence
-from pathlib import Path
 from typing import Final, Literal
 
 from cmk import trace
@@ -65,7 +64,6 @@ class MonitoringCore(abc.ABC):
         passwords: Mapping[str, Secret[str]],
         hosts_to_update: set[HostName] | None,
         service_depends_on: Callable[[HostAddress, ServiceName], Sequence[ServiceName]],
-        checker_config_writer: Callable[[Path], None],
     ) -> None:
         licensing_handler = self.licensing_handler_factory()
         licensing_handler.persist_licensed_state(get_licensed_state_file_path(paths.omd_root))
@@ -87,7 +85,6 @@ class MonitoringCore(abc.ABC):
             passwords,
             hosts_to_update=hosts_to_update,
             service_depends_on=service_depends_on,
-            checker_config_writer=checker_config_writer,
         )
 
     @abc.abstractmethod
@@ -117,6 +114,5 @@ class MonitoringCore(abc.ABC):
         *,
         hosts_to_update: set[HostName] | None = None,
         service_depends_on: Callable[[HostAddress, ServiceName], Sequence[ServiceName]],
-        checker_config_writer: Callable[[Path], None],
     ) -> None:
         raise NotImplementedError

@@ -324,7 +324,9 @@ def _create_active_config(
     ):
         snapshot_local_dir(cmk.utils.paths.local_root, config_creation_context.path_created)
         snapshot_trusted_cas(cmk.utils.paths.trusted_ca_file, config_creation_context.path_created)
-        # TODO: create checker config here
+
+        checker_config_writer(config_creation_context.path_created)
+
         core.create_config(
             config_creation_context,
             config_cache,
@@ -342,7 +344,6 @@ def _create_active_config(
             hosts_to_update=hosts_to_update,
             service_depends_on=service_depends_on,
             passwords=passwords,
-            checker_config_writer=checker_config_writer,
         )
         cmk.utils.password_store.save(
             {k: s.reveal() for k, s in passwords.items()},
