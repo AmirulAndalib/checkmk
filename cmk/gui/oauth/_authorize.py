@@ -58,6 +58,16 @@ class OAuthAuthorizePage(Page):
             response.status_code = http_client.BAD_REQUEST
             return None
 
+        response_type = request.var("response_type")
+        if response_type is None:
+            self._log_authorization_failure("missing response_type")
+            self._error_redirect(ctx, redirect_uri, "invalid_request")
+            return None
+        if response_type != "code":
+            self._log_authorization_failure("unsupported response_type")
+            self._error_redirect(ctx, redirect_uri, "unsupported_response_type")
+            return None
+
         # received authorization form OK
         if request.request_method == "POST" and transactions.check_transaction():
             params = (
@@ -111,6 +121,12 @@ class OAuthAuthorizePage(Page):
                 remote_ip=request.remote_ip,
             )
         )
+
+    def _error_redirect(self, ctx: PageContext, redirect_uri: str, error: str) -> None:
+        params = {"error": error}
+        if (state := request.var("state")) is not None:
+            params["state"] = state
+        self._show_redirect_page(ctx, redirect_uri, params)
 
     def _show_redirect_page(
         self, ctx: PageContext, redirect_uri: str, params: dict[str, str]

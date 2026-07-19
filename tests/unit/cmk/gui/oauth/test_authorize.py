@@ -47,7 +47,11 @@ def fixture_mock_vue_manifest() -> Iterator[None]:
 class TestOAuthAuthorizePage:
     def test_shows_consent_page_on_get(self, flask_app: Flask) -> None:
         with flask_app.test_request_context(
-            query_string={"redirect_uri": "https://client.example/callback", "state": "xyz"}
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "code",
+                "state": "xyz",
+            }
         ):
             flask_app.preprocess_request()
             OAuthAuthorizePage(lambda: True).handle_page(
@@ -67,7 +71,10 @@ class TestOAuthAuthorizePage:
         # "oauth_authorize.py" that would resolve against the wrong base path.
         with flask_app.test_request_context(
             path="/oauth-heute/authorize",
-            query_string={"redirect_uri": "https://client.example/callback"},
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "code",
+            },
         ):
             flask_app.preprocess_request()
             OAuthAuthorizePage(lambda: True).handle_page(
@@ -81,7 +88,11 @@ class TestOAuthAuthorizePage:
             patch.object(TransactionManager, "check_transaction", return_value=True),
             flask_app.test_request_context(
                 method="POST",
-                data={"redirect_uri": "https://client.example/callback", "state": "xyz"},
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "state": "xyz",
+                },
             ),
         ):
             flask_app.preprocess_request()
@@ -105,6 +116,7 @@ class TestOAuthAuthorizePage:
                 method="POST",
                 data={
                     "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
                     "state": "xyz",
                     "_deny": "Deny",
                 },
@@ -130,7 +142,10 @@ class TestOAuthAuthorizePage:
             patch.object(TransactionManager, "check_transaction", return_value=True),
             flask_app.test_request_context(
                 method="POST",
-                data={"redirect_uri": "https://client.example/callback?foo=bar"},
+                data={
+                    "redirect_uri": "https://client.example/callback?foo=bar",
+                    "response_type": "code",
+                },
             ),
         ):
             flask_app.preprocess_request()
@@ -154,7 +169,10 @@ class TestOAuthAuthorizePage:
             patch.object(TransactionManager, "check_transaction", return_value=True),
             flask_app.test_request_context(
                 method="POST",
-                data={"redirect_uri": "https://client.example/callback"},
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                },
             ),
         ):
             flask_app.preprocess_request()
@@ -171,7 +189,10 @@ class TestOAuthAuthorizePage:
             patch.object(TransactionManager, "check_transaction", return_value=False),
             flask_app.test_request_context(
                 method="POST",
-                data={"redirect_uri": "https://client.example/callback"},
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                },
             ),
         ):
             flask_app.preprocess_request()
@@ -181,6 +202,44 @@ class TestOAuthAuthorizePage:
 
             assert response.status_code == 200
             assert "<form" in response.get_data(as_text=True)
+
+    def test_redirects_with_invalid_request_when_response_type_is_missing(
+        self, flask_app: Flask
+    ) -> None:
+        with flask_app.test_request_context(
+            query_string={"redirect_uri": "https://client.example/callback", "state": "xyz"}
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 200
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        query = parse_qs(urlsplit(target_url).query)
+        assert query["error"] == ["invalid_request"]
+        assert query["state"] == ["xyz"]
+
+    def test_redirects_with_unsupported_response_type_when_not_code(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "token",
+                "state": "xyz",
+            }
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 200
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        query = parse_qs(urlsplit(target_url).query)
+        assert query["error"] == ["unsupported_response_type"]
+        assert query["state"] == ["xyz"]
 
     def test_returns_400_when_redirect_uri_missing(self, flask_app: Flask) -> None:
         with flask_app.test_request_context():
@@ -230,3 +289,36 @@ class TestOAuthAuthorizePage:
 
         mock_log.assert_called_once()
         assert mock_log.call_args.args[0].details["reason"] == "invalid or missing redirect_uri"
+
+    def test_logs_security_event_when_response_type_is_missing(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with flask_app.test_request_context(
+            query_string={"redirect_uri": "https://client.example/callback"}
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "missing response_type"
+
+    def test_logs_security_event_when_response_type_is_unsupported(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with flask_app.test_request_context(
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "token",
+            }
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "unsupported response_type"
