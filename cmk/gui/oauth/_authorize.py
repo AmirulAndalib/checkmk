@@ -58,6 +58,13 @@ class OAuthAuthorizePage(Page):
             response.status_code = http_client.BAD_REQUEST
             return None
 
+        if request.var("client_id") is None:
+            # Same MUST-NOT-redirect treatment as redirect_uri (RFC 6749
+            # section 4.1.2.1): an unknown client's redirect_uri isn't trustworthy.
+            self._log_authorization_failure("missing client_id")
+            response.status_code = http_client.BAD_REQUEST
+            return None
+
         response_type = request.var("response_type")
         if response_type is None:
             self._log_authorization_failure("missing response_type")

@@ -50,6 +50,7 @@ class TestOAuthAuthorizePage:
             query_string={
                 "redirect_uri": "https://client.example/callback",
                 "response_type": "code",
+                "client_id": "test-client",
                 "state": "xyz",
             }
         ):
@@ -74,6 +75,7 @@ class TestOAuthAuthorizePage:
             query_string={
                 "redirect_uri": "https://client.example/callback",
                 "response_type": "code",
+                "client_id": "test-client",
             },
         ):
             flask_app.preprocess_request()
@@ -91,6 +93,7 @@ class TestOAuthAuthorizePage:
                 data={
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
+                    "client_id": "test-client",
                     "state": "xyz",
                 },
             ),
@@ -117,6 +120,7 @@ class TestOAuthAuthorizePage:
                 data={
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
+                    "client_id": "test-client",
                     "state": "xyz",
                     "_deny": "Deny",
                 },
@@ -145,6 +149,7 @@ class TestOAuthAuthorizePage:
                 data={
                     "redirect_uri": "https://client.example/callback?foo=bar",
                     "response_type": "code",
+                    "client_id": "test-client",
                 },
             ),
         ):
@@ -172,6 +177,7 @@ class TestOAuthAuthorizePage:
                 data={
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
+                    "client_id": "test-client",
                 },
             ),
         ):
@@ -192,6 +198,7 @@ class TestOAuthAuthorizePage:
                 data={
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
+                    "client_id": "test-client",
                 },
             ),
         ):
@@ -207,7 +214,11 @@ class TestOAuthAuthorizePage:
         self, flask_app: Flask
     ) -> None:
         with flask_app.test_request_context(
-            query_string={"redirect_uri": "https://client.example/callback", "state": "xyz"}
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "client_id": "test-client",
+                "state": "xyz",
+            }
         ):
             flask_app.preprocess_request()
             OAuthAuthorizePage(lambda: True).handle_page(
@@ -226,6 +237,7 @@ class TestOAuthAuthorizePage:
             query_string={
                 "redirect_uri": "https://client.example/callback",
                 "response_type": "token",
+                "client_id": "test-client",
                 "state": "xyz",
             }
         ):
@@ -240,6 +252,22 @@ class TestOAuthAuthorizePage:
         query = parse_qs(urlsplit(target_url).query)
         assert query["error"] == ["unsupported_response_type"]
         assert query["state"] == ["xyz"]
+
+    def test_returns_400_when_client_id_is_missing(self, flask_app: Flask) -> None:
+        # RFC 6749 section 4.1.2.1: missing client_id must not redirect either.
+        with flask_app.test_request_context(
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "code",
+                "state": "xyz",
+            }
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
 
     def test_returns_400_when_redirect_uri_missing(self, flask_app: Flask) -> None:
         with flask_app.test_request_context():
@@ -295,7 +323,10 @@ class TestOAuthAuthorizePage:
     ) -> None:
         mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
         with flask_app.test_request_context(
-            query_string={"redirect_uri": "https://client.example/callback"}
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "client_id": "test-client",
+            }
         ):
             flask_app.preprocess_request()
             OAuthAuthorizePage(lambda: True).handle_page(
@@ -312,6 +343,7 @@ class TestOAuthAuthorizePage:
         with flask_app.test_request_context(
             query_string={
                 "redirect_uri": "https://client.example/callback",
+                "client_id": "test-client",
                 "response_type": "token",
             }
         ):
@@ -322,3 +354,18 @@ class TestOAuthAuthorizePage:
 
         mock_log.assert_called_once()
         assert mock_log.call_args.args[0].details["reason"] == "unsupported response_type"
+
+    def test_logs_security_event_when_client_id_is_missing(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with flask_app.test_request_context(
+            query_string={"redirect_uri": "https://client.example/callback"}
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "missing client_id"
