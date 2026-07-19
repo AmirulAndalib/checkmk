@@ -51,6 +51,7 @@ class TestOAuthAuthorizePage:
                 "redirect_uri": "https://client.example/callback",
                 "response_type": "code",
                 "client_id": "test-client",
+                "code_challenge": "test-challenge",
                 "state": "xyz",
             }
         ):
@@ -76,6 +77,7 @@ class TestOAuthAuthorizePage:
                 "redirect_uri": "https://client.example/callback",
                 "response_type": "code",
                 "client_id": "test-client",
+                "code_challenge": "test-challenge",
             },
         ):
             flask_app.preprocess_request()
@@ -94,6 +96,7 @@ class TestOAuthAuthorizePage:
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
                     "client_id": "test-client",
+                    "code_challenge": "test-challenge",
                     "state": "xyz",
                 },
             ),
@@ -121,6 +124,7 @@ class TestOAuthAuthorizePage:
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
                     "client_id": "test-client",
+                    "code_challenge": "test-challenge",
                     "state": "xyz",
                     "_deny": "Deny",
                 },
@@ -150,6 +154,7 @@ class TestOAuthAuthorizePage:
                     "redirect_uri": "https://client.example/callback?foo=bar",
                     "response_type": "code",
                     "client_id": "test-client",
+                    "code_challenge": "test-challenge",
                 },
             ),
         ):
@@ -178,6 +183,7 @@ class TestOAuthAuthorizePage:
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
                     "client_id": "test-client",
+                    "code_challenge": "test-challenge",
                 },
             ),
         ):
@@ -199,6 +205,7 @@ class TestOAuthAuthorizePage:
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
                     "client_id": "test-client",
+                    "code_challenge": "test-challenge",
                 },
             ),
         ):
@@ -268,6 +275,29 @@ class TestOAuthAuthorizePage:
             )
 
             assert response.status_code == 400
+
+    def test_redirects_with_invalid_request_when_code_challenge_is_missing(
+        self, flask_app: Flask
+    ) -> None:
+        with flask_app.test_request_context(
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "response_type": "code",
+                "client_id": "test-client",
+                "state": "xyz",
+            }
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 200
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        query = parse_qs(urlsplit(target_url).query)
+        assert query["error"] == ["invalid_request"]
+        assert query["state"] == ["xyz"]
 
     def test_returns_400_when_redirect_uri_missing(self, flask_app: Flask) -> None:
         with flask_app.test_request_context():
@@ -369,3 +399,22 @@ class TestOAuthAuthorizePage:
 
         mock_log.assert_called_once()
         assert mock_log.call_args.args[0].details["reason"] == "missing client_id"
+
+    def test_logs_security_event_when_code_challenge_is_missing(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with flask_app.test_request_context(
+            query_string={
+                "redirect_uri": "https://client.example/callback",
+                "client_id": "test-client",
+                "response_type": "code",
+            }
+        ):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "missing code_challenge"
