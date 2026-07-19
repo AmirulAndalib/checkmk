@@ -133,6 +133,7 @@ from cmk.ccc.i18n import _
 from cmk.ccc.timeout import Timeout
 from cmk.ccc.version import edition_supports_nagvis
 from cmk.checkengine import agent_protocol
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.checking import compute_check_parameters, ServiceConfigurer
 from cmk.checkengine.discovery import (
@@ -1305,7 +1306,7 @@ def _execute_autodiscovery(
         core_objects_config = config.CoreObjectsConfig(
             env.loaded_config, env.ruleset_matcher, env.label_manager
         )
-        checker_config_writer = config.make_packed_config_writer(
+        checker_config_writer = make_packed_config_writer(
             {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
             hosts_config,
             is_online=env.config_cache.is_online,
@@ -2596,7 +2597,7 @@ def _execute_silently(
     # Config generation logic writes directly to STDOUT. We discard it here.
     # TODO: Should we not capture and forward it to the logs?
 
-    checker_config_writer = config.make_packed_config_writer(
+    checker_config_writer = make_packed_config_writer(
         {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
         hosts_config,
         is_online=config_cache.is_online,

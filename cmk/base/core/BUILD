@@ -55,6 +55,7 @@ py_library(
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-check-engine:checker-helper-config",
         "//packages/cmk-check-engine:fetchers",
         "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
         "//packages/cmk-plugin-apis:discover_plugins",

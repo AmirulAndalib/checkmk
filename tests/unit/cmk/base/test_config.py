@@ -53,6 +53,7 @@ from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.version import Edition
 from cmk.checkengine import agent_protocol
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.discovery import (
     DiscoveryCheckParameters,
@@ -2967,7 +2968,7 @@ def test_save_packed_config(monkeypatch: MonkeyPatch, config_path: Path) -> None
 
     assert not precompiled_check_config.exists()
 
-    config.make_packed_config_writer(
+    make_packed_config_writer(
         {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)},
         loading_result.hosts_config,
         is_online=config_cache.is_online,
@@ -2975,25 +2976,6 @@ def test_save_packed_config(monkeypatch: MonkeyPatch, config_path: Path) -> None
     )(config_path)
 
     assert precompiled_check_config.exists()
-
-
-class TestPackedConfigStore:
-    @pytest.fixture()
-    def store(self, config_path: Path) -> config.PackedConfigStore:
-        return config.PackedConfigStore.from_serial(config_path)
-
-    def test_read_not_existing_file(self, store: config.PackedConfigStore) -> None:
-        with pytest.raises(FileNotFoundError):
-            store.read()
-
-    def test_write(self, store: config.PackedConfigStore, config_path: Path) -> None:
-        precompiled_check_config = config_path / "precompiled_check_config.mk"
-        assert not precompiled_check_config.exists()
-
-        store.write({"abc": 1})
-
-        assert precompiled_check_config.exists()
-        assert store.read() == {"abc": 1}
 
 
 def test__extract_check_plugins(monkeypatch: MonkeyPatch) -> None:

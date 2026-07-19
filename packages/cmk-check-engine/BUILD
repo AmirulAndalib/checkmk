@@ -186,6 +186,18 @@ py_library(
 )
 
 py_library(
+    name = "checker-helper-config",
+    srcs = [
+        "cmk/checkengine/checker_helper_config.py",
+    ],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//packages/cmk-ccc:hostaddress",
+    ],
+)
+
+py_library(
     name = "specs",
     srcs = glob([
         "cmk/checkengine/specs/*.py",
@@ -426,6 +438,15 @@ py_cmk_test(
     ],
 )
 
+py_cmk_test(
+    name = "checker-helper-config-tests",
+    size = "small",
+    srcs = ["tests/cmk/checkengine/test_checker_helper_config.py"],
+    deps = [
+        ":checker-helper-config",
+    ],
+)
+
 py_wheel(
     name = "wheel_fetchers",
     distribution = "cmk-check-engine-fetchers",
@@ -465,6 +486,7 @@ py_wheel(
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [
+        ":checker-helper-config",
         ":checker-plugin",
         ":inventory",
         ":lib",
@@ -524,6 +546,7 @@ sh_library(
 py_requirements_test(
     name = "requirements-test",
     libs = [
+        ":checker-helper-config",
         ":fetchers",
         ":fetcher-protocol",
         ":helper-interface",

@@ -60,6 +60,7 @@ from cmk.ccc.hostaddress import HostAddress, HostName, Hosts
 from cmk.ccc.store import activation_lock
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine import inventory
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checking import (
     execute_checkmk_checks,
     make_timing_results,
@@ -1705,7 +1706,7 @@ def _mode_update(app: CheckmkBaseApp) -> None:
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
-                checker_config_writer=config.make_packed_config_writer(
+                checker_config_writer=make_packed_config_writer(
                     raw_config,
                     hosts_config,
                     is_online=loading_result.config_cache.is_online,
@@ -1819,7 +1820,7 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
-        checker_config_writer=config.make_packed_config_writer(
+        checker_config_writer=make_packed_config_writer(
             raw_config,
             hosts_config,
             is_online=loading_result.config_cache.is_online,
@@ -1927,7 +1928,7 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
-        checker_config_writer=config.make_packed_config_writer(
+        checker_config_writer=make_packed_config_writer(
             raw_config,
             hosts_config,
             is_online=loading_result.config_cache.is_online,
