@@ -1084,7 +1084,7 @@ bool TheMiniBox::waitForUpdater(std::chrono::milliseconds timeout) {
         if (error == 0 && exitCode != STILL_ACTIVE) {
             // Process has exited, read any remaining data
             readWhatLeft();
-            XLOG::l.i("Updater success!");
+            XLOG::l.i("Updater success");
             return true;
         }
         remaining_timeout -= time_grane;
@@ -1092,22 +1092,14 @@ bool TheMiniBox::waitForUpdater(std::chrono::milliseconds timeout) {
 
     // Timeout expired or break condition met
     readWhatLeft();
-    const auto [exitCode, error] = wtools::GetProcessExitCode(pid);
-    if (error == 0 && exitCode != STILL_ACTIVE && process_->getData().empty()) {
-        XLOG::l.i("Updater returns smth reliable!");
-    } else {
-        XLOG::l.i("Updater with pid {} fails {} {}", pid, error, exitCode);
-    }
+    // we do not care too much about updater data:
+    // timeout is abnormal - kill
+    // external break, no sense to process - kill too
     failed_ = remaining_timeout <= std::chrono::milliseconds::zero();
-    if (error == 0 || exitCode == STILL_ACTIVE) {
-        // Process is running
-        process_->kill(true);
-        XLOG::l("Process '{}' [{}] is killed(error ={} exit code={})",
-                wtools::ToUtf8(exec_), pid, error, exitCode);
-    } else {
-        XLOG::t("Process '{}' [{}] exits with [{}]", wtools::ToUtf8(exec_), pid,
-                exitCode);
-    }
+    XLOG::l.i("Updater to be killed due to {}",
+              failed_ ? "timeout" : "external break");
+    process_->kill(true);
+    failed_ = remaining_timeout <= std::chrono::milliseconds::zero();
 
     return true;
 }
