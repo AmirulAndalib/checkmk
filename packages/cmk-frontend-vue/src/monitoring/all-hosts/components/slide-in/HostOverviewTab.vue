@@ -107,6 +107,14 @@ function formatTimestamp(iso: string): string {
 
     <hr class="monitoring-host-overview-tab__divider" />
 
+    <dl class="monitoring-host-overview-tab__grid">
+      <dt>{{ _t('Last check') }}</dt>
+      <dd>{{ formatTimestamp(data.last_check) }}</dd>
+
+      <dt>{{ _t('Age') }}</dt>
+      <dd>{{ timeSince(data.last_state_change) }}</dd>
+    </dl>
+
     <dl class="monitoring-host-overview-tab__grid monitoring-host-overview-tab__grid--chips">
       <dt>{{ _t('Tags') }}</dt>
       <dd>
@@ -123,15 +131,6 @@ function formatTimestamp(iso: string): string {
       <CmkHeading type="h3">{{ _t('Service summary') }}</CmkHeading>
       <CmkStateCountBar :segments="serviceSegments" />
     </section>
-
-    <dl class="monitoring-host-overview-tab__grid">
-      <dt>{{ _t('Last check') }}</dt>
-      <dd>{{ formatTimestamp(data.last_check) }}</dd>
-
-      <dt>{{ _t('Age') }}</dt>
-      <dd>{{ timeSince(data.last_state_change) }}</dd>
-    </dl>
-
     <section class="monitoring-host-overview-tab__relations">
       <CmkHeading type="h3">{{ _t('Relations') }}</CmkHeading>
       <CmkParagraph class="monitoring-host-overview-tab__relations-empty">
