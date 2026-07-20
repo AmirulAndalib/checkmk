@@ -11,6 +11,7 @@ import usei18n from '@/lib/i18n'
 import client, { unwrap } from '@/lib/rest-api-client/client'
 import { staticAssertNever } from '@/lib/typeUtils'
 
+import CmkHtml from '@/components/CmkHtml.vue'
 import CmkIcon from '@/components/CmkIcon'
 
 import type {
@@ -33,6 +34,7 @@ const props =
 
 const shell = ref<DiscoveredGraph | null>(null)
 const errorMessage = ref<string | null>(null)
+const noDataMessage = ref<string | null>(null)
 const isDiscovering = ref<boolean>(true)
 
 const singleContext = computed(() => {
@@ -57,7 +59,9 @@ const resolveTimeseriesColor = (color: SingleTimeseriesContent['color']): string
   return color === 'default_theme' ? DEFAULT_THEME_COLOR : color
 }
 
-type GraphDiscovery = { graphs: DiscoveredGraph[] } | { error: string }
+type GraphDiscovery =
+  | { graphs: DiscoveredGraph[]; no_data_message?: string | null }
+  | { error: string }
 
 const discoverGraphs = async (): Promise<GraphDiscovery> => {
   const content = props.content
@@ -126,9 +130,18 @@ const loadGraph = async () => {
     }
     if ('error' in discovery) {
       errorMessage.value = discovery.error
+      noDataMessage.value = null
+      shell.value = null
+    } else if (discovery.graphs.length === 0) {
+      // An empty discovery is an expected state (nothing matched / no monitored data),
+      // not an error: show the backend's explanation rather than a failure box.
+      noDataMessage.value = discovery.no_data_message || _t('No graph data available.')
+      errorMessage.value = null
+      shell.value = null
     } else {
       shell.value = discovery.graphs[0] ?? null
       errorMessage.value = null
+      noDataMessage.value = null
     }
     isDiscovering.value = false
   } catch (error) {
@@ -136,6 +149,8 @@ const loadGraph = async () => {
       return
     }
     errorMessage.value = `${_t('Failed to load graph:')} ${(error as Error).message}`
+    noDataMessage.value = null
+    shell.value = null
     isDiscovering.value = false
   }
 }
@@ -195,6 +210,9 @@ onMounted(() => {
       <div v-else-if="errorMessage" class="db-content-time-series-graph__error error">
         {{ errorMessage }}
       </div>
+      <div v-else-if="noDataMessage" class="db-content-time-series-graph__no-data">
+        <CmkHtml :html="noDataMessage" />
+      </div>
       <GraphFigure
         v-else-if="shell"
         :graph-type="shell.graph_type"
@@ -226,5 +244,10 @@ onMounted(() => {
 
 .db-content-time-series-graph__error {
   padding: var(--dimension-6);
+}
+
+.db-content-time-series-graph__no-data {
+  padding: var(--dimension-6);
+  color: var(--font-color-dimmed);
 }
 </style>

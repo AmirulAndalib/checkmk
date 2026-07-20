@@ -5,6 +5,7 @@
 
 from cmk.graphing_engine import HostName, Service, ServiceName
 from cmk.gui.config import active_config
+from cmk.gui.exceptions import MKMissingDataError
 from cmk.gui.openapi.framework import (
     APIVersion,
     EndpointDoc,
@@ -44,7 +45,14 @@ class TemplateGraphsDiscoverRequest:
 @api_model
 class TemplateGraphsDiscoverResponse:
     graphs: list[ApiDiscoveredGraph] = api_field(
-        description="The data-less graph definitions of the service.",
+        description="The data-less graph definitions of the service. Empty when nothing matched.",
+    )
+    no_data_message: str | None = api_field(
+        description=(
+            "A human-readable explanation of why no graphs are available (an expected empty "
+            "state, e.g. a filter matching no monitored data), or null when graphs were found."
+        ),
+        example="The service 'CPU load' of host 'my-host' has no matching template graphs.",
     )
 
 
@@ -65,6 +73,8 @@ def discover_template_graphs_v1(
                 registered_translations=registered_translations(),
             ),
         )
+    except MKMissingDataError as exc:
+        return TemplateGraphsDiscoverResponse(graphs=[], no_data_message=str(exc))
     except MKLivestatusException as exc:
         raise ProblemException(
             status=503,
@@ -81,16 +91,16 @@ def discover_template_graphs_v1(
     if body.graph_id is not None:
         graphs = [graph for graph in graphs if matches_graph_id(graph, body.graph_id)]
     if not graphs:
-        raise ProblemException(
-            status=404,
-            title="No graphs found",
-            detail=(
+        return TemplateGraphsDiscoverResponse(
+            graphs=[],
+            no_data_message=(
                 f"The service '{body.service_description}' of host '{body.hostname}' has no "
                 "matching template graphs."
             ),
         )
     return TemplateGraphsDiscoverResponse(
-        graphs=[ApiDiscoveredGraph.from_graph(graph) for graph in graphs]
+        graphs=[ApiDiscoveredGraph.from_graph(graph) for graph in graphs],
+        no_data_message=None,
     )
 
 

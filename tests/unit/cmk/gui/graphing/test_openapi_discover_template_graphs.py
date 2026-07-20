@@ -9,6 +9,7 @@ from collections.abc import Callable, Sequence
 import pytest
 
 from cmk.graphing_engine import Graph, HostName, Service, ServiceName
+from cmk.gui.exceptions import MKMissingDataError
 from cmk.gui.graphing._engine_rrd import EngineRRDFetchMetricNames
 from cmk.gui.graphing.openapi import discover_template_graphs as discover_module
 from cmk.livestatus_client import MKLivestatusSocketError
@@ -87,7 +88,7 @@ def test_discover_template_graphs_filters_by_graph_id(
         assert graph["title"] == "Active sessions"
 
 
-def test_discover_template_graphs_unknown_graph_id_is_404(
+def test_discover_template_graphs_unknown_graph_id_is_empty_state(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(
@@ -99,19 +100,34 @@ def test_discover_template_graphs_unknown_graph_id_is_404(
         hostname="my-host",
         service_description="CPU load",
         graph_id="does_not_exist",
-        expect_ok=False,
     )
-    assert resp.status_code == 404
+    assert resp.json["graphs"] == []
+    assert "no matching template graphs" in resp.json["no_data_message"]
 
 
-def test_discover_template_graphs_no_graphs_is_404(
+def test_discover_template_graphs_no_graphs_is_empty_state(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(discover_module, "build_template_graphs", _fake_build([]))
     resp = clients.Graph.discover_template_graphs(
-        hostname="my-host", service_description="CPU load", expect_ok=False
+        hostname="my-host", service_description="CPU load"
     )
-    assert resp.status_code == 404
+    assert resp.json["graphs"] == []
+    assert "no matching template graphs" in resp.json["no_data_message"]
+
+
+def test_discover_template_graphs_missing_data_is_empty_state(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def _raise(**_kwargs: object) -> Sequence[Graph]:
+        raise MKMissingDataError("As soon as you add your Checkmk server ...")
+
+    monkeypatch.setattr(discover_module, "build_template_graphs", _raise)
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load"
+    )
+    assert resp.json["graphs"] == []
+    assert resp.json["no_data_message"] == "As soon as you add your Checkmk server ..."
 
 
 def test_discover_template_graphs_livestatus_failure_is_503(
