@@ -361,7 +361,7 @@ class GraphCodec:
         return {
             "name": graph.name,
             "title": graph.title,
-            "graph_type": graph.graph_type,
+            "kind": graph.kind,
             "vertical_range": (
                 None if graph.vertical_range is None else self._range_to_json(graph.vertical_range)
             ),
@@ -391,7 +391,7 @@ class GraphCodec:
         return Graph(
             name=ensure_type(data["name"], str),
             title=ensure_type(data["title"], str),
-            graph_type=ensure_type(data["graph_type"], str),
+            kind=ensure_type(data["kind"], str),
             vertical_range=(
                 None if vertical_range is None else self._range_from_json(vertical_range)
             ),

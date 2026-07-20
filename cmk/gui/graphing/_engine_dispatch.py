@@ -64,7 +64,7 @@ engine_graph_dispatcher_registry = EngineGraphDispatcherRegistry()
 def serialize_graphs(graphs: Sequence[Graph]) -> Json:
     by_graph_type: dict[str, list[Graph]] = {}
     for graph in graphs:
-        by_graph_type.setdefault(graph.graph_type, []).append(graph)
+        by_graph_type.setdefault(graph.kind, []).append(graph)
     serialized: list[object] = []
     for graph_type, batch in by_graph_type.items():
         dispatcher = engine_graph_dispatcher_registry[graph_type]

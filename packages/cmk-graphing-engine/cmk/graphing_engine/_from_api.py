@@ -387,7 +387,7 @@ def parse_graph_from_api(
     localizer: Callable[[str], str],
     registered_metrics: Mapping[str, metrics_v1.Metric],
     *,
-    graph_type: str,
+    kind: str,
     quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Graph:
     context = _ParseContext(
@@ -402,7 +402,7 @@ def parse_graph_from_api(
             return Graph(
                 name=graph.name,
                 title=graph.title.localize(localizer),
-                graph_type=graph_type,
+                kind=kind,
                 vertical_range=_parse_range(graph, context),
                 stacks=stacks,
                 lines=lines,
@@ -418,7 +418,7 @@ def parse_graph_from_api(
             return Graph(
                 name=graph.name,
                 title=graph.title.localize(localizer),
-                graph_type=graph_type,
+                kind=kind,
                 vertical_range=_bidirectional_range(graph, context),
                 stacks=[*upper_stacks, *lower_stacks],
                 lines=[*upper_lines, *lower_lines],

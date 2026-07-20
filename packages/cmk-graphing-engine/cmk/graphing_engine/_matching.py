@@ -119,7 +119,7 @@ def _add_predictive_lines(
         Graph(
             name=graph.name,
             title=graph.title,
-            graph_type=graph.graph_type,
+            kind=graph.kind,
             vertical_range=graph.vertical_range,
             stacks=graph.stacks,
             lines=[*graph.lines, *added],
@@ -150,7 +150,7 @@ def build_matched_graphs(
     services: Sequence[Service],
     localizer: Callable[[str], str],
     fetch_metric_names: RRDFetchMetricNames,
-    graph_type: str,
+    kind: str,
     registered_graphs: Sequence[_GraphPlugin],
     registered_metrics: Mapping[str, metrics_v1.Metric],
     quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
@@ -176,7 +176,7 @@ def build_matched_graphs(
                 Graph(
                     name=base.name,
                     title=base.title,
-                    graph_type=base.graph_type,
+                    kind=base.kind,
                     vertical_range=base.vertical_range,
                     stacks=base.stacks,
                     lines=base.lines,
@@ -219,7 +219,7 @@ def build_matched_graphs(
                 resolved,
                 localizer,
                 registered_metrics,
-                graph_type=graph_type,
+                kind=kind,
                 quantity_builder=quantity_builder,
             )
         )
@@ -231,7 +231,7 @@ def build_matched_graphs(
             Graph(
                 name=name,
                 title=name,
-                graph_type=graph_type,
+                kind=kind,
                 stacks=[
                     Stack(
                         members=[

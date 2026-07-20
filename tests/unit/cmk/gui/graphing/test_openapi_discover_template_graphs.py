@@ -29,7 +29,7 @@ def test_discover_template_graphs_emits_fetchable_graphs(
     monkeypatch.setattr(
         discover_module,
         "build_template_graphs",
-        _fake_build([Graph(name="g", title="t", graph_type="template")]),
+        _fake_build([Graph(name="g", title="t", kind="template")]),
     )
     resp = clients.Graph.discover_template_graphs(
         hostname="my-host", service_description="CPU load"
@@ -55,7 +55,7 @@ def test_discover_template_graphs_passes_the_service_to_the_fetch(
 
     def _build(**kwargs: object) -> Sequence[Graph]:
         captured.update(kwargs)
-        return [Graph(name="g", title="t", graph_type="template")]
+        return [Graph(name="g", title="t", kind="template")]
 
     monkeypatch.setattr(discover_module, "build_template_graphs", _build)
 
@@ -74,8 +74,8 @@ def test_discover_template_graphs_filters_by_graph_id(
         "build_template_graphs",
         _fake_build(
             [
-                Graph(name="cpu_load", title="CPU load", graph_type="template"),
-                Graph(name="active_sessions", title="Active sessions", graph_type="template"),
+                Graph(name="cpu_load", title="CPU load", kind="template"),
+                Graph(name="active_sessions", title="Active sessions", kind="template"),
             ]
         ),
     )
@@ -94,7 +94,7 @@ def test_discover_template_graphs_unknown_graph_id_is_empty_state(
     monkeypatch.setattr(
         discover_module,
         "build_template_graphs",
-        _fake_build([Graph(name="cpu_load", title="CPU load", graph_type="template")]),
+        _fake_build([Graph(name="cpu_load", title="CPU load", kind="template")]),
     )
     resp = clients.Graph.discover_template_graphs(
         hostname="my-host",

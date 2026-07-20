@@ -109,7 +109,7 @@ class ApiDiscoveredGraph:
     @classmethod
     def from_graph(cls, graph: Graph) -> Self:
         return cls(
-            graph_type=graph.graph_type,
+            graph_type=graph.kind,
             internal=json.dumps(serialize_graphs([graph])),
             title=graph.title,
         )

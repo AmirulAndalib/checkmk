@@ -275,7 +275,7 @@ def test_evaluate_graph_keeps_stacks_and_lines_with_their_direction() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         stacks=[Stack(members=[_curve(a, "a")], inverse=True)],
         lines=[Line(curve=_curve(b, "b"), inverse=False)],
     )
@@ -321,7 +321,7 @@ def test_evaluate_graph_evaluates_the_stack_reference_baseline() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         stacks=[
             Stack(members=[_curve(band, "band")], inverse=False, reference=_curve(floor, "floor"))
         ],
@@ -342,7 +342,7 @@ def test_evaluate_graph_drops_curves_of_missing_metrics() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         stacks=[Stack(members=[_curve(_metric("gone"), "gone")], inverse=False)],
         lines=[Line(curve=_curve(a, "a"), inverse=False)],
     )
@@ -359,7 +359,7 @@ def test_evaluate_graph_builds_rules_from_thresholds_and_constants() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         rules=[
             # A threshold rule: the title and colour are carried by the rule's curve attributes.
             Rule(
@@ -401,7 +401,7 @@ def test_evaluate_graph_drops_rules_without_a_value() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         rules=[
             # The metric has no warn level (value None) ...
             Rule(
@@ -426,14 +426,12 @@ def test_evaluate_graph_drops_rules_without_a_value() -> None:
 
 
 def test_evaluate_graph_carries_the_name() -> None:
-    graph = Graph(name="my_graph", title="My graph", graph_type="test")
+    graph = Graph(name="my_graph", title="My graph", kind="test")
     assert _evaluate_graph(graph, _context({}, {})).name == "my_graph"
 
 
 def test_evaluate_graph_evaluates_a_fixed_range_of_constants() -> None:
-    graph = Graph(
-        name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=100)
-    )
+    graph = Graph(name="g", title="g", kind="test", vertical_range=FixedRange(lower=0, upper=100))
     assert _evaluate_graph(graph, _context({}, {})).vertical_range == EvaluatedVerticalRange(
         range_kind=VerticalRangeKind.FIXED, lower=0.0, upper=100.0
     )
@@ -441,9 +439,7 @@ def test_evaluate_graph_evaluates_a_fixed_range_of_constants() -> None:
 
 def test_evaluate_graph_evaluates_a_fixed_range_with_an_open_upper_bound() -> None:
     # A half-open range (0, None): the floor is fixed at 0, the top is left to auto-scaling.
-    graph = Graph(
-        name="g", title="g", graph_type="test", vertical_range=FixedRange(lower=0, upper=None)
-    )
+    graph = Graph(name="g", title="g", kind="test", vertical_range=FixedRange(lower=0, upper=None))
     assert _evaluate_graph(graph, _context({}, {})).vertical_range == EvaluatedVerticalRange(
         range_kind=VerticalRangeKind.FIXED, lower=0.0, upper=None
     )
@@ -452,9 +448,7 @@ def test_evaluate_graph_evaluates_a_fixed_range_with_an_open_upper_bound() -> No
 def test_evaluate_graph_resolves_a_minimal_range_bound_expression() -> None:
     a = _metric("a")
     # The upper bound is a metric reference, resolved against the metric data; the lower is a number.
-    graph = Graph(
-        name="g", title="g", graph_type="test", vertical_range=MinimalRange(lower=0, upper=a)
-    )
+    graph = Graph(name="g", title="g", kind="test", vertical_range=MinimalRange(lower=0, upper=a))
     result = _evaluate_graph(graph, _context({a: _data(value=42.0)}, {}))
     assert result.vertical_range == EvaluatedVerticalRange(
         range_kind=VerticalRangeKind.MINIMAL, lower=0.0, upper=42.0
@@ -465,7 +459,7 @@ def test_evaluate_graph_range_bound_of_a_missing_metric_is_none() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         vertical_range=MinimalRange(lower=0, upper=_metric("gone")),
     )
     result = _evaluate_graph(graph, _context({}, {}))
@@ -482,7 +476,7 @@ def test_evaluate_graph_disambiguates_repeated_curves() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(curve=_curve(a, "a"), inverse=False),
             Line(curve=_curve(a, "a"), inverse=False),
@@ -503,7 +497,7 @@ def test_evaluate_graph_folds_direction_into_the_id() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         stacks=[Stack(members=[_curve(a, "a")], inverse=True)],
         lines=[Line(curve=_curve(a, "a"), inverse=False)],
     )
@@ -521,7 +515,7 @@ def test_evaluate_graph_rule_id_reflects_the_scalar_and_metric() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         rules=[
             Rule(
                 curve=Curve(
@@ -541,7 +535,7 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(curve=_curve(a, "a"), inverse=False),
             Line(curve=_curve(b, "b"), inverse=False),
@@ -611,7 +605,7 @@ def test_evaluate_graph_carries_the_curve_source_id() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         stacks=[
             Stack(members=[Curve(quantity=a, attributes=_attrs("a"), source_id="A")], inverse=False)
         ],
@@ -634,7 +628,7 @@ def test_evaluate_graph_fanned_curves_share_their_source_id() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(curve=Curve(quantity=fan, attributes=_attrs("fan"), source_id="B"), inverse=False)
         ],

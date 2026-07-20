@@ -64,7 +64,7 @@ def test_fetch_graph_data_empty_graph_runs_end_to_end() -> None:
     # therefore runs end to end (evaluate_graphs -> evaluate_template_graphs -> evaluated_to_response)
     # and returns an empty, fallback-ranged response -- guarding the real wiring without a livestatus
     # fixture.
-    graph = Graph(name="g", title="t", graph_type="template")
+    graph = Graph(name="g", title="t", kind="template")
     request = GraphFetchRequest(
         graph_type="template",
         internal=serialize_graphs([graph]),
@@ -95,7 +95,7 @@ def test_fetch_graph_data_invalid_internal_raises_500() -> None:
 def test_fetch_graph_data_unknown_graph_type_raises_500() -> None:
     request = GraphFetchRequest(
         graph_type="does-not-exist",
-        internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+        internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
     )
@@ -114,7 +114,7 @@ def test_fetch_graph_data_livestatus_failure_raises_503(
     monkeypatch.setattr(fetch_graph_data_module, "evaluate_graphs", _raise)
     request = GraphFetchRequest(
         graph_type="template",
-        internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+        internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
     )
@@ -127,8 +127,8 @@ def test_fetch_graph_data_livestatus_failure_raises_503(
 @pytest.mark.usefixtures("load_config")
 def test_fetch_graph_data_multiple_internal_graphs_raises_500() -> None:
     graphs = [
-        Graph(name="g1", title="t1", graph_type="template"),
-        Graph(name="g2", title="t2", graph_type="template"),
+        Graph(name="g1", title="t1", kind="template"),
+        Graph(name="g2", title="t2", kind="template"),
     ]
     request = GraphFetchRequest(
         graph_type="template",
@@ -165,7 +165,7 @@ def test_fetch_graph_data_passes_combination_mode_into_options(
     fetch_graph_data_v1(
         GraphFetchRequest(
             graph_type="combined",
-            internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+            internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",
             combination_mode="stacked",
@@ -183,7 +183,7 @@ def test_fetch_graph_data_omits_combination_mode_when_not_requested(
     fetch_graph_data_v1(
         GraphFetchRequest(
             graph_type="template",
-            internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+            internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",
         )
