@@ -117,6 +117,10 @@ git_override(
     remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
 )
 
+# Clang's resource-dir headers (stddef.h, mmintrin.h, ...), extracted from the upstream LLVM
+# release by buildscripts/scripts/extract_llvm.sh.
+bazel_dep(name = "clang-resource-headers", version = "21.1.8.cmk.1", dev_dependency = True)
+
 git_override(
     module_name = "rules_mypy",
     commit = "cda38312dbdc003592818d667c68346acea5672d",  # v0.37.0
