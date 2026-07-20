@@ -1296,7 +1296,6 @@ class GraphClient(RestApiClient):
         self,
         hostname: str,
         service_description: str,
-        site: str | None = None,
         graph_id: str | None = None,
         expect_ok: bool = True,
     ) -> Response:
@@ -1306,7 +1305,6 @@ class GraphClient(RestApiClient):
             body={
                 "hostname": hostname,
                 "service_description": service_description,
-                "site": site,
                 "graph_id": graph_id,
             },
             expect_ok=expect_ok,

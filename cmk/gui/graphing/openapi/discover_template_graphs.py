@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from cmk.ccc.site import SiteId
 from cmk.graphing_engine import HostName, Service, ServiceName
 from cmk.gui.config import active_config
 from cmk.gui.openapi.framework import (
@@ -32,11 +31,6 @@ from .models import ApiDiscoveredGraph
 class TemplateGraphsDiscoverRequest:
     hostname: AnnotatedHostName = api_field(description="The host name.", example="my-host")
     service_description: str = api_field(description="The service description.", example="CPU load")
-    site: str | None = api_field(
-        description="The site to query. None queries all configured sites.",
-        example="my_site",
-        default=None,
-    )
     graph_id: str | None = api_field(
         description=(
             "Return only the graph with this id. A legacy 'METRIC_<name>' id matches the "
@@ -67,7 +61,6 @@ def discover_template_graphs_v1(
             registered_graphs=registered_graphs(),
             registered_metrics=registered_metrics(),
             fetch_metric_names=EngineRRDFetchMetricNames(
-                site_id=SiteId(body.site) if body.site else None,
                 debug=active_config.debug,
                 registered_translations=registered_translations(),
             ),

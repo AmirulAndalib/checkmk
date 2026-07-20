@@ -449,7 +449,6 @@ def parse_performance_data(
 
 @dataclass(frozen=True)
 class EngineRRDFetchMetricNames:
-    site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
 
@@ -461,13 +460,15 @@ class EngineRRDFetchMetricNames:
             "GET services\nColumns: host_name description perf_data metrics check_command\n"
             + _service_or_filter(unique)
         )
-        # The query is scoped to this source's site, so the matched services live on it: tag each
-        # resolved service with it here, where the metric names are fetched, so the graph built from
-        # these services carries the site on its metrics (for per-site fetching and tuning scoping).
-        site_id = None if self.site_id is None else SiteID(self.site_id)
+        # prepend_site tags each row with the site its data lives on (as the legacy fetch does), so
+        # each resolved service carries its real site - the site scope, if any, is the caller's
+        # (an only_sites context). The graph built from these services thereby carries the site on
+        # its metrics (for per-site fetching and tuning scoping), and a same host/service on two
+        # sites is kept apart as two entries.
         result: dict[Service, frozenset[MetricName]] = {}
-        with sites.only_sites(self.site_id):
+        with sites.prepend_site():
             for (
+                row_site,
                 host_name,
                 description,
                 perf_data_string,
@@ -477,21 +478,13 @@ class EngineRRDFetchMetricNames:
                 raw = parse_performance_data(
                     perf_data_string, check_command, rrd_metrics, debug=self.debug
                 )
-                result[Service(host_name=host_name, service_name=description, site_id=site_id)] = (
-                    translate_metric_names(
-                        raw.check_command, list(raw.values), self.registered_translations
-                    )
+                service = Service(
+                    host_name=host_name, service_name=description, site_id=SiteID(str(row_site))
                 )
-        return {
-            keyed: result[keyed]
-            for service in unique
-            if (
-                keyed := Service(
-                    host_name=service.host_name, service_name=service.service_name, site_id=site_id
+                result[service] = translate_metric_names(
+                    raw.check_command, list(raw.values), self.registered_translations
                 )
-            )
-            in result
-        }
+        return result
 
 
 def _chop_last_empty_step(

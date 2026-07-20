@@ -8,7 +8,6 @@ from collections.abc import Callable, Sequence
 
 import pytest
 
-from cmk.ccc.site import SiteId
 from cmk.graphing_engine import Graph, HostName, Service, ServiceName
 from cmk.gui.graphing._engine_rrd import EngineRRDFetchMetricNames
 from cmk.gui.graphing.openapi import discover_template_graphs as discover_module
@@ -48,7 +47,7 @@ def test_discover_template_graphs_emits_fetchable_graphs(
     assert fetch_resp.json["metrics"] == []
 
 
-def test_discover_template_graphs_passes_service_and_site(
+def test_discover_template_graphs_passes_the_service_to_the_fetch(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured: dict[str, object] = {}
@@ -59,20 +58,11 @@ def test_discover_template_graphs_passes_service_and_site(
 
     monkeypatch.setattr(discover_module, "build_template_graphs", _build)
 
-    clients.Graph.discover_template_graphs(
-        hostname="my-host", service_description="CPU load", site="my_site"
-    )
+    clients.Graph.discover_template_graphs(hostname="my-host", service_description="CPU load")
     assert captured["service"] == Service(
         host_name=HostName("my-host"), service_name=ServiceName("CPU load")
     )
-    fetch_metric_names = captured["fetch_metric_names"]
-    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
-    assert fetch_metric_names.site_id == SiteId("my_site")
-
-    clients.Graph.discover_template_graphs(hostname="my-host", service_description="CPU load")
-    fetch_metric_names = captured["fetch_metric_names"]
-    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
-    assert fetch_metric_names.site_id is None
+    assert isinstance(captured["fetch_metric_names"], EngineRRDFetchMetricNames)
 
 
 def test_discover_template_graphs_filters_by_graph_id(
