@@ -6,8 +6,10 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+from collections.abc import Mapping
+
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import IgnoreResultsError, render
+from cmk.agent_based.v2 import IgnoreResultsError, render, StringTable
 from cmk.legacy_includes.aws import (
     aws_get_counts_rate_human_readable,
     check_aws_http_errors,
@@ -19,8 +21,10 @@ from cmk.plugins.aws.lib import extract_aws_metrics_by_labels, parse_aws
 
 check_info = {}
 
+Section = Mapping[str, float]
 
-def parse_aws_elb(string_table):
+
+def parse_aws_elb(string_table: StringTable) -> Section:
     metrics = extract_aws_metrics_by_labels(
         [
             "RequestCount",
@@ -42,9 +46,10 @@ def parse_aws_elb(string_table):
     # We get exactly one entry: {INST-ID: METRICS}
     # INST-ID is the piggyback host name
     try:
-        return list(metrics.values())[-1]
+        last_metrics = list(metrics.values())[-1]
     except IndexError:
         return {}
+    return {name: float(value) for name, value in last_metrics.items()}
 
 
 #   .--statistics----------------------------------------------------------.
@@ -71,7 +76,7 @@ _aws_elb_statistics_metrics = [
 ]
 
 
-def check_aws_elb_statistics(item, params, parsed):
+def check_aws_elb_statistics(item, params, parsed: Section):
     metric_infos = []
     for cw_metric_name, info_name, human_readable_func in zip(
         _aws_elb_statistics_metrics,
@@ -91,7 +96,7 @@ def check_aws_elb_statistics(item, params, parsed):
     return check_aws_metrics(metric_infos)
 
 
-def discover_aws_elb(p):
+def discover_aws_elb(p: Section):
     return inventory_aws_generic_single(p, _aws_elb_statistics_metrics)
 
 
@@ -119,7 +124,7 @@ check_info["aws_elb"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elb_latency(item, params, parsed):
+def check_aws_elb_latency(item, params, parsed: Section):
     return check_aws_metrics(
         [
             MetricInfo(
@@ -132,7 +137,7 @@ def check_aws_elb_latency(item, params, parsed):
     )
 
 
-def discover_aws_elb_latency(p):
+def discover_aws_elb_latency(p: Section):
     return inventory_aws_generic_single(p, ["Latency"])
 
 
@@ -156,7 +161,7 @@ check_info["aws_elb.latency"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elb_http_elb(item, params, parsed):
+def check_aws_elb_http_elb(item, params, parsed: Section):
     return check_aws_http_errors(
         params.get("levels_load_balancers", params),
         parsed,
@@ -165,7 +170,7 @@ def check_aws_elb_http_elb(item, params, parsed):
     )
 
 
-def discover_aws_elb_http_elb(p):
+def discover_aws_elb_http_elb(p: Section):
     return inventory_aws_generic_single(p, ["RequestCount"])
 
 
@@ -189,7 +194,7 @@ check_info["aws_elb.http_elb"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elb_http_backend(item, params, parsed):
+def check_aws_elb_http_backend(item, params, parsed: Section):
     return check_aws_http_errors(
         params.get("levels_backend_targets", params),
         parsed,
@@ -198,7 +203,7 @@ def check_aws_elb_http_backend(item, params, parsed):
     )
 
 
-def discover_aws_elb_http_backend(p):
+def discover_aws_elb_http_backend(p: Section):
     return inventory_aws_generic_single(p, ["RequestCount"])
 
 
@@ -222,7 +227,7 @@ check_info["aws_elb.http_backend"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elb_healthy_hosts(item, params, parsed):
+def check_aws_elb_healthy_hosts(item, params, parsed: Section):
     go_stale = True
 
     try:
@@ -265,7 +270,7 @@ def check_aws_elb_healthy_hosts(item, params, parsed):
             )
 
 
-def discover_aws_elb_healthy_hosts(p):
+def discover_aws_elb_healthy_hosts(p: Section):
     return inventory_aws_generic_single(p, ["HealthyHostCount", "UnHealthyHostCount"])
 
 
@@ -295,7 +300,7 @@ check_info["aws_elb.healthy_hosts"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elb_backend_connection_errors(item, params, parsed):
+def check_aws_elb_backend_connection_errors(item, params, parsed: Section):
     return check_aws_metrics(
         [
             MetricInfo(
@@ -309,7 +314,7 @@ def check_aws_elb_backend_connection_errors(item, params, parsed):
     )
 
 
-def discover_aws_elb_backend_connection_errors(p):
+def discover_aws_elb_backend_connection_errors(p: Section):
     return inventory_aws_generic_single(p, ["BackendConnectionErrors"])
 
 

@@ -6,8 +6,10 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+from collections.abc import Mapping
+
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import IgnoreResultsError
+from cmk.agent_based.v2 import IgnoreResultsError, StringTable
 from cmk.legacy_includes.aws import (
     aws_get_bytes_rate_human_readable,
     aws_get_counts_rate_human_readable,
@@ -21,8 +23,10 @@ from cmk.plugins.aws.lib import extract_aws_metrics_by_labels, parse_aws
 
 check_info = {}
 
+Section = Mapping[str, float]
 
-def parse_aws_elbv2_application(string_table):
+
+def parse_aws_elbv2_application(string_table: StringTable) -> Section:
     metrics = extract_aws_metrics_by_labels(
         [
             "ConsumedLCUs",
@@ -51,9 +55,10 @@ def parse_aws_elbv2_application(string_table):
     # We get exactly one entry: {INST-ID: METRICS}
     # INST-ID is the piggyback host name
     try:
-        return list(metrics.values())[-1]
+        last_metrics = list(metrics.values())[-1]
     except IndexError:
         return {}
+    return {name: float(value) for name, value in last_metrics.items()}
 
 
 #   .--LCU-----------------------------------------------------------------.
@@ -66,7 +71,7 @@ def parse_aws_elbv2_application(string_table):
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elbv2_application_lcu(item, params, parsed):
+def check_aws_elbv2_application_lcu(item, params, parsed: Section):
     lcus = parsed.get("ConsumedLCUs")
     if lcus is None:
         raise IgnoreResultsError("Currently no data from AWS")
@@ -79,7 +84,7 @@ def check_aws_elbv2_application_lcu(item, params, parsed):
     )
 
 
-def discover_aws_elbv2_application(p):
+def discover_aws_elbv2_application(p: Section):
     return inventory_aws_generic_single(p, ["ConsumedLCUs"])
 
 
@@ -110,7 +115,7 @@ _aws_elbv2_application_connection_types = [
 ]
 
 
-def check_aws_elbv2_application_connections(item, params, parsed):
+def check_aws_elbv2_application_connections(item, params, parsed: Section):
     return check_aws_metrics(
         [
             MetricInfo(
@@ -134,7 +139,7 @@ def check_aws_elbv2_application_connections(item, params, parsed):
     )
 
 
-def discover_aws_elbv2_application_connections(p):
+def discover_aws_elbv2_application_connections(p: Section):
     return inventory_aws_generic_single(p, _aws_elbv2_application_connection_types, requirement=any)
 
 
@@ -157,7 +162,7 @@ check_info["aws_elbv2_application.connections"] = LegacyCheckDefinition(
 #   '----------------------------------------------------------------------'
 
 
-def check_aws_elbv2_application_http_elb(item, params, parsed):
+def check_aws_elbv2_application_http_elb(item, params, parsed: Section):
     return check_aws_http_errors(
         params.get("levels_load_balancers", params),
         parsed,
@@ -166,7 +171,7 @@ def check_aws_elbv2_application_http_elb(item, params, parsed):
     )
 
 
-def discover_aws_elbv2_application_http_elb(p):
+def discover_aws_elbv2_application_http_elb(p: Section):
     return inventory_aws_generic_single(p, ["RequestCount"])
 
 
@@ -196,7 +201,7 @@ _aws_elbv2_application_http_redirects_metrics = [
 ]
 
 
-def check_aws_elbv2_application_http_redirects(item, params, parsed):
+def check_aws_elbv2_application_http_redirects(item, params, parsed: Section):
     return check_aws_metrics(
         [
             {
@@ -217,7 +222,7 @@ def check_aws_elbv2_application_http_redirects(item, params, parsed):
     )
 
 
-def discover_aws_elbv2_application_http_redirects(p):
+def discover_aws_elbv2_application_http_redirects(p: Section):
     return inventory_aws_generic_single(
         p, _aws_elbv2_application_http_redirects_metrics, requirement=any
     )
@@ -249,7 +254,7 @@ _aws_elbv2_application_statistics_metrics = [
 ]
 
 
-def check_aws_elbv2_application_statistics(item, params, parsed):
+def check_aws_elbv2_application_statistics(item, params, parsed: Section):
     metric_infos = []
 
     for cw_metric_name, (info_name, metric_name) in zip(
@@ -278,7 +283,7 @@ def check_aws_elbv2_application_statistics(item, params, parsed):
     return check_aws_metrics(metric_infos)
 
 
-def discover_aws_elbv2_application_statistics(p):
+def discover_aws_elbv2_application_statistics(p: Section):
     return inventory_aws_generic_single(
         p, _aws_elbv2_application_statistics_metrics, requirement=any
     )

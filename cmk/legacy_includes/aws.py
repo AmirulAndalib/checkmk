@@ -32,7 +32,7 @@ def inventory_aws_generic(
 
 
 def inventory_aws_generic_single(
-    parsed: Mapping[str, Container[str]],
+    parsed: Mapping[str, object],
     required_metrics: Iterable[str],
     requirement: Callable[[Iterable[object]], bool] = all,
 ) -> LegacyDiscoveryResult:
@@ -209,7 +209,7 @@ def check_aws_http_errors(
 
 
 class MetricInfo(TypedDict):
-    metric_val: float
+    metric_val: float | None
     metric_name: str | None
     levels: NotRequired[tuple[float, float] | None]
     human_readable_func: Callable[[float], str]

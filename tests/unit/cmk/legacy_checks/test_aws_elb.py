@@ -16,7 +16,7 @@ def test_check_aws_elb_statistics() -> None:
         "UnHealthyHostCount": 0.0,
         "BackendConnectionErrors": 0.058333333333333334,
     }
-    result = list(check_aws_elb_statistics(None, {}, parsed))  # type: ignore[no-untyped-call]
+    result = list(check_aws_elb_statistics(None, {}, parsed))
     assert len(result) == 2
     assert result[0][0] == 0  # state OK
     assert "Surge queue length: 1024" in result[0][1]
