@@ -14,9 +14,11 @@ import { constantItem, formulaItem, metricBackendItem, rrdMetricItem } from '../
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
 const THRESHOLDS = { warning: '#ffd000', critical: '#ff3232' }
 
-function renderTable(seed: DesignerItem[] = []) {
+function renderTable(seed: DesignerItem[] = [], metricBackendAvailable = true) {
   const store = useGraphItems(PALETTE, seed)
-  const utils = render(MetricsTable, { props: { store, thresholds: THRESHOLDS } })
+  const utils = render(MetricsTable, {
+    props: { store, thresholds: THRESHOLDS, metricBackendAvailable }
+  })
   return { store, ...utils }
 }
 
@@ -129,8 +131,23 @@ test('a formula row expands to the read-only formula form', async () => {
   expect(await screen.findByRole('button', { name: /= 5/ })).toBeInTheDocument()
 })
 
-test('a metric_backend row expands to a placeholder', async () => {
+test('a metric_backend row expands to the metric backend form', async () => {
   renderTable([metricBackendItem('A')])
   await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
-  expect(await screen.findByText('This source type cannot be edited here yet.')).toBeInTheDocument()
+  expect(await screen.findByText('Consolidation')).toBeInTheDocument()
+})
+
+test('the metric backend source is offered only when the feature is available', async () => {
+  renderTable([], false)
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  expect(screen.queryByRole('option', { name: 'Metrics backend' })).not.toBeInTheDocument()
+})
+
+test('adding a metric backend source opens its form', async () => {
+  const { store } = renderTable([], true)
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  await fireEvent.click(await screen.findByRole('option', { name: 'Metrics backend' }))
+
+  expect(store.items.value[0]).toMatchObject({ type: 'metric_backend', metric_name: null })
+  expect(await screen.findByText('Consolidation')).toBeInTheDocument()
 })

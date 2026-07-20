@@ -33,6 +33,7 @@ import { useRowLabels } from '../composables/useRowLabels'
 import {
   type DesignerItem,
   newConstantDraft,
+  newMetricBackendDraft,
   newRrdMetricDraft,
   newScalarDraft,
   scalarColor
@@ -41,12 +42,14 @@ import { type ItemId, isSingleLine, parseLineType } from '../types'
 import DeleteWithDependentsPopup from './DeleteWithDependentsPopup.vue'
 import ConstantLineForm from './forms/ConstantLineForm.vue'
 import FormulaForm from './forms/FormulaForm.vue'
+import MetricBackendForm from './forms/MetricBackendForm.vue'
 import RrdForm from './forms/RrdForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
-const { store, thresholds } = defineProps<{
+const { store, thresholds, metricBackendAvailable } = defineProps<{
   store: GraphItemsStore
   thresholds: { warning: string; critical: string }
+  metricBackendAvailable: boolean
 }>()
 
 const emit = defineEmits<{
@@ -84,17 +87,21 @@ const selectedIds = computed<ItemId[]>(() => {
     .map(([id]) => id)
 })
 
-/** The addable source types and their dropdown titles; rrd_query is reached via the in-form toggle. */
-const ADDABLE_SOURCES = {
-  rrd_metric: _t('Checkmk RRD'),
-  constant: _t('Constant line'),
-  scalar: _t('Service reference line')
-}
-
-const addSourceSuggestions = {
-  type: 'fixed' as const,
-  suggestions: Object.entries(ADDABLE_SOURCES).map(([name, title]) => ({ name, title }))
-}
+/**
+ * The addable source types and their dropdown titles; rrd_query is reached via the in-form toggle
+ * and metric_backend only appears when the feature is available in this edition.
+ */
+const addSourceSuggestions = computed(() => {
+  const suggestions = [
+    { name: 'rrd_metric', title: _t('Checkmk RRD') },
+    { name: 'constant', title: _t('Constant line') },
+    { name: 'scalar', title: _t('Service reference line') }
+  ]
+  if (metricBackendAvailable) {
+    suggestions.push({ name: 'metric_backend', title: _t('Metrics backend') })
+  }
+  return { type: 'fixed' as const, suggestions }
+})
 
 function onAddSource(value: string): void {
   const id = store.addItem((assigned): DesignerItem => {
@@ -105,6 +112,8 @@ function onAddSource(value: string): void {
         return newConstantDraft(assigned, store.nextColor.value)
       case 'scalar':
         return newScalarDraft(assigned, scalarColor('warning', store.nextColor.value, thresholds))
+      case 'metric_backend':
+        return newMetricBackendDraft(assigned)
       default:
         throw new Error(`Unknown source type: ${value}`)
     }
@@ -252,12 +261,6 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
               class="graphing-metrics-table__expansion"
             >
               <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
-              <p
-                v-else-if="row.type === 'metric_backend'"
-                class="graphing-metrics-table__placeholder"
-              >
-                {{ _t('This source type cannot be edited here yet.') }}
-              </p>
               <div v-else class="graphing-metrics-table__editor-panel">
                 <RrdForm
                   v-if="row.type === 'rrd_metric' || row.type === 'rrd_query'"
@@ -270,6 +273,11 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
                   :item="row"
                   :store="store"
                   :thresholds="thresholds"
+                />
+                <MetricBackendForm
+                  v-else-if="row.type === 'metric_backend'"
+                  :item="row"
+                  :store="store"
                 />
               </div>
             </td>
@@ -357,13 +365,6 @@ body[data-theme='modern-dark'] .graphing-metrics-table {
   overflow: hidden;
   border: 1px solid var(--graphing-metrics-table-panel-border);
   border-radius: var(--border-radius);
-}
-
-.graphing-metrics-table__placeholder {
-  margin: 0;
-  padding: var(--dimension-7);
-  opacity: 0.6;
-  font-style: italic;
 }
 
 /* Fill the source cell without the global 10em floor forcing the column wider. */

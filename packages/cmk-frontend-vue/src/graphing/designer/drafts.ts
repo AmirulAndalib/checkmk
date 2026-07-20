@@ -27,6 +27,7 @@ export type DraftRRDMetricItem = WithNullable<
   'host_name' | 'service_name' | 'metric_name'
 >
 export type DraftRRDQueryItem = WithNullable<RRDQueryItem, 'metric_name'>
+export type DraftMetricBackendItem = WithNullable<MetricBackendItem, 'metric_name'>
 export type DraftConstantItem = WithNullable<ConstantItem, 'value'>
 export type DraftScalarItem = WithNullable<ScalarItem, 'host_name' | 'service_name' | 'metric_name'>
 
@@ -34,7 +35,7 @@ export type DraftScalarItem = WithNullable<ScalarItem, 'host_name' | 'service_na
 export type DesignerItem =
   | DraftRRDMetricItem
   | DraftRRDQueryItem
-  | MetricBackendItem
+  | DraftMetricBackendItem
   | DraftConstantItem
   | DraftScalarItem
   | FormulaItem
@@ -48,8 +49,8 @@ export function isComplete(item: DesignerItem): item is GraphItem {
     case 'constant':
       return item.value !== null
     case 'rrd_query':
-      return item.metric_name !== null
     case 'metric_backend':
+      return item.metric_name !== null
     case 'rrd_formula':
       return true
   }
@@ -114,6 +115,22 @@ export function newRrdQueryDraft(id: ItemId): DraftRRDQueryItem {
     context: {},
     metric_name: null,
     consolidation: 'avg'
+  }
+}
+
+export function newMetricBackendDraft(id: ItemId): DraftMetricBackendItem {
+  return {
+    id,
+    type: 'metric_backend',
+    title: DEFAULT_TITLE_MACRO,
+    line_type: 'line',
+    mirrored: false,
+    visible: true,
+    metric_name: null,
+    resource_attributes: [],
+    scope_attributes: [],
+    data_point_attributes: [],
+    consolidation_function: { type: 'gauge_last', lookback_seconds: 300 }
   }
 }
 

@@ -15,7 +15,7 @@ import ItemIdChip from '../../calculation/components/ItemIdChip.vue'
 import { collectDirectRefs } from '../../calculation/formula'
 import type { GraphItemsStore } from '../../composables/useGraphItems'
 import { useItemDescription } from '../../composables/useItemDescription'
-import type { DesignerItem } from '../../drafts'
+import { type DesignerItem, isComplete } from '../../drafts'
 import { type FormulaItem, isSingleLine } from '../../types'
 
 const { item, store } = defineProps<{
@@ -63,7 +63,9 @@ function chipColor(referenced: DesignerItem): string | undefined {
         <template v-if="referencedItems.length > 0">
           <template v-for="referenced in referencedItems" :key="referenced.id">
             <ItemIdChip :id="referenced.id" :color="chipColor(referenced)" />
-            <span class="graphing-formula-form__desc">{{ describeItem(referenced) }}</span>
+            <span class="graphing-formula-form__desc">{{
+              isComplete(referenced) ? describeItem(referenced) : _t('incomplete source')
+            }}</span>
           </template>
         </template>
         <span v-else class="graphing-formula-form__empty">

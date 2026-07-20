@@ -7,6 +7,7 @@ import {
   type DesignerItem,
   isComplete,
   newConstantDraft,
+  newMetricBackendDraft,
   newRrdMetricDraft,
   newRrdQueryDraft,
   newScalarDraft,
@@ -52,6 +53,12 @@ describe('isComplete', () => {
   test('a scalar needs host, service and metric', () => {
     expect(isComplete(newScalarDraft('A', '#123456'))).toBe(false)
     expect(isComplete(scalarItem('A'))).toBe(true)
+  })
+
+  test('a fresh metric backend draft is incomplete until a metric is set', () => {
+    const draft = newMetricBackendDraft('A')
+    expect(isComplete(draft)).toBe(false)
+    expect(isComplete({ ...draft, metric_name: 'span.latency' })).toBe(true)
   })
 
   test('wire items are always complete', () => {
