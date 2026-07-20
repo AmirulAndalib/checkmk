@@ -537,7 +537,6 @@ class FetchDiagnostics:
 
 @dataclass(frozen=True)
 class EngineRRDFetchData:
-    site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
     # An optional RRDtool cap on the number of data points a time-series query returns, appended to
@@ -686,9 +685,9 @@ class EngineRRDFetchData:
         return groups
 
     def _only_sites(self, site: SiteID | None) -> SiteId | None:
-        # Scope a livestatus query to the metric's site when known, else to the source's own filter
-        # (None = all sites).
-        return SiteId(site) if site is not None else self.site_id
+        # Scope a livestatus query to the metric's site when known (None = all sites, resolved by the
+        # prepending fetch below).
+        return SiteId(site) if site is not None else None
 
     def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]

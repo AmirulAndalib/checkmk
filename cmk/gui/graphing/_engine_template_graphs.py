@@ -94,7 +94,6 @@ def evaluate_template_graphs(
 
 def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
     fetch_data = EngineRRDFetchData(
-        site_id=None,
         debug=active_config.debug,
         registered_translations=registered_translations(),
     )
