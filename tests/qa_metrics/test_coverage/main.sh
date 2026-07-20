@@ -190,6 +190,9 @@ if [[ "$RUN" == true ]]; then
         RESOURCE_FLAGS+=("--local_resources=memory=HOST_RAM*.67")
     echo "Resource flags: ${RESOURCE_FLAGS[*]:-(none, all configured via rc files)}"
 
+    # --test_tag_filters must re-exclude manual tests: they are excluded from
+    # wildcard builds for a reason (e.g. benchmarks), but the explicit target
+    # list from the query above would override the manual tag.
     # --skip_incompatible_explicit_targets: the query is configuration-less, so
     # it also lists edition-gated tests (e.g. //cmk:requirements-test-community)
     # that are platform-incompatible under the edition set above. Without the
@@ -199,6 +202,7 @@ if [[ "$RUN" == true ]]; then
         "$EDITION_FLAG" \
         "${RESOURCE_FLAGS[@]}" \
         --skip_incompatible_explicit_targets \
+        --test_tag_filters=-manual \
         --keep_going \
         --build_tests_only \
         --combined_report=lcov \
