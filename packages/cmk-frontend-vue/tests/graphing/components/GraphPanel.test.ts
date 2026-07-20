@@ -244,3 +244,17 @@ test('hiding a metric via the legend eye removes it from what TimeSeriesGraph re
   expect(screen.getByTestId('time-series-graph')).toHaveTextContent('Memory')
   expect(screen.getByTestId('time-series-graph')).not.toHaveTextContent('CPU')
 })
+
+test('a metric hidden via the hiddenMetricNames model is filtered from the renderer', () => {
+  render(GraphPanel, {
+    props: {
+      metrics: [CPU, MEM],
+      dataTimeRange: TIME_RANGE,
+      requestedTimeRange: REQUESTED,
+      hiddenMetricNames: ['cpu']
+    }
+  })
+
+  expect(screen.getByTestId('time-series-graph')).toHaveTextContent('Memory')
+  expect(screen.getByTestId('time-series-graph')).not.toHaveTextContent('CPU')
+})

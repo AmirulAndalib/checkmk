@@ -36,12 +36,14 @@ const props = withDefaults(
     consolidationFn?: ConsolidationFn
     hiddenMetricNames?: string[]
     hiddenLineNames?: string[]
+    fillHeight?: boolean
   }>(),
   {
     horizontalLines: () => [],
     consolidationFn: 'avg',
     hiddenMetricNames: () => [],
-    hiddenLineNames: () => []
+    hiddenLineNames: () => [],
+    fillHeight: false
   }
 )
 
@@ -121,7 +123,7 @@ watch(
 </script>
 
 <template>
-  <div class="graphing-graph-legend">
+  <div class="graphing-graph-legend" :class="{ 'graphing-graph-legend--fill': fillHeight }">
     <!-- Table 1: fixed header row -->
     <table class="graphing-graph-legend__table">
       <colgroup>
@@ -176,7 +178,12 @@ watch(
     </table>
 
     <!-- Table 2: metric rows — scrollable -->
-    <CmkScrollContainer max-height="500px" height="auto" :style="{ overflowX: 'hidden' }">
+    <CmkScrollContainer
+      class="graphing-graph-legend__rows-scroll"
+      :max-height="fillHeight ? 'none' : '500px'"
+      height="auto"
+      :style="{ overflowX: 'hidden' }"
+    >
       <table
         ref="metricsTable"
         class="graphing-graph-legend__table graphing-graph-legend__table-metrics"
@@ -286,6 +293,22 @@ watch(
   font-size: var(--font-size-small);
   color: var(--font-color);
   width: 100%;
+}
+
+.graphing-graph-legend--fill {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+
+  > .graphing-graph-legend__table {
+    flex-shrink: 0;
+  }
+
+  .graphing-graph-legend__rows-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 }
 
 .graphing-graph-legend__table {

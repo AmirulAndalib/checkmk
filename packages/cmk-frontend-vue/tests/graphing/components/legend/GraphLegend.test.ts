@@ -243,6 +243,20 @@ test('observes both the metrics table and its scroll container for resizes', asy
   expect(observedTargets).toContain(metricsTable.parentElement)
 })
 
+test('caps the metric rows at 500px by default', () => {
+  const { container } = render(GraphLegend, { props: { metrics: [CPU, MEM] } })
+  expect(container.querySelector('.graphing-graph-legend--fill')).not.toBeInTheDocument()
+  const scroll = container.querySelector<HTMLElement>('.graphing-graph-legend__rows-scroll')!
+  expect(scroll.style.maxHeight).toBe('500px')
+})
+
+test('fillHeight applies the fill modifier and lifts the metric-rows height cap', () => {
+  const { container } = render(GraphLegend, { props: { metrics: [CPU, MEM], fillHeight: true } })
+  expect(container.querySelector('.graphing-graph-legend--fill')).toBeInTheDocument()
+  const scroll = container.querySelector<HTMLElement>('.graphing-graph-legend__rows-scroll')!
+  expect(scroll.style.maxHeight).toBe('none')
+})
+
 test('recomputes padded rows when the scroll container is resized', async () => {
   vi.stubGlobal('ResizeObserver', FakeResizeObserver)
   const { container } = render(GraphLegend, { props: { metrics: [CPU, MEM] } })

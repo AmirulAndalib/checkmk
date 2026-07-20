@@ -29,7 +29,7 @@ function mountComposable(
         api = useGraphVisibility(
           () => metricsRef.value,
           () => linesRef.value,
-          initialConsolidationFunction
+          { defaultConsolidationFunction: initialConsolidationFunction }
         )
         return () => null
       }

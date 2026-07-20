@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { computed, ref } from 'vue'
+import { type Ref, computed, ref } from 'vue'
 
 import type { HorizontalLine, Metric } from '../components/TimeSeriesGraph'
 import type { ConsolidationFn } from '../components/consolidation'
@@ -11,12 +11,19 @@ import type { ConsolidationFn } from '../components/consolidation'
 export function useGraphVisibility(
   getMetrics: () => Metric[],
   getHorizontalLines: () => HorizontalLine[],
-  defaultConsolidationFunction: ConsolidationFn = 'max'
+  options: {
+    hiddenMetricNames?: Ref<string[]>
+    hiddenLineNames?: Ref<string[]>
+    highlightedMetricName?: Ref<string | null>
+    defaultConsolidationFunction?: ConsolidationFn
+  } = {}
 ) {
-  const hiddenMetricNames = ref<string[]>([])
-  const hiddenLineNames = ref<string[]>([])
-  const highlightedMetricName = ref<string | null>(null)
-  const activeConsolidationFunction = ref<ConsolidationFn>(defaultConsolidationFunction)
+  const hiddenMetricNames = options.hiddenMetricNames ?? ref<string[]>([])
+  const hiddenLineNames = options.hiddenLineNames ?? ref<string[]>([])
+  const highlightedMetricName = options.highlightedMetricName ?? ref<string | null>(null)
+  const activeConsolidationFunction = ref<ConsolidationFn>(
+    options.defaultConsolidationFunction ?? 'max'
+  )
 
   const visibleMetrics = computed(() =>
     getMetrics().filter((m) => !hiddenMetricNames.value.includes(m.metadata.name))

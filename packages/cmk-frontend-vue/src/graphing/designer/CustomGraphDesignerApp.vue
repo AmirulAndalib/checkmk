@@ -161,10 +161,7 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
 </script>
 
 <template>
-  <div
-    class="graphing-custom-graph-designer-app"
-    :class="{ 'graphing-custom-graph-designer-app--edit': mode === 'edit' }"
-  >
+  <div class="graphing-custom-graph-designer-app">
     <header class="graphing-custom-graph-designer-app__header">
       <CmkBreadcrumb :items="activeBreadcrumb" />
       <GlobalRefreshControl class="graphing-custom-graph-designer-app__refresh" />
@@ -213,15 +210,10 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
 <style scoped>
 .graphing-custom-graph-designer-app {
   height: 100%;
-  overflow-y: auto;
-  background: var(--ux-theme-1);
-}
-
-/* Edit mode pins the header + preview and hands scrolling to the config tables. */
-.graphing-custom-graph-designer-app--edit {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  background: var(--ux-theme-1);
 }
 
 .graphing-custom-graph-designer-app__header {
@@ -244,13 +236,10 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
 }
 
 .graphing-custom-graph-designer-app__content {
-  padding: var(--dimension-6);
-}
-
-.graphing-custom-graph-designer-app--edit .graphing-custom-graph-designer-app__content {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
+  padding: var(--dimension-6);
 }
 </style>

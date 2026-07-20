@@ -53,17 +53,20 @@ const {
     }) // onTimeRangeCommit
 )
 
+const hiddenMetricNames = defineModel<string[]>('hiddenMetricNames', { default: () => [] })
+const hiddenLineNames = defineModel<string[]>('hiddenLineNames', { default: () => [] })
+const highlightedMetricName = defineModel<string | null>('highlightedMetricName', {
+  default: null
+})
 const {
-  hiddenMetricNames,
-  hiddenLineNames,
-  highlightedMetricName,
-  activeConsolidationFunction,
   visibleMetrics,
   visibleHorizontalLines,
+  activeConsolidationFunction,
   setConsolidationFunction
 } = useGraphVisibility(
   () => props.metrics,
-  () => props.horizontalLines ?? []
+  () => props.horizontalLines ?? [],
+  { hiddenMetricNames, hiddenLineNames, highlightedMetricName }
 )
 
 function updateTimeRange(val: RequestedTimeRange) {

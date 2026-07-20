@@ -18,6 +18,7 @@ import CmkTabs, { CmkTab, CmkTabContent } from '@/components/CmkTabs'
 import { useGlobalRefresh } from '../../GlobalRefreshControl/useGlobalRefresh'
 import GraphPanel from '../../components/GraphPanel.vue'
 import type { ConsolidationFn } from '../../components/consolidation'
+import GraphLegend from '../../components/legend/GraphLegend.vue'
 import { useRequestedTimeRange } from '../../composables/useRequestedTimeRange'
 import { type CustomGraphObject, updateCustomGraph } from '../api'
 import { MetricsCalculationSlideout, type RefVisibility } from '../calculation'
@@ -68,6 +69,10 @@ const completeItems = computed(() => store.items.value.filter(isComplete))
 const consolidationFn = ref<ConsolidationFn>('max')
 // The app seeds the global time range from the configured default before we mount.
 const requestedTimeRange = useRequestedTimeRange()
+
+const hiddenMetricNames = ref<string[]>([])
+const hiddenLineNames = ref<string[]>([])
+const highlightedMetricName = ref<string | null>(null)
 
 const graphContainer = ref<HTMLElement | null>(null)
 const figureWidth = ref(DEFAULT_FIGURE_WIDTH)
@@ -202,16 +207,15 @@ const calculationDelete = useDeleteWithDependents(store)
 </script>
 
 <template>
-  <div
-    ref="graphContainer"
-    class="graphing-designer-body"
-    :class="{ 'graphing-designer-body--edit': mode === 'edit' }"
-  >
+  <div ref="graphContainer" class="graphing-designer-body">
     <CmkAlertBox v-if="data.error.value !== null" variant="error">
       {{ data.error.value }}
     </CmkAlertBox>
 
     <GraphPanel
+      v-model:hidden-metric-names="hiddenMetricNames"
+      v-model:hidden-line-names="hiddenLineNames"
+      v-model:highlighted-metric-name="highlightedMetricName"
       class="graphing-designer-body__preview"
       :metrics="drawnMetrics"
       :data-time-range="data.dataTimeRange.value"
@@ -221,19 +225,32 @@ const calculationDelete = useDeleteWithDependents(store)
       show-title
       show-timestamp
       :figure-width="figureWidth"
-      :show-legend="mode === 'view'"
+      :show-legend="false"
       :show-brush="mode === 'view'"
       :overview="drawnOverview"
       @update:requested-time-range="requestedTimeRange = $event"
       @update:consolidation-fn="consolidationFn = $event"
     />
 
-    <template v-if="mode === 'edit'">
-      <CmkAlertBox v-if="saveError !== null" variant="error">
-        {{ saveError }}
-      </CmkAlertBox>
+    <CmkAlertBox v-if="mode === 'edit' && saveError !== null" variant="error">
+      {{ saveError }}
+    </CmkAlertBox>
+
+    <div class="graphing-designer-body__scroll-region">
+      <GraphLegend
+        v-if="mode === 'view'"
+        v-model:hidden-metric-names="hiddenMetricNames"
+        v-model:hidden-line-names="hiddenLineNames"
+        fill-height
+        :metrics="drawnMetrics"
+        :horizontal-lines="data.horizontalLines.value"
+        :consolidation-fn="consolidationFn"
+        @update:consolidation-fn="consolidationFn = $event"
+        @hover-metric="highlightedMetricName = $event"
+      />
 
       <CmkTabs
+        v-else
         class="graphing-designer-body__tabs"
         :model-value="activeTab"
         @update:model-value="onTabChange"
@@ -263,7 +280,9 @@ const calculationDelete = useDeleteWithDependents(store)
           </CmkTabContent>
         </template>
       </CmkTabs>
+    </div>
 
+    <template v-if="mode === 'edit'">
       <MetricsCalculationSlideout
         :open="slideoutOpen"
         :items="completeItems"
@@ -291,28 +310,31 @@ const calculationDelete = useDeleteWithDependents(store)
 .graphing-designer-body {
   display: flex;
   flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
   gap: var(--dimension-6);
   padding: var(--dimension-6);
   background: var(--ux-theme-3);
   border-radius: var(--border-radius);
 }
 
-.graphing-designer-body--edit {
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.graphing-designer-body--edit .graphing-designer-body__preview {
+.graphing-designer-body__preview {
   flex-shrink: 0;
 }
 
-.graphing-designer-body--edit .graphing-designer-body__tabs {
+.graphing-designer-body__scroll-region {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 12rem;
+}
+
+.graphing-designer-body__tabs {
   flex: 0 1 auto;
   min-height: 0;
 }
 
-.graphing-designer-body--edit .graphing-designer-body__tab-panel:not([hidden]) {
+.graphing-designer-body__tab-panel:not([hidden]) {
   display: flex;
   flex-direction: column;
   flex: 0 1 auto;
