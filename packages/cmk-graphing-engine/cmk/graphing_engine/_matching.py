@@ -14,12 +14,13 @@ from ._from_api import (
     _SINGLE_QUANTITY_BUILDER,
     build_curve,
     drawn_metric_names_of_graph,
+    drawn_quantity,
     parse_graph_from_api,
     QuantityBuilder,
 )
 from ._graph import Graph, Line, Rule, Stack
 from ._perfdata import MetricName, Service
-from ._quantities import Quantity, RRDMetric, ScalarKind, ScalarOf
+from ._quantities import RRDMetric, ScalarKind, ScalarOf
 from ._source import RRDFetchMetricNames
 
 _PREDICT_PREFIX = "predict_"
@@ -167,19 +168,6 @@ def build_matched_graphs(
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
 
-    def _drawn(name: MetricName) -> Quantity:
-        return quantity_builder(
-            [
-                RRDMetric(
-                    site_id=service.site_id,
-                    host_name=service.host_name,
-                    service_name=service.service_name,
-                    metric_name=name,
-                )
-                for service in resolved
-            ]
-        )
-
     def _collect(base: Graph) -> None:
         # Rules and predictive lines are single-service concepts; a graph over multiple services
         # drops them.
@@ -246,7 +234,13 @@ def build_matched_graphs(
                 graph_type=graph_type,
                 stacks=[
                     Stack(
-                        members=[build_curve(_drawn(name), localizer, registered_metrics)],
+                        members=[
+                            build_curve(
+                                drawn_quantity(name, resolved, quantity_builder),
+                                localizer,
+                                registered_metrics,
+                            )
+                        ],
                         inverse=False,
                     )
                 ],

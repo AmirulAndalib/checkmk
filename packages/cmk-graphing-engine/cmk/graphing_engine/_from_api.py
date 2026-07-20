@@ -62,6 +62,24 @@ class _SingleQuantityBuilder:
 _SINGLE_QUANTITY_BUILDER = _SingleQuantityBuilder()
 
 
+def drawn_quantity(
+    metric_name: str,
+    services: Sequence[Service],
+    quantity_builder: QuantityBuilder,
+) -> Quantity:
+    return quantity_builder(
+        [
+            RRDMetric(
+                site_id=service.site_id,
+                host_name=service.host_name,
+                service_name=service.service_name,
+                metric_name=MetricName(metric_name),
+            )
+            for service in services
+        ]
+    )
+
+
 @dataclass(frozen=True)
 class _ParseContext:
     services: Sequence[Service]
@@ -70,17 +88,7 @@ class _ParseContext:
     registered_metrics: Mapping[str, metrics_v1.Metric]
 
     def drawn(self, metric_name: str) -> Quantity:
-        return self.quantity_builder(
-            [
-                RRDMetric(
-                    site_id=service.site_id,
-                    host_name=service.host_name,
-                    service_name=service.service_name,
-                    metric_name=MetricName(metric_name),
-                )
-                for service in self.services
-            ]
-        )
+        return drawn_quantity(metric_name, self.services, self.quantity_builder)
 
     def scalar(self, metric_name: str) -> RRDMetric:
         service = self.services[0]
