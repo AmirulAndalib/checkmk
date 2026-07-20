@@ -479,7 +479,7 @@ class EngineRRDFetchMetricNames:
                     perf_data_string, check_command, rrd_metrics, debug=self.debug
                 )
                 service = Service(
-                    host_name=host_name, service_name=description, site_id=SiteID(str(row_site))
+                    site_id=SiteID(str(row_site)), host_name=host_name, service_name=description
                 )
                 result[service] = translate_metric_names(
                     raw.check_command, list(raw.values), self.registered_translations
@@ -612,10 +612,10 @@ class EngineRRDFetchData:
                 [
                     (
                         RRDMetric(
+                            site_id=site_id,
                             host_name=metric.host_name,
                             service_name=metric.service_name,
                             metric_name=original.metric_name,
-                            site_id=site_id,
                         ),
                         original.scale,
                     )

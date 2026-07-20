@@ -164,10 +164,10 @@ def test_rrd_metric_site_id_round_trips() -> None:
     # A resolved site must survive the self-contained graph JSON, so a same host/service on two sites
     # stays distinct after a round-trip.
     metric = RRDMetric(
+        site_id=SiteID("mysite"),
         host_name=HostName("h"),
         service_name=ServiceName("svc"),
         metric_name=MetricName("m"),
-        site_id=SiteID("mysite"),
     )
     attributes = CurveAttributes(
         title="t",
