@@ -6,32 +6,51 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+from collections.abc import Sequence
+
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.aws import check_aws_elb_summary_generic
+from cmk.agent_based.v2 import StringTable
+from cmk.legacy_includes.aws import (
+    check_aws_elb_summary_generic,
+    ELBSummaryAvailabilityZone,
+    ELBSummaryLoadBalancer,
+)
 from cmk.plugins.aws.lib import parse_aws
 
 check_info = {}
 
+Section = tuple[Sequence[ELBSummaryLoadBalancer], Sequence[ELBSummaryLoadBalancer]]
 
-def parse_aws_elbv2_summary(string_table):
-    application_lbs, network_lbs = [], []
+
+def parse_aws_elbv2_summary(string_table: StringTable) -> Section:
+    application_lbs: list[ELBSummaryLoadBalancer] = []
+    network_lbs: list[ELBSummaryLoadBalancer] = []
     for row in parse_aws(string_table):
-        lb_type = row.get("Type")
-        if lb_type == "application":
-            application_lbs.append(row)
-        elif lb_type == "network":
-            network_lbs.append(row)
+        load_balancer = ELBSummaryLoadBalancer(
+            load_balancer_name=row["LoadBalancerName"],
+            # elbv2 provides availability zones as a list of dicts including the
+            # zone name.
+            availability_zones=[
+                ELBSummaryAvailabilityZone(zone_name=zone["ZoneName"])
+                for zone in row["AvailabilityZones"]
+            ],
+            type=row.get("Type"),
+        )
+        if load_balancer.type == "application":
+            application_lbs.append(load_balancer)
+        elif load_balancer.type == "network":
+            network_lbs.append(load_balancer)
     return application_lbs, network_lbs
 
 
-def discover_aws_elbv2_summary_application(parsed):
+def discover_aws_elbv2_summary_application(parsed: Section):
     application_lbs, _network_lbs = parsed
     if application_lbs:
         return [(None, {})]
     return []
 
 
-def check_aws_elbv2_summary_application(item, params, parsed):
+def check_aws_elbv2_summary_application(item, params, parsed: Section):
     application_lbs, _network_lbs = parsed
     return check_aws_elb_summary_generic(item, params, application_lbs)
 
@@ -45,14 +64,14 @@ check_info["aws_elbv2_summary"] = LegacyCheckDefinition(
 )
 
 
-def discover_aws_elbv2_summary_network(parsed):
+def discover_aws_elbv2_summary_network(parsed: Section):
     _application_lbs, network_lbs = parsed
     if network_lbs:
         return [(None, {})]
     return []
 
 
-def check_aws_elbv2_summary_network(item, params, parsed):
+def check_aws_elbv2_summary_network(item, params, parsed: Section):
     _application_lbs, network_lbs = parsed
     return check_aws_elb_summary_generic(item, params, network_lbs)
 

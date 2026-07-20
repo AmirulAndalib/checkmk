@@ -8,7 +8,8 @@
 # mypy: disable-error-code="unreachable"
 
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
-from typing import Any, NotRequired, TypedDict
+from dataclasses import dataclass
+from typing import NotRequired, TypedDict
 
 import cmk.plugins.aws.constants as agent_aws_types
 import cmk.plugins.aws.lib as aws
@@ -21,6 +22,20 @@ from cmk.agent_based.legacy.v0_unstable import (
 from cmk.agent_based.v2 import IgnoreResultsError, render
 
 AWSRegions = dict(agent_aws_types.AWS_REGIONS)
+
+
+@dataclass(frozen=True)
+class ELBSummaryAvailabilityZone:
+    zone_name: str
+
+
+@dataclass(frozen=True)
+class ELBSummaryLoadBalancer:
+    load_balancer_name: str
+    # elb provides a list of zone strings, elbv2 a list of dicts including the
+    # zone name (modelled as ELBSummaryAvailabilityZone).
+    availability_zones: Sequence[str] | Sequence[ELBSummaryAvailabilityZone]
+    type: str | None = None
 
 
 def inventory_aws_generic(
@@ -42,26 +57,30 @@ def inventory_aws_generic_single(
 
 
 def check_aws_elb_summary_generic(
-    _no_item: None, _no_params: Mapping[str, object], load_balancers: Sequence[Mapping[str, Any]]
+    _no_item: None,
+    _no_params: Mapping[str, object],
+    load_balancers: Sequence[ELBSummaryLoadBalancer],
 ) -> LegacyCheckResult:
     yield 0, "Balancers: %s" % len(load_balancers)
 
     balancers_by_avail_zone: dict[str, list] = {}
     long_output = []
     for row in load_balancers:
-        balancer_name = row["LoadBalancerName"]
+        balancer_name = row.load_balancer_name
         avail_zones_txt = []
-        for avail_zone in row["AvailabilityZones"]:
-            if isinstance(avail_zone, dict):
-                # elb vs. elbv2
-                # elb provides a list of zones, elbv2 a list of dicts
-                # including zone name
-                avail_zone = avail_zone["ZoneName"]
+        for avail_zone in row.availability_zones:
+            # elb vs. elbv2: elb provides a list of zone strings, elbv2 a list
+            # of dicts including the zone name (modelled as a dataclass).
+            zone_name = (
+                avail_zone.zone_name
+                if isinstance(avail_zone, ELBSummaryAvailabilityZone)
+                else avail_zone
+            )
 
             try:
-                avail_zone_readable = f"{AWSRegions[avail_zone[:-1]]} ({avail_zone[-1]})"
+                avail_zone_readable = f"{AWSRegions[zone_name[:-1]]} ({zone_name[-1]})"
             except KeyError:
-                avail_zone_readable = "unknown (%s)" % avail_zone
+                avail_zone_readable = "unknown (%s)" % zone_name
 
             balancers_by_avail_zone.setdefault(avail_zone_readable, []).append(balancer_name)
             avail_zones_txt.append(avail_zone_readable)
