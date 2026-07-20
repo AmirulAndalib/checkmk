@@ -74,8 +74,8 @@ ENDPOINT_FETCH_GRAPH_DATA = VersionedEndpoint(
         method="post",
     ),
     permissions=EndpointPermissions(
-        required=permissions.Undocumented(
-            permissions.AnyPerm(
+        required=permissions.Optional(
+            permissions.AllPerm(
                 [
                     permissions.Perm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),

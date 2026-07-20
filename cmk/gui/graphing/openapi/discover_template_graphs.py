@@ -97,8 +97,8 @@ ENDPOINT_DISCOVER_TEMPLATE_GRAPHS = VersionedEndpoint(
         method="post",
     ),
     permissions=EndpointPermissions(
-        required=permissions.Undocumented(
-            permissions.AnyPerm(
+        required=permissions.Optional(
+            permissions.AllPerm(
                 [
                     permissions.Perm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),
