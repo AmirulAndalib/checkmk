@@ -8,21 +8,35 @@
 
 
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render
+from cmk.agent_based.v2 import render, StringTable
 from cmk.plugins.aws.lib import parse_aws
 
 check_info = {}
 
-Section = Mapping[str, Mapping]
+
+@dataclass(frozen=True)
+class GlacierVault:
+    vault_name: str
+    size_in_bytes: float = 0
+    number_of_archives: float = 0
+    tagging: Mapping[str, str] | None = None
 
 
-def parse_aws_glacier(string_table):
-    parsed = parse_aws(string_table)
-    parsed_by_vault = {}
-    for vault in parsed:
-        parsed_by_vault[vault["VaultName"]] = vault
+Section = Mapping[str, GlacierVault]
+
+
+def parse_aws_glacier(string_table: StringTable) -> Section:
+    parsed_by_vault: dict[str, GlacierVault] = {}
+    for vault in parse_aws(string_table):
+        parsed_by_vault[vault["VaultName"]] = GlacierVault(
+            vault_name=vault["VaultName"],
+            size_in_bytes=vault.get("SizeInBytes", 0),
+            number_of_archives=vault.get("NumberOfArchives", 0),
+            tagging=vault.get("Tagging"),
+        )
     return parsed_by_vault
 
 
@@ -42,15 +56,15 @@ def parse_aws_glacier(string_table):
 #   '----------------------------------------------------------------------'
 
 
-def discover_aws_glacier(parsed):
+def discover_aws_glacier(parsed: Section):
     for vault_name in parsed:
         yield vault_name, {}
 
 
-def check_aws_glacier_archives(item, params, parsed):
-    if not (data := parsed.get(item)):
+def check_aws_glacier_archives(item, params, parsed: Section):
+    if (data := parsed.get(item)) is None:
         return
-    vault_size = data.get("SizeInBytes", 0)
+    vault_size = data.size_in_bytes
     yield check_levels(
         vault_size,
         "aws_glacier_vault_size",
@@ -59,7 +73,7 @@ def check_aws_glacier_archives(item, params, parsed):
         infoname="Vault size",
     )
 
-    num_archives = data.get("NumberOfArchives", 0)
+    num_archives = data.number_of_archives
     yield (
         0,
         "Number of archives: %s" % int(num_archives),
@@ -67,7 +81,7 @@ def check_aws_glacier_archives(item, params, parsed):
     )
 
     tag_infos = []
-    for key, value in list(data.get("Tagging", {}).items()):
+    for key, value in list((data.tagging or {}).items()):
         tag_infos.append(f"{key}: {value}")
     if tag_infos:
         yield 0, "[Tags]: %s" % ", ".join(tag_infos)
@@ -102,12 +116,12 @@ def discover_aws_glacier_summary(section: Section) -> Iterable[tuple[None, dict]
         yield None, {}
 
 
-def check_aws_glacier_summary(item, params, parsed):
-    sum_size = 0
+def check_aws_glacier_summary(item, params, parsed: Section):
+    sum_size = 0.0
     largest_vault = None
-    largest_vault_size = 0
+    largest_vault_size = 0.0
     for vault_name in sorted(parsed):
-        vault_size = parsed.get(vault_name).get("SizeInBytes", 0)
+        vault_size = parsed[vault_name].size_in_bytes
         sum_size += vault_size
         if vault_size >= largest_vault_size:
             largest_vault = vault_name

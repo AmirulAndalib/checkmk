@@ -14,7 +14,7 @@
 
 # mypy: disable-error-code="var-annotated"
 
-from typing import Any
+from collections.abc import Mapping
 
 import pytest
 
@@ -23,12 +23,13 @@ from cmk.legacy_checks.aws_glacier import (
     check_aws_glacier_summary,
     discover_aws_glacier,
     discover_aws_glacier_summary,
+    GlacierVault,
     parse_aws_glacier,
 )
 
 
 @pytest.fixture(name="parsed", scope="module")
-def fixture_parsed() -> dict[str, Any]:
+def fixture_parsed() -> Mapping[str, GlacierVault]:
     string_table = [
         [
             '[{"SizeInBytes":',
@@ -124,40 +125,40 @@ def fixture_parsed() -> dict[str, Any]:
     return parse_aws_glacier(string_table)
 
 
-def test_parse_aws_glacier(parsed: dict[str, Any]) -> None:
+def test_parse_aws_glacier(parsed: Mapping[str, GlacierVault]) -> None:
     """Test parsing of AWS Glacier vault data"""
     assert len(parsed) == 4
 
     # Check axi_empty_vault
     assert "axi_empty_vault" in parsed
     vault = parsed["axi_empty_vault"]
-    assert vault["SizeInBytes"] == 0
-    assert vault["NumberOfArchives"] == 0
-    assert vault["VaultName"] == "axi_empty_vault"
+    assert vault.size_in_bytes == 0
+    assert vault.number_of_archives == 0
+    assert vault.vault_name == "axi_empty_vault"
 
     # Check fake_vault_1
     assert "fake_vault_1" in parsed
     vault = parsed["fake_vault_1"]
-    assert vault["SizeInBytes"] == 22548578304
-    assert vault["NumberOfArchives"] == 2025
-    assert vault["VaultName"] == "fake_vault_1"
+    assert vault.size_in_bytes == 22548578304
+    assert vault.number_of_archives == 2025
+    assert vault.vault_name == "fake_vault_1"
 
     # Check fake_vault_2
     assert "fake_vault_2" in parsed
     vault = parsed["fake_vault_2"]
-    assert vault["SizeInBytes"] == 117440512
-    assert vault["NumberOfArchives"] == 17
-    assert vault["VaultName"] == "fake_vault_2"
+    assert vault.size_in_bytes == 117440512
+    assert vault.number_of_archives == 17
+    assert vault.vault_name == "fake_vault_2"
 
     # Check axi_vault
     assert "axi_vault" in parsed
     vault = parsed["axi_vault"]
-    assert vault["SizeInBytes"] == 0
-    assert vault["NumberOfArchives"] == 0
-    assert vault["VaultName"] == "axi_vault"
+    assert vault.size_in_bytes == 0
+    assert vault.number_of_archives == 0
+    assert vault.vault_name == "axi_vault"
 
 
-def test_discover_aws_glacier(parsed: dict[str, Any]) -> None:
+def test_discover_aws_glacier(parsed: Mapping[str, GlacierVault]) -> None:
     """Test discovery of AWS Glacier vaults"""
     result = list(discover_aws_glacier(parsed))
 
@@ -170,13 +171,13 @@ def test_discover_aws_glacier(parsed: dict[str, Any]) -> None:
     assert sorted(result) == sorted(expected)
 
 
-def test_discover_aws_glacier_summary(parsed: dict[str, Any]) -> None:
+def test_discover_aws_glacier_summary(parsed: Mapping[str, GlacierVault]) -> None:
     """Test discovery of AWS Glacier summary service"""
     result = list(discover_aws_glacier_summary(parsed))
     assert result == [(None, {})]
 
 
-def test_check_aws_glacier_empty_vault(parsed: dict[str, Any]) -> None:
+def test_check_aws_glacier_empty_vault(parsed: Mapping[str, GlacierVault]) -> None:
     """Test check function for empty vault"""
     result = list(check_aws_glacier_archives("axi_empty_vault", {}, parsed))
 
@@ -197,7 +198,7 @@ def test_check_aws_glacier_empty_vault(parsed: dict[str, Any]) -> None:
     assert metrics[0] == ("aws_glacier_num_archives", 0)
 
 
-def test_check_aws_glacier_vault_with_data(parsed: dict[str, Any]) -> None:
+def test_check_aws_glacier_vault_with_data(parsed: Mapping[str, GlacierVault]) -> None:
     """Test check function for vault with data"""
     result = list(check_aws_glacier_archives("fake_vault_1", {}, parsed))
 
@@ -218,7 +219,7 @@ def test_check_aws_glacier_vault_with_data(parsed: dict[str, Any]) -> None:
     assert metrics[0] == ("aws_glacier_num_archives", 2025)
 
 
-def test_check_aws_glacier_smaller_vault(parsed: dict[str, Any]) -> None:
+def test_check_aws_glacier_smaller_vault(parsed: Mapping[str, GlacierVault]) -> None:
     """Test check function for smaller vault"""
     result = list(check_aws_glacier_archives("fake_vault_2", {}, parsed))
 
@@ -239,7 +240,7 @@ def test_check_aws_glacier_smaller_vault(parsed: dict[str, Any]) -> None:
     assert metrics[0] == ("aws_glacier_num_archives", 17)
 
 
-def test_check_aws_glacier_summary(parsed: dict[str, Any]) -> None:
+def test_check_aws_glacier_summary(parsed: Mapping[str, GlacierVault]) -> None:
     """Test summary check function"""
     result = list(check_aws_glacier_summary(None, {}, parsed))
 

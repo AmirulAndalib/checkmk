@@ -13,6 +13,8 @@
 # If you encounter something weird in here, do not hesitate to replace this
 # test by something more appropriate.
 
+from collections.abc import Mapping
+
 import pytest
 
 from cmk.legacy_checks.aws_glacier import (
@@ -20,6 +22,7 @@ from cmk.legacy_checks.aws_glacier import (
     check_aws_glacier_summary,
     discover_aws_glacier,
     discover_aws_glacier_summary,
+    GlacierVault,
     parse_aws_glacier,
 )
 
@@ -78,12 +81,12 @@ def string_table_fixture() -> list[list[str]]:
 
 
 @pytest.fixture(name="parsed")
-def parsed_fixture(string_table: list[list[str]]) -> dict[str, dict]:
+def parsed_fixture(string_table: list[list[str]]) -> Mapping[str, GlacierVault]:
     """Parsed AWS Glacier data"""
     return parse_aws_glacier(string_table)
 
 
-def test_discover_aws_glacier(parsed: dict[str, dict]) -> None:
+def test_discover_aws_glacier(parsed: Mapping[str, GlacierVault]) -> None:
     """Test vault discovery finds both vaults"""
     discovered = list(discover_aws_glacier(parsed))
     assert len(discovered) == 2
@@ -92,7 +95,7 @@ def test_discover_aws_glacier(parsed: dict[str, dict]) -> None:
     assert "axi_vault" in vault_names
 
 
-def test_check_aws_glacier_archives_axi_empty_vault(parsed: dict[str, dict]) -> None:
+def test_check_aws_glacier_archives_axi_empty_vault(parsed: Mapping[str, GlacierVault]) -> None:
     """Test archives check for empty vault with minimal data"""
     result = list(check_aws_glacier_archives("axi_empty_vault", {}, parsed))
     assert len(result) >= 1
@@ -107,7 +110,7 @@ def test_check_aws_glacier_archives_axi_empty_vault(parsed: dict[str, dict]) -> 
     assert "Number of archives: 0" in num_archives_result[1]
 
 
-def test_check_aws_glacier_archives_axi_vault(parsed: dict[str, dict]) -> None:
+def test_check_aws_glacier_archives_axi_vault(parsed: Mapping[str, GlacierVault]) -> None:
     """Test archives check for vault with archives but zero size"""
     result = list(check_aws_glacier_archives("axi_vault", {}, parsed))
     assert len(result) >= 2
@@ -123,7 +126,7 @@ def test_check_aws_glacier_archives_axi_vault(parsed: dict[str, dict]) -> None:
     assert "Number of archives: 15" in num_archives_result[1]
 
 
-def test_check_aws_glacier_summary(parsed: dict[str, dict]) -> None:
+def test_check_aws_glacier_summary(parsed: Mapping[str, GlacierVault]) -> None:
     """Test summary aggregates values from all vaults"""
     result = list(check_aws_glacier_summary(None, {}, parsed))
     assert len(result) >= 1
@@ -140,7 +143,7 @@ def test_check_aws_glacier_summary(parsed: dict[str, dict]) -> None:
         assert "Largest vault" in largest_vault_result[1]
 
 
-def test_discover_aws_glacier_summary(parsed: dict[str, dict]) -> None:
+def test_discover_aws_glacier_summary(parsed: Mapping[str, GlacierVault]) -> None:
     """Test summary discovery creates summary item"""
     discovered = list(discover_aws_glacier_summary(parsed))
     assert len(discovered) == 1
@@ -156,9 +159,9 @@ def test_parse_aws_glacier(string_table: list[list[str]]) -> None:
 
     # Check vault data structure
     empty_vault = parsed["axi_empty_vault"]
-    assert empty_vault["SizeInBytes"] == 12.12
-    assert empty_vault["NumberOfArchives"] == 0
+    assert empty_vault.size_in_bytes == 12.12
+    assert empty_vault.number_of_archives == 0
 
     vault_with_archives = parsed["axi_vault"]
-    assert vault_with_archives["SizeInBytes"] == 0
-    assert vault_with_archives["NumberOfArchives"] == 15.5
+    assert vault_with_archives.size_in_bytes == 0
+    assert vault_with_archives.number_of_archives == 15.5
