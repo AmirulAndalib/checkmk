@@ -45,6 +45,7 @@ import type {
 import { type PropType, type VNode, defineComponent, h } from 'vue'
 
 import usei18n from '@/lib/i18n'
+import { randomId } from '@/lib/randomId'
 
 import type { DualListElement } from '@/components/CmkDualList'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
@@ -58,6 +59,8 @@ import {
   groupIndexedValidations,
   groupNestedValidations
 } from '@/form/private/validation'
+
+import { fromAttributeFilter, fromModel } from '@/metric-backend/attributeFilterAdapter'
 
 import {
   type Operator,
@@ -204,26 +207,34 @@ function renderMetricBackendCustomQuery(value: MetricBackendCustomQuery): VNode 
 
   const renderAttributes = (
     title: string,
-    attributes: typeof value.resource_attributes
+    attributes: ReadonlyArray<{ key: string; value: string }>
   ): VNode | null => {
-    if (!attributes || attributes.length === 0) {
+    if (attributes.length === 0) {
       return null
     }
     const attributeText = attributes.map((attr) => `${attr.key}:${attr.value}`).join(', ')
     return h('tr', [h('td', { class: 'dict_title' }, [`${title}:`]), h('td', [attributeText])])
   }
 
-  const resourceRow = renderAttributes('Resource Attributes', value.resource_attributes)
+  const attributeLists = value.attribute_filter
+    ? fromModel(fromAttributeFilter(value.attribute_filter, () => randomId()))
+    : {
+        resource: value.resource_attributes ?? [],
+        scope: value.scope_attributes ?? [],
+        data_point: value.data_point_attributes ?? []
+      }
+
+  const resourceRow = renderAttributes('Resource Attributes', attributeLists.resource)
   if (resourceRow) {
     rows.push(resourceRow)
   }
 
-  const scopeRow = renderAttributes('Scope Attributes', value.scope_attributes)
+  const scopeRow = renderAttributes('Scope Attributes', attributeLists.scope)
   if (scopeRow) {
     rows.push(scopeRow)
   }
 
-  const dataPointRow = renderAttributes('Data Point Attributes', value.data_point_attributes)
+  const dataPointRow = renderAttributes('Data Point Attributes', attributeLists.data_point)
   if (dataPointRow) {
     rows.push(dataPointRow)
   }
