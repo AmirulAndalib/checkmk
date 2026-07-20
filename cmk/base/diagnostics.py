@@ -1373,10 +1373,9 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         self.rel_checkmk_files = rel_checkmk_files
         self.file_map_config = self._file_map_config
 
-    @property
-    def _checkmk_files_map(self) -> CheckmkFilesMap:
+    def _checkmk_files_map(self, omd_root: Path) -> CheckmkFilesMap:
         return self.file_map_config.map_generator(
-            None,
+            omd_root / self.file_map_config.rel_base_folder,
             lambda base_folder: list(os.walk(base_folder)),
         )
 
@@ -1386,10 +1385,13 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         raise NotImplementedError
 
     def _copy_and_decrypt(
-        self, *, omd_root: Path, rel_filepath: Path, tmp_dump_folder: Path
+        self,
+        *,
+        checkmk_files_map: CheckmkFilesMap,
+        omd_root: Path,
+        rel_filepath: Path,
+        tmp_dump_folder: Path,
     ) -> Path | None:
-        checkmk_files_map = self._checkmk_files_map
-
         filepath = checkmk_files_map.get(str(rel_filepath))
         if filepath is None or not filepath.exists():
             return None
@@ -1446,10 +1448,14 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         self, *, omd_root: Path, tmp_dump_folder: Path
     ) -> DiagnosticsElementFilepaths:
         unknown_files = []
+        checkmk_files_map = self._checkmk_files_map(omd_root)
 
         for rel_filepath in self.rel_checkmk_files:
             tmp_filepath = self._copy_and_decrypt(
-                omd_root=omd_root, rel_filepath=Path(rel_filepath), tmp_dump_folder=tmp_dump_folder
+                checkmk_files_map=checkmk_files_map,
+                omd_root=omd_root,
+                rel_filepath=Path(rel_filepath),
+                tmp_dump_folder=tmp_dump_folder,
             )
 
             if tmp_filepath is None:

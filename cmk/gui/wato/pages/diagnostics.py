@@ -165,7 +165,7 @@ class ModeDiagnostics(WatoMode[object]):
         self._checkmk_files_map: dict[str, CheckmkFilesMap] = {}
         for file_map in _FILE_MAPS:
             self._checkmk_files_map[file_map.file_type] = file_map.map_generator(
-                self._site,
+                _base_folder_of_site(self._site, file_map.rel_base_folder),
                 lambda base_folder: _os_walk_of_folder(self._site, base_folder, 10),
             )
 
@@ -1061,16 +1061,28 @@ class AutomationDiagnosticsDumpOsWalk(AutomationCommand[str]):
         return request.get_ascii_input_mandatory("folder")
 
 
-def _os_walk_of_folder(site: str | None, base_folder: Path, timeout: int) -> OSWalk:
+def _is_local_site(site: str | None) -> bool:
     if not site:
+        return True
+    return isinstance(
+        make_automation_config(active_config.sites[SiteId(site)]), LocalAutomationConfig
+    )
+
+
+def _base_folder_of_site(site: str | None, rel_base_folder: Path) -> Path:
+    if _is_local_site(site):
+        return cmk.utils.paths.omd_root / rel_base_folder
+    assert site is not None
+    return Path("/omd/sites", site, rel_base_folder)
+
+
+def _os_walk_of_folder(site: str | None, base_folder: Path, timeout: int) -> OSWalk:
+    if _is_local_site(site):
         return list(os.walk(base_folder))
+    assert site is not None
 
     automation_config = make_automation_config(active_config.sites[SiteId(site)])
-
-    if isinstance(automation_config, LocalAutomationConfig):
-        return list(os.walk(base_folder))
-
-    base_folder = Path(str(base_folder).replace(omd_site(), site))
+    assert not isinstance(automation_config, LocalAutomationConfig)
     json_response = do_remote_automation(
         automation_config,
         "diagnostics-dump-os-walk",

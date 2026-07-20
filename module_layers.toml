@@ -660,7 +660,7 @@ allows = ["@ccc"]
 allows = []
 
 [components."cmk.diagnostics"]
-allows = ["cmk.ccc.site", "cmk.utils.paths"]
+allows = ["cmk.ccc.site"]
 
 [components."cmk.diskspace"]
 allows = ["@ccc", "cmk.utils.paths"]

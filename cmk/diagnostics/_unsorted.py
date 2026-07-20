@@ -10,8 +10,7 @@ from enum import auto, Enum, IntEnum
 from pathlib import Path
 from typing import Any, Literal, NamedTuple, TypedDict
 
-import cmk.utils.paths
-from cmk.ccc.site import omd_site, SiteId
+from cmk.ccc.site import SiteId
 
 # This is an awful type, but just putting `Any` and hoping for the best is no solution.
 _JSONSerializable = (
@@ -39,25 +38,21 @@ class DiagnosticsParameters(TypedDict):
 @dataclass(frozen=True, kw_only=True)
 class FileMapConfig:
     file_type: Literal["config", "core", "licensing", "log"]
-    base_folder: Path
+    rel_base_folder: Path
+    """Base folder of this category's files, relative to the site's root"""
     keep: Callable[[Path], bool]
-
-    def site_specific_base_folder(self, site: str | None) -> Path:
-        # NOTE: This is quite fragile!
-        return Path(str(self.base_folder).replace(omd_site(), site)) if site else self.base_folder
 
     def map_generator(
         self,
-        site: str | None,
+        base_folder: Path,
         walker: Callable[[Path], OSWalk],
     ) -> CheckmkFilesMap:
         files_map = CheckmkFilesMap()
-        site_specific_base_folder = self.site_specific_base_folder(site)
-        for root, _dirs, files in walker(self.base_folder):
+        for root, _dirs, files in walker(base_folder):
             for file_name in files:
                 filepath = Path(root) / file_name
                 if self.keep(filepath):
-                    rel_filepath = str(filepath.relative_to(site_specific_base_folder))
+                    rel_filepath = str(filepath.relative_to(base_folder))
                     files_map.setdefault(rel_filepath, filepath)
         return files_map
 
@@ -504,7 +499,7 @@ def redact_passwords_in_file(filepath: Path, rel_filepath: Path) -> int:
 
 FILE_MAP_CONFIG = FileMapConfig(
     file_type="config",
-    base_folder=cmk.utils.paths.default_config_dir,
+    rel_base_folder=Path("etc/check_mk"),
     keep=lambda path: (
         path.name != "ca-certificates.mk"
         and (path.suffix in (".mk", ".conf", ".bi") or path.name == ".wato")
@@ -512,17 +507,17 @@ FILE_MAP_CONFIG = FileMapConfig(
 )
 FILE_MAP_CORE = FileMapConfig(
     file_type="core",
-    base_folder=cmk.utils.paths.var_dir,
+    rel_base_folder=Path("var/check_mk"),
     keep=lambda path: path.stem in ("state", "history", "config"),
 )
 FILE_MAP_LICENSING = FileMapConfig(
     file_type="licensing",
-    base_folder=cmk.utils.paths.var_dir,
+    rel_base_folder=Path("var/check_mk"),
     keep=lambda path: True,
 )
 FILE_MAP_LOG = FileMapConfig(
     file_type="log",
-    base_folder=cmk.utils.paths.log_dir,
+    rel_base_folder=Path("var/log"),
     keep=lambda path: (
         path.suffix in (".log", ".1", ".state")
         or path.name in ("access_log", "error_log", "stats")
