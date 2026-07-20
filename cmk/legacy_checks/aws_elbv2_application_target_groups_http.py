@@ -6,31 +6,39 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+from collections.abc import Mapping
+
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
+from cmk.agent_based.v2 import StringTable
 from cmk.legacy_includes.aws import check_aws_http_errors, get_data_or_go_stale
 from cmk.plugins.aws.lib import extract_aws_metrics_by_labels, parse_aws
 
 check_info = {}
 
-
-def parse_aws_elbv2_target_groups_http(string_table):
-    return extract_aws_metrics_by_labels(
-        [
-            "RequestCount",
-            "HTTPCode_Target_2XX_Count",
-            "HTTPCode_Target_3XX_Count",
-            "HTTPCode_Target_4XX_Count",
-            "HTTPCode_Target_5XX_Count",
-        ],
-        parse_aws(string_table),
-    )
+Section = Mapping[str, Mapping[str, float]]
 
 
-def discover_aws_application_elb_target_groups_http(section):
+def parse_aws_elbv2_target_groups_http(string_table: StringTable) -> Section:
+    return {
+        label: {name: float(value) for name, value in metrics.items()}
+        for label, metrics in extract_aws_metrics_by_labels(
+            [
+                "RequestCount",
+                "HTTPCode_Target_2XX_Count",
+                "HTTPCode_Target_3XX_Count",
+                "HTTPCode_Target_4XX_Count",
+                "HTTPCode_Target_5XX_Count",
+            ],
+            parse_aws(string_table),
+        ).items()
+    }
+
+
+def discover_aws_application_elb_target_groups_http(section: Section):
     yield from ((item, {}) for item, data in section.items() if "RequestCount" in data)
 
 
-def check_aws_application_elb_target_groups_http(item, params, section):
+def check_aws_application_elb_target_groups_http(item, params, section: Section):
     data = get_data_or_go_stale(item, section)
     return check_aws_http_errors(
         params.get("levels_http", {}),
