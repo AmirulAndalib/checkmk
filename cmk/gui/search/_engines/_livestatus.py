@@ -1317,13 +1317,12 @@ class LivestatusSearchEngine:
         request: Request,
         *,
         row_limit: int,
-        search_order: Iterable[tuple[str, str]] | None = None,
+        search_order: Iterable[tuple[str, str]],
         user_permissions: UserPermissions | None = None,
     ) -> None:
         self._legacy_engine = QuicksearchManager(
             row_limit=row_limit,
-            # TODO: this probably shouldn't be tied to the same setting as quicksearch.
-            search_order=search_order or config.quicksearch_search_order,
+            search_order=search_order,
             build_url=get_url_builder(request),
         )
         self._user_permissions = user_permissions or UserPermissions.from_config(

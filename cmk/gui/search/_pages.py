@@ -29,6 +29,16 @@ from .permissions import search_permissions_handler_registry
 # value and get feedback from users.
 _LIVESTATUS_ENGINE_ROW_LIMIT: Final = 500
 
+# Deliberately independent of the user-configurable `config.quicksearch_search_order`, which drives
+# the legacy sidebar quicksearch snapin instead.
+_UNIFIED_SEARCH_LIVESTATUS_ORDER: Final[list[tuple[str, str]]] = [
+    ("menu", "continue"),
+    ("h", "continue"),
+    ("al", "continue"),
+    ("ad", "continue"),
+    ("s", "continue"),
+]
+
 
 class PageUnifiedSearch(AjaxPage):
     @override
@@ -50,6 +60,7 @@ class PageUnifiedSearch(AjaxPage):
                 ctx.config,
                 ctx.request,
                 row_limit=_LIVESTATUS_ENGINE_ROW_LIMIT,
+                search_order=_UNIFIED_SEARCH_LIVESTATUS_ORDER,
             ),
         )
 
