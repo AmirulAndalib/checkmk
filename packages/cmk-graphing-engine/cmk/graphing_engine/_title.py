@@ -32,7 +32,11 @@ _TITLE_SCALAR_KINDS: Mapping[str, ScalarKind] = {
 
 def _unique_service(metrics: Iterable[Metric]) -> Service | None:
     services = {
-        Service(host_name=metric.host_name, service_name=metric.service_name)
+        Service(
+            site_id=metric.site_id,
+            host_name=metric.host_name,
+            service_name=metric.service_name,
+        )
         for metric in metrics
         if isinstance(metric, RRDMetric)
     }
@@ -42,6 +46,7 @@ def _unique_service(metrics: Iterable[Metric]) -> Service | None:
 def _title_quantity(raw: str, service: Service) -> Quantity | None:
     expression: Mapping[str, str] = json.loads(raw[len(_TITLE_EXPRESSION_PREFIX) :])
     metric = RRDMetric(
+        site_id=service.site_id,
         host_name=service.host_name,
         service_name=service.service_name,
         metric_name=MetricName(expression["metric"]),
