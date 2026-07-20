@@ -199,7 +199,6 @@ if [[ "$RUN" == true ]]; then
         "$EDITION_FLAG" \
         "${RESOURCE_FLAGS[@]}" \
         --skip_incompatible_explicit_targets \
-        --test_tag_filters=-cpp,-requires-git \
         --keep_going \
         --build_tests_only \
         --combined_report=lcov \
