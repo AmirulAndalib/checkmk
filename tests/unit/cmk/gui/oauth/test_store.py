@@ -13,7 +13,9 @@ from cmk.gui.oauth import _store
 from cmk.gui.oauth._store import (
     ClientId,
     ClientRegistration,
+    delete_registered_clients,
     get_registered_client,
+    list_registered_clients,
     register_client,
 )
 
@@ -101,3 +103,98 @@ def test_register_client_succeeds_when_store_is_one_below_capacity() -> None:
     registered = register_client(["https://client.example/callback"], "Example")
 
     assert get_registered_client(registered.client_id) == registered
+
+
+def test_list_registered_clients_returns_empty_list_when_store_is_empty() -> None:
+    assert list_registered_clients() == []
+
+
+def test_list_registered_clients_returns_all_clients_sorted_by_registered_at_ascending() -> None:
+    clients = {
+        ClientId("newest"): ClientRegistration(
+            client_id=ClientId("newest"),
+            redirect_uris=["https://client.example/callback"],
+            client_name=None,
+            registered_at=datetime.fromtimestamp(300, tz=UTC),
+        ),
+        ClientId("oldest"): ClientRegistration(
+            client_id=ClientId("oldest"),
+            redirect_uris=["https://client.example/callback"],
+            client_name=None,
+            registered_at=datetime.fromtimestamp(100, tz=UTC),
+        ),
+        ClientId("middle"): ClientRegistration(
+            client_id=ClientId("middle"),
+            redirect_uris=["https://client.example/callback"],
+            client_name=None,
+            registered_at=datetime.fromtimestamp(200, tz=UTC),
+        ),
+    }
+    _store.REGISTERED_CLIENTS_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _store.REGISTERED_CLIENTS_STORE_PATH.write_text(_store._serialize_store(clients))
+
+    assert [client.client_id for client in list_registered_clients()] == [
+        "oldest",
+        "middle",
+        "newest",
+    ]
+
+
+def test_delete_registered_clients_removes_single_client_and_returns_count() -> None:
+    registered = register_client(["https://client.example/callback"], "Example")
+
+    assert delete_registered_clients([registered.client_id]) == 1
+    assert get_registered_client(registered.client_id) is None
+
+
+def test_delete_registered_clients_removes_multiple_clients_and_returns_count() -> None:
+    first = register_client(["https://client.example/first"], "First Client")
+    second = register_client(["https://client.example/second"], "Second Client")
+
+    assert delete_registered_clients([first.client_id, second.client_id]) == 2
+    assert get_registered_client(first.client_id) is None
+    assert get_registered_client(second.client_id) is None
+
+
+def test_delete_registered_clients_ignores_unknown_client_id_mixed_in() -> None:
+    registered = register_client(["https://client.example/callback"], "Example")
+
+    assert delete_registered_clients([registered.client_id, "does-not-exist"]) == 1
+    assert get_registered_client(registered.client_id) is None
+
+
+def test_delete_registered_clients_with_empty_collection_is_a_noop() -> None:
+    registered = register_client(["https://client.example/callback"], "Example")
+
+    assert delete_registered_clients([]) == 0
+    assert get_registered_client(registered.client_id) == registered
+
+
+def test_delete_registered_clients_dedupes_duplicate_ids_in_input() -> None:
+    registered = register_client(["https://client.example/callback"], "Example")
+
+    assert delete_registered_clients([registered.client_id, registered.client_id]) == 1
+
+
+def test_delete_registered_clients_on_empty_store_returns_zero() -> None:
+    assert delete_registered_clients(["does-not-exist"]) == 0
+
+
+def test_delete_registered_clients_releases_lock_when_store_is_corrupt() -> None:
+    _store.REGISTERED_CLIENTS_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _store.REGISTERED_CLIENTS_STORE_PATH.write_text("not valid json")
+
+    with pytest.raises(ValidationError):
+        delete_registered_clients(["whatever"])
+
+    assert not store.have_lock(_store.REGISTERED_CLIENTS_STORE_PATH)
+
+
+def test_delete_registered_clients_does_not_modify_store_when_store_is_corrupt() -> None:
+    _store.REGISTERED_CLIENTS_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _store.REGISTERED_CLIENTS_STORE_PATH.write_text("not valid json")
+
+    with pytest.raises(ValidationError):
+        delete_registered_clients(["whatever"])
+
+    assert _store.REGISTERED_CLIENTS_STORE_PATH.read_text() == "not valid json"

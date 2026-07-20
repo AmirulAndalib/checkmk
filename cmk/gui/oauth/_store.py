@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import secrets
+from collections.abc import Collection
 from datetime import datetime, UTC
 from typing import NewType
 
@@ -70,3 +71,24 @@ def register_client(redirect_uris: list[str], client_name: str | None) -> Client
 def get_registered_client(client_id: str) -> ClientRegistration | None:
     raw = store.load_text_from_file(REGISTERED_CLIENTS_STORE_PATH)
     return _parse_store(raw).get(ClientId(client_id))
+
+
+def list_registered_clients() -> list[ClientRegistration]:
+    raw = store.load_text_from_file(REGISTERED_CLIENTS_STORE_PATH)
+    return sorted(_parse_store(raw).values(), key=lambda client: client.registered_at)
+
+
+def delete_registered_clients(client_ids: Collection[str]) -> int:
+    raw = store.load_text_from_file(REGISTERED_CLIENTS_STORE_PATH, lock=True)
+    try:
+        clients = _parse_store(raw)
+    except Exception:
+        store.release_lock(REGISTERED_CLIENTS_STORE_PATH)
+        raise
+
+    to_delete = {ClientId(client_id) for client_id in client_ids} & clients.keys()
+    for client_id in to_delete:
+        del clients[client_id]
+
+    store.save_text_to_file(REGISTERED_CLIENTS_STORE_PATH, _serialize_store(clients))
+    return len(to_delete)
