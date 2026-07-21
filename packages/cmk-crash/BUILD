@@ -75,8 +75,8 @@ py_wheel(
 # The CLI implementation lands in Epic 2 (CMK-202); the entry point is wired here as a placeholder.
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {"cmk-upload-crashes": "cmk.crash_reporting.cli:main"},
     distribution = "cmk-crash-entrypoint",
+    entry_points = {"console_scripts": ["cmk-upload-crashes = cmk.crash_reporting.cli:main"]},
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [],
