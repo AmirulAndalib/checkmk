@@ -80,6 +80,13 @@ export function buildConsolidationFunction(
         lookback_seconds: lookbackSeconds,
         percentile: 0
       }
+    case 'histogram_sum_raw':
+      return {
+        type: 'histogram',
+        function: 'histogram_sum_raw',
+        lookback_seconds: lookbackSeconds,
+        percentile: 0
+      }
     case 'gauge_last':
     default:
       return { type: 'gauge', function: 'gauge_last', lookback_seconds: lookbackSeconds }

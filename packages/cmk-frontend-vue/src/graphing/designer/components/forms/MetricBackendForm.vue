@@ -63,6 +63,8 @@ function toStored(
       return { type: 'histogram_sum_rate', lookback_seconds: lookbackSeconds }
     case 'histogram_sum_delta':
       return { type: 'histogram_sum_delta', lookback_seconds: lookbackSeconds }
+    case 'histogram_sum_raw':
+      return { type: 'histogram_sum_raw', lookback_seconds: lookbackSeconds }
     case 'gauge_last':
     default:
       return { type: 'gauge_last', lookback_seconds: lookbackSeconds }
@@ -85,6 +87,7 @@ function toPicker(consolidation: Consolidation): ConsolidationFunction {
     case 'histogram_count_rate':
     case 'histogram_sum_rate':
     case 'histogram_sum_delta':
+    case 'histogram_sum_raw':
       return { type: 'histogram', function: consolidation.type }
   }
 }
