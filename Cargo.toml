@@ -5,13 +5,14 @@
 
 [workspace]
 members = [
+  "agents/wnx/extensions/robotmk_ext",
   "packages/check-cert",
   "packages/check-http",
   "packages/cmk-agent-ctl",
   "packages/mk-oracle",
   "packages/mk-sql",
 ]
-exclude = ["agents/wnx/extensions/robotmk_ext", "agents/wnx/test_files/tools/v"]
+exclude = ["agents/wnx/test_files/tools/v"]
 package.edition = "2021"
 resolver = "2"
 

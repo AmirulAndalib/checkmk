@@ -1,5 +1,5 @@
 {
-  "checksum": "5d3a3eaff906eae931f4b02baa6cf73935a9448b1af8229bd8adb3b1e35445a7",
+  "checksum": "0f2a5b5ee9ceac7e9ad69ed4a2941b7d2cf67f019ddf123bdef81889734a9237",
   "crates": {
     "addr2line 0.24.2": {
       "name": "addr2line",
@@ -18791,6 +18791,33 @@
       ],
       "license_file": "LICENSE"
     },
+    "robotmk_ext 0.1.0": {
+      "name": "robotmk_ext",
+      "version": "0.1.0",
+      "package_url": null,
+      "repository": null,
+      "targets": [],
+      "library_target_name": null,
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "clap 4.5.45",
+              "target": "clap"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.1.0"
+      },
+      "license": null,
+      "license_ids": [],
+      "license_file": null
+    },
     "rpassword 7.4.0": {
       "name": "rpassword",
       "version": "7.4.0",
@@ -31480,7 +31507,8 @@
     "check-http 0.1.0": "packages/check-http",
     "cmk-agent-ctl 1.0.0": "packages/cmk-agent-ctl",
     "mk-oracle 0.1.0": "packages/mk-oracle",
-    "mk-sql 0.1.0": "packages/mk-sql"
+    "mk-sql 0.1.0": "packages/mk-sql",
+    "robotmk_ext 0.1.0": "agents/wnx/extensions/robotmk_ext"
   },
   "conditions": {
     "aarch64-linux-android": [],
