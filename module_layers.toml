@@ -842,6 +842,10 @@ allows = [
   "cmk.otel_collector",
 ]
 
+# allow everything, don't get in the way of migrations.
+[components."cmk.gui.plugins.legacy_bakery_rulesets"]
+allows = ["cmk"]
+
 [components."cmk.gui.plugins"]
 allows = [
   "@ccc",

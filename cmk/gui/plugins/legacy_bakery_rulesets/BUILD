@@ -17,6 +17,7 @@ py_library(
         "//cmk/gui/wato",
         "//cmk/gui/wato:base",
         "//cmk/gui/watolib",
+        "//cmk/plugins",
     ],
 )
 
