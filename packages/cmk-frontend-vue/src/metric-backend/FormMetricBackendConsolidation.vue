@@ -38,7 +38,8 @@ const SUPPORTED_FUNCTIONS: AllowedFunctions = {
     'histogram_quantile',
     'histogram_count_delta',
     'histogram_count_rate',
-    'histogram_sum_rate'
+    'histogram_sum_rate',
+    'histogram_sum_delta'
   ]
 }
 
