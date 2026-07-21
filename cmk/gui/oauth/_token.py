@@ -25,8 +25,10 @@ _FORM_CONTENT_TYPE = "application/x-www-form-urlencoded"
 # The parameters this endpoint interprets. RFC 6749 section 3.2 forbids
 # repeating request parameters, but it also requires unrecognized ones to be
 # ignored, so the duplicate check deliberately covers only this set. Extend
-# it before reading further parameters (redirect_uri, resource).
-_KNOWN_PARAMS = ("grant_type", "code", "client_id", "code_verifier")
+# it before reading further parameters. Rejecting a repeated resource also
+# rejects RFC 8707's multi-resource requests on purpose: a code binds
+# exactly one resource here.
+_KNOWN_PARAMS = ("grant_type", "code", "client_id", "code_verifier", "redirect_uri", "resource")
 
 # RFC 7636 section 4.1: 43 to 128 characters from the unreserved set.
 _CODE_VERIFIER_RE = re.compile(r"[A-Za-z0-9\-._~]{43,128}")
@@ -64,11 +66,12 @@ class OAuthTokenPage(Page):
 
     The request shape is validated (POST, form encoding, grant_type, required
     parameters, code_verifier syntax), authorization codes are redeemed
-    single-use against the store the authorize endpoint fills, and the PKCE
-    code_verifier is verified against the stored S256 challenge; rejections
-    follow the RFC 6749 section 5.2 error format. Still missing: the
-    client/resource bindings of the stored record are not verified yet, and
-    the access token remains a random stub value.
+    single-use against the store the authorize endpoint fills, and every
+    binding of the redeemed record is enforced: the PKCE S256 challenge, the
+    client_id, and redirect_uri/resource if sent. A scope parameter is
+    ignored; the eventual token's user and scope come only from the record.
+    Rejections follow the RFC 6749 section 5.2 error format. Still a stub:
+    the access token is a random value not yet bound to the record (CMK-36818).
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -155,6 +158,23 @@ class OAuthTokenPage(Page):
             # The code is already burned at this point, so a wrong verifier
             # costs the presenter the code: each code allows exactly one
             # verification attempt.
+            _error("invalid_grant")
+            return None
+
+        if form.get("client_id") != record.client_id:
+            # RFC 6749 section 4.1.3: the code must have been issued to the
+            # client presenting it.
+            _error("invalid_grant")
+            return None
+
+        # redirect_uri and resource are enforced only if sent: OAuth 2.1
+        # (section 10.2) removed redirect_uri from the token request but
+        # requires servers to keep verifying it for OAuth 2.0 clients that
+        # still send it; resource follows the same if-sent rule (RFC 8707).
+        if (redirect_uri := form.get("redirect_uri")) and redirect_uri != record.redirect_uri:
+            _error("invalid_grant")
+            return None
+        if (resource := form.get("resource")) and resource != record.resource:
             _error("invalid_grant")
             return None
 

@@ -38,13 +38,14 @@ def _s256_challenge(code_verifier: str) -> str:
 def _stored_record(
     # The RFC 7636 appendix B challenge, matching _VALID_FORM's code_verifier.
     code_challenge: str = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+    resource: str | None = "https://host/mysite/check_mk/mcp",
 ) -> AuthCodeRecord:
     return AuthCodeRecord(
         user_id="alice",
         client_id="test-client",
         redirect_uri="https://client.example/callback",
         scope="mcp",
-        resource="https://host/mysite/check_mk/mcp",
+        resource=resource,
         code_challenge=code_challenge,
     )
 
@@ -184,13 +185,14 @@ class TestOAuthTokenPage:
             assert response.status_code == 400
             assert response.json == {"error": "invalid_request"}
 
-    @pytest.mark.parametrize("param", ["grant_type", "code", "client_id", "code_verifier"])
+    @pytest.mark.parametrize(
+        "param", ["grant_type", "code", "client_id", "code_verifier", "redirect_uri", "resource"]
+    )
     def test_rejects_a_duplicated_parameter(self, flask_app: Flask, param: str) -> None:
-        body = (
-            urllib.parse.urlencode(_VALID_FORM)
-            + "&"
-            + urllib.parse.urlencode({param: _VALID_FORM[param]})
-        )
+        # Appended twice: redirect_uri/resource are not in _VALID_FORM, so
+        # one extra occurrence alone would not make them duplicates.
+        duplicate = urllib.parse.urlencode({param: _VALID_FORM.get(param, "anything")})
+        body = "&".join((urllib.parse.urlencode(_VALID_FORM), duplicate, duplicate))
         with flask_app.test_request_context(
             method="POST", data=body, content_type=_FORM_CONTENT_TYPE
         ):
@@ -278,6 +280,109 @@ class TestOAuthTokenPage:
 
             assert response.status_code == 400
             assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_client_id_the_code_was_not_issued_to(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "client_id": "other-client"}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_redirect_uri_that_does_not_match_the_stored_one(
+        self, flask_app: Flask
+    ) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "redirect_uri": "https://evil.example/callback"}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_accepts_a_redirect_uri_matching_the_stored_one(self, flask_app: Flask) -> None:
+        # OAuth 2.0 clients still send redirect_uri (OAuth 2.1 removed it);
+        # a matching value must keep working.
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST",
+            data={**_VALID_FORM, "redirect_uri": "https://client.example/callback"},
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 200
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_resource_that_does_not_match_the_stored_one(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST",
+            data={**_VALID_FORM, "resource": "https://host/othersite/check_mk/mcp"},
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_accepts_a_resource_matching_the_stored_one(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST",
+            data={**_VALID_FORM, "resource": "https://host/mysite/check_mk/mcp"},
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 200
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_resource_when_none_was_bound(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record(resource=None))
+        with flask_app.test_request_context(
+            method="POST",
+            data={**_VALID_FORM, "resource": "https://host/mysite/check_mk/mcp"},
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    @pytest.mark.parametrize("param", ["redirect_uri", "resource"])
+    def test_treats_an_empty_optional_binding_parameter_as_omitted(
+        self, flask_app: Flask, param: str
+    ) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(method="POST", data={**_VALID_FORM, param: ""}):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 200
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_ignores_a_scope_parameter(self, flask_app: Flask) -> None:
+        # RFC 6749 section 3.2: unrecognized parameters are ignored; scope
+        # for the eventual token comes only from the stored record.
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "scope": "admin everything"}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 200
 
     @pytest.mark.usefixtures("clean_redis")
     def test_rejects_an_unknown_code(self, flask_app: Flask) -> None:
