@@ -54,6 +54,7 @@ from cmk.dev_deploy.core import output
 from cmk.dev_deploy.core.timeouts import CLONE_COPY, GETCAP_SCAN, OMD_CMD
 from cmk.dev_deploy.errors import CloneError
 from cmk.dev_deploy.site import sudoers
+from cmk.dev_deploy.state.deploy_state import delete_state
 
 PRISTINE_VERSIONS_DIR = Path("/omd/versions")
 
@@ -88,12 +89,17 @@ def ensure_clone(site_root: Path) -> None:
     """Ensure the site runs on a writable clone of its version directory.
 
     Idempotent: an active clone is a no-op.  A dangling clone symlink is
-    rebuilt in place.  A stale clone (the site's version changed under
-    us, e.g. ``omd update`` or a site reinstall) is never deployed into
-    or silently discarded -- it raises with recovery instructions.
+    rebuilt in place.  Stale clones (the site's version changed under
+    us, e.g. ``omd update`` or a site reinstall) hold nothing
+    irreplaceable and are discarded (see :func:`_discard_stale_clones`).
+
+    Whenever previously deployed files are discarded -- a stale clone is
+    removed or a clone is built from scratch -- the incremental deploy
+    state is reset alongside (see :func:`_reset_deploy_state`).
 
     Raises:
-        CloneError: Unexpected symlink target, stale clone, or build failure.
+        CloneError: Unexpected symlink target, stale clone removal
+            failure, or build failure.
     """
     site_name = site_root.name
     _ensure_traversable(sudoers.DEV_VERSIONS_DIR, _clone_base(site_name))
@@ -107,6 +113,7 @@ def ensure_clone(site_root: Path) -> None:
             return
         output.warn(f"Clone {target} is missing (dangling version symlink), rebuilding...")
         _build_clone(PRISTINE_VERSIONS_DIR / target.name, target)
+        _reset_deploy_state(site_root)
         _activate(site_root, target)
         return
 
@@ -124,32 +131,68 @@ def ensure_clone(site_root: Path) -> None:
 
     version = pristine.name
     clone = _clone_base(site_name) / version
-    if clone.parent.is_dir():
-        # Leftovers from interrupted builds are ours and safe to drop.
-        for partial in clone.parent.glob(".partial-*"):
-            _rmtree(partial, ignore_errors=True)
-        stale = sorted(
-            d.name
-            for d in clone.parent.iterdir()
-            if d.is_dir() and d.name != version and not d.name.startswith(".")
-        )
-        if stale:
-            raise CloneError(
-                f"Site {site_name} runs version {version}, but stale clone(s) exist "
-                f"for: {', '.join(stale)}.\n"
-                "The site version changed (omd update or site reinstall) while a "
-                "clone existed; refusing to deploy into or silently discard it.",
-                recovery=(
-                    "Remove the stale clone, then deploy again:\n"
-                    f"  cmk-dev-deploy --purge --site {site_name}"
-                ),
-            )
-
-    if clone.is_dir():
-        output.info(f"Reusing existing clone {clone}")
-    else:
+    stale_discarded = _discard_stale_clones(clone.parent, version)
+    fresh = not clone.is_dir()
+    if fresh:
         _build_clone(pristine, clone)
+    else:
+        output.info(f"Reusing existing clone {clone}")
+    if stale_discarded or fresh:
+        _reset_deploy_state(site_root)
     _activate(site_root, clone)
+
+
+def _discard_stale_clones(base: Path, version: str) -> bool:
+    """Drop build leftovers and clones of versions the site no longer runs.
+
+    ``.partial-*`` leftovers from interrupted builds are ours and vanish
+    silently.  A clone of a *different* version means the site's version
+    changed while a clone existed (``omd update`` or a site reinstall).
+    Such a clone holds only a copy of an old pristine tree plus deployed
+    files the next deploy rebuilds from the repo -- site configuration
+    and runtime data (``etc/``, ``var/``) never live in the clone -- so
+    it is discarded, loudly.
+
+    Raises:
+        CloneError: A stale clone could not be removed.
+    """
+    if not base.is_dir():
+        return False
+    for partial in base.glob(".partial-*"):
+        _rmtree(partial, ignore_errors=True)
+    stale = sorted(
+        d.name
+        for d in base.iterdir()
+        if d.is_dir() and d.name != version and not d.name.startswith(".")
+    )
+    if not stale:
+        return False
+    output.warn(
+        f"Site version changed to {version} while clone(s) existed "
+        f"(omd update or site reinstall); discarding stale clone(s): {', '.join(stale)}"
+    )
+    for name in stale:
+        stale_clone = base / name
+        try:
+            _rmtree(stale_clone)
+        except OSError as e:
+            raise CloneError(
+                f"Failed to remove stale clone {stale_clone}: {e}",
+                recovery=f"Remove it manually, then deploy again:\n  rm -rf {stale_clone}",
+            ) from e
+    return True
+
+
+def _reset_deploy_state(site_root: Path) -> None:
+    """Reset the incremental deploy state after deployed files were discarded.
+
+    A freshly built clone contains exactly the pristine files.  Deploy
+    state recorded against a previous tree would let change detection
+    skip deployers whose output no longer exists, silently leaving the
+    site on pristine code.
+    """
+    delete_state(site_root)
+    output.verbose("  Incremental deploy state reset (deploying everything)")
 
 
 def teardown_clone(site_root: Path) -> None:
