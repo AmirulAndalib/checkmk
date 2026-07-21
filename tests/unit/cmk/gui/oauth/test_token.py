@@ -3,6 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import base64
+import hashlib
 import urllib.parse
 
 import pytest
@@ -28,14 +30,22 @@ _VALID_FORM = {
 }
 
 
-def _stored_record() -> AuthCodeRecord:
+def _s256_challenge(code_verifier: str) -> str:
+    digest = hashlib.sha256(code_verifier.encode("ascii")).digest()
+    return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+
+
+def _stored_record(
+    # The RFC 7636 appendix B challenge, matching _VALID_FORM's code_verifier.
+    code_challenge: str = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+) -> AuthCodeRecord:
     return AuthCodeRecord(
         user_id="alice",
         client_id="test-client",
         redirect_uri="https://client.example/callback",
         scope="mcp",
         resource="https://host/mysite/check_mk/mcp",
-        code_challenge="E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+        code_challenge=code_challenge,
     )
 
 
@@ -214,7 +224,9 @@ class TestOAuthTokenPage:
     def test_accepts_code_verifier_length_boundaries(
         self, flask_app: Flask, code_verifier: str
     ) -> None:
-        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        AuthCodeStore().store(
+            _VALID_FORM["code"], _stored_record(code_challenge=_s256_challenge(code_verifier))
+        )
         with flask_app.test_request_context(
             method="POST", data={**_VALID_FORM, "code_verifier": code_verifier}
         ):
@@ -222,6 +234,50 @@ class TestOAuthTokenPage:
             OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
 
             assert response.status_code == 200
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_wrong_code_verifier(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code_verifier": "b" * 43}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_a_non_ascii_stored_challenge(self, flask_app: Flask) -> None:
+        # The challenge is stored as the client sent it; comparing it must
+        # yield invalid_grant, not blow up on the encoding.
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record(code_challenge="ü" * 43))
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_a_failed_verifier_check_burns_the_code(self, flask_app: Flask) -> None:
+        # The code is consumed before verification, so after one wrong
+        # attempt even the correct verifier cannot redeem it anymore.
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code_verifier": "b" * 43}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
 
     @pytest.mark.usefixtures("clean_redis")
     def test_rejects_an_unknown_code(self, flask_app: Flask) -> None:

@@ -3,6 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import base64
+import hashlib
+import hmac
 import http.client as http_client
 import re
 import secrets
@@ -38,6 +41,19 @@ def _error(error: _TokenError) -> None:
     response.set_data(OAuthTokenErrorResponse(error=error).model_dump_json(exclude_none=True))
 
 
+def _matches_challenge(code_verifier: str, code_challenge: str) -> bool:
+    """RFC 7636 section 4.6: base64url(SHA256(ascii(code_verifier))), unpadded.
+
+    Compared in bytes mode: the stored challenge is taken as the client sent
+    it to the authorize endpoint, and str-mode compare_digest would raise on
+    non-ASCII input instead of just not matching.
+    """
+    computed = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode("ascii")).digest()
+    ).rstrip(b"=")
+    return hmac.compare_digest(computed, code_challenge.encode())
+
+
 class OAuthTokenPage(Page):
     """RFC 6749 section 3.2 token endpoint for this site.
 
@@ -47,11 +63,12 @@ class OAuthTokenPage(Page):
     injected at registration).
 
     The request shape is validated (POST, form encoding, grant_type, required
-    parameters, code_verifier syntax) and authorization codes are redeemed
-    single-use against the store the authorize endpoint fills; rejections
-    follow the RFC 6749 section 5.2 error format. Still missing: the PKCE
-    code_verifier and the client/resource bindings of the stored record are
-    not verified yet, and the access token remains a random stub value.
+    parameters, code_verifier syntax), authorization codes are redeemed
+    single-use against the store the authorize endpoint fills, and the PKCE
+    code_verifier is verified against the stored S256 challenge; rejections
+    follow the RFC 6749 section 5.2 error format. Still missing: the
+    client/resource bindings of the stored record are not verified yet, and
+    the access token remains a random stub value.
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -131,6 +148,13 @@ class OAuthTokenPage(Page):
             response.status_code = http_client.INTERNAL_SERVER_ERROR
             return None
         if record is None:
+            _error("invalid_grant")
+            return None
+
+        if not _matches_challenge(code_verifier, record.code_challenge):
+            # The code is already burned at this point, so a wrong verifier
+            # costs the presenter the code: each code allows exactly one
+            # verification attempt.
             _error("invalid_grant")
             return None
 
