@@ -5,7 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
@@ -13,6 +13,7 @@ import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import BaseCell from '@/monitoring/shared/components/cell/BaseCell.vue'
+import CollapsibleCell from '@/monitoring/shared/components/cell/CollapsibleCell.vue'
 import ColorPickerCell from '@/monitoring/shared/components/cell/ColorPickerCell.vue'
 import DragHandleCell from '@/monitoring/shared/components/cell/DragHandleCell.vue'
 import DropdownCell from '@/monitoring/shared/components/cell/DropdownCell.vue'
@@ -20,11 +21,16 @@ import SwitchCell from '@/monitoring/shared/components/cell/SwitchCell.vue'
 import VisibilityCell from '@/monitoring/shared/components/cell/VisibilityCell.vue'
 
 import type { Metric } from '../../components/TimeSeriesGraph'
-import { type MetricStats, metricStats } from '../../components/legend/legendUtils'
+import {
+  type MetricStats,
+  metricStats,
+  metricsInGraphTopToBottomOrder
+} from '../../components/legend/legendUtils'
 import type { GraphItemsStore } from '../composables/useGraphItems'
 import { useRowLabels } from '../composables/useRowLabels'
 import type { DesignerItem } from '../drafts'
 import { type ItemId, isSingleLine, parseLineType } from '../types'
+import StatsCells from './StatsCells.vue'
 
 const { store, metricsBySource } = defineProps<{
   store: GraphItemsStore
@@ -50,6 +56,10 @@ const columns: ColumnDef<DesignerItem>[] = [
   { id: 'last', header: _t('Last'), meta: { justify: 'right' } }
 ]
 
+const colorColumnIndex = columns.findIndex((column) => column.id === 'color')
+
+const expandedRows = ref<Record<string, boolean>>({})
+
 /** Row stats are only attributable when the row produced exactly one series. */
 const statsBySource = computed(() => {
   const stats = new Map<ItemId, MetricStats>()
@@ -59,6 +69,26 @@ const statsBySource = computed(() => {
     }
   }
   return stats
+})
+
+/** The resolved (legend) title of a single-line row, falling back to its stored template. */
+function resolvedTitle(row: DesignerItem): string {
+  return metricsBySource.get(row.id)?.[0]?.metadata.title ?? row.title
+}
+
+/** Per source: its resolved lines in legend order, each with pre-formatted stats. */
+const linesBySource = computed(() => {
+  const out = new Map<ItemId, { metric: Metric; stats: MetricStats }[]>()
+  for (const [id, series] of metricsBySource) {
+    out.set(
+      id,
+      metricsInGraphTopToBottomOrder([...series]).map((metric) => ({
+        metric,
+        stats: metricStats(metric)
+      }))
+    )
+  }
+  return out
 })
 
 function onLineStyleChange(row: DesignerItem, value: string | null): void {
@@ -80,6 +110,7 @@ function onLineStyleChange(row: DesignerItem, value: string | null): void {
       :rows="[...store.items.value]"
       :columns="columns"
       :get-row-key="(row: DesignerItem) => row.id"
+      :expanded-rows="expandedRows"
       @reorder="(from: number, to: number) => store.move(from, to)"
     >
       <template #row="{ row }">
@@ -90,7 +121,7 @@ function onLineStyleChange(row: DesignerItem, value: string | null): void {
           :model-value="row.visible"
           @update:model-value="store.setVisibility([row.id], $event)"
         />
-        <BaseCell column-id="id" vertical-align="middle">{{ row.id }}</BaseCell>
+        <BaseCell column-id="id" vertical-align="middle" no-wrap>{{ row.id }}</BaseCell>
         <BaseCell column-id="source" vertical-align="middle" no-wrap>{{
           sourceTypeLabel(row.type)
         }}</BaseCell>
@@ -102,7 +133,17 @@ function onLineStyleChange(row: DesignerItem, value: string | null): void {
           @update:model-value="store.patch(row.id, { color: $event })"
         />
         <BaseCell v-else column-id="color" vertical-align="middle" />
-        <BaseCell column-id="title" vertical-align="middle" no-wrap>{{ row.title }}</BaseCell>
+        <BaseCell v-if="isSingleLine(row)" column-id="title" vertical-align="middle" no-wrap>{{
+          resolvedTitle(row)
+        }}</BaseCell>
+        <CollapsibleCell
+          v-else
+          column-id="title"
+          vertical-align="middle"
+          :expanded="expandedRows[row.id] === true"
+          @update:expanded="expandedRows = { ...expandedRows, [row.id]: $event }"
+          >{{ row.title }}</CollapsibleCell
+        >
         <DropdownCell
           column-id="line_style"
           vertical-align="middle"
@@ -117,19 +158,30 @@ function onLineStyleChange(row: DesignerItem, value: string | null): void {
           :model-value="row.mirrored"
           @update:model-value="store.patch(row.id, { mirrored: $event })"
         />
-        <BaseCell column-id="min" vertical-align="middle">{{
-          statsBySource.get(row.id)?.min
-        }}</BaseCell>
-        <BaseCell column-id="avg" vertical-align="middle">{{
-          statsBySource.get(row.id)?.avg
-        }}</BaseCell>
-        <BaseCell column-id="max" vertical-align="middle">{{
-          statsBySource.get(row.id)?.max
-        }}</BaseCell>
-        <BaseCell column-id="last" vertical-align="middle">{{
-          statsBySource.get(row.id)?.last
-        }}</BaseCell>
+        <StatsCells :stats="statsBySource.get(row.id)" />
       </template>
+
+      <template #expansion="{ row }">
+        <tr
+          v-for="entry in linesBySource.get(row.id) ?? []"
+          :key="entry.metric.metadata.name"
+          class="graphing-appearance-table__expanded-row"
+        >
+          <td :colspan="colorColumnIndex" />
+          <BaseCell column-id="color" vertical-align="middle">
+            <span
+              class="graphing-appearance-table__color-swatch"
+              :style="{ background: entry.metric.metadata.color }"
+            />
+          </BaseCell>
+          <BaseCell column-id="title" vertical-align="middle" no-wrap>{{
+            entry.metric.metadata.title
+          }}</BaseCell>
+          <td :colspan="2" />
+          <StatsCells :stats="entry.stats" />
+        </tr>
+      </template>
+
       <template #empty-state>
         {{ _t('This graph has no data sources yet.') }}
       </template>
@@ -141,5 +193,17 @@ function onLineStyleChange(row: DesignerItem, value: string | null): void {
 .graphing-appearance-table {
   flex: 0 1 auto;
   min-height: 0;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+.graphing-appearance-table__expanded-row :deep(td) {
+  background-color: var(--ux-theme-3);
+}
+
+.graphing-appearance-table__color-swatch {
+  display: inline-block;
+  width: var(--dimension-6);
+  height: var(--dimension-6);
+  border-radius: var(--border-radius);
 }
 </style>

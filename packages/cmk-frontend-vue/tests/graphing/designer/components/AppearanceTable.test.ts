@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { render, screen } from '@testing-library/vue'
+import { fireEvent, render, screen } from '@testing-library/vue'
 
 import type { Metric } from '@/graphing/components/TimeSeriesGraph'
 import AppearanceTable from '@/graphing/designer/components/AppearanceTable.vue'
@@ -15,7 +15,7 @@ import { rrdMetricItem, rrdQueryItem } from '../fixtures'
 
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400']
 
-function metric(name: string, points: (number | null)[]): Metric {
+function metric(name: string, points: (number | null)[], color = '#123456'): Metric {
   return {
     metadata: {
       name,
@@ -26,7 +26,7 @@ function metric(name: string, points: (number | null)[]): Metric {
         precision: { type: 'auto', digits: 2 },
         convertible: false
       },
-      color: '#123456'
+      color
     },
     render: { stack: null, inverse: false, hidden: false },
     data_points: points
@@ -59,4 +59,66 @@ test('shows the source type and title of every row', () => {
   renderTable([rrdMetricItem('A', { title: 'CPU load' }), rrdQueryItem('B')], new Map())
   expect(screen.getByText('CPU load')).toBeInTheDocument()
   expect(screen.getAllByText('Checkmk RRD')).toHaveLength(2)
+})
+
+test('resolves a single-line row title to its series title', () => {
+  renderTable(
+    [rrdMetricItem('A', { title: '$DEFAULT_TITLE$' })],
+    new Map([['A', [metric('Resolved CPU', [5])]]])
+  )
+  expect(screen.getByText('Resolved CPU')).toBeInTheDocument()
+  expect(screen.queryByText('$DEFAULT_TITLE$')).not.toBeInTheDocument()
+})
+
+test('falls back to the stored title when a single-line row has no series', () => {
+  renderTable([rrdMetricItem('A', { title: 'Custom raw title' })], new Map())
+  expect(screen.getByText('Custom raw title')).toBeInTheDocument()
+})
+
+test('expands a multi-line row into one legend-styled row per resolved line', async () => {
+  const { container } = renderTable(
+    [rrdQueryItem('B', { title: 'Query B' })],
+    new Map([
+      ['B', [metric('line one', [10, 20], '#ff0000'), metric('line two', [30, 40], '#00ff00')]]
+    ])
+  )
+
+  // The multi-line row keeps its raw stored title (only single-line rows resolve).
+  expect(screen.getByText('Query B')).toBeInTheDocument()
+  expect(screen.queryByText('line one')).not.toBeInTheDocument()
+  expect(screen.queryByText('10')).not.toBeInTheDocument()
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+
+  const rows = container.querySelectorAll('.graphing-appearance-table__expanded-row')
+  expect(rows).toHaveLength(2)
+  expect(rows[0]).toHaveTextContent('line one')
+  expect(rows[1]).toHaveTextContent('line two')
+
+  // Each line renders its own [min, avg, max, last]: line one [10,20], line two [30,40].
+  expect(screen.getByText('10')).toBeInTheDocument() // line one min
+  expect(screen.getByText('15')).toBeInTheDocument() // line one avg
+  expect(screen.getAllByText('20')).toHaveLength(2) // line one max + last
+  expect(screen.getByText('30')).toBeInTheDocument() // line two min
+  expect(screen.getByText('35')).toBeInTheDocument() // line two avg
+  expect(screen.getAllByText('40')).toHaveLength(2) // line two max + last
+
+  const swatches = container.querySelectorAll('.graphing-appearance-table__color-swatch')
+  expect(swatches).toHaveLength(2)
+  expect(swatches[0]!.getAttribute('style')).toMatch(/#ff0000|rgb\(255, 0, 0\)/)
+  expect(swatches[1]!.getAttribute('style')).toMatch(/#00ff00|rgb\(0, 255, 0\)/)
+})
+
+test('collapsing an expanded multi-line row hides its per-line rows again', async () => {
+  renderTable(
+    [rrdQueryItem('B', { title: 'Query B' })],
+    new Map([['B', [metric('line one', [10, 20]), metric('line two', [30, 40])]]])
+  )
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(screen.getByText('line one')).toBeInTheDocument()
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(screen.queryByText('line one')).not.toBeInTheDocument()
+  expect(screen.queryByText('line two')).not.toBeInTheDocument()
 })
