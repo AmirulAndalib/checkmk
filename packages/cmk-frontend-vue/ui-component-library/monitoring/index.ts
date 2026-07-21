@@ -21,6 +21,7 @@ import UclDragHandleCell from './cell/UclDragHandleCell.vue'
 import UclDropdownCell from './cell/UclDropdownCell.vue'
 import UclModesCell from './cell/UclModesCell.vue'
 import UclNumberCell from './cell/UclNumberCell.vue'
+import UclRichTextCell from './cell/UclRichTextCell.vue'
 import UclStateCell from './cell/UclStateCell.vue'
 import UclStringCell from './cell/UclStringCell.vue'
 import UclSwitchCell from './cell/UclSwitchCell.vue'
@@ -37,6 +38,7 @@ export const pages: Array<Folder | Page> = [
     new Page('DropdownCell', UclDropdownCell),
     new Page('ModesCell', UclModesCell),
     new Page('NumberCell', UclNumberCell),
+    new Page('RichTextCell', UclRichTextCell),
     new Page('StateCell', UclStateCell),
     new Page('StringCell', UclStringCell),
     new Page('SwitchCell', UclSwitchCell),
