@@ -49,16 +49,10 @@ py_library(
     ],
     deps = [
         ":internal",
-        "//cmk/gui:app",
-        "//cmk/gui:session_context",
-        "//cmk/gui/watolib",
         "//cmk/utils",
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:i18n",
-        "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:site",
-        "//packages/cmk-ccc:tty",
-        "//packages/cmk-ccc:version",
-        "//packages/cmk-wsgi",
+        "//packages/cmk-plugin-apis:discover_plugins",
     ],
 )
