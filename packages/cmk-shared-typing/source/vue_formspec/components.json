@@ -815,6 +815,9 @@
               "title": "StaticTextStyle",
               "enum": ["text", "preformatted", "alert_info", "alert_warning", "alert_error"],
               "default": "text"
+            },
+            "placeholder": {
+              "type": ["string", "null"]
             }
           },
           "required": ["type", "value", "style"]

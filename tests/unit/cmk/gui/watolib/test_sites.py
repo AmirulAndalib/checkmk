@@ -179,6 +179,21 @@ def test_authentication_connections_form_spec_no_site_config_offers_all_choices(
     ]
 
 
+def test_saml_endpoint_widgets_carry_pending_placeholder() -> None:
+    """A freshly added SAML list row has empty endpoint values (they are only
+    computed on save), so both widgets must announce the pending URL via
+    their placeholder instead of rendering an empty field."""
+    for widget in (
+        SiteManagement._saml_metadata_endpoint_widget(),
+        SiteManagement._saml_acs_endpoint_widget(),
+    ):
+        assert widget.placeholder is not None
+        assert (
+            widget.placeholder.localize(lambda s: s)
+            == "The URL will be generated automatically after you save the form."
+        )
+
+
 def _distributed_site_configs(central: SiteConfiguration) -> SiteConfigurations:
     """Central plus one inheriting remote and one remote with its own connections."""
     inheriting_remote = _remote_site_config()

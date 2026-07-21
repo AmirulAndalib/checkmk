@@ -475,10 +475,9 @@ class SiteManagement:
             help_text=Help(
                 "URL where this site serves the SAML service provider metadata "
                 "for this connection. Derived from the site's <i>Server URL for "
-                "SAML ACS callback</i> and the connection ID. The URL is only "
-                "shown after saving the site configuration and reopening this "
-                "dialog."
+                "SAML ACS callback</i> and the connection ID."
             ),
+            placeholder=Label("The URL will be generated automatically after you save the form."),
         )
 
     @staticmethod
@@ -488,9 +487,9 @@ class SiteManagement:
             help_text=Help(
                 "URL where this site receives SAML responses from the IdP for "
                 "this connection. Register this URL with the IdP's client "
-                "configuration. The URL is only shown after saving the site "
-                "configuration and reopening this dialog."
+                "configuration."
             ),
+            placeholder=Label("The URL will be generated automatically after you save the form."),
         )
 
     @classmethod

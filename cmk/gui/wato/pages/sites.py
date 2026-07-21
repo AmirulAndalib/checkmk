@@ -514,7 +514,7 @@ class ModeEditSite(WatoMode):
         expects, and fills SAML endpoint URLs so the read-only display
         widgets show meaningful values.
         """
-        data: dict = dict(populate_saml_site_endpoint_urls(self._site))
+        data: dict = dict(populate_saml_site_endpoint_urls(self._site, empty_marker=""))
         if "status_host" in data:
             data["status_host"] = self._status_host_adapter.to_form_spec(data["status_host"])
         if "authentication_connections" in data:
