@@ -34,7 +34,12 @@ const { _t } = usei18n()
 const SUPPORTED_FUNCTIONS: AllowedFunctions = {
   gauge: ['gauge_last', 'gauge_max', 'gauge_avg', 'gauge_min'],
   sum: ['sum_rate', 'sum_last_raw', 'sum_delta'],
-  histogram: ['histogram_quantile', 'histogram_count_delta', 'histogram_count_rate']
+  histogram: [
+    'histogram_quantile',
+    'histogram_count_delta',
+    'histogram_count_rate',
+    'histogram_sum_rate'
+  ]
 }
 
 // Fall back to histogram before the type resolves so the percentile stays reachable.
