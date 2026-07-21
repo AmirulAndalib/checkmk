@@ -93,10 +93,10 @@ py_wheel(
 
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {
-        "cmk-dev-deploy": "cmk.dev_deploy.__main__:main",
-    },
     distribution = "cmk-dev-deploy-entrypoint",
+    entry_points = {
+        "console_scripts": ["cmk-dev-deploy = cmk.dev_deploy.__main__:main"],
+    },
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [],
