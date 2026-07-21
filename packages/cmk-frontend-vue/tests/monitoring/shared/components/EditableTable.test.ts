@@ -7,6 +7,8 @@ import type { ColumnDef, RowSelectionState, Row as TanStackRow } from '@tanstack
 import { fireEvent, render, screen } from '@testing-library/vue'
 import { defineComponent, h, ref } from 'vue'
 
+import { untranslated } from '@/lib/i18n'
+
 import EditableTable from '@/monitoring/shared/components/EditableTable.vue'
 import DragHandleCell from '@/monitoring/shared/components/cell/DragHandleCell.vue'
 
@@ -26,6 +28,7 @@ function makeRows(count: number): Row[] {
 
 function mountEditableTable(options: {
   rows?: Row[]
+  columns?: ColumnDef<Row>[]
   expandedRows?: Record<string, boolean>
   rowHeight?: string
   onReorder?: (fromIndex: number, toIndex: number) => void
@@ -41,7 +44,7 @@ function mountEditableTable(options: {
           EditableTable<Row>,
           {
             rows,
-            columns: COLUMNS,
+            columns: options.columns ?? COLUMNS,
             expandedRows: options.expandedRows ?? {},
             getRowKey: (row: Row) => row.id,
             ...(options.rowHeight ? { rowHeight: options.rowHeight } : {}),
@@ -96,6 +99,33 @@ test('renders no sort buttons even when column definitions allow sorting', () =>
 
   expect(screen.getByText('Name')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Name' })).not.toBeInTheDocument()
+})
+
+test('renders a markup help tooltip for a column declaring headerHelp', async () => {
+  mountEditableTable({
+    columns: [
+      { id: 'drag', header: '' },
+      {
+        id: 'name',
+        accessorKey: 'name',
+        header: 'Name',
+        meta: { headerHelp: untranslated('Line one<br>Line <tt>two</tt>') }
+      }
+    ]
+  })
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Help for Name' }))
+
+  const tooltip = await screen.findByRole('tooltip')
+  // Markup survives sanitization: <br> renders as a real line break, macros as <tt> - not plain text.
+  expect(tooltip.querySelector('br')).not.toBeNull()
+  expect(screen.getByText('two').tagName).toBe('TT')
+})
+
+test('renders no help trigger for a column without headerHelp', () => {
+  mountEditableTable({})
+
+  expect(screen.queryByRole('button', { name: 'Help for Name' })).not.toBeInTheDocument()
 })
 
 test('renders the expansion slot only for expanded row keys', () => {
