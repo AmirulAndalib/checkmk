@@ -8,7 +8,6 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
-import CmkLink from '@/components/CmkLink.vue'
 import CmkStateCountBar, { type StateSegment } from '@/components/CmkStateCountBar.vue'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
@@ -65,12 +64,6 @@ function formatTimestamp(iso: string): string {
 
 <template>
   <div class="monitoring-host-overview-tab">
-    <div class="monitoring-host-overview-tab__status-link">
-      <CmkLink :href="data.legacy_host_status_link" target="_top">
-        {{ _t('Show full host status') }}
-      </CmkLink>
-    </div>
-
     <dl class="monitoring-host-overview-tab__grid">
       <dt>{{ _t('Host name') }}</dt>
       <dd>{{ data.name }}</dd>
@@ -142,16 +135,9 @@ function formatTimestamp(iso: string): string {
 
 <style scoped>
 .monitoring-host-overview-tab {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-double);
-}
-
-.monitoring-host-overview-tab__status-link {
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 
 .monitoring-host-overview-tab__divider {
