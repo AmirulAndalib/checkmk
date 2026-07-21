@@ -703,10 +703,7 @@ def _render_downtimes_icon(
     # Currently we are in a downtime + link to list of downtimes
     # for this host / service
     if row[what + "_scheduled_downtime_depth"] > 0:
-        if what == "host":
-            icon = StaticIcon(IconNames.downtime)
-        else:
-            icon = StaticIcon(IconNames.downtime)
+        icon = StaticIcon(IconNames.downtime) if what == "host" else StaticIcon(IconNames.downtime)
 
         title = _("Currently in downtime")
         title += detail_txt(row[what + "_downtimes_with_extra_info"])
@@ -888,10 +885,7 @@ def _render_flapping_icon(
     icon_config: IconConfig,
 ) -> None | tuple[StaticIcon | DynamicIcon, str]:
     if row[what + "_is_flapping"]:
-        if what == "host":
-            title = _("This host is flapping")
-        else:
-            title = _("This service is flapping")
+        title = _("This host is flapping") if what == "host" else _("This service is flapping")
         return StaticIcon(IconNames.flapping), title
     return None
 

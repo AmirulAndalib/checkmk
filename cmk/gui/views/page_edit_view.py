@@ -1021,10 +1021,7 @@ def get_sorter_plugin_title_for_choices(
 ) -> str:
     dummy_cell = Cell(ColumnSpec(plugin.ident), None, registered_painters, user_permissions)
     title: str
-    if callable(plugin.title):
-        title = plugin.title(dummy_cell)
-    else:
-        title = plugin.title
+    title = plugin.title(dummy_cell) if callable(plugin.title) else plugin.title
     return f"{_get_info_title(plugin)}: {title}"
 
 

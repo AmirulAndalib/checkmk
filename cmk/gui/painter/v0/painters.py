@@ -2644,10 +2644,7 @@ class PainterHostWithState(Painter):
         return "site_host"
 
     def render(self, row: Row, cell: Cell, user: LoggedInUser) -> CellSpec:
-        if row["host_has_been_checked"]:
-            state = row["host_state"]
-        else:
-            state = "p"
+        state = row["host_state"] if row["host_has_been_checked"] else "p"
         if state != 0:
             return "state hstate hstate%s" % state, HTMLWriter.render_span(row["host_name"])
         return "nobr", row["host_name"]
@@ -2702,10 +2699,7 @@ class PainterHost(Painter):
 
         color_choices = params.get("color_choices", [])
 
-        if row["host_has_been_checked"]:
-            state = row["host_state"]
-        else:
-            state = "p"
+        state = row["host_state"] if row["host_has_been_checked"] else "p"
 
         css = ["nobr"]
         if "colorize_downtime" in color_choices and row["host_scheduled_downtime_depth"] > 0:
@@ -3120,10 +3114,7 @@ def _paint_service_list(row: Row, columnname: str, *, renderer: RenderLink) -> C
             ],
         )
 
-        if checked:
-            css = "state%d" % state
-        else:
-            css = "statep"
+        css = "state%d" % state if checked else "statep"
 
         h += HTMLWriter.render_div(HTMLWriter.render_span(link), class_=css)
 
@@ -3625,10 +3616,7 @@ class PainterHostgroupHosts(Painter):
                     ("host", host),
                 ],
             )
-            if checked:
-                css = "hstate%d" % state
-            else:
-                css = "hstatep"
+            css = "hstate%d" % state if checked else "hstatep"
             divs.append(HTMLWriter.render_div(link, class_=css))
         return "", HTMLWriter.render_div(HTML.empty().join(divs), class_="objectlist")
 
@@ -4241,10 +4229,7 @@ class PainterCommentEntryType(Painter):
         elif t == 2:
             icon = StaticIcon(IconNames.downtime)
             help_txt = _("Downtime")
-            if row["service_description"]:
-                linkview = "downtimes_of_service"
-            else:
-                linkview = "downtimes_of_host"
+            linkview = "downtimes_of_service" if row["service_description"] else "downtimes_of_host"
 
         elif t == 3:
             icon = StaticIcon(IconNames.flapping)

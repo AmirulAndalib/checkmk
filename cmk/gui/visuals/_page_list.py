@@ -320,10 +320,7 @@ def page_list(
                     table.cell(title3, renderer(visual))
 
                 # Owner
-                if owner == UserId.builtin():
-                    ownertxt = "<i>" + _("built-in") + "</i>"
-                else:
-                    ownertxt = owner
+                ownertxt = "<i>" + _("built-in") + "</i>" if owner == UserId.builtin() else owner
                 table.cell(_("Owner"), ownertxt)
 
                 if what == "dashboards":

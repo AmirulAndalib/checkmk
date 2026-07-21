@@ -766,10 +766,7 @@ class ACTestApacheNumberOfProcesses(ABCACApacheTest):
         summary_line = subprocess.check_output(["pmap", "-d", "%d" % int(pid)]).splitlines()[-1]
 
         parts = summary_line.split()
-        if parts[1] == b"writable-private,":
-            writable_private = parts[0]
-        else:
-            writable_private = parts[3]
+        writable_private = parts[0] if parts[1] == b"writable-private," else parts[3]
 
         return int(writable_private[:-1]) * 1024.0
 
@@ -1083,10 +1080,7 @@ class ACTestGenericCheckHelperUsage(ACTest):
             site_id=site_id,
         )
 
-        if check_latency_generic > 1:
-            state = ACResultState.CRIT
-        else:
-            state = ACResultState.OK
+        state = ACResultState.CRIT if check_latency_generic > 1 else ACResultState.OK
         yield ACSingleResult(
             state=state,
             text=_(
@@ -1127,10 +1121,7 @@ class ACTestSizeOfExtensions(ACTest):
 
     def execute(self, site_id: SiteId, config: Config) -> Iterator[ACSingleResult]:
         size = self._size_of_extensions()
-        if size > 100 * 1024 * 1024:
-            state = ACResultState.CRIT
-        else:
-            state = ACResultState.OK
+        state = ACResultState.CRIT if size > 100 * 1024 * 1024 else ACResultState.OK
 
         yield ACSingleResult(
             state=state,

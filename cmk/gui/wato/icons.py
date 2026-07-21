@@ -155,10 +155,7 @@ def _paint_download_host_info(
         if back_url:
             params.append(("back_url", back_url))
 
-        if ty == "agent":
-            title = _("Download agent output")
-        else:
-            title = _("Download SNMP walk")
+        title = _("Download agent output") if ty == "agent" else _("Download SNMP walk")
 
         url = makeuri_contextless(request, params, filename="fetch_agent_output.py")
         return StaticIcon(IconNames.agents), title, url

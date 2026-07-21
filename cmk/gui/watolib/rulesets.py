@@ -995,10 +995,7 @@ class Ruleset:
         for rule_spec in rule_specs:
             # When using pprint we get a deterministic representation of the
             # data structures because it cares about sorting of the dict keys
-            if pprint_value:
-                text = pprint.pformat(rule_spec)
-            else:
-                text = repr(rule_spec)
+            text = pprint.pformat(rule_spec) if pprint_value else repr(rule_spec)
 
             content += "%s,\n" % text
         content += "] + %s\n\n" % varname

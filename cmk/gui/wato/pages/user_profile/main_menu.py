@@ -237,10 +237,7 @@ class ModeAjaxCycleThemes(AjaxPage):
         except ValueError:
             raise MKUserError(None, _("Could not determine current theme."))
 
-        if len(themes) == theme_index + 1:
-            new_theme = themes[0]
-        else:
-            new_theme = themes[theme_index + 1]
+        new_theme = themes[0] if len(themes) == theme_index + 1 else themes[theme_index + 1]
 
         set_user_attribute("ui_theme", new_theme)
         return {}

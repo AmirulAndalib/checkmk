@@ -1024,10 +1024,7 @@ def _render_tree_json(
         is_leaf = len(tree) == 3
         if is_leaf:
             service = tree[2].get("service")
-            if not service:
-                title = _("Host state")
-            else:
-                title = service
+            title = service if service else _("Host state")
         else:
             title = tree[2]["title"]
 

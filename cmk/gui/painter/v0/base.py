@@ -617,10 +617,7 @@ class Cell:
             ):
                 img_filename = re.sub(".*src=[\"']([^'\"]*)[\"'].*", "\\1", str(txt))
                 img_path = find_htdocs_image_path(img_filename)
-                if img_path:
-                    content = ("icon", img_path)
-                else:
-                    content = img_filename
+                content = ("icon", img_path) if img_path else img_filename
 
             if not content:
                 if isinstance(txt, HTML):

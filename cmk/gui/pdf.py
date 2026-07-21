@@ -265,10 +265,7 @@ class Document:
             self._canvas.setDash(*s["dashes"])
         else:
             self._canvas.setDash([])
-        if s["tt"]:
-            family = "Courier"
-        else:
-            family = s["font_family"]
+        family = "Courier" if s["tt"] else s["font_family"]
         if s["bold"]:
             family += "-Bold"
         if family == "Times":
@@ -396,14 +393,8 @@ class Document:
             assert isinstance(position[1], tuple)
             h_offset = position[1][0] * mm
             v_offset = position[1][1] * mm
-            if anchor[0] == "n":
-                y = self._top - v_offset - el_height
-            else:
-                y = self._bottom + v_offset
-            if anchor[1] == "w":
-                x = self._left + h_offset
-            else:
-                x = self._right - h_offset - el_width
+            y = self._top - v_offset - el_height if anchor[0] == "n" else self._bottom + v_offset
+            x = self._left + h_offset if anchor[1] == "w" else self._right - h_offset - el_width
             return x, y
 
         raise ValueError(f"Invalid position: {position}")
@@ -532,10 +523,7 @@ class Document:
     # Add vertical white space, skip. If that does not fit onto the current
     # page, then make a page break and *do not* skip!
     def add_margin(self, height: SizeMM | None = None, force: bool = False) -> None:
-        if height is not None:
-            marg = height * mm
-        else:
-            marg = self.lineskip()
+        marg = height * mm if height is not None else self.lineskip()
 
         if self.need_pagebreak(marg):
             self.do_pagebreak()
@@ -587,10 +575,7 @@ class Document:
     ) -> tuple[SizeMM, SizeMM, SizeMM, SizeMM]:
         self.advance(height_mm * mm)
 
-        if left_mm is None:
-            left = self._margin_left
-        else:
-            left = left_mm * mm
+        left = self._margin_left if left_mm is None else left_mm * mm
 
         right = left + width_mm * mm
         bottom = self._linepos
@@ -1221,10 +1206,7 @@ class TableRenderer:
         else:
             sum_weight = 0.0
             for s in stats:
-                if s.row_count:
-                    weight = s.total_width / s.row_count  # fixed: true-division
-                else:
-                    weight = 0.0
+                weight = s.total_width / s.row_count if s.row_count else 0.0  # fixed: true-division
                 sum_weight += weight
                 s.weight = weight
 

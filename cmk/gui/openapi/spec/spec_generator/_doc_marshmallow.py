@@ -299,10 +299,7 @@ def _to_operation_dict(
         }
 
     schema = _get_schema(schema_definitions.request_schema)
-    if schema is not None:
-        includes_redirect = "redirect" in schema.declared_fields
-    else:
-        includes_redirect = False
+    includes_redirect = "redirect" in schema.declared_fields if schema is not None else False
     operation_spec["x-codeSamples"] = code_samples(
         spec,
         spec_endpoint,

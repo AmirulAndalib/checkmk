@@ -700,10 +700,7 @@ class HTMLWriter:
         **kwargs: Any,
     ) -> None:
         json_arguments: str
-        if arguments is None:
-            json_arguments = "{}"
-        else:
-            json_arguments = _dump_standard_compliant_json(arguments)
+        json_arguments = "{}" if arguments is None else _dump_standard_compliant_json(arguments)
         self.write_html(
             render_start_tag(
                 container,

@@ -226,10 +226,7 @@ def show_availability_page(
         else "availability"
     )
 
-    if av_mode == "timeline":
-        title = _("Availability timeline")
-    else:
-        title = _("Availability")
+    title = _("Availability timeline") if av_mode == "timeline" else _("Availability")
 
     # This is combined with the object selection
     # - Show all objects

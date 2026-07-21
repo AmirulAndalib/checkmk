@@ -396,10 +396,7 @@ class MobileViewRenderer(ABCViewRenderer):
 
         page = request.var("page")
         if not page:
-            if view_spec.get("mustsearch"):
-                page = "filter"
-            else:
-                page = "data"
+            page = "filter" if view_spec.get("mustsearch") else "data"
 
         title = view_title(self.view.spec, self.view.context)
         navbar = [

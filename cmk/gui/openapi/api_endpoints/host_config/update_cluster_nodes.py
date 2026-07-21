@@ -76,10 +76,7 @@ def update_cluster_nodes_v1(
         acting_user=api_context.user,
     )
 
-    if nodes := host.cluster_nodes():
-        value = list(nodes)
-    else:
-        value = []
+    value = list(nodes) if (nodes := host.cluster_nodes()) else []
 
     return ApiResponse(
         body=HostNodesProperty(

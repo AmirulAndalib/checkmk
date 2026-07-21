@@ -273,10 +273,7 @@ class FoldableTreeRendererTree(ABCFoldableTreeRenderer):
         html.open_span(class_="title")
 
         is_empty = len(tree[3]) == 0
-        if is_empty:
-            mc = None
-        else:
-            mc = self._get_mousecode(path)
+        mc = None if is_empty else self._get_mousecode(path)
 
         css_class = "open" if self._is_open(path) else "closed"
 

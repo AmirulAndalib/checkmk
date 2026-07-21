@@ -181,10 +181,11 @@ class _FilterAggrGroupTree(Filter):
                 group_path = group.split("/")
                 for idx, group_name in enumerate(group_path):
                     key = "/".join(group_path[: idx + 1])
-                    if idx == 0:
-                        title = group_name
-                    else:
-                        title = ("\u00a0" * 6 * idx) + "\u2514\u2500 " + group_name
+                    title = (
+                        group_name
+                        if idx == 0
+                        else ("\u00a0" * 6 * idx) + "\u2514\u2500 " + group_name
+                    )
 
                     yield key, title
 
@@ -424,17 +425,11 @@ class BIStatusFilter(Filter):
         allowed_states = []
         for i in ["0", "1", "2", "3", "-1", "n"]:
             if value.get(self.prefix + i):
-                if i == "n":
-                    s = None
-                else:
-                    s = int(i)
+                s = None if i == "n" else int(i)
                 allowed_states.append(s)
         newrows = []
         for row in rows:
-            if row[self.column] is not None:
-                s = row[self.column]["state"]
-            else:
-                s = None
+            s = row[self.column]["state"] if row[self.column] is not None else None
             if s in allowed_states:
                 newrows.append(row)
         return newrows

@@ -504,7 +504,7 @@ class _ListOfColumns(base.List):
         columns: list[str] = super()._deserialize(value, attr, data)
         assert isinstance(columns, list), f"Expected a list of column names, got {value!r}"
         for column in reversed(self.mandatory):
-            if isinstance(column, Column):
+            if isinstance(column, Column):  # noqa: SIM108
                 column_name = column.name
             else:
                 column_name = column

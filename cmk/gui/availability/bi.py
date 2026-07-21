@@ -104,10 +104,7 @@ def get_bi_availability(
     annotations: AVAnnotations,
 ) -> BIAvailability:
     logrow_limit = avoptions["logrow_limit"]
-    if logrow_limit == 0:
-        livestatus_limit = None
-    else:
-        livestatus_limit = (len(aggr_rows) * logrow_limit) + 1
+    livestatus_limit = None if logrow_limit == 0 else len(aggr_rows) * logrow_limit + 1
 
     timeline_containers, has_reached_logrow_limit = get_timeline_containers(
         aggr_rows, avoptions, timewarp, livestatus_limit, annotations

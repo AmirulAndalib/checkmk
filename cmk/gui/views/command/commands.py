@@ -2050,12 +2050,7 @@ def _determine_downtime_mode(recurring_number: int, delayed_duration: int) -> in
     """
     fixed_downtime = 0 if delayed_duration else 1
 
-    if recurring_number:
-        mode = recurring_number * 2 + fixed_downtime
-    else:
-        mode = fixed_downtime
-
-    return mode
+    return recurring_number * 2 + fixed_downtime if recurring_number else fixed_downtime
 
 
 class DowntimeSchedule:

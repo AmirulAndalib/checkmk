@@ -353,10 +353,7 @@ def get_object_cells(
         objectcells.append((av_entry["alias"], host_url))
 
     if what == "service":
-        if "use_display_name" in labelling:
-            service_name = av_entry["display_name"]
-        else:
-            service_name = service
+        service_name = av_entry["display_name"] if "use_display_name" in labelling else service
         service_url = "view.py?" + urlencode_vars(
             [
                 ("view_name", "service"),

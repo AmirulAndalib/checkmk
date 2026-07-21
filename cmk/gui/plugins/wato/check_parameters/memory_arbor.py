@@ -71,10 +71,7 @@ def UsedPercentage(
 def FreePercentage(
     default_percents: tuple[float, float] | None = None, of_what: str | None = None
 ) -> Tuple[tuple[float, float]]:
-    if of_what:
-        unit = _("%% of %(of_what)s") % {"of_what": of_what}
-    else:
-        unit = "%"
+    unit = _("%% of %(of_what)s") % {"of_what": of_what} if of_what else "%"
     return Tuple(
         elements=[
             Percentage(

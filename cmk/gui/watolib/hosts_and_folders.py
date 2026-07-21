@@ -2282,10 +2282,7 @@ class Folder:
             host_contact_groups.update(cgconf["groups"])
 
         parent: Folder | None
-        if host:
-            parent = self
-        else:
-            parent = self.parent()
+        parent = self if host else self.parent()
 
         while parent:
             effective_folder_attributes = parent.effective_attributes()
@@ -2444,10 +2441,7 @@ class Folder:
 
         interval = self.attributes["network_scan"]["scan_interval"]
         last_end = self.attributes.get("network_scan_result", {}).get("end", None)
-        if last_end is None:
-            next_time = time.time()
-        else:
-            next_time = last_end + interval
+        next_time = time.time() if last_end is None else last_end + interval
 
         time_allowed = self.attributes["network_scan"].get("time_allowed")
         if time_allowed is None:
@@ -4156,10 +4150,7 @@ def _must_be_in_contactgroups(
         return  # No contact groups specified
 
     users = userdb.load_users()
-    if acting_user.id not in users:
-        user_cgs = []
-    else:
-        user_cgs = users[acting_user.id]["contactgroups"]
+    user_cgs = [] if acting_user.id not in users else users[acting_user.id]["contactgroups"]
     for c in cgs:
         if c not in user_cgs:
             raise MKAuthException(

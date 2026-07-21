@@ -1647,10 +1647,7 @@ class DiscoveryPageRenderer:
             paramtext = rulespec.valuespec.value_to_html(params)
             html.write_html(HTML.with_escaping(paramtext))
         except Exception as e:
-            if debug:
-                err = traceback.format_exc()
-            else:
-                err = "%s" % e
+            err = traceback.format_exc() if debug else "%s" % e
             paramtext = "<b>{}</b>: {}<br>".format(_("Invalid check parameter"), err)
             paramtext += "{}: <tt>{}</tt><br>".format(_("Variable"), varname)
             paramtext += _("Parameters:")

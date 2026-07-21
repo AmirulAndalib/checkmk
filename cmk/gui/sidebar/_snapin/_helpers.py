@@ -132,10 +132,7 @@ def snapin_site_choice(ident: str, choices: list[tuple[SiteId, str]]) -> list[Si
     sites = user.load_file("sidebar_sites", {})
     available_site_choices = _filter_available_site_choices(choices)
     site = sites.get(ident, "")
-    if site == "":
-        only_sites = None
-    else:
-        only_sites = [site]
+    only_sites = None if site == "" else [site]
 
     if len(available_site_choices) <= 1:
         return None

@@ -42,10 +42,7 @@ def flash(
     Before handing back the messages to the consumer, all need to converted back to HTML
     (see get_flashed_messages())
     """
-    if isinstance(message, HTML):
-        normalized = str(message)
-    else:
-        normalized = escape_text(message)
+    normalized = str(message) if isinstance(message, HTML) else escape_text(message)
     flask.flash(normalized, msg_type)
 
 

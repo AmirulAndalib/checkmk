@@ -834,10 +834,7 @@ def _page_menu_entry_search_rules(
         ):
             is_searching = False
 
-    if is_searching:
-        title = _("Refine search")
-    else:
-        title = _("Search")
+    title = _("Refine search") if is_searching else _("Search")
 
     return PageMenuEntry(
         title=title,

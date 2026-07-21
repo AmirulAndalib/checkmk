@@ -77,10 +77,7 @@ class MenuItem:
         if self.permission is None:
             return True
 
-        if "." not in self.permission:
-            permission = "wato." + self.permission
-        else:
-            permission = self.permission
+        permission = "wato." + self.permission if "." not in self.permission else self.permission
 
         return user.may(permission) or user.may("wato.seeall")
 

@@ -228,10 +228,7 @@ class ModeBulkDiscovery(WatoMode):
         else:
             restrict_to_hosts = None
 
-        if self._only_ok_agent:
-            skip_hosts = self._find_hosts_with_failed_agent()
-        else:
-            skip_hosts = []
+        skip_hosts = self._find_hosts_with_failed_agent() if self._only_ok_agent else []
 
         # 'all' not set -> only inventorize checked hosts
         hosts_to_discover = []

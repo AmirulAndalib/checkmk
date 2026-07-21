@@ -187,10 +187,7 @@ def get_default_metric_palette() -> list[str]:
 
 def get_next_random_palette_color() -> str:
     keys = list(_cmk_color_palette.keys())
-    if "random_color_index" in g:
-        last_index = g.random_color_index
-    else:
-        last_index = random.randint(0, len(keys))
+    last_index = g.random_color_index if "random_color_index" in g else random.randint(0, len(keys))
     index = (last_index + 1) % len(keys)
     g.random_color_index = index
     return parse_color_into_hexrgb("%s/a" % keys[index])

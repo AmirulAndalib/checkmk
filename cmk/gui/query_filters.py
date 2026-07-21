@@ -768,10 +768,7 @@ def service_state_filter(prefix: str, value: FilterHTTPVariables) -> FilterHeade
         if request_var.endswith("p"):
             headers.append("Filter: service_has_been_checked = 1\n")
         else:
-            if prefix == "hd":
-                column = "service_last_hard_state"
-            else:
-                column = "service_state"
+            column = "service_last_hard_state" if prefix == "hd" else "service_state"
             headers.append(
                 "Filter: %s = %s\n"
                 "Filter: service_has_been_checked = 1\n"

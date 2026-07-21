@@ -321,10 +321,7 @@ def sync_user_to_remotes(
     """Synchronize the user profile and their dashboards to all enabled remote sites.
 
     This does not sync other visuals."""
-    if user_id == user.id:
-        user_spec = user.attributes
-    else:
-        user_spec = load_user(user_id)
+    user_spec = user.attributes if user_id == user.id else load_user(user_id)
 
     user_remote_sites = get_enabled_remote_sites_for_user(user_spec, sites)
     if not user_remote_sites:

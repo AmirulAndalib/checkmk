@@ -540,10 +540,7 @@ class LayoutTiled(Layout):
                     sclass = "hhstatep"
             else:
                 hbc = row.get("service_has_been_checked", 1)
-                if hbc:
-                    sclass = "sstate%d" % state
-                else:
-                    sclass = "sstatep"
+                sclass = "sstate%d" % state if hbc else "sstatep"
 
             if not group_open:
                 html.open_tr()
