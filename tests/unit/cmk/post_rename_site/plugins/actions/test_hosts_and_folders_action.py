@@ -3,9 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="type-arg"
-
-
 from collections.abc import Sequence
 from logging import getLogger
 from pathlib import Path
@@ -19,13 +16,13 @@ import cmk.gui.watolib.hosts_and_folders
 import cmk.utils.paths
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
-from cmk.gui.config import active_config
-from cmk.gui.logged_in import user
+from cmk.gui.config import Config, load_config
+from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.watolib.builtin_attributes import HostAttributeSite
 from cmk.gui.watolib.host_attributes import (
     HostAttributes,
 )
-from cmk.gui.watolib.hosts_and_folders import folder_tree
+from cmk.gui.watolib.hosts_and_folders import FolderTree, make_folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.post_rename_site.logger import logger
 from cmk.post_rename_site.plugins.actions.hosts_and_folders import (
@@ -50,7 +47,12 @@ def _noop_pending_changes() -> PendingChanges:
     )
 
 
-def _write_folder_attributes(folder_attributes: dict) -> Path:
+def _make_tree() -> FolderTree:
+    """A fresh folder tree reading the current on-disk state"""
+    return make_folder_tree(load_config())
+
+
+def _write_folder_attributes(folder_attributes: dict[str, object]) -> Path:
     dot_wato = cmk.utils.paths.default_config_dir / "conf.d/wato/.wato"
     dot_wato.parent.mkdir(parents=True, exist_ok=True)
     with dot_wato.open("w") as f:
@@ -85,11 +87,11 @@ def test_rewrite_folder_explicit_site() -> None:
         }
     )
 
-    folder = folder_tree().root_folder()
-    assert folder.attributes.get("site") == "stable"
+    assert _make_tree().root_folder().attributes.get("site") == "stable"
 
     update_hosts_and_folders(SiteId("stable"), SiteId("dingdong"), logger)
-    assert folder.attributes.get("site") == "dingdong"
+
+    assert _make_tree().root_folder().attributes.get("site") == "dingdong"
 
 
 def test_rewrite_host_explicit_site() -> None:
@@ -112,14 +114,15 @@ host_attributes.update(
 """
     )
 
-    assert folder_tree().root_folder().load_host(HostName("ag")).attributes.get("site") == "stable"
+    assert _make_tree().root_folder().load_host(HostName("ag")).attributes.get("site") == "stable"
+
     update_hosts_and_folders(SiteId("stable"), SiteId("dingdong"), logger)
-    assert (
-        folder_tree().root_folder().load_host(HostName("ag")).attributes.get("site") == "dingdong"
-    )
+
+    root_folder = _make_tree().root_folder()
+    assert root_folder.load_host(HostName("ag")).attributes.get("site") == "dingdong"
 
     # also verify that the attributes (host_tags) not read by WATO have been updated
-    hosts_config = folder_tree().root_folder()._load_hosts_file()
+    hosts_config = root_folder._load_hosts_file()
     assert hosts_config is not None
     assert hosts_config["host_tags"]["ag"]["site"] == "dingdong"
 
@@ -161,8 +164,7 @@ host_attributes.update(
 """
     )
 
-    tree = folder_tree()
-    root_folder = tree.root_folder()
+    root_folder = _make_tree().root_folder()
 
     assert root_folder.attributes.get("site") is None
     assert root_folder.load_host(HostName("ag")).attributes.get("site") is None
@@ -177,7 +179,7 @@ host_attributes.update(
 
     update_hosts_and_folders(SiteId("NO_SITE"), SiteId("dingdong"), logger)
 
-    tree.invalidate_caches()
+    root_folder = _make_tree().root_folder()
 
     assert root_folder.attributes.get("site") is None
     assert root_folder.load_host(HostName("ag")).attributes.get("site") is None
@@ -212,52 +214,50 @@ def test_updating_locked_by(
     old_site_id: SiteId,
     new_site_id: SiteId,
     locked_by: GlobalIdent | None,
-    expected: Sequence[str],
+    expected: Sequence[str] | None,
 ) -> None:
     updated_locked_by: Sequence[str] | None = _update_locked_by(old_site_id, new_site_id, locked_by)
     assert updated_locked_by == expected
 
 
-def test_updating_site_name_for_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
+def _config_with_extra_site(site_id: SiteId) -> Config:
+    config = load_config()
+    config.sites = SiteConfigurations(
+        {
+            **config.sites,
+            site_id: SiteConfiguration(
+                id=site_id,
+                alias="No Site",
+                socket=("local", None),
+                disable_wato=True,
+                disabled=False,
+                insecure=False,
+                url_prefix=f"/{site_id}/",
+                multisiteurl="",
+                persist=False,
+                replicate_ec=False,
+                replicate_mkps=False,
+                replication=None,
+                timeout=5,
+                user_login=True,
+                proxy=None,
+                user_attribute_sync_connections="all",
+                status_host=None,
+                message_broker_port=5672,
+                is_trusted=False,
+            ),
+        }
+    )
+    return config
+
+
+def test_updating_site_name_for_dcd() -> None:
     """
     We have one site and two hosts.
         * host-2 is locked by host-1
 
     Updating the site name for host-1 should update host-2 and the host-2.locked_by
     """
-
-    def extend_site_context(m: pytest.MonkeyPatch) -> None:
-        m.setattr(
-            active_config,
-            "sites",
-            SiteConfigurations(
-                {
-                    **active_config.sites,
-                    SiteId("NEWSITE"): SiteConfiguration(
-                        id=SiteId("NEWSITE"),
-                        alias="No Site",
-                        socket=("local", None),
-                        disable_wato=True,
-                        disabled=False,
-                        insecure=False,
-                        url_prefix="/NEWSITE/",
-                        multisiteurl="",
-                        persist=False,
-                        replicate_ec=False,
-                        replicate_mkps=False,
-                        replication=None,
-                        timeout=5,
-                        user_login=True,
-                        proxy=None,
-                        user_attribute_sync_connections="all",
-                        status_host=None,
-                        message_broker_port=5672,
-                        is_trusted=False,
-                    ),
-                }
-            ),
-        )
-
     old_site_id = SiteId("NO_SITE")
     new_site_id = SiteId("NEWSITE")
 
@@ -272,12 +272,12 @@ def test_updating_site_name_for_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
     ## Let's prepare the initial state of the hosts.
-    root = folder_tree().root_folder()
+    root = make_folder_tree(_config_with_extra_site(new_site_id)).root_folder()
     root.create_hosts(
         [host_info_1, host_info_2],
         pprint_value=False,
         pending_changes=_noop_pending_changes(),
-        acting_user=user,
+        acting_user=LoggedInSuperUser(),
     )
 
     ## Check the initial state of the hosts.
@@ -293,14 +293,12 @@ def test_updating_site_name_for_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
     ## Update the site name.
-    with monkeypatch.context() as m:
-        extend_site_context(m)
-        update_hosts_and_folders(
-            old_site_id=old_site_id, new_site_id=new_site_id, logger=getLogger("test")
-        )
+    update_hosts_and_folders(
+        old_site_id=old_site_id, new_site_id=new_site_id, logger=getLogger("test")
+    )
 
     ## Check the state of the hosts after the update.
-    root = folder_tree().root_folder()
+    root = _make_tree().root_folder()
 
     host_1 = root.load_host(HostName("host-1"))
     host_2 = root.load_host(HostName("host-2"))
@@ -318,6 +316,7 @@ def test_updating_site_name_for_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
     ## Check the state of the hosts, it should be exactly the same as the initial one.
+    root = _make_tree().root_folder()
     host_1 = root.load_host(HostName("host-1"))
     host_2 = root.load_host(HostName("host-2"))
 
@@ -330,45 +329,12 @@ def test_updating_site_name_for_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
-def test_updating_site_name_without_dcd(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_updating_site_name_without_dcd() -> None:
     """
     We have two site and two separate hosts.
 
     Updating the site name for host-1 shouldn't change host-2.
     """
-
-    def extend_site_context(m: pytest.MonkeyPatch) -> None:
-        m.setattr(
-            active_config,
-            "sites",
-            SiteConfigurations(
-                {
-                    **active_config.sites,
-                    SiteId("HOST2SITE"): SiteConfiguration(
-                        id=SiteId("HOST2SITE"),
-                        alias="No Site",
-                        socket=("local", None),
-                        disable_wato=True,
-                        disabled=False,
-                        insecure=False,
-                        url_prefix="/HOST2SITE/",
-                        multisiteurl="",
-                        persist=False,
-                        replicate_ec=False,
-                        replicate_mkps=False,
-                        replication=None,
-                        timeout=5,
-                        user_login=True,
-                        proxy=None,
-                        user_attribute_sync_connections="all",
-                        status_host=None,
-                        message_broker_port=5672,
-                        is_trusted=False,
-                    ),
-                }
-            ),
-        )
-
     old_site_id = SiteId("NO_SITE")
     new_site_id = SiteId("NEWSITE")
     host_2_site_id = SiteId("HOST2SITE")
@@ -383,15 +349,13 @@ def test_updating_site_name_without_dcd(monkeypatch: pytest.MonkeyPatch) -> None
     )
 
     ## Let's prepare the initial state of the hosts.
-    root = folder_tree().root_folder()
-    with monkeypatch.context() as m:
-        extend_site_context(m)
-        root.create_hosts(
-            [host_info_1, host_info_2],
-            pprint_value=False,
-            pending_changes=_noop_pending_changes(),
-            acting_user=user,
-        )
+    root = make_folder_tree(_config_with_extra_site(host_2_site_id)).root_folder()
+    root.create_hosts(
+        [host_info_1, host_info_2],
+        pprint_value=False,
+        pending_changes=_noop_pending_changes(),
+        acting_user=LoggedInSuperUser(),
+    )
 
     ## Check the initial state of the hosts.
     host_1 = root.load_host(HostName("host-1"))
@@ -409,7 +373,7 @@ def test_updating_site_name_without_dcd(monkeypatch: pytest.MonkeyPatch) -> None
     )
 
     ## Check the state of the hosts after the update.
-    root = folder_tree().root_folder()
+    root = _make_tree().root_folder()
 
     host_1 = root.load_host(HostName("host-1"))
     host_2 = root.load_host(HostName("host-2"))
@@ -426,6 +390,7 @@ def test_updating_site_name_without_dcd(monkeypatch: pytest.MonkeyPatch) -> None
     )
 
     ## Check the state of the hosts, it should be exactly the same as the initial one.
+    root = _make_tree().root_folder()
     host_1 = root.load_host(HostName("host-1"))
     host_2 = root.load_host(HostName("host-2"))
 
