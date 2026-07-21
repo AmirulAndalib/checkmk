@@ -26,12 +26,12 @@ from ._engine_dispatch import (
     CommonGraphOptions,
     EngineGraphDispatcher,
     EvaluatedGraphs,
-    GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
 from ._engine_rrd import EngineRRDFetchData
 from ._engine_serialization import (
     graph_codec,
+    GraphCodec,
 )
 from ._from_api import GraphFromAPI
 
@@ -90,15 +90,17 @@ def evaluate_template_graphs(
     )
 
 
-def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
+def _dispatched_evaluate_template_graphs(
+    *, codec: GraphCodec, graph: Mapping[str, object], options: Mapping[str, object]
+) -> EvaluatedGraphs:
     fetch_data = EngineRRDFetchData(
         debug=active_config.debug,
         registered_translations=registered_translations(),
     )
     return EvaluatedGraphs(
         graphs=evaluate_template_graphs(
-            graphs=graph_codec().deserialize_graphs(request.graphs),
-            options=CommonGraphOptions.from_request_options(request.options),
+            graphs=[codec.deserialize_graph(graph)],
+            options=CommonGraphOptions.from_request_options(options),
             fetch_data=fetch_data,
         ),
         diagnostics=fetch_data.diagnostics,
