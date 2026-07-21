@@ -13,7 +13,7 @@ from cmk.ccc.plugin_registry import Registry
 from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
 
 from ._engine_rrd import FetchDiagnostics
-from ._engine_serialization import consolidation_function_of, ensure_type, Json, time_range_of
+from ._engine_serialization import consolidation_function_of, GraphCodec, Json, time_range_of
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -49,8 +49,11 @@ class EvaluatedGraphs:
 @dataclass(frozen=True)
 class EngineGraphDispatcher:
     kind: str
-    serialize: Callable[[Sequence[Graph]], Json]
+    codec: GraphCodec
     evaluate: Callable[[GraphDataRequest], EvaluatedGraphs]
+
+    def serialize(self, graph: Graph) -> Json:
+        return self.codec.serialize_graph(graph)
 
 
 class EngineGraphDispatcherRegistry(Registry[EngineGraphDispatcher]):
@@ -62,11 +65,11 @@ engine_graph_dispatcher_registry = EngineGraphDispatcherRegistry()
 
 
 def serialize_graphs(graphs: Sequence[Graph]) -> Json:
-    serialized: list[object] = []
-    for graph in graphs:
-        dispatcher = engine_graph_dispatcher_registry[graph.kind]
-        serialized.extend(ensure_type(dispatcher.serialize([graph])["graphs"], list))
-    return {"graphs": serialized}
+    return {
+        "graphs": [
+            engine_graph_dispatcher_registry[graph.kind].serialize(graph) for graph in graphs
+        ]
+    }
 
 
 def evaluate_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
