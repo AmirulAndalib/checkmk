@@ -32,12 +32,14 @@ import type {
   ComputedNetworkFlowDonutResponse,
   ComputedNetworkFlowKpiStatCardResponse,
   ComputedNetworkFlowTopTableResponse,
+  ComputedNetworkFlowTrendChartResponse,
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
   EffectiveWidgetFilterContext,
   NetworkFlowDonutContent,
   NetworkFlowKpiStatCardContent,
   NetworkFlowTopTableContent,
+  NetworkFlowTrendChartContent,
   TopListContent,
   VisualContext,
   WidgetAvailableInventory,
@@ -303,6 +305,17 @@ export const dashboardAPI = {
           body: { content, context }
         }
       )
+    )
+  },
+  computeNetworkFlowTrendChartData: async (
+    content: NetworkFlowTrendChartContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowTrendChartResponse> => {
+    return unwrap(
+      await client.POST('/domain-types/dashboard/actions/compute-network-flow-trend-chart/invoke', {
+        ...CONTENT_TYPE_HEADER,
+        body: { content, context }
+      })
     )
   }
 }

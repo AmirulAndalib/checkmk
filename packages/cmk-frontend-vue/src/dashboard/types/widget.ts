@@ -62,6 +62,9 @@ export type ComputedNetworkFlowDonutResponse =
 export type NetworkFlowKpiStatCardContent = components['schemas']['NetworkFlowKpiStatCardContent']
 export type ComputedNetworkFlowKpiStatCardResponse =
   components['schemas']['ComputedNetworkFlowKpiStatCardResponse']
+export type NetworkFlowTrendChartContent = components['schemas']['NetworkFlowTrendChartContent']
+export type ComputedNetworkFlowTrendChartResponse =
+  components['schemas']['ComputedNetworkFlowTrendChartResponse']
 export type SidebarElementContent = components['schemas']['SidebarElementContent']
 export type PerformanceGraphContent = components['schemas']['PerformanceGraphContent']
 export type SingleTimeseriesContent = components['schemas']['SingleTimeseriesContent']

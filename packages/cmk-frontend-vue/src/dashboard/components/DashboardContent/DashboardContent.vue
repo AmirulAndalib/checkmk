@@ -20,6 +20,7 @@ import DashboardContentUserMessages from './DashboardContentUserMessages.vue'
 import DashboardContentNetworkFlowDonut from './NetworkFlow/DashboardContentNetworkFlowDonut.vue'
 import DashboardContentNetworkFlowKpiStatCard from './NetworkFlow/DashboardContentNetworkFlowKpiStatCard.vue'
 import DashboardContentNetworkFlowTopTable from './NetworkFlow/DashboardContentNetworkFlowTopTable.vue'
+import DashboardContentNetworkFlowTrendChart from './NetworkFlow/DashboardContentNetworkFlowTrendChart.vue'
 import { CONTENT_FIGURE_TYPES, GRAPH_TYPES, NTOP_TYPES } from './types.ts'
 </script>
 
@@ -53,6 +54,8 @@ function contentTypeToComponent(contentType: string): Component {
       return DashboardContentNetworkFlowDonut
     case contentType === 'network_flow_kpi_stat_card':
       return DashboardContentNetworkFlowKpiStatCard
+    case contentType === 'network_flow_trend_chart':
+      return DashboardContentNetworkFlowTrendChart
     case contentType === 'user_messages':
       return DashboardContentUserMessages
     case contentType === 'sidebar_element':

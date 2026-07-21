@@ -102,6 +102,7 @@ export type WidgetContentType =
   | NetworkFlowTopTableContent
   | NetworkFlowDonutContent
   | NetworkFlowKpiStatCardContent
+  | NetworkFlowTrendChartContent
 
 export type InventoryContent = components['schemas']['InventoryContent']
 
@@ -116,6 +117,7 @@ export type TopListContent = components['schemas']['TopListContent']
 export type NetworkFlowTopTableContent = components['schemas']['NetworkFlowTopTableContent']
 export type NetworkFlowDonutContent = components['schemas']['NetworkFlowDonutContent']
 export type NetworkFlowKpiStatCardContent = components['schemas']['NetworkFlowKpiStatCardContent']
+export type NetworkFlowTrendChartContent = components['schemas']['NetworkFlowTrendChartContent']
 export type HostStateContent = components['schemas']['HostStateContent']
 export type HostStateSummaryContent = components['schemas']['HostStateSummaryContent']
 export type HostStatisticsContent = components['schemas']['HostStatsContent']
