@@ -160,7 +160,7 @@ class GeneralConfig:
             "cmk.web.saml2": 30,
             "cmk.web.auth": 30,
             "cmk.web.bi.compilation": 30,
-            "cmk.web.automations": 30,
+            "cmk.automations": 30,
             "cmk.web.background-job": 30,
             "cmk.web.ui-job-scheduler": 20,
             "cmk.web.slow-views": 30,

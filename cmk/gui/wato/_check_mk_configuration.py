@@ -460,7 +460,7 @@ def _web_log_level_elements(edition: Edition) -> list[tuple[str, DropdownChoice]
             ),
         ),
         (
-            "cmk.web.automations",
+            "cmk.automations",
             _("Automation calls"),
             _(
                 "Communication between different components of Checkmk (e.g. GUI and check engine) "
