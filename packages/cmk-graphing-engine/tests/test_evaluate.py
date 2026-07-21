@@ -42,7 +42,7 @@ from cmk.graphing_engine import (
     Unit,
     VerticalRangeKind,
 )
-from cmk.graphing_engine._evaluate import _evaluate_graph, EvaluatedRule
+from cmk.graphing_engine._evaluate import _evaluate_graph, _resolve_series_title, EvaluatedRule
 from cmk.graphing_engine._perfdata import PerformanceData
 from cmk.graphing_engine._quantities import EvaluatedQuantity, EvaluationContext, Quantity
 
@@ -587,7 +587,11 @@ class _FannedQuantity(Quantity):
     @override
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
         return [
-            EvaluatedQuantity(value=value, time_series=_time_series(value), label=label)
+            EvaluatedQuantity(
+                value=value,
+                time_series=_time_series(value),
+                label_macros={"$SERIES_ID$": label},
+            )
             for label, value in self.series
         ]
 
@@ -639,3 +643,31 @@ def test_evaluate_graph_fanned_curves_share_their_source_id() -> None:
     assert all(line.curve.source_id == "B" for line in result.lines)
     ids = [line.curve.id for line in result.lines]
     assert len(set(ids)) == len(ids)
+
+
+# --- per-series title macros --------------------------------------------------------------------
+
+
+def test_resolve_series_title_substitutes_macros_even_for_a_single_series() -> None:
+    # A macro-bearing title resolves regardless of fan-out (a query matching one service).
+    assert (
+        _resolve_series_title(
+            "$METRIC_NAME$ - $HOST_NAME$",
+            {"$METRIC_NAME$": "cpu", "$HOST_NAME$": "h0"},
+            fanned=False,
+        )
+        == "cpu - h0"
+    )
+
+
+def test_resolve_series_title_appends_series_id_when_fanned_and_macro_less() -> None:
+    # A macro-less title fanned into several series falls back to appending the series id.
+    assert _resolve_series_title("cpu", {"$SERIES_ID$": "h0/svc"}, fanned=True) == "cpu - h0/svc"
+
+
+def test_resolve_series_title_keeps_a_macro_less_title_when_not_fanned() -> None:
+    assert _resolve_series_title("cpu", {"$SERIES_ID$": "h0/svc"}, fanned=False) == "cpu"
+
+
+def test_resolve_series_title_skips_the_append_for_an_empty_series_id() -> None:
+    assert _resolve_series_title("cpu", {"$SERIES_ID$": ""}, fanned=True) == "cpu"

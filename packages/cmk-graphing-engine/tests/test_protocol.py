@@ -79,7 +79,7 @@ class Negated:
                     time_range=context.time_range,
                     values=[None if v is None else -v for v in evaluated.time_series.values],
                 ),
-                label=evaluated.label,
+                label_macros=evaluated.label_macros,
             )
             for evaluated in self.operand.evaluate(context)
         ]
@@ -112,7 +112,7 @@ class _FanOut:
             EvaluatedQuantity(
                 value=float(index),
                 time_series=TimeSeries(time_range=context.time_range, values=[float(index)] * 3),
-                label=label,
+                label_macros={"$SERIES_ID$": label},
             )
             for index, label in enumerate(self.labels)
         ]

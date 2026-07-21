@@ -36,6 +36,7 @@ from ._options import (
 from ._perfdata import (
     FetchedData,
     HostName,
+    MACRO_SERIES_ID,
     MetricName,
     PerformanceData,
     Service,
@@ -102,6 +103,7 @@ __all__ = [
     "HostName",
     "IECNotation",
     "Line",
+    "MACRO_SERIES_ID",
     "MetricName",
     "MinimalRange",
     "Notation",

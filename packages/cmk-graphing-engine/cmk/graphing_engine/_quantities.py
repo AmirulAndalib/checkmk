@@ -65,9 +65,9 @@ class EvaluationContext:
 class EvaluatedQuantity:
     value: float | None
     time_series: TimeSeries
-    # Per-series label carried by a fan-out leaf's results: it tells the fanned curves apart, folded
-    # into the title.
-    label: str = ""
+    # Per-series title macros carried by a fan-out leaf's results: substituted into the curve title
+    # to tell the fanned curves apart. Empty for a single, non-fanned quantity.
+    label_macros: Mapping[str, str] = field(default_factory=dict)
 
 
 def first_value(results: Sequence[EvaluatedQuantity]) -> float | None:
