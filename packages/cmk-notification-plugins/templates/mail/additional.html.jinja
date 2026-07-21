@@ -2,8 +2,7 @@
 {% macro additional_tr(data, title, key) %}
     <tr>
         <td {{ macros.td_first_child(width="170px") }}>{{ title }}:
-            <span style="font-weight: initial;" {{ macros.td_last_child() }}>{{ data[key] }}
-            </span>
+            <span style="font-weight: initial;" {{ macros.td_last_child() }}>{{ data[key] }}</span>
         </td>
     </tr>
 {% endmacro %}
@@ -93,9 +92,7 @@
                         </tr>
                     {% elif element == "context" %}
                         <tr>
-                            <td {{ macros.td_first_child(width="170px") }}>
-                                Complete variable list:
-                            </td>
+                            <td {{ macros.td_first_child(width="170px") }}>Complete variable list:</td>
                         </tr>
                         <tr>
                             <td>
