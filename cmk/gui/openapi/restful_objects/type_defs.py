@@ -136,6 +136,7 @@ CmkEndpointName = Literal[
     "cmk/compute_network_flow_donut",
     "cmk/compute_network_flow_kpi_stat_card",
     "cmk/compute_network_flow_top_table",
+    "cmk/compute_network_flow_trend_chart",
     "cmk/configure",
     "cmk/create",
     "cmk/create_aux_tag",
