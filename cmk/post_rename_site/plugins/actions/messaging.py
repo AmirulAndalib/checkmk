@@ -8,8 +8,7 @@ from logging import Logger
 from cmk import messaging
 from cmk.ccc.i18n import _
 from cmk.ccc.site import omd_site, SiteId
-from cmk.gui.config import active_config
-from cmk.gui.logged_in import user
+from cmk.gui.config import load_config
 from cmk.gui.site_config import all_activation_sites
 from cmk.gui.watolib.activate_changes import get_all_replicated_sites
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
@@ -47,10 +46,11 @@ def update_broker_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logge
     clean_remote_sites_certs(kept_sites=[])
 
     logger.debug("Add changes for the connected sites")
+    sites = all_activation_sites(load_config().sites)
     PendingChanges(
-        activation_sites=all_activation_sites(active_config.sites),
+        activation_sites=sites,
         local_site=omd_site(),
-        acting_user=user.id,
+        acting_user=None,
         store=PendingChangesStore(),
         hooks=(make_audit_log_change_hook(use_git=False), index_update_change_hook),
     ).add(
@@ -60,7 +60,7 @@ def update_broker_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logge
             force_restart=True,
             domains=[GUI],
         ),
-        ChangeScope.sites(get_all_replicated_sites(all_activation_sites(active_config.sites))),
+        ChangeScope.sites(get_all_replicated_sites(sites)),
     )
 
 
