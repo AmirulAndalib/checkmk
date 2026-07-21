@@ -89,8 +89,8 @@ package_wheel(
 
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {"mkp": "cmk.mkp_tool.cli:main"},
     distribution = "cmk-mkp-tool-entrypoint",
+    entry_points = {"console_scripts": ["mkp = cmk.mkp_tool.cli:main"]},
     version = "2.0.0",
     visibility = ["//visibility:public"],
     deps = [],
