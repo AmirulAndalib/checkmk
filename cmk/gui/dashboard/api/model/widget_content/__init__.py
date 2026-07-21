@@ -29,6 +29,7 @@ from .network_flow import (
     NetworkFlowDonutContent,
     NetworkFlowKpiStatCardContent,
     NetworkFlowTopTableContent,
+    NetworkFlowTrendChartContent,
 )
 from .ntop import NtopAlertsContent, NtopFlowsContent, NtopTopTalkersContent
 from .overview import AlertOverviewContent, SiteOverviewContent
@@ -102,6 +103,7 @@ type WidgetContent = Annotated[
     | NetworkFlowTopTableContent
     | NetworkFlowDonutContent
     | NetworkFlowKpiStatCardContent
+    | NetworkFlowTrendChartContent
     | NotSupportedContent,
     Discriminator("type"),
 ]
@@ -141,6 +143,7 @@ _CONTENT_TYPES = (
     NetworkFlowTopTableContent,
     NetworkFlowDonutContent,
     NetworkFlowKpiStatCardContent,
+    NetworkFlowTrendChartContent,
 )
 
 

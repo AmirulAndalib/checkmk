@@ -12,6 +12,9 @@ from cmk.gui.dashboard.type_defs import (
     NetworkFlowKpiStatCardMetric,
     NetworkFlowTopTableDashletConfig,
     NetworkFlowTopTableDimension,
+    NetworkFlowTrendChartDashletConfig,
+    NetworkFlowTrendChartDimension,
+    NetworkFlowTrendChartDisplayMode,
 )
 from cmk.gui.openapi.framework.model import api_field, api_model
 
@@ -124,4 +127,45 @@ class NetworkFlowKpiStatCardContent(BaseWidgetContent):
             metric=self.metric,
             accent=self.accent,
             show_delta=self.show_delta,
+        )
+
+
+@api_model
+class NetworkFlowTrendChartContent(BaseWidgetContent):
+    type: Literal["network_flow_trend_chart"] = api_field(
+        description="Displays how network flow traffic evolved over time, broken down into "
+        "the top series of a dimension, with a statistics legend."
+    )
+    dimension: NetworkFlowTrendChartDimension = api_field(
+        description="Which dimension to break the traffic down into series (applications or "
+        "autonomous systems)."
+    )
+    display_mode: NetworkFlowTrendChartDisplayMode = api_field(
+        description="Whether to draw the series as separate lines or as cumulative stacked areas."
+    )
+    limit_to: int = api_field(
+        description="Maximum number of top series to plot before the rest are dropped."
+    )
+
+    @classmethod
+    @override
+    def internal_type(cls) -> str:
+        return "network_flow_trend_chart"
+
+    @classmethod
+    def from_internal(cls, config: NetworkFlowTrendChartDashletConfig) -> Self:
+        return cls(
+            type="network_flow_trend_chart",
+            dimension=config["dimension"],
+            display_mode=config["display_mode"],
+            limit_to=config["limit_to"],
+        )
+
+    @override
+    def to_internal(self) -> NetworkFlowTrendChartDashletConfig:
+        return NetworkFlowTrendChartDashletConfig(
+            type=self.internal_type(),
+            dimension=self.dimension,
+            display_mode=self.display_mode,
+            limit_to=self.limit_to,
         )

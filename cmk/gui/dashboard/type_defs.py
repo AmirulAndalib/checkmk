@@ -179,6 +179,16 @@ class NetworkFlowKpiStatCardDashletConfig(DashletConfig):
     show_delta: bool
 
 
+NetworkFlowTrendChartDimension = Literal["applications", "autonomous_systems"]
+NetworkFlowTrendChartDisplayMode = Literal["lines", "stacked_area"]
+
+
+class NetworkFlowTrendChartDashletConfig(DashletConfig):
+    dimension: NetworkFlowTrendChartDimension
+    display_mode: NetworkFlowTrendChartDisplayMode
+    limit_to: int
+
+
 class StateDashletConfig(DashletConfig):
     status_display: StatusDisplay
     show_summary: Literal["not_ok"] | None

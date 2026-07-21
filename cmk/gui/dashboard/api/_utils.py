@@ -96,6 +96,7 @@ INTERNAL_TO_API_TYPE_NAME: Mapping[str, str] = {
     "network_flow_top_table": "network_flow_top_table",
     "network_flow_donut": "network_flow_donut",
     "network_flow_kpi_stat_card": "network_flow_kpi_stat_card",
+    "network_flow_trend_chart": "network_flow_trend_chart",
     "alert_overview": "alert_overview",
     "site_overview": "site_overview",
     "snapin": "sidebar_element",
