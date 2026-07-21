@@ -127,6 +127,7 @@ const PROPS: CustomGraphDesigner = {
   critical_color: '#ff3232',
   logged_in_user: 'me',
   metric_backend_available: false,
+  title_macro_help: 'Available title macros',
   initial_breadcrumb: [
     { title: 'Customize', link: null },
     { title: 'Custom graphs', link: 'custom_graphs.py' }

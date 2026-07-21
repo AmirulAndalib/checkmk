@@ -7,7 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import type { ColumnDef, RowSelectionState } from '@tanstack/vue-table'
 import { computed, ref } from 'vue'
 
-import usei18n from '@/lib/i18n'
+import usei18n, { untranslated } from '@/lib/i18n'
 
 import CmkButton from '@/components/CmkButton'
 import { CmkAddDropdown } from '@/components/CmkDropdown'
@@ -46,10 +46,11 @@ import MetricBackendForm from './forms/MetricBackendForm.vue'
 import RrdForm from './forms/RrdForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
-const { store, thresholds, metricBackendAvailable } = defineProps<{
+const { store, thresholds, metricBackendAvailable, titleMacroHelp } = defineProps<{
   store: GraphItemsStore
   thresholds: { warning: string; critical: string }
   metricBackendAvailable: boolean
+  titleMacroHelp: string
 }>()
 
 const emit = defineEmits<{
@@ -69,7 +70,12 @@ const columns: ColumnDef<DesignerItem>[] = [
   { id: 'id', header: _t('ID'), meta: { justify: 'left' } },
   { id: 'source', header: _t('Source'), meta: { justify: 'left' } },
   { id: 'color', header: _t('Color'), meta: { justify: 'center' } },
-  { id: 'title', header: _t('Title'), minSize: 260, meta: { stretch: true } },
+  {
+    id: 'title',
+    header: _t('Title'),
+    minSize: 260,
+    meta: { stretch: true, headerHelp: untranslated(titleMacroHelp) }
+  },
   { id: 'line_style', header: _t('Line style'), meta: { justify: 'left' } },
   { id: 'mirrored', header: _t('Mirrored'), meta: { justify: 'center' } },
   { id: 'actions', header: _t('Actions') }

@@ -33,18 +33,28 @@ import MetricsTable from './MetricsTable.vue'
 /** Fallback until the container is measured (e.g. non-DOM test environments). */
 const DEFAULT_FIGURE_WIDTH = 1000
 
-const { graph, graphName, etag, ownerParam, mode, palette, thresholds, metricBackendAvailable } =
-  defineProps<{
-    graph: CustomGraphObject
-    graphName: string
-    etag: string | null
-    /** Query parameter for foreign graphs; undefined for the user's own graph. */
-    ownerParam: string | undefined
-    mode: CustomGraphDesignerMode
-    palette: readonly string[]
-    thresholds: { warning: string; critical: string }
-    metricBackendAvailable: boolean
-  }>()
+const {
+  graph,
+  graphName,
+  etag,
+  ownerParam,
+  mode,
+  palette,
+  thresholds,
+  metricBackendAvailable,
+  titleMacroHelp
+} = defineProps<{
+  graph: CustomGraphObject
+  graphName: string
+  etag: string | null
+  /** Query parameter for foreign graphs; undefined for the user's own graph. */
+  ownerParam: string | undefined
+  mode: CustomGraphDesignerMode
+  palette: readonly string[]
+  thresholds: { warning: string; critical: string }
+  metricBackendAvailable: boolean
+  titleMacroHelp: string
+}>()
 
 const emit = defineEmits<{
   saved: [graph: CustomGraphObject, etag: string | null]
@@ -247,6 +257,7 @@ const calculationDelete = useDeleteWithDependents(store)
               :store="store"
               :thresholds="thresholds"
               :metric-backend-available="metricBackendAvailable"
+              :title-macro-help="titleMacroHelp"
               @add-calculation="slideoutOpen = true"
             />
           </CmkTabContent>
