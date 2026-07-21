@@ -16,6 +16,9 @@ export interface StackedBand {
   gap: boolean
   startTime: number
   endTime: number
+  // Midpoint of the samples in the bucket, not the column centre: keeps a wide
+  // sample as one point so areas connect sample-to-sample instead of stepping.
+  anchorTime: number
 }
 
 export type StackedSeriesKind = 'line' | 'area-stacked'
@@ -23,6 +26,10 @@ export type StackedSeriesKind = 'line' | 'area-stacked'
 export interface StackedSeries {
   kind: StackedSeriesKind
   bands: StackedBand[]
+}
+
+function bucketAnchorTime(bucket: M4Bucket): number {
+  return bucket.gap ? NaN : (bucket.firstValueTime + bucket.lastValueTime) / 2
 }
 
 export function computeStackedSeries(
@@ -46,7 +53,8 @@ export function computeStackedSeries(
           upper: bucket.gap ? NaN : selectConsolidatedValue(bucket, consolidation),
           gap: bucket.gap,
           startTime: bucket.startTime,
-          endTime: bucket.endTime
+          endTime: bucket.endTime,
+          anchorTime: bucketAnchorTime(bucket)
         }))
       })
       continue
@@ -65,7 +73,8 @@ export function computeStackedSeries(
         upper,
         gap: bucket.gap,
         startTime: bucket.startTime,
-        endTime: bucket.endTime
+        endTime: bucket.endTime,
+        anchorTime: bucketAnchorTime(bucket)
       }
     }
     sums.set(stack, sum)
@@ -83,8 +92,7 @@ export function drawStackedBand(
   color: string,
   fillOpacity: number = 0.45
 ): void {
-  const bandCenterX = (band: StackedBand): number =>
-    xScale(new Date(((band.startTime + band.endTime) / 2) * 1000))
+  const bandAnchorX = (band: StackedBand): number => xScale(new Date(band.anchorTime * 1000))
 
   let runStart = 0
   while (runStart < series.bands.length) {
@@ -100,7 +108,7 @@ export function drawStackedBand(
     ctx.beginPath()
     for (let i = runStart; i < runEnd; i++) {
       const band = series.bands[i]!
-      const pixelX = bandCenterX(band)
+      const pixelX = bandAnchorX(band)
       if (i === runStart) {
         ctx.moveTo(pixelX, yScale(band.upper))
       } else {
@@ -109,7 +117,7 @@ export function drawStackedBand(
     }
     for (let i = runEnd - 1; i >= runStart; i--) {
       const band = series.bands[i]!
-      ctx.lineTo(bandCenterX(band), yScale(band.lower))
+      ctx.lineTo(bandAnchorX(band), yScale(band.lower))
     }
     ctx.closePath()
     ctx.fillStyle = colorWithAlpha(color, fillOpacity)

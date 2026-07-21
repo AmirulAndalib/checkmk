@@ -93,6 +93,15 @@ describe('computeStackedSeries', () => {
     expect(top!.bands[0]!.upper).toBe(top!.bands[0]!.lower + topValue)
   })
 
+  test('bands anchor at the midpoint of the samples inside the bucket, not the column span', () => {
+    const bucket: M4Bucket = { ...makeBucket(5), endTime: 10, firstValueTime: 2, lastValueTime: 4 }
+    const metrics = [makeMetric('g1')]
+
+    const [areaSeries] = computeStackedSeries(metrics, [[bucket]], 'avg')
+
+    expect(areaSeries!.bands[0]!.anchorTime).toBe(3)
+  })
+
   test('a gap bucket in the base does not advance the cumulative sum', () => {
     const layerValue = 4
     const metrics = [makeMetric('g1'), makeMetric('g1')]
@@ -121,7 +130,7 @@ function makeSpyCtx() {
 }
 
 function makeBand(overrides: Partial<StackedBand> = {}): StackedBand {
-  return { lower: 0, upper: 1, gap: false, startTime: 0, endTime: 1, ...overrides }
+  return { lower: 0, upper: 1, gap: false, startTime: 0, endTime: 1, anchorTime: 0.5, ...overrides }
 }
 
 const xScale = ((date: Date) => date.getTime() / 1000) as unknown as ScaleTime<number, number>
@@ -153,6 +162,18 @@ describe('drawStackedBand', () => {
 
     expect(ctx.fill).toHaveBeenCalledTimes(2)
     expect(ctx.closePath).toHaveBeenCalledTimes(2)
+  })
+
+  test('draws each point at the band anchor time instead of the column centre', () => {
+    const ctx = makeSpyCtx()
+    const series: StackedSeries = {
+      kind: 'area-stacked',
+      bands: [makeBand({ startTime: 0, endTime: 10, anchorTime: 2 })]
+    }
+
+    drawStackedBand(ctx as unknown as CanvasRenderingContext2D, series, xScale, yScale, '#3366cc')
+
+    expect(ctx.moveTo).toHaveBeenCalledWith(2, expect.any(Number))
   })
 
   test('outlines the area in the solid color and fills it at the requested opacity', () => {
