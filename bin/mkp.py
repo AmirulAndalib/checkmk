@@ -16,6 +16,7 @@ from cmk.discover_plugins import (
     addons_plugins_local_path,
     plugins_local_path,
 )
+from cmk.gui.search import index
 from cmk.mkp_tool import (
     cli,
     make_post_package_change_actions,
@@ -24,9 +25,6 @@ from cmk.mkp_tool import (
     reload_services_affected_by_mkp_changes,
 )
 from cmk.utils import paths
-from cmk.utils.setup_search_index import (
-    request_index_rebuild,
-)
 from cmk.utils.visuals import (
     invalidate_visuals_cache,
 )
@@ -73,7 +71,7 @@ _SITE_CONTEXT: Final = cli.SiteContext(
         on_any_change=(
             reload_services_affected_by_mkp_changes,
             invalidate_visuals_cache,
-            request_index_rebuild,
+            index.request_rebuild,
         )
     ),
     version=__version__,

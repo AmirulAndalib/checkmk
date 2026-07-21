@@ -1,6 +1,21 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 
 py_library(
+    name = "index",
+    srcs = ["index.py"],
+    imports = ["../../.."],
+    visibility = [
+        "//bin:__pkg__",
+        "//cmk:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//cmk/utils:paths",
+        "//packages/cmk-ccc:store",
+    ],
+)
+
+py_library(
     name = "matchers",
     srcs = ["matchers.py"],
     imports = ["../../.."],
@@ -62,6 +77,7 @@ py_library(
     srcs = glob(
         include = ["**/*.py"],
         exclude = [
+            "index.py",
             "matchers.py",
             "permissions.py",
             "quicksearch.py",

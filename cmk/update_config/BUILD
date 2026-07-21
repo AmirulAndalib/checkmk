@@ -59,6 +59,7 @@ py_library(
         "//cmk/gui/graphing",
         "//cmk/gui/job_scheduler",
         "//cmk/gui/pagetypes",
+        "//cmk/gui/search:index",
         "//cmk/gui/userdb",
         "//cmk/gui/utils:misc",
         "//cmk/gui/utils:roles",

@@ -83,6 +83,7 @@ from cmk.gui.logged_in import user
 from cmk.gui.nodevis.utils import topology_configs_dir, topology_settings_lookup
 from cmk.gui.ntop import ntop_connection
 from cmk.gui.permissions import permission_registry
+from cmk.gui.search import index
 from cmk.gui.site_config import (
     is_distributed_setup_remote_site,
     is_single_local_site,
@@ -179,7 +180,7 @@ from cmk.shared_typing.changes import (
 from cmk.shared_typing.changes import (
     SitesAndChanges as ActivationChangesSummary,
 )
-from cmk.utils import agent_registration, paths, render, setup_search_index
+from cmk.utils import agent_registration, paths, render
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.paths import configuration_lockfile
 from cmk.utils.visuals import invalidate_visuals_cache
@@ -3272,7 +3273,7 @@ def _execute_changed_local_files_actions() -> None:
     # In that case, we'd have to re*start* the core.
     mkp_tool.reload_services_affected_by_mkp_changes()
     invalidate_visuals_cache()
-    setup_search_index.request_index_rebuild()
+    index.request_rebuild()
 
 
 def _execute_cmk_update_config() -> None:

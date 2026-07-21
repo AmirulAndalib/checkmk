@@ -12,12 +12,12 @@ from enum import Enum
 
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
+from cmk.gui.search import index
 from cmk.gui.utils import escaping
 from cmk.gui.utils.html import HTML
 from cmk.gui.utils.misc import gen_id
 from cmk.gui.utils.speaklater import LazyString
 from cmk.livestatus_client import SiteConfigurations
-from cmk.utils.setup_search_index import request_index_update
 
 from .config_domain_name import ConfigDomainName, SerializedSettings
 from .objref import ObjectRef
@@ -178,4 +178,4 @@ class PendingChanges:
 
 
 def index_update_change_hook(event: ChangeEvent) -> None:
-    request_index_update(event.request.action_name)
+    index.request_update(event.request.action_name)

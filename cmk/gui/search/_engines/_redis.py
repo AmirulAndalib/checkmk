@@ -38,13 +38,9 @@ from cmk.gui.utils.loading_transition import LoadingTransition
 from cmk.gui.utils.roles import UserPermissions, UserPermissionSerializableConfig
 from cmk.shared_typing.unified_search import ProviderName, UnifiedSearchResultItem
 from cmk.utils.redis import get_redis_client, redis_enabled, redis_server_reachable
-from cmk.utils.setup_search_index import (
-    read_and_remove_update_requests,
-    UpdateRequests,
-    updates_requested,
-)
 
 from .._routing import CompositePermissionsHandler
+from ..index import _read_and_remove_update_requests, _UpdateRequests, _updates_requested
 from ..matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
@@ -473,7 +469,7 @@ def _build_index(
 # TODO: need to pass the active config dependency during registration of this hook.
 # For now, it will still rely on the global `active_config` proxy.
 def launch_requests_processing_background() -> None:
-    if not updates_requested() or not redis_enabled():
+    if not _updates_requested() or not redis_enabled():
         return
     job = SearchIndexBackgroundJob()
     # Don't report any error from job.start() to not spam the logs
@@ -517,9 +513,9 @@ def _process_update_requests_background(
             return
 
         try:
-            while updates_requested():
+            while _updates_requested():
                 _process_update_requests(
-                    read_and_remove_update_requests(),
+                    _read_and_remove_update_requests(),
                     job_interface,
                     redis_client,
                     user_permissions,
@@ -531,7 +527,7 @@ def _process_update_requests_background(
 
 
 def _process_update_requests(
-    requests: UpdateRequests,
+    requests: _UpdateRequests,
     job_interface: BackgroundProcessInterface,
     redis_client: redis.Redis,
     user_permissions: UserPermissions,

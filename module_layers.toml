@@ -922,7 +922,6 @@ allows = [
   "cmk.utils.schedule",
   "cmk.utils.security_event",
   "cmk.utils.servicename",
-  "cmk.utils.setup_search_index",
   "cmk.utils.statename",
   "cmk.utils.timeperiod",
   "cmk.utils.typing_helpers",
@@ -1102,7 +1101,6 @@ allows = [
   "cmk.utils.schedule",
   "cmk.utils.security_event",
   "cmk.utils.servicename",
-  "cmk.utils.setup_search_index",
   "cmk.utils.statename",
   "cmk.utils.timeperiod",
   "cmk.utils.translations",
@@ -1718,9 +1716,6 @@ allows = []
 [components."cmk.utils.servicename"]
 allows = []
 
-[components."cmk.utils.setup_search_index"]
-allows = ["cmk.ccc.store", "cmk.utils.paths"]
-
 [components."cmk.utils.statename"]
 allows = ["cmk.ccc.i18n"]
 
@@ -1846,13 +1841,20 @@ allows = ["@livestatus_client", "cmk.piggyback", "cmk.utils"]
 allows = ["cmk.inventory", "cmk.utils.paths"]
 
 [file_dependencies."bin/init-redis.py"]
-allows = ["cmk.utils.setup_search_index"]
+allows = ["cmk.gui.search.index"]
 
 [file_dependencies."bin/mkbackup"]
 allows = ["@ccc", "cmk.backup", "cmk.utils"]
 
 [file_dependencies."bin/mkp.py"]
-allows = ["@ccc", "@mkp_tool", "cmk.discover_plugins", "cmk.ec", "cmk.utils"]
+allows = [
+  "@ccc",
+  "@mkp_tool",
+  "cmk.discover_plugins",
+  "cmk.ec",
+  "cmk.gui.search.index",
+  "cmk.utils",
+]
 
 [file_dependencies."buildscripts/scripts/build-cmk-container.py"]
 allows = ["@ccc"]

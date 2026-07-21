@@ -285,6 +285,7 @@ py_library(
     srcs = ["init-redis.py"],
     imports = ["."],
     tags = ["no-mypy"],
+    deps = ["//cmk/gui/search:index"],
 )
 
 py_library(
@@ -308,6 +309,7 @@ py_library(
     srcs = ["mkp.py"],
     imports = ["."],
     deps = [
+        "//cmk/gui/search:index",
         "//cmk/utils",
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:version",

@@ -28,6 +28,7 @@ py_library(
     deps = [
         "//cmk/gui:auth_core",
         "//cmk/gui:core_toolkit",
+        "//cmk/gui/search:index",
         "//cmk/gui/utils:escaping",
         "//cmk/gui/utils:html",
         "//cmk/gui/utils:misc",
@@ -244,6 +245,7 @@ py_library(
         "//cmk/gui/openapi:utils",
         "//cmk/gui/rest_api_types:notifications",
         "//cmk/gui/rule_specs:loader",
+        "//cmk/gui/search:index",
         "//cmk/gui/search:matchers",
         "//cmk/gui/token_auth",
         "//cmk/gui/userdb",

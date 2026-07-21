@@ -12,44 +12,44 @@ from cmk.utils.paths import tmp_dir
 _PATH_UPDATE_REQUESTS = tmp_dir / "search_index_updates.json"
 
 
-# no pydantic on purpose here to keep things as lean as possible
-class UpdateRequests(TypedDict):
-    rebuild: bool
-    change_actions: list[str]
-
-
-def request_index_rebuild() -> None:
+def request_rebuild() -> None:
     with locked(_PATH_UPDATE_REQUESTS):
         current_requests = _read_update_requests()
         current_requests["rebuild"] = True
         _PATH_UPDATE_REQUESTS.write_text(json.dumps(current_requests))
 
 
-def request_index_update(change_action_name: str) -> None:
+def request_update(change_action_name: str) -> None:
     with locked(_PATH_UPDATE_REQUESTS):
         current_requests = _read_update_requests()
         current_requests["change_actions"].append(change_action_name)
         _PATH_UPDATE_REQUESTS.write_text(json.dumps(current_requests))
 
 
-def updates_requested() -> bool:
+# no pydantic on purpose here to keep things as lean as possible
+class _UpdateRequests(TypedDict):
+    rebuild: bool
+    change_actions: list[str]
+
+
+def _updates_requested() -> bool:
     return _PATH_UPDATE_REQUESTS.exists()
 
 
-def read_and_remove_update_requests() -> UpdateRequests:
+def _read_and_remove_update_requests() -> _UpdateRequests:
     with locked(_PATH_UPDATE_REQUESTS):
         requests = _read_update_requests()
         _PATH_UPDATE_REQUESTS.unlink(missing_ok=True)
     return requests
 
 
-def _read_update_requests() -> UpdateRequests:
+def _read_update_requests() -> _UpdateRequests:
     try:
         data = json.loads(_PATH_UPDATE_REQUESTS.read_text())
-        return UpdateRequests(
+        return _UpdateRequests(
             rebuild=bool(data["rebuild"]),
             change_actions=[str(action) for action in data["change_actions"]],
         )
     except (json.JSONDecodeError, FileNotFoundError, KeyError):
         # missing (unlikely, b/c it's locked), empty, or somehow corrupted: start from scratch
-        return UpdateRequests(rebuild=False, change_actions=[])
+        return _UpdateRequests(rebuild=False, change_actions=[])

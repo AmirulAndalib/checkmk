@@ -123,6 +123,7 @@ py_library(
         "//cmk/gui/painter:v0_base",
         "//cmk/gui/quick_setup",
         "//cmk/gui/rule_specs:legacy_converter",
+        "//cmk/gui/search:index",
         "//cmk/gui/search:matchers",
         "//cmk/gui/sidebar",
         "//cmk/gui/userdb",
