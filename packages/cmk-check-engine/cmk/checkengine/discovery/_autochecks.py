@@ -105,8 +105,6 @@ def merge_cluster_autochecks(
     ]
 
 
-# As far as I can tell, this is only needed when computing the check table.
-# Once they are isolated from base/config, see if we can move it there.
 class AutochecksMemoizer:
     """Read autochecks from the configuration
 
@@ -115,7 +113,7 @@ class AutochecksMemoizer:
 
     When trying to remove this cache (which we should consider), make sure to keep
     the case of overlapping clusters in mind. Autochecks of a node might be read
-    multiple times (to a degree where it's not accepteble).
+    multiple times (to a degree where it's not acceptable).
     """
 
     def __init__(self, autochecks_dir: Path) -> None:
@@ -127,8 +125,6 @@ class AutochecksMemoizer:
         self,
         hostname: HostName,
     ) -> Sequence[AutocheckEntry]:
-        # NOTE: this is buggy. Contrary to what one might think,
-        # `cmk.utils.paths.autochecks_dir` is *not* a constant.
         if hostname not in self._raw_autochecks_cache:
             self._raw_autochecks_cache[hostname] = AutochecksStore(
                 hostname, self._autochecks_dir

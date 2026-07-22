@@ -66,6 +66,7 @@ from cmk.checkengine.checking import (
     make_timing_results,
 )
 from cmk.checkengine.discovery import (
+    AutochecksStore,
     commandline_discovery,
     execute_check_discovery,
     remove_autochecks_of_host,
@@ -2293,7 +2294,9 @@ def _mode_check_discovery(
                 ),
                 autochecks_config=autochecks_config,
                 enforced_services=enforced_services_table(hostname),
-                autochecks_dir=cmk.utils.paths.autochecks_dir,
+                read_autochecks=lambda hn: AutochecksStore(
+                    hn, cmk.utils.paths.autochecks_dir
+                ).read(),
                 discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
             )
         check_results = [

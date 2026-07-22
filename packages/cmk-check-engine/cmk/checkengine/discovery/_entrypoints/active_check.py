@@ -18,7 +18,6 @@ from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.discovery._autochecks import (
     AutochecksConfig,
     AutocheckServiceWithNodes,
-    AutochecksStore,
 )
 from cmk.checkengine.discovery._autodiscovery import (
     discovery_by_host,
@@ -107,7 +106,7 @@ def execute_check_discovery(
     autochecks_config: AutochecksConfig,
     section_error_handling: Callable[[SectionName, Sequence[object]], str],
     enforced_services: Container[ServiceID],
-    autochecks_dir: Path,
+    read_autochecks: Callable[[HostName], Sequence[AutocheckEntry]],
     discovered_host_labels_dir: Path,
 ) -> Sequence[ActiveCheckResult]:
     # Note: '--cache' is set in core_cmc, nagios template or even on CL and means:
@@ -162,9 +161,9 @@ def execute_check_discovery(
     services_by_host = get_host_services_by_host_name(
         host_name,
         existing_services=(
-            {n: AutochecksStore(n, autochecks_dir).read() for n in cluster_nodes}
+            {n: read_autochecks(n) for n in cluster_nodes}
             if is_cluster
-            else {host_name: AutochecksStore(host_name, autochecks_dir).read()}
+            else {host_name: read_autochecks(host_name)}
         ),
         discovered_services=discovery_by_host(
             cluster_nodes if is_cluster else (host_name,), providers, plugins, OnError.RAISE
