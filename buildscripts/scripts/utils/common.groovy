@@ -164,6 +164,16 @@ withGerritSshKey = { Closure body ->
     }
 }
 
+withGerritHttpCredentials = { Closure body ->
+    withCredentials([usernamePassword(
+        credentialsId: "sheriff_http_credentials_for_gerrit",
+        usernameVariable: "GERRIT_USER",
+        passwordVariable: "GERRIT_PASSWORD",
+    )]) {
+        body();
+    }
+}
+
 withNexusCredentials = { Closure body ->
     withCredentials([usernamePassword(
         credentialsId: "nexus",
