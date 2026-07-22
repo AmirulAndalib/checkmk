@@ -34,6 +34,10 @@ from cmk.agent_based.v2 import (
 
 type LivestatusSection = Mapping[str, Any]
 
+# Structure of "omd_info" section:
+# {"versions": {...}, "sites": {<site>: {"site": ..., "used_version": ..., "autostart": ...}}}
+type OmdInfoSection = Mapping[str, Mapping[str, Mapping[str, str]]]
+
 type _StateInt = Literal[0, 1, 2, 3]
 
 
@@ -96,6 +100,21 @@ livestatus_status_default_levels = LivestatusStatusParameters(
 
 _PEM_PATH_TEMPLATE = "/omd/sites/{site}/etc/ssl/sites/{site}.pem"
 
+# Commercial edition identifiers to be used to warn about Nagios Core being used
+_COMMERCIAL_EDITION_SUFFIXES = frozenset(
+    {"cee", "pro", "cce", "ultimate", "cme", "ultimatemt", "cse", "cloud"}
+)
+
+
+def _site_uses_commercial_edition(section_omd_info: OmdInfoSection, site: str) -> bool:
+    try:
+        return (
+            section_omd_info["sites"][site]["used_version"].rsplit(".", 1)[-1]
+            in _COMMERCIAL_EDITION_SUFFIXES
+        )
+    except KeyError:
+        return False
+
 
 def parse_livestatus_status(string_table: StringTable) -> LivestatusSection:
     parsed = dict[str, Any]()
@@ -145,6 +164,7 @@ agent_section_livestatus_ssl_certs = AgentSection(
 def discovery_livestatus_status(
     section_livestatus_status: LivestatusSection | None,
     section_livestatus_ssl_certs: LivestatusSection | None,
+    section_omd_info: OmdInfoSection | None,
 ) -> DiscoveryResult:
     if section_livestatus_status is None:
         return
@@ -158,6 +178,7 @@ def check_livestatus_status(
     params: LivestatusStatusParameters,
     section_livestatus_status: LivestatusSection | None,
     section_livestatus_ssl_certs: LivestatusSection | None,
+    section_omd_info: OmdInfoSection | None,
 ) -> CheckResult:
     # Check Performance counters
     this_time = time.time()
@@ -167,6 +188,7 @@ def check_livestatus_status(
         params,
         section_livestatus_status,
         section_livestatus_ssl_certs,
+        section_omd_info,
         value_store,
         this_time,
     )
@@ -224,6 +246,7 @@ def _generate_livestatus_results(
     params: LivestatusStatusParameters,
     section_livestatus_status: LivestatusSection | None,
     section_livestatus_ssl_certs: LivestatusSection | None,
+    section_omd_info: OmdInfoSection | None,
     value_store: MutableMapping[str, Any],
     this_time: float,
 ) -> CheckResult:
@@ -360,6 +383,18 @@ def _generate_livestatus_results(
         notice="Core version: %s" % status["program_version"].replace("Check_MK", "Checkmk"),
     )
 
+    # Warn commercial-edition users running the Nagios core, for which the CMC is recommended.
+    if not status["program_version"].startswith("Check_MK") and (
+        section_omd_info is not None and _site_uses_commercial_edition(section_omd_info, item)
+    ):
+        yield Result(
+            state=State.WARN,
+            summary=(
+                "Nagios core is used with a commercial edition; the Checkmk Micro Core (CMC) "
+                "is recommended for commercial editions"
+            ),
+        )
+
     if section_livestatus_ssl_certs is not None:
         yield from _check_livestatus_cert(section_livestatus_ssl_certs, item, this_time, params)
 
@@ -400,7 +435,7 @@ def _generate_livestatus_results(
 
 check_plugin_livestatus_status = CheckPlugin(
     name="livestatus_status",
-    sections=["livestatus_status", "livestatus_ssl_certs"],
+    sections=["livestatus_status", "livestatus_ssl_certs", "omd_info"],
     service_name="OMD %s performance",
     check_ruleset_name="livestatus_status",
     discovery_function=discovery_livestatus_status,

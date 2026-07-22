@@ -8,6 +8,7 @@
 
 
 import datetime
+from collections.abc import Mapping
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -643,7 +644,7 @@ def test_parse() -> None:
 
 def test_discovery() -> None:
     discovered_services = list(
-        livestatus_status.discovery_livestatus_status(PARSED_STATUS, PARSED_SSL)
+        livestatus_status.discovery_livestatus_status(PARSED_STATUS, PARSED_SSL, None)
     )
     assert discovered_services == [
         Service(item="heute", parameters={}, labels=[]),
@@ -672,6 +673,7 @@ def test_check_new_counters_in_oldstabe(
             livestatus_status.livestatus_status_default_levels,
             PARSED_STATUS,
             PARSED_SSL,
+            None,
             {
                 "host_checks": [1, 2],
                 "service_checks": [1, 2],
@@ -775,6 +777,7 @@ def test_check() -> None:
                 livestatus_status.livestatus_status_default_levels,
                 PARSED_STATUS,
                 PARSED_SSL,
+                None,
                 {
                     "host_checks": [1, 2],
                     "service_checks": [1, 2],
@@ -788,3 +791,116 @@ def test_check() -> None:
         )
 
         assert yielded_results == _RESULTS
+
+
+_NAGIOS_WARN_SUMMARY = (
+    "Nagios core is used with a commercial edition; the Checkmk Micro Core (CMC) "
+    "is recommended for commercial editions"
+)
+
+
+def _nagios_status() -> dict[str, str]:
+    status = {
+        "livestatus_version": "2024.01.01",
+        "host_checks_rate": "0",
+        "service_checks_rate": "0",
+        "forks_rate": "0",
+        "connections_rate": "0",
+        "requests_rate": "0",
+        "log_messages_rate": "0",
+        "num_hosts": "1",
+        "num_services": "1",
+        "program_version": "3.5.1",
+        "enable_event_handlers": "1",
+        "has_event_handlers": "0",
+    }
+    for setting in (
+        "execute_host_checks",
+        "execute_service_checks",
+        "accept_passive_host_checks",
+        "accept_passive_service_checks",
+        "check_host_freshness",
+        "check_service_freshness",
+        "enable_flap_detection",
+        "enable_notifications",
+        "process_performance_data",
+        "check_external_commands",
+    ):
+        status[setting] = "1"
+    return status
+
+
+def _has_nagios_warn(results: CheckResult) -> bool:
+    return any(
+        isinstance(r, Result) and r.state == State.WARN and r.summary == _NAGIOS_WARN_SUMMARY
+        for r in results
+    )
+
+
+@pytest.mark.parametrize(
+    "used_version, expected",
+    [
+        pytest.param("2.3.0p1.cee", True, id="old-enterprise"),
+        pytest.param("2.5.0b1.pro", True, id="new-pro"),
+        pytest.param("2.5.0b1.ultimate", True, id="new-ultimate"),
+        pytest.param("2.5.0b1.cloud", True, id="new-cloud"),
+        pytest.param("2.3.0p1.cre", False, id="old-raw"),
+        pytest.param("2.5.0b1.community", False, id="new-community"),
+        pytest.param("2.5.0b1.unknown", False, id="unknown-suffix"),
+    ],
+)
+def test_site_uses_commercial_edition(used_version: str, expected: bool) -> None:
+    section_omd_info = {"sites": {"mysite": {"used_version": used_version}}}
+    assert livestatus_status._site_uses_commercial_edition(section_omd_info, "mysite") is expected
+
+
+def test_site_uses_commercial_edition_site_missing() -> None:
+    assert livestatus_status._site_uses_commercial_edition({"sites": {}}, "mysite") is False
+
+
+def _run_core_warn_check(
+    program_version: str,
+    section_omd_info: Mapping[str, Mapping[str, Mapping[str, str]]] | None,
+) -> CheckResult:
+    status = _nagios_status()
+    status["program_version"] = program_version
+    return list(
+        livestatus_status._generate_livestatus_results(
+            "mysite",
+            livestatus_status.livestatus_status_default_levels,
+            {"mysite": status},
+            None,
+            section_omd_info,
+            {},
+            581785200,
+        )
+    )
+
+
+def test_check_warns_on_nagios_with_commercial_edition() -> None:
+    results = _run_core_warn_check("3.5.1", {"sites": {"mysite": {"used_version": "2.3.0p1.cee"}}})
+    assert _has_nagios_warn(results)
+
+
+def test_check_no_warn_on_nagios_with_community_edition() -> None:
+    results = _run_core_warn_check("3.5.1", {"sites": {"mysite": {"used_version": "2.3.0p1.cre"}}})
+    assert not _has_nagios_warn(results)
+
+
+def test_check_no_warn_on_cmc_with_commercial_edition() -> None:
+    results = list(
+        livestatus_status._generate_livestatus_results(
+            "heute",
+            livestatus_status.livestatus_status_default_levels,
+            PARSED_STATUS,
+            PARSED_SSL,
+            {"sites": {"heute": {"used_version": "2.3.0p1.cee"}}},
+            {},
+            581785200,
+        )
+    )
+    assert not _has_nagios_warn(results)
+
+
+def test_check_no_warn_when_omd_info_missing() -> None:
+    assert not _has_nagios_warn(_run_core_warn_check("3.5.1", None))
