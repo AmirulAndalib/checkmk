@@ -48,11 +48,6 @@ _TESTUSER = "testuser"
 logger = logging.getLogger()
 
 
-class DockerBind(TypedDict):
-    bind: str
-    mode: Literal["ro"]
-
-
 def execute_tests_in_container(
     distro_name: str,
     docker_tag: str,
@@ -490,7 +485,7 @@ def get_current_cmk_hash_for_artifact(version: CMKVersion, package_name: str) ->
     return _hash
 
 
-def _image_build_binds() -> Mapping[str, DockerBind]:
+def _image_build_binds() -> dict[str, Mapping[str, str]]:
     """This function is left here in case we need different handling for
     image builds. Currently we don't"""
     if "WORKSPACE" in os.environ:
@@ -500,23 +495,20 @@ def _image_build_binds() -> Mapping[str, DockerBind]:
     return _runtime_binds()
 
 
-def _git_repos() -> Mapping[str, DockerBind]:
+def _git_repos() -> dict[str, Mapping[str, str]]:
     checkout_dir = repo_path()
     return {
         # This ensures that we can also work with git-worktrees and reference clones.
         # For this, the original git repository needs to be mapped into the container as well.
-        **{
-            path: DockerBind(bind=path, mode="ro")
-            for path in git_essential_directories(checkout_dir)
-        },
+        **{path: {"bind": path, "mode": "ro"} for path in git_essential_directories(checkout_dir)},
         # To get access to the test scripts and for updating the version from
         # the current git checkout. Will also be used for updating the image with
         # the current git state
-        checkout_dir.as_posix(): DockerBind(bind="/git-lowerdir", mode="ro"),
+        checkout_dir.as_posix(): {"bind": "/git-lowerdir", "mode": "ro"},
     }
 
 
-def _runtime_binds() -> Mapping[str, DockerBind]:
+def _runtime_binds() -> dict[str, Mapping[str, str]]:
     return {
         **_git_repos(),
         # Credentials file for fetching the package from the download server. Used by
@@ -524,10 +516,10 @@ def _runtime_binds() -> Mapping[str, DockerBind]:
         # For whatever reason the image can not be started when nothing is mounted
         # at the file mount that was used while building the image. This is not
         # really needed during runtime of the test. We could mount any file.
-        (Path(os.environ["HOME"]) / ".cmk-credentials").as_posix(): DockerBind(
-            bind="/etc/.cmk-credentials",
-            mode="ro",
-        ),
+        (Path(os.environ["HOME"]) / ".cmk-credentials").as_posix(): {
+            "bind": "/etc/.cmk-credentials",
+            "mode": "ro",
+        },
     }
 
 

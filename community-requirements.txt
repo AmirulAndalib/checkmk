@@ -5607,9 +5607,9 @@ typeguard==4.5.2 \
     # via
     #   -c requirements.txt
     #   inflect
-types-docker==7.2.0.20260720 \
-    --hash=sha256:10eed9eb83be40718f56e5571d07f743d9a113aaa6caf7638b58f425cb9176fb \
-    --hash=sha256:c032d0cec89ac1ee9b962d190882fba07ca5fe0dbfd025c01e4cb78d9de0e278
+types-docker==7.2.0.20260722 \
+    --hash=sha256:90a837c00ecccfc8c6a09b5ee8398d1ad0ea76f782eabdd74484a5238b59e22a \
+    --hash=sha256:f836f097a011fca0b36d12202dc43298c2941a392eb72fb63c2a2e0c2c771f65
     # via
     #   -c requirements.txt
     #   -r tests/dev-requirements.in

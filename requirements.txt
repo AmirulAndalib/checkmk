@@ -5473,9 +5473,9 @@ types-awscrt==0.34.1 \
     --hash=sha256:20c752b6031544d8f694803c35174aee129f1be5ddf886ae46d22f7ffd9b7d75 \
     --hash=sha256:559aa04250f6a419a617dfb788f3e10903aaf74700ef23e521b64a411b83b803
     # via botocore-stubs
-types-docker==7.2.0.20260720 \
-    --hash=sha256:10eed9eb83be40718f56e5571d07f743d9a113aaa6caf7638b58f425cb9176fb \
-    --hash=sha256:c032d0cec89ac1ee9b962d190882fba07ca5fe0dbfd025c01e4cb78d9de0e278
+types-docker==7.2.0.20260722 \
+    --hash=sha256:90a837c00ecccfc8c6a09b5ee8398d1ad0ea76f782eabdd74484a5238b59e22a \
+    --hash=sha256:f836f097a011fca0b36d12202dc43298c2941a392eb72fb63c2a2e0c2c771f65
     # via -r tests/dev-requirements.in
 types-docutils==0.22.3.20260712 \
     --hash=sha256:4bbc5cf949f8b1b1c7e1befa5a4d1c3bcad9f22f823538eea26ba7ff694fa38e \
