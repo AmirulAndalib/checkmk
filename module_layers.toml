@@ -1283,6 +1283,14 @@ allows = [
   "cmk.utils.paths",
 ]
 
+[components."cmk.update_config.plugins.actions.selfbootstrap_customers_mk"] # lives in cmk-multi-tenancy
+allows = [
+  "@ccc",
+  "cmk.multi_tenancy.shared",
+  "cmk.update_config",
+  "cmk.utils.paths",
+]
+
 [components."cmk.update_config"]
 allows = [
   "@ccc",

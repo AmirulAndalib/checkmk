@@ -2260,7 +2260,10 @@ class SiteFactory:
     def setup_customers(self, site: Site, customers: Sequence[str]) -> None:
         if not self.edition.is_ultimatemt_edition():
             return
-        customer_content = "\n".join(
+        # Self-bootstrap `customers` like `cmk.multi_tenancy.shared.customer`
+        # does, so the file is loadable without the feature config defaults
+        # being registered (e.g. by cmk-post-rename-site).
+        customer_content = "customers = locals().setdefault('customers', {})\n" + "\n".join(
             f"customers.update({{'{customer}': {{'name': '{customer}', 'macros': [], 'customer_report_layout': 'default'}}}})"
             for customer in customers
         )
