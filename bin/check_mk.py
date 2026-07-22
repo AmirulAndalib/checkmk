@@ -27,7 +27,6 @@ if not os.environ.get("OMD_SITE"):
 import cmk.base.utils
 import cmk.ccc.debug
 import cmk.ccc.version as cmk_version
-import cmk.utils.log
 import cmk.utils.paths
 from cmk import trace
 from cmk.base import profiling
@@ -57,8 +56,12 @@ from cmk.trace.export import (
 )
 from cmk.utils.log import console
 
-cmk.utils.log.setup_logging_handler(sys.stderr)
-logger = logging.getLogger("cmk.base")
+root_logger = logging.getLogger("cmk")
+root_logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stderr)
+handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+root_logger.addHandler(handler)
+logger = root_logger.getChild("base")
 
 cmk.base.utils.register_sigint_handler()
 

@@ -436,7 +436,7 @@ def test_inventory_all_hosts(execute: Execute) -> None:
     for opt in ["--inventory", "-i"]:
         p = execute(["cmk", opt])
         assert p.returncode == 0, on_failure(p)
-        assert p.stderr == ""
+        assert "Executing inventory plugins" in p.stderr
         assert p.stdout == ""
 
 
@@ -444,7 +444,7 @@ def test_inventory_single_host(execute: Execute) -> None:
     for opt in ["--inventory", "-i"]:
         p = execute(["cmk", opt, "modes-test-host"])
         assert p.returncode == 0, on_failure(p)
-        assert p.stderr == ""
+        assert "Executing inventory plugins" in p.stderr
         assert p.stdout == ""
 
 
@@ -452,7 +452,7 @@ def test_inventory_multiple_hosts(execute: Execute) -> None:
     for opt in ["--inventory", "-i"]:
         p = execute(["cmk", opt, "modes-test-host", "modes-test-host2"])
         assert p.returncode == 0, on_failure(p)
-        assert p.stderr == ""
+        assert "Executing inventory plugins" in p.stderr
         assert p.stdout == ""
 
 
