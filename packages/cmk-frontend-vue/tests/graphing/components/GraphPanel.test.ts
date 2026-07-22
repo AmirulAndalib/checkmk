@@ -8,7 +8,7 @@ import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 
 import GraphPanel from '@/graphing/components/GraphPanel.vue'
 import type { Metric, TimeRange } from '@/graphing/components/TimeSeriesGraph'
-import type { BurgerMenuGroup, RequestedTimeRange } from '@/graphing/types'
+import type { RequestedTimeRange } from '@/graphing/types'
 
 // Mock renders received metric titles and view props as text so tests can assert on
 // visibility filtering and the interaction loop. Click targets are spans (not buttons)
@@ -60,10 +60,6 @@ function makeMetric(name: string, title: string): Metric {
 const CPU = makeMetric('cpu', 'CPU')
 const MEM = makeMetric('mem', 'Memory')
 
-const BURGER_GROUPS: BurgerMenuGroup[] = [
-  { heading: 'Export', actions: [{ label: 'Export as JSON', onClick: vi.fn() }] }
-]
-
 test('does not render the legend when showLegend is not set', () => {
   render(GraphPanel, {
     props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
@@ -96,8 +92,8 @@ test('renders GraphBurgerMenu when showBurgerMenu is true', () => {
       metrics: [CPU],
       dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
-      showBurgerMenu: true,
-      burgerMenuGroups: BURGER_GROUPS
+      addType: 'test',
+      internal: 'test'
     }
   })
   expect(screen.getByRole('button')).toBeInTheDocument()

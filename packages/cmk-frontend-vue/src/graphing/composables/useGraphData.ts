@@ -16,7 +16,7 @@ import type { RequestedTimeRange } from '../types'
 // The fetch endpoint only needs the self-contained definition (the graph kind is embedded in
 // `internal`); a caller holding a full render shell additionally contributes its header title to
 // the resolved graph.
-export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'internal'> &
+export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'internal' | 'add_type'> &
   Partial<Pick<CmkTimeSeriesGraph, 'options'>>
 
 // How a combined graph folds the same metric across its matched services: aggregate
@@ -28,6 +28,8 @@ export interface ResolvedGraph {
   metrics: Metric[]
   timeRange: TimeRange
   horizontalLines: HorizontalLine[]
+  addType?: string | null | undefined
+  internal: string
 }
 
 function computeStep(start: number, end: number, canvasWidth: number): number {
@@ -88,7 +90,9 @@ export function useGraphData(
             title: definition.options?.header.title ?? '',
             metrics: fetched.metrics,
             timeRange: fetched.time_range,
-            horizontalLines: fetched.horizontal_lines
+            horizontalLines: fetched.horizontal_lines,
+            addType: definition.add_type,
+            internal: definition.internal
           }
         })
       )

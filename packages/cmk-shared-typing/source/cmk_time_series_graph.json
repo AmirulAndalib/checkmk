@@ -9,7 +9,10 @@
     "time_range": {
       "anyOf": [{ "$ref": "#/$defs/time_range" }, { "type": "null" }]
     },
-    "internal": { "type": "string" }
+    "internal": { "type": "string" },
+    "add_type": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }]
+    }
   },
   "required": ["size", "options", "interaction", "internal"],
   "$defs": {

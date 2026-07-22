@@ -5,13 +5,18 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
 import { useGraphInteraction } from '../composables/useGraphInteraction'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
-import type { GraphPanelEmits, GraphPanelProps, RequestedTimeRange } from '../types.ts'
+import type {
+  BurgerMenuGroup,
+  GraphPanelEmits,
+  GraphPanelProps,
+  RequestedTimeRange
+} from '../types.ts'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import GraphHeader from './GraphHeader.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
@@ -79,6 +84,9 @@ function updateConsolidationFunction(val: ConsolidationFn) {
 }
 
 const yAxis = computed(() => deriveYAxis(props.metrics))
+
+const showBurgerMenu = computed(() => !!props.addType)
+const burgerMenuGroups = ref<BurgerMenuGroup[]>([])
 </script>
 
 <template>

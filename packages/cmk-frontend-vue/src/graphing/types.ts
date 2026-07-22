@@ -45,13 +45,13 @@ export interface GraphPanelProps {
   // the plot (canvas) size by subtracting its margins.
   figureWidth?: number
   figureHeight?: number
-  burgerMenuGroups?: BurgerMenuGroup[]
-  showBurgerMenu?: boolean
   showLegend?: boolean
   legendPosition?: 'bottom' | 'right'
   showBrush?: boolean
   // Coarse, wider, end-anchored dataset for the navigator brush (separate fetch / mock).
   overview?: { metrics: Metric[]; timeRange: TimeRange } | undefined
+  addType?: string | null | undefined
+  internal?: string | null | undefined
 }
 
 export type GraphPanelEmits = {

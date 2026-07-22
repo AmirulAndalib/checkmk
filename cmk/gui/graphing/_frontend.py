@@ -6,6 +6,7 @@
 import json
 from collections.abc import Sequence
 from dataclasses import asdict
+from typing import Literal
 
 from tzlocal import get_localzone_name
 
@@ -56,6 +57,7 @@ def to_cmk_time_series_graph(
     show_graph_time: bool = True,
     x_axis: XAxis | None = None,
     y_axis: YAxis | None = None,
+    add_type: Literal["pnpgraph", "custom_graph", "combined_graph"] | None = None,
 ) -> CmkTimeSeriesGraph:
     """Translate an engine graph definition into the shared ``CmkTimeSeriesGraph``."""
     return CmkTimeSeriesGraph(
@@ -70,6 +72,7 @@ def to_cmk_time_series_graph(
         ),
         interaction=interaction,
         internal=json.dumps(serialize_graphs([graph])),
+        add_type=add_type,
     )
 
 
