@@ -178,6 +178,7 @@ COMMUNITY_WHEELS = [
     "//packages/cmk-check-engine:wheel_plugins",
     "//packages/cmk-crash:wheel",
     "//packages/cmk-crypto:wheel",
+    "//packages/cmk-diagnostics:wheel",
     "//packages/cmk-ec:wheel",
     "//packages/cmk-events:wheel",
     "//packages/cmk-flags:wheel",

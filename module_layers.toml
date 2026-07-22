@@ -528,7 +528,7 @@ allows = [
   "cmk.checkengine",
   "cmk.core_client",
   "cmk.crash",
-  "cmk.diagnostics",
+  "cmk.diagnostics.engine",
   "cmk.discover_plugins",
   "cmk.ec",
   "cmk.events",
@@ -658,7 +658,7 @@ allows = ["@ccc"]
 [components."cmk.dev_deploy"]
 allows = []
 
-[components."cmk.diagnostics"]
+[components."cmk.diagnostics.engine"]
 allows = ["cmk.ccc.site"]
 
 [components."cmk.diskspace"]
@@ -1045,7 +1045,7 @@ allows = [
   "cmk.checkengine",
   "cmk.crash",
   "cmk.crash_reporting",
-  "cmk.diagnostics",
+  "cmk.diagnostics.engine",
   "cmk.discover_plugins",
   "cmk.diskspace",
   "cmk.events.notification_result",

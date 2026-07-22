@@ -4201,6 +4201,7 @@ pytest==9.1.1 \
     #   -r packages/cmk-crash/dev-requirements.in
     #   -r packages/cmk-crypto/dev-requirements.in
     #   -r packages/cmk-dev-deploy/dev-requirements.in
+    #   -r packages/cmk-diagnostics/dev-requirements.in
     #   -r packages/cmk-ec/dev-requirements.in
     #   -r packages/cmk-events/dev-requirements.in
     #   -r packages/cmk-flags/dev-requirements.in

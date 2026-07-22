@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from cmk.ccc.site import SiteId
-from cmk.diagnostics import (
+from cmk.diagnostics.engine import (
     CheckmkFileSensitivity,
     deserialize_cl_parameters,
     deserialize_modes_parameters,

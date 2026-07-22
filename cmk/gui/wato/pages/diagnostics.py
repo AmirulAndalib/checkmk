@@ -18,7 +18,7 @@ from cmk.automations.results import CreateDiagnosticsDumpResult
 from cmk.ccc.archive import CheckmkTarArchive
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.version import Edition
-from cmk.diagnostics import (
+from cmk.diagnostics.engine import (
     CheckmkFileInfo,
     CheckmkFileSensitivity,
     CheckmkFilesMap,

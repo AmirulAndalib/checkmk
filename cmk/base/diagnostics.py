@@ -45,7 +45,7 @@ from cmk.ccc.i18n import _
 from cmk.ccc.site import get_omd_config, omd_site
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.crash import make_crash_report_base_path
-from cmk.diagnostics import (
+from cmk.diagnostics.engine import (
     CheckmkFileEncryption,
     CheckmkFileInfoByRelFilePathMap,
     CheckmkFilesMap,

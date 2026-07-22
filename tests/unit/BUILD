@@ -66,7 +66,6 @@ py_cmk_test(
             "cmk/*.py",
             "cmk/automations/**/*.py",
             "cmk/bi/**/*.py",
-            "cmk/diagnostics/**/*.py",
             "cmk/diskspace/**/*.py",
             "cmk/fields/**/*.py",
             "cmk/inventory/**/*.py",

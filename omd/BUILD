@@ -817,6 +817,7 @@ pkg_tar(
         "//packages/cmk-check-engine:pkg_tar",
         "//packages/cmk-crash:pkg_tar",
         "//packages/cmk-crypto:pkg_tar",
+        "//packages/cmk-diagnostics:pkg_tar",
         "//packages/cmk-ec:pkg_tar",
         "//packages/cmk-events:pkg_tar",
         "//packages/cmk-flags:pkg_tar",

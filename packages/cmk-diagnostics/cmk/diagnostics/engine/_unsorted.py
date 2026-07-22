@@ -513,7 +513,7 @@ FILE_MAP_CORE = FileMapConfig(
 FILE_MAP_LICENSING = FileMapConfig(
     file_type="licensing",
     rel_base_folder=Path("var/check_mk"),
-    keep=lambda path: True,
+    keep=lambda _path: True,
 )
 FILE_MAP_LOG = FileMapConfig(
     file_type="log",
