@@ -44,6 +44,7 @@ __all__ = [
     "builtin_dashboards",
     "BuiltinDashboardExtender",
     "BuiltinDashboardExtenderRegistry",
+    "declare_builtin_dashboard_permissions",
     "MAX",
     "GROW",
     "dashlet_registry",
@@ -67,7 +68,22 @@ def register() -> None:
 
     visuals.declare_visual_permissions("dashboards", _("dashboards"))
 
-    # Declare permissions for all dashboards
+    # NOTE: declare_builtin_dashboard_permissions() is NOT called here. It has
+    # to run after GuiFeaturePlugins have loaded (see
+    # cmk.gui.main_modules.register()), since those can still add builtin
+    # dashboards after this function returns.
+
+    # Make sure that custom views also have permissions
+    declare_dynamic_permissions(lambda: visuals.declare_custom_permissions("dashboards"))
+    declare_dynamic_permissions(lambda: visuals.declare_packaged_visuals_permissions("dashboards"))
+
+
+def declare_builtin_dashboard_permissions() -> None:
+    """Declare a `dashboard.<name>` permission for every currently registered builtin dashboard.
+
+    Must be called once all builtin dashboards have been registered - including
+    ones added by GuiFeaturePlugins, which load after register() above returns.
+    """
     for name, board in builtin_dashboards.items():
         # Special hack for the "main" dashboard: It contains graphs that are only correct in case
         # you are permitted on all hosts and services. All elements on the dashboard are filtered by
@@ -92,10 +108,6 @@ def register() -> None:
             board.get("description", ""),
             default_permissions,
         )
-
-    # Make sure that custom views also have permissions
-    declare_dynamic_permissions(lambda: visuals.declare_custom_permissions("dashboards"))
-    declare_dynamic_permissions(lambda: visuals.declare_packaged_visuals_permissions("dashboards"))
 
 
 def _register_pre_21_plugin_api() -> None:

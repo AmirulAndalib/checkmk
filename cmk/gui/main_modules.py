@@ -9,7 +9,11 @@ from typing import assert_never
 from cmk.ccc.version import Edition
 from cmk.discover_plugins import discover_plugins_from_modules
 from cmk.gui.autocompleters import autocompleter_registry
-from cmk.gui.dashboard import builtin_dashboards, dashlet_registry
+from cmk.gui.dashboard import (
+    builtin_dashboards,
+    dashlet_registry,
+    declare_builtin_dashboard_permissions,
+)
 from cmk.gui.legacy_plugins import get_failed_plugins as get_failed_plugins
 from cmk.gui.main_navigation import main_navigation_renderer_registry, MainNavigation
 from cmk.gui.openapi import endpoint_family_registry, versioned_endpoint_registry
@@ -121,3 +125,8 @@ def register(edition: Edition) -> None:
             assert_never(unreachable)
 
     load_feature_plugins(_FEATURE_PLUGIN_MODULES.get(edition, []), ctx)
+
+    # Must run after load_feature_plugins(): GuiFeaturePlugins can still add
+    # builtin dashboards at this point, and every one of them needs its
+    # dashboard.<name> permission declared before any page checks it.
+    declare_builtin_dashboard_permissions()
