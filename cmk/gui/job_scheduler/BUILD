@@ -6,6 +6,7 @@ py_library(
     srcs = glob(["**/*.py"]),
     imports = ["../../.."],
     visibility = [
+        "//bin:__pkg__",
         "//cmk:__subpackages__",
         "//tests:__subpackages__",
     ],

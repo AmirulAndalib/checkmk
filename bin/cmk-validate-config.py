@@ -6,7 +6,6 @@
 import sys
 
 from cmk.base import config
-from cmk.base.app import make_app
 from cmk.ccc.version import edition as get_edition
 from cmk.gui import main_modules
 from cmk.gui.wsgi.app import gui_context
@@ -28,10 +27,7 @@ def main() -> int:
             config.load_all_plugins()
             # Watch out: always load the plugins before loading the config.
             # The validation step will not be executed otherwise.
-            config.load(
-                get_builtin_host_labels=make_app(edition).get_builtin_host_labels,
-                edition=edition,
-            )
+            config.load(edition=edition)
 
             result = validate_mk_files()
 

@@ -263,14 +263,22 @@ py_library(
     name = "cmk_ui_job_scheduler_py",
     srcs = ["cmk-ui-job-scheduler.py"],
     imports = ["."],
-    tags = ["no-mypy"],
+    deps = ["//cmk/gui/job_scheduler"],
 )
 
 py_library(
     name = "cmk_validate_config_py",
     srcs = ["cmk-validate-config.py"],
     imports = ["."],
-    tags = ["no-mypy"],
+    deps = [
+        "//cmk:validate_config",
+        "//cmk/base:config",
+        "//cmk/gui:app",
+        "//cmk/utils:paths",
+        "//cmk/utils:redis",
+        "//packages/cmk-ccc:version",
+        "//packages/cmk-wsgi",
+    ],
 )
 
 py_library(
