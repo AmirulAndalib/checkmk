@@ -4149,6 +4149,7 @@ pysmi==1.6.3 \
     --hash=sha256:5d2eeb9e98bc149dee8f9256899d13789206769aab1637e33ac5f0dacaaf51fb \
     --hash=sha256:fc2d796c252379e1b47aeea2e547ff339ca6df504cf6196cb3adad8054f41e7d
     # via
+    #   -c constraints.txt
     #   -r cmk/requirements.in
     #   -r packages/cmk-ec/requirements.in
 pysnmp==7.1.27 \
