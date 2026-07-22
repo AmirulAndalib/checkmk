@@ -82,8 +82,10 @@ const componentId = useId()
         <CmkCheckbox
           v-if="!element.required"
           v-model="checkedElements[element.name]!"
+          class="form-topic-ungrouped__checkbox"
           :help="untranslated(element.parameter_form.help)"
           :label="untranslated(element.parameter_form.title)"
+          label-position="left"
           dots
           @update:model-value="toggleElement(element.name)"
         />
@@ -140,6 +142,10 @@ const componentId = useId()
   width: 230px;
   display: inline-block;
   overflow: hidden;
+}
+
+.form-topic-ungrouped__checkbox {
+  width: 100%;
 }
 
 .form-topic-ungrouped__root:nth-child(1) > td {

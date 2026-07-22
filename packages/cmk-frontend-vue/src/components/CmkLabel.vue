@@ -43,6 +43,7 @@ export interface LabelProps {
   dots?: boolean | undefined
   help?: TranslatedString | undefined
   cursor?: LabelVariants['cursor']
+  grow?: boolean
 }
 
 const props = defineProps<LabelProps>()
@@ -60,7 +61,7 @@ const delegatedProps = computed(() => {
 </script>
 
 <template>
-  <div class="cmk-label__container">
+  <div class="cmk-label__container" :class="{ 'cmk-label__container--grow': props.grow }">
     <span class="cmk-label__content">
       <Label v-bind="delegatedProps" :class="labelVariants({ variant, cursor })"><slot /></Label
       ><span v-if="help" class="cmk-label--nowrap">&nbsp;<CmkHelpText :help="help" /></span>
@@ -74,6 +75,10 @@ const delegatedProps = computed(() => {
   display: inline-flex;
   min-width: 0;
   max-width: 100%;
+
+  &.cmk-label__container--grow {
+    flex: 1 1 auto;
+  }
 }
 
 .cmk-label__content {
@@ -112,7 +117,7 @@ label {
   margin-left: 5px;
   color: var(--font-color-dimmed);
   overflow: hidden;
-  min-width: 15px;
+  min-width: 12px;
 }
 
 .cmk-label--dots::after {

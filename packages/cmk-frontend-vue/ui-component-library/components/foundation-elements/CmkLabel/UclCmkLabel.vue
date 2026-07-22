@@ -24,6 +24,13 @@ export const panelConfig = {
   dots: {
     type: 'boolean' as const,
     title: 'Dots',
+    help: 'Append dots to label, limited to some hardcoded amount.',
+    initialState: false
+  },
+  grow: {
+    type: 'boolean' as const,
+    title: 'Grow',
+    help: 'Grow to fill available space in a surrounding flex container; with dots the dots expand accordingly.',
     initialState: false
   },
   cursor: {
@@ -69,6 +76,7 @@ const propState = new PanelStateCreator<typeof CmkLabel, 'for'>().createRef(pane
       <CmkLabel
         :variant="propState.variant"
         :dots="propState.dots"
+        :grow="propState.grow"
         :cursor="propState.cursor"
         :help="propState.help"
       >

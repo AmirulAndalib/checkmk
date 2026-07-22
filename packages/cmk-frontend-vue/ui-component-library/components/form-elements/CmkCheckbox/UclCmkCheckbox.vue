@@ -26,6 +26,7 @@ export const a11yData = [
 ]
 
 type CheckboxPadding = 'both' | 'top' | 'bottom'
+type CheckboxLabelPosition = 'left' | 'right'
 
 export const panelConfig = {
   value: {
@@ -65,6 +66,16 @@ export const panelConfig = {
     ] satisfies Options<CheckboxPadding>[],
 
     initialState: 'both' as const
+  },
+  labelPosition: {
+    type: 'list' as const,
+    title: 'Label Position',
+    help: "With 'left' the label comes first and the checkbox sits at the far end of the component, top-aligned. Combine with dots to fill the gap between label and checkbox.",
+    options: [
+      { title: 'Right', name: 'right' },
+      { title: 'Left', name: 'left' }
+    ] satisfies Options<CheckboxLabelPosition>[],
+    initialState: 'right' as const
   },
   dots: {
     type: 'boolean' as const,
@@ -130,6 +141,7 @@ const checkboxValue = computed<boolean | 'indeterminate'>({
           :help="propState.help"
           :disabled="propState.disabled"
           :padding="propState.padding"
+          :label-position="propState.labelPosition"
           :dots="propState.dots"
           :external-errors="propState.externalErrors ? [propState.externalErrors] : []"
         />

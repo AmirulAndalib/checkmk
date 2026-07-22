@@ -25,6 +25,7 @@ const {
   padding = 'both',
   label,
   ariaLabel,
+  labelPosition = 'right',
   disabled = false,
   externalErrors
 } = defineProps<{
@@ -34,6 +35,7 @@ const {
    * (e.g. a row-select checkbox in a table).
    */
   ariaLabel?: TranslatedString
+  labelPosition?: 'left' | 'right'
   padding?: 'top' | 'bottom' | 'both'
   help?: TranslatedString
   externalErrors?: string[]
@@ -56,7 +58,8 @@ const hasValidationErrors = computed(() => {
       :class="{
         'cmk-checkbox__pad-top': padding !== 'bottom',
         'cmk-checkbox__pad-bottom': padding !== 'top',
-        'cmk-checkbox__disabled': disabled
+        'cmk-checkbox__disabled': disabled,
+        'cmk-checkbox--label-left': labelPosition === 'left'
       }"
     >
       <CheckboxRoot
@@ -78,7 +81,7 @@ const hasValidationErrors = computed(() => {
       </CheckboxRoot>
       <template v-if="label">
         <CmkSpace :size="'small'" />
-        <CmkLabel :for="id" :help="help" :dots="dots">
+        <CmkLabel :for="id" :help="help" :dots="dots" :grow="labelPosition === 'left'">
           <CmkHtml class="cmk-checkbox__label" :html="label" /> </CmkLabel
       ></template>
       <CmkInlineValidation :validation="externalErrors"></CmkInlineValidation>
@@ -119,6 +122,15 @@ span {
 
     .cmk-checkbox__label {
       cursor: not-allowed;
+    }
+  }
+
+  &.cmk-checkbox--label-left {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+
+    .cmk-checkbox__label {
+      vertical-align: baseline;
     }
   }
 
