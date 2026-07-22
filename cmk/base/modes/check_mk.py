@@ -2297,7 +2297,7 @@ def _mode_check_discovery(
                 read_autochecks=lambda hn: AutochecksStore(
                     hn, cmk.utils.paths.autochecks_dir
                 ).read(),
-                discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
+                read_discovered_host_labels=label_manager.discovered_labels_of_host,
             )
         check_results = [
             *check_results,

@@ -49,7 +49,7 @@ from cmk.checkengine.sectionparser import (
 from cmk.checkengine.snmplib import SNMPRawData
 from cmk.checkengine.specs.checkresults import ActiveCheckResult
 from cmk.checkengine.summarize import SummarizerFunction
-from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
+from cmk.ruleset_matcher.labels import HostLabel
 from cmk.utils.auto_queue import AutoQueue
 from cmk.utils.servicename import ServiceName
 
@@ -107,7 +107,7 @@ def execute_check_discovery(
     section_error_handling: Callable[[SectionName, Sequence[object]], str],
     enforced_services: Container[ServiceID],
     read_autochecks: Callable[[HostName], Sequence[AutocheckEntry]],
-    discovered_host_labels_dir: Path,
+    read_discovered_host_labels: Callable[[HostName], Sequence[HostLabel]],
 ) -> Sequence[ActiveCheckResult]:
     # Note: '--cache' is set in core_cmc, nagios template or even on CL and means:
     # 1. use caches as default:
@@ -142,14 +142,13 @@ def execute_check_discovery(
                 for node_name in cluster_nodes
             },
             existing_host_labels={
-                node_name: DiscoveredHostLabelsStore(node_name, discovered_host_labels_dir).load()
-                for node_name in cluster_nodes
+                node_name: read_discovered_host_labels(node_name) for node_name in cluster_nodes
             },
         )
 
     else:
         host_labels = QualifiedDiscovery[HostLabel](
-            preexisting=DiscoveredHostLabelsStore(host_name, discovered_host_labels_dir).load(),
+            preexisting=read_discovered_host_labels(host_name),
             current=discover_host_labels(
                 host_name,
                 host_label_plugins,

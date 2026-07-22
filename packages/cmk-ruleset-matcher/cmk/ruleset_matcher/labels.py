@@ -320,6 +320,7 @@ class LabelManager:
         # at the per-serial helper config dir. Long term we should detach the label file
         # lookups from LabelManager and pass the paths through the call chain at the points
         # where labels are actually read.
+        # Once this is immutable, see if we should make 'discovered_labels_of_host' private again.
         self.discovered_host_labels_dir = discovered_host_labels_dir
         self.builtin_host_labels_file = builtin_host_labels_file
         self.explicit_host_labels: Mapping[HostName, Labels] = explicit_host_labels
@@ -375,8 +376,9 @@ class LabelManager:
             ).load()
         return self.__builtin_host_labels
 
-    def _discovered_labels_of_host(self, hostname: HostName) -> Labels:
-        host_labels = (
+    # I am not sure if this really should be public (see above).
+    def discovered_labels_of_host(self, hostname: HostName) -> Sequence[HostLabel]:
+        return (
             DiscoveredHostLabelsStore(hostname, self.discovered_host_labels_dir).load()
             if (nodes := self._nodes_of.get(hostname)) is None
             else merge_cluster_labels(
@@ -386,7 +388,9 @@ class LabelManager:
                 ]
             )
         )
-        return {l.name: l.value for l in host_labels}
+
+    def _discovered_labels_of_host(self, hostname: HostName) -> Labels:
+        return {l.name: l.value for l in self.discovered_labels_of_host(hostname)}
 
     def labels_of_service(
         self,
