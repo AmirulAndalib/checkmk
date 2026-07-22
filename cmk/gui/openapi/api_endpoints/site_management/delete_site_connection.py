@@ -59,9 +59,6 @@ def delete_site_connection_v1(
                     index_update_change_hook,
                 ),
             ),
-            liveproxyd_enabled=api_context.config.liveproxyd_enabled,
-            use_git=api_context.config.wato_use_git,
-            acting_user_id=api_context.user.id,
         )
     except MKUserError as exc:
         raise RestAPIRequestGeneralException(

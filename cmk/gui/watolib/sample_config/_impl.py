@@ -24,10 +24,8 @@ from cmk.events.notify_types import (
     NotifyPlugin,
 )
 from cmk.gui import werks
-from cmk.gui.config import active_config
 from cmk.gui.groups import GroupSpec
 from cmk.gui.log import logger
-from cmk.gui.logged_in import user
 from cmk.gui.userdb import (
     add_internal_attributes,
     create_cmk_automation_user,
@@ -254,9 +252,6 @@ class ConfigGeneratorLocalSiteConnection(SampleConfigGenerator):
             self._default_single_site_configuration(),
             activate=True,
             pprint_value=True,
-            liveproxyd_enabled=active_config.liveproxyd_enabled,
-            use_git=active_config.wato_use_git,
-            acting_user_id=user.id,
         )
 
     def _default_single_site_configuration(self) -> SiteConfigurations:

@@ -56,19 +56,10 @@ class SitesApiMgr:
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
-        liveproxyd_enabled: bool,
-        use_git: bool,
-        acting_user_id: UserId | None,
     ) -> None:
         if self.all_sites.get(site_id):
             self.site_mgmt.delete_site(
-                tree,
-                site_id,
-                pprint_value=pprint_value,
-                pending_changes=pending_changes,
-                liveproxyd_enabled=liveproxyd_enabled,
-                use_git=use_git,
-                acting_user_id=acting_user_id,
+                tree, site_id, pprint_value=pprint_value, pending_changes=pending_changes
             )
         raise SiteDoesNotExistException
 
@@ -81,9 +72,6 @@ class SitesApiMgr:
         *,
         pprint_value: bool,
         debug: bool,
-        liveproxyd_enabled: bool,
-        use_git: bool,
-        acting_user_id: UserId | None,
     ) -> None:
         site = self.get_a_site(site_id)
         if "secret" not in site:  # when login is not already done
@@ -93,13 +81,7 @@ class SitesApiMgr:
                 raise LoginException(str(exc))
 
             self.site_mgmt.save_sites(
-                tree,
-                self.all_sites,
-                activate=True,
-                pprint_value=pprint_value,
-                liveproxyd_enabled=liveproxyd_enabled,
-                use_git=use_git,
-                acting_user_id=acting_user_id,
+                tree, self.all_sites, activate=True, pprint_value=pprint_value
             )
             trigger_remote_certs_creation(site_id, site, force=False, debug=debug)
             distribute_license_to_remotes(
@@ -107,27 +89,12 @@ class SitesApiMgr:
                 remote_automation_configs=[remote_automation_config_from_site_config(site)],
             )
 
-    def logout_of_site(
-        self,
-        tree: FolderTree,
-        site_id: SiteId,
-        *,
-        pprint_value: bool,
-        liveproxyd_enabled: bool,
-        use_git: bool,
-        acting_user_id: UserId | None,
-    ) -> None:
+    def logout_of_site(self, tree: FolderTree, site_id: SiteId, *, pprint_value: bool) -> None:
         site = self.get_a_site(site_id)
         if "secret" in site:
             del site["secret"]
             self.site_mgmt.save_sites(
-                tree,
-                self.all_sites,
-                activate=True,
-                pprint_value=pprint_value,
-                liveproxyd_enabled=liveproxyd_enabled,
-                use_git=use_git,
-                acting_user_id=acting_user_id,
+                tree, self.all_sites, activate=True, pprint_value=pprint_value
             )
 
     def validate_and_save_site(
@@ -137,21 +104,10 @@ class SitesApiMgr:
         site_config: SiteConfiguration,
         *,
         pprint_value: bool,
-        liveproxyd_enabled: bool,
-        use_git: bool,
-        acting_user_id: UserId | None,
     ) -> None:
         self.site_mgmt.validate_configuration(site_id, site_config, self.all_sites)
         self.all_sites[site_id] = site_config
-        self.site_mgmt.save_sites(
-            tree,
-            self.all_sites,
-            activate=True,
-            pprint_value=pprint_value,
-            liveproxyd_enabled=liveproxyd_enabled,
-            use_git=use_git,
-            acting_user_id=acting_user_id,
-        )
+        self.site_mgmt.save_sites(tree, self.all_sites, activate=True, pprint_value=pprint_value)
 
     def get_connected_sites_to_update(
         self,
