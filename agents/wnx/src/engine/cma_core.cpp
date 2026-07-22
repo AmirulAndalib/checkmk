@@ -1029,7 +1029,7 @@ bool TheMiniBox::waitForEndWindows(std::chrono::milliseconds timeout) {
 }
 
 namespace {
-constexpr std::chrono::milliseconds time_grane{250};
+constexpr std::chrono::milliseconds updater_time_grane{50};
 }  // namespace
 
 void TheMiniBox::readAndAppend(HANDLE read_handle) {
@@ -1041,21 +1041,6 @@ void TheMiniBox::readAndAppend(HANDLE read_handle) {
     appendResult(read_handle, buf);
     XLOG::d.t("Appended [{}] bytes from '{}'", buf.size(),
               wtools::ToUtf8(exec_));
-}
-
-bool TheMiniBox::waitForBreakLoop(std::chrono::milliseconds timeout) {
-    if (timeout < time_grane) {
-        XLOG::d("Plugin '{}' hits timeout", wtools::ToUtf8(exec_));
-        return true;
-    }
-
-    if (waitForStop(time_grane)) {
-        XLOG::d("Plugin '{}' gets signal stop [{}], timeout left [{}ms]!",
-                wtools::ToUtf8(exec_), stop_set_, timeout.count());
-        return true;
-    }
-
-    return false;
 }
 
 /// Modified version to be used by Updater
@@ -1075,31 +1060,43 @@ bool TheMiniBox::waitForUpdater(std::chrono::milliseconds timeout) {
     tools::AddVector(process_->getData(), buf);
     while (remaining_timeout > std::chrono::milliseconds::zero()) {
         readAndAppend(read_handle);
-        if (waitForStop(time_grane)) {
+        if (waitForStop(updater_time_grane)) {
             break;
         }
 
         // Check if process has exited
         auto [exitCode, error] = wtools::GetProcessExitCode(pid);
-        if (error == 0 && exitCode != STILL_ACTIVE) {
+        if (error == ERROR_INVALID_PARAMETER ||
+            (error == 0 && exitCode != STILL_ACTIVE)) {
             // Process has exited, read any remaining data
+            // ERROR_INVALID_PARAMETER is a special case, it means that the
+            // process has already exited and we cannot get its exit code. In
+            // this case, we will just log that the exit code is unknown.
             readWhatLeft();
-            XLOG::l.i("Updater success");
+            XLOG::d.i("Updater success {}",
+                      error == ERROR_INVALID_PARAMETER
+                          ? "Exit code is unknown"
+                          : fmt::format("Process exits {}", exitCode));
             return true;
         }
-        remaining_timeout -= time_grane;
+        remaining_timeout -= updater_time_grane;
     }
 
+    auto [exitCode, error] = wtools::GetProcessExitCode(pid);
     // Timeout expired or break condition met
-    readWhatLeft();
     // we do not care too much about updater data:
-    // timeout is abnormal - kill
+    // timeout is abnormal
     // external break, no sense to process - kill too
     failed_ = remaining_timeout <= std::chrono::milliseconds::zero();
-    XLOG::l.i("Updater to be killed due to {}",
-              failed_ ? "timeout" : "external break");
-    process_->kill(true);
-    failed_ = remaining_timeout <= std::chrono::milliseconds::zero();
+    if (error == ERROR_INVALID_PARAMETER ||
+        (error == 0 && exitCode != STILL_ACTIVE)) {
+        XLOG::d.i("Updater timeout and already terminated");
+    } else {
+        XLOG::l.i(
+            "Updater timeout and to be killed due to {}. Error = {} Exit code = {}",
+            failed_ ? "timeout" : "external break", error, exitCode);
+        process_->kill(true);
+    }
 
     return true;
 }
