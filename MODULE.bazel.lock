@@ -3340,6 +3340,10 @@
             "https://files.pythonhosted.org/packages/61/cc/a381afa6efea9f496eff839d4a6a1aed3bfafc7b3ab4b0d1b243a12573dd/anyio-4.14.2.tar.gz": "cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f",
             "https://files.pythonhosted.org/packages/da/35/f2287558c17e29fafc8ef3daf819bb9834061cfa43bff8014f7df7f63bdc/anyio-4.14.2-py3-none-any.whl": "9f505dda5ac9f0c8309b5e8bd445a8c2bf7246f3ce950121e45ea15bc41d1494"
           },
+          "apipkg": {
+            "https://files.pythonhosted.org/packages/2e/2c/717870bddbb588428093de4bfbce59c58d29b56bff76ecd422fd1724ae72/apipkg-3.0.2.tar.gz": "c7aa61a4f82697fdaa667e70af1505acf1f7428b1c27b891d204ba7a8a3c5e0d",
+            "https://files.pythonhosted.org/packages/71/6b/11ee9d7d046d7012822986e42619eee7fe1522147cd3c6beab1ebcec9f33/apipkg-3.0.2-py3-none-any.whl": "a16984c39de280701f3f6406ed3af658f2a1965011fe7bb5be34fbb48423b411"
+          },
           "apispec": {
             "https://files.pythonhosted.org/packages/20/88/e149b20246c4689e7d27163e4e3bb8946ef31617cfb3b9c427813483fe5b/apispec-6.10.0-py3-none-any.whl": "8ff23e0de9a0ceb62ff70047241126315bd17b8d0565a567934c0156f4ddbb43",
             "https://files.pythonhosted.org/packages/4a/f1/1f5a9332df3ecd90cc5ab69bc58a4174b8ba2ac1720c4c26b01d20751bf5/apispec-6.10.0.tar.gz": "0a888555cd4aa5fb7176041be15684154fd8961055e1672e703abf737e8761bf"
@@ -6292,8 +6296,8 @@
             "https://files.pythonhosted.org/packages/e8/ec/5ffcf8f5f53757e01afdece10c664e694ac60d2f17c2036811b85b842a5b/mypy_protobuf-5.1.0-py3-none-any.whl": "d7031f563f806b8bcd448a3e86768bf0994c0af5b0017b344a4fbbba4191f43c"
           },
           "netapp-ontap": {
-            "https://files.pythonhosted.org/packages/06/e4/3c75a6ce6732861413f99183c43a6a2c4ac296f41cc2dd888b1dd763f7ba/netapp_ontap-9.17.1.0-py3-none-any.whl": "d80ace80f2e54f68e2fafffae580a9923393bac4a472ff50da6c84ca4c78d9cd",
-            "https://files.pythonhosted.org/packages/fb/f3/409b586fa2edd5fd0a974834a765ebe7a00c2d5b83a0b0b4c4289fc3d0ba/netapp_ontap-9.17.1.0.tar.gz": "6f30c6b0a0841f7a2cceecf838a9ce83b5933104e72401a1ecf3a61a1442cb37"
+            "https://files.pythonhosted.org/packages/56/c1/35f30c2a8b6b0c7097f2df06754aaded1ee5bb6fdda2881403337f8b719e/netapp_ontap-9.18.1.0.tar.gz": "8750eae4f72a8b1f8e8783ad3a9da46d96318600407426d4f51825d6cbe3e1db",
+            "https://files.pythonhosted.org/packages/94/23/6eb924d20a73eb4889d37492ae7079e91bd345f3e2545a74778dc1f5eceb/netapp_ontap-9.18.1.0-py3-none-any.whl": "d6917ecea70a530da6f786f329a970706bd8ba534d92cd4834cbd2c1c752bf25"
           },
           "networkx": {
             "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be9d2e4f1158eb633317598cfa6e1fc14af5383f17512/networkx-3.6.1.tar.gz": "26b7c357accc0c8cde558ad486283728b65b6a95d85ee1cd66bafab4c8168509",
@@ -9082,6 +9086,7 @@
           "annotated_doc": "/simple/annotated-doc/",
           "annotated_types": "/simple/annotated-types/",
           "anyio": "/simple/anyio/",
+          "apipkg": "/simple/apipkg/",
           "apispec": "/simple/apispec/",
           "apispec_oneofschema": "/simple/apispec-oneofschema/",
           "argcomplete": "/simple/argcomplete/",

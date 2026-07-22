@@ -160,6 +160,12 @@ anyio==4.14.2 \
     #   mcp
     #   sse-starlette
     #   starlette
+apipkg==3.0.2 \
+    --hash=sha256:a16984c39de280701f3f6406ed3af658f2a1965011fe7bb5be34fbb48423b411 \
+    --hash=sha256:c7aa61a4f82697fdaa667e70af1505acf1f7428b1c27b891d204ba7a8a3c5e0d
+    # via
+    #   -c requirements.txt
+    #   netapp-ontap
 apispec==6.10.0 \
     --hash=sha256:0a888555cd4aa5fb7176041be15684154fd8961055e1672e703abf737e8761bf \
     --hash=sha256:8ff23e0de9a0ceb62ff70047241126315bd17b8d0565a567934c0156f4ddbb43
@@ -1895,9 +1901,9 @@ mypy-extensions==1.1.0 \
     # via
     #   -c requirements.txt
     #   black
-netapp-ontap==9.17.1.0 \
-    --hash=sha256:6f30c6b0a0841f7a2cceecf838a9ce83b5933104e72401a1ecf3a61a1442cb37 \
-    --hash=sha256:d80ace80f2e54f68e2fafffae580a9923393bac4a472ff50da6c84ca4c78d9cd
+netapp-ontap==9.18.1.0 \
+    --hash=sha256:8750eae4f72a8b1f8e8783ad3a9da46d96318600407426d4f51825d6cbe3e1db \
+    --hash=sha256:d6917ecea70a530da6f786f329a970706bd8ba534d92cd4834cbd2c1c752bf25
     # via
     #   -c requirements.txt
     #   -r packages/cmk-plugins/requirements.in
