@@ -4,6 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import type { TitleMacroGroup } from 'cmk-shared-typing/typescript/custom_graph_designer'
 
 import MetricsTable from '@/graphing/designer/components/MetricsTable.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
@@ -13,7 +14,9 @@ import { constantItem, formulaItem, metricBackendItem, rrdMetricItem } from '../
 
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
 const THRESHOLDS = { warning: '#ffd000', critical: '#ff3232' }
-const TITLE_MACRO_HELP = 'Available title macros'
+const TITLE_MACROS: TitleMacroGroup[] = [
+  { source_type: 'rrd_metric', macros: ['$DEFAULT_TITLE$', '$METRIC_NAME$'] }
+]
 
 function renderTable(seed: DesignerItem[] = [], metricBackendAvailable = true) {
   const store = useGraphItems(PALETTE, seed)
@@ -22,7 +25,7 @@ function renderTable(seed: DesignerItem[] = [], metricBackendAvailable = true) {
       store,
       thresholds: THRESHOLDS,
       metricBackendAvailable,
-      titleMacroHelp: TITLE_MACRO_HELP
+      titleMacros: TITLE_MACROS
     }
   })
   return { store, ...utils }
@@ -158,8 +161,10 @@ test('adding a metric backend source opens its form', async () => {
   expect(await screen.findByText('Consolidation')).toBeInTheDocument()
 })
 
-test('the title column header exposes the macro help via a help tooltip', async () => {
+test('the title column header exposes the rendered macro help', async () => {
   renderTable([rrdMetricItem('A')])
   await fireEvent.click(screen.getByRole('button', { name: 'Help for Title' }))
-  expect(await screen.findByRole('tooltip')).toHaveTextContent(TITLE_MACRO_HELP)
+  const tooltip = await screen.findByRole('tooltip')
+  expect(tooltip).toHaveTextContent('Available title macros:')
+  expect(tooltip).toHaveTextContent('Checkmk RRD (single): $DEFAULT_TITLE$, $METRIC_NAME$')
 })

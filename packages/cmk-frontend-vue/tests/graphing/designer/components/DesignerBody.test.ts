@@ -125,7 +125,7 @@ function renderBody(mode: 'view' | 'edit') {
       palette: PALETTE,
       thresholds: { warning: '#ffd000', critical: '#ff3232' },
       metricBackendAvailable: false,
-      titleMacroHelp: ''
+      titleMacros: []
     }
   })
 }

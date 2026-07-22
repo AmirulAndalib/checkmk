@@ -5,9 +5,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import type { ColumnDef, RowSelectionState } from '@tanstack/vue-table'
+import type { TitleMacroGroup } from 'cmk-shared-typing/typescript/custom_graph_designer'
 import { computed, ref } from 'vue'
 
-import usei18n, { untranslated } from '@/lib/i18n'
+import usei18n from '@/lib/i18n'
 
 import CmkButton from '@/components/CmkButton'
 import { CmkAddDropdown } from '@/components/CmkDropdown'
@@ -30,6 +31,7 @@ import VisibilityCell from '@/monitoring/shared/components/cell/VisibilityCell.v
 import { useDeleteWithDependents } from '../composables/useDeleteWithDependents'
 import type { GraphItemsStore } from '../composables/useGraphItems'
 import { useRowLabels } from '../composables/useRowLabels'
+import { useTitleMacroHelp } from '../composables/useTitleMacroHelp'
 import {
   type DesignerItem,
   newConstantDraft,
@@ -46,11 +48,11 @@ import MetricBackendForm from './forms/MetricBackendForm.vue'
 import RrdForm from './forms/RrdForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
-const { store, thresholds, metricBackendAvailable, titleMacroHelp } = defineProps<{
+const { store, thresholds, metricBackendAvailable, titleMacros } = defineProps<{
   store: GraphItemsStore
   thresholds: { warning: string; critical: string }
   metricBackendAvailable: boolean
-  titleMacroHelp: string
+  titleMacros: TitleMacroGroup[]
 }>()
 
 const emit = defineEmits<{
@@ -59,6 +61,9 @@ const emit = defineEmits<{
 
 const { _t } = usei18n()
 const { sourceTypeLabel, lineStyleSuggestions, lineStyleLabel } = useRowLabels()
+const { renderTitleMacroHelp } = useTitleMacroHelp()
+
+const titleMacroHelp = renderTitleMacroHelp(titleMacros)
 
 const rowSelection = ref<RowSelectionState>({})
 const expandedRows = ref<Record<string, boolean>>({})
@@ -74,7 +79,7 @@ const columns: ColumnDef<DesignerItem>[] = [
     id: 'title',
     header: _t('Title'),
     minSize: 260,
-    meta: { stretch: true, headerHelp: untranslated(titleMacroHelp) }
+    meta: { stretch: true, headerHelp: titleMacroHelp }
   },
   { id: 'line_style', header: _t('Line style'), meta: { justify: 'left' } },
   { id: 'mirrored', header: _t('Mirrored'), meta: { justify: 'center' } },

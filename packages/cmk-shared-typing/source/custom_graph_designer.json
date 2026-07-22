@@ -18,7 +18,10 @@
     "critical_color": { "type": "string" },
     "logged_in_user": { "type": "string" },
     "metric_backend_available": { "type": "boolean" },
-    "title_macro_help": { "type": "string" },
+    "title_macros": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/title_macro_group" }
+    },
     "initial_breadcrumb": {
       "type": "array",
       "items": { "$ref": "#/$defs/breadcrumb_item" }
@@ -34,11 +37,27 @@
     "critical_color",
     "logged_in_user",
     "metric_backend_available",
-    "title_macro_help",
+    "title_macros",
     "initial_breadcrumb",
     "time_picker"
   ],
   "$defs": {
+    "title_macro_group": {
+      "title": "TitleMacroGroup",
+      "type": "object",
+      "properties": {
+        "source_type": {
+          "title": "TitleMacroSourceType",
+          "type": "string",
+          "enum": ["rrd_metric", "rrd_query", "metric_backend", "constant", "scalar", "rrd_formula"]
+        },
+        "macros": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["source_type", "macros"]
+    },
     "breadcrumb_item": {
       "title": "BreadcrumbItem",
       "type": "object",

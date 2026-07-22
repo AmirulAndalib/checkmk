@@ -200,7 +200,7 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
         :palette="palette"
         :thresholds="{ warning: warning_color, critical: critical_color }"
         :metric-backend-available="metric_backend_available"
-        :title-macro-help="title_macro_help"
+        :title-macros="title_macros"
         @saved="onSaved"
       />
     </div>

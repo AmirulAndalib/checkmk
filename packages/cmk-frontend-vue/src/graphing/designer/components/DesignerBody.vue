@@ -4,7 +4,10 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { CustomGraphDesignerMode } from 'cmk-shared-typing/typescript/custom_graph_designer'
+import type {
+  CustomGraphDesignerMode,
+  TitleMacroGroup
+} from 'cmk-shared-typing/typescript/custom_graph_designer'
 import { computed, ref, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
@@ -43,7 +46,7 @@ const {
   palette,
   thresholds,
   metricBackendAvailable,
-  titleMacroHelp
+  titleMacros
 } = defineProps<{
   graph: CustomGraphObject
   graphName: string
@@ -54,7 +57,7 @@ const {
   palette: readonly string[]
   thresholds: { warning: string; critical: string }
   metricBackendAvailable: boolean
-  titleMacroHelp: string
+  titleMacros: TitleMacroGroup[]
 }>()
 
 const emit = defineEmits<{
@@ -274,7 +277,7 @@ const calculationDelete = useDeleteWithDependents(store)
               :store="store"
               :thresholds="thresholds"
               :metric-backend-available="metricBackendAvailable"
-              :title-macro-help="titleMacroHelp"
+              :title-macros="titleMacros"
               @add-calculation="slideoutOpen = true"
             />
           </CmkTabContent>
