@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import pprint
 import uuid
 from collections.abc import Mapping
 from pathlib import Path
@@ -100,8 +99,8 @@ class KeypairStore:
     def save(self, keys: KeypairMap) -> None:
         self._path.parent.mkdir(mode=0o770, exist_ok=True, parents=True)
         with store.locked(self._path):
-            store.save_mk_file(
-                self._path, f"{self._attr}.update({pprint.pformat(self._unparse(keys))})"
+            store.save_to_mk_file(
+                self._path, key=self._attr, value=self._unparse(keys), pprint_value=True
             )
 
     @staticmethod
