@@ -51,12 +51,10 @@ from .in_out_elements import (
     TTY_RED,
 )
 from .models import EditionV2, EditionV3
-from .parse import WerkV3ParseResult
+from .parse import WerkMetadata, WerkV3ParseResult
 from .schemas.werk import LegacyStash, Stash, Werk, WerkId
 
 WerkVersion = Literal["v1", "markdown"]
-
-WerkMetadata = dict[str, str]
 
 WERK_ID_RANGES = {
     # start is inclusive, end is exclusive, as it is in range()
@@ -544,7 +542,7 @@ def main_list(args: argparse.Namespace, fmt: str) -> None:
     for werk in werks:
         skip = False
         for tp, entries in filters.items():
-            value = werk.content.metadata[tp]
+            value = werk.content.metadata[tp]  # type: ignore[literal-required]
             if tp == "edition":
                 with suppress(ValueError):
                     value = EditionV3.from_v2(EditionV2(value)).value
