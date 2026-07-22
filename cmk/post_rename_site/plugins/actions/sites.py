@@ -6,9 +6,8 @@
 from logging import Logger
 
 from cmk.ccc.site import SiteId
-from cmk.ccc.version import edition
-from cmk.gui import main_modules
-from cmk.gui.config import load_config
+from cmk.gui.config import active_config
+from cmk.gui.logged_in import user
 from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.post_rename_site.internal import (
@@ -17,7 +16,6 @@ from cmk.post_rename_site.internal import (
     SortIndex,
     Title,
 )
-from cmk.utils import paths
 
 
 def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger) -> None:
@@ -31,11 +29,6 @@ def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger)
     - etc/check_mk/dcd.d/wato/distributed.mk
     - etc/nagvis/conf.d/cmk_backends.ini.php
     """
-    # The site management registry is populated by the GUI plug-in registration. The
-    # registration only runs once per process; the call is a no-op in case another
-    # rename action already did it.
-    main_modules.register(edition(paths.omd_root))
-
     changed = False
     site_mgmt = site_management_registry["site_management"]
     all_sites = site_mgmt.load_sites()
@@ -57,7 +50,7 @@ def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger)
             f"/{old_site_id}/", f"/{new_site_id}/"
         )
 
-        # 4. Update the "id" attribute
+        # 1. Update the "id" attribute
         site_spec["id"] = new_site_id
 
     # Iterate all sites and check for status host entries refering to the renamed site
@@ -69,15 +62,14 @@ def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger)
             site_cfg["status_host"] = (new_site_id, status_host[1])
 
     if changed:
-        config = load_config()
         site_mgmt.save_sites(
-            make_folder_tree(config),
+            make_folder_tree(active_config),
             all_sites,
             activate=True,
-            pprint_value=config.wato_pprint_config,
-            liveproxyd_enabled=config.liveproxyd_enabled,
-            use_git=config.wato_use_git,
-            acting_user_id=None,
+            pprint_value=active_config.wato_pprint_config,
+            liveproxyd_enabled=active_config.liveproxyd_enabled,
+            use_git=active_config.wato_use_git,
+            acting_user_id=user.id,
         )
 
 
