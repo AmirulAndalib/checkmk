@@ -161,6 +161,18 @@ body.main.dashlet {
   background-color: $dashlet-body-bg-color;
   box-sizing: border-box;
 
+  // Widget iframes render through the same main-navigation entry point as full
+  // pages, so their kiosk document also wraps the content in #content_area.
+  // That wrapper is main-page chrome and has no place inside a widget: its
+  // height: 100% / overflow: hidden clamps and clips the content between
+  // #dashlet_content_wrapper (the SimpleBar scroll container) and the view, so
+  // the widget stops scrolling, and its background / padding-left leak page
+  // chrome into the widget. Dropping the box from the layout makes the widget
+  // behave as it did before #content_area was introduced.
+  #content_area {
+    display: contents;
+  }
+
   div#row_info {
     display: none;
   }
