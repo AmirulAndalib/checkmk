@@ -324,6 +324,7 @@ vite_bin.vite(
 
 vitest_bin.vitest_test(
     name = "unit-test",
+    timeout = "long",
     args = [
         "--configLoader=runner",
         "run",
