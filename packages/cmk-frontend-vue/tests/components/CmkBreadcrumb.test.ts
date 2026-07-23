@@ -31,3 +31,22 @@ test('marks the last item as final and adds separators to the rest', () => {
   expect(finals[0]?.textContent?.trim()).toBe('My graph')
   expect(container.querySelectorAll('.cmk-breadcrumb__item').length).toBe(2)
 })
+
+test('keeps an overlong title in the title attribute so the clipped text stays discoverable', () => {
+  const longTitle = 'A very long custom graph title '.repeat(10).trim()
+  const { container } = render(CmkBreadcrumb, {
+    props: {
+      items: [
+        { title: longTitle, link: '/long.py' },
+        { title: longTitle, link: null }
+      ]
+    }
+  })
+
+  const link = screen.getByRole('link', { name: longTitle })
+  expect(link).toHaveClass('cmk-breadcrumb__interactive-item')
+  expect(link.getAttribute('title')).toBe(longTitle)
+
+  const staticItem = container.querySelector('.cmk-breadcrumb__static-item')
+  expect(staticItem?.getAttribute('title')).toBe(longTitle)
+})

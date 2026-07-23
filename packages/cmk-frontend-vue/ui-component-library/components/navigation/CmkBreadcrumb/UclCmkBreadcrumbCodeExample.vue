@@ -11,9 +11,9 @@ import CmkBreadcrumb from '@/components/CmkBreadcrumb'
   <CmkBreadcrumb
     :items="[
       { title: 'Monitor', link: null },
-      { title: 'Other', link: null },
-      { title: 'Linked', link: '#' },
-      { title: 'Fixed again', link: null }
+      { title: 'Hosts', link: '#' },
+      { title: 'Services', link: '#' },
+      { title: 'CPU load', link: null }
     ]"
   />
 </template>

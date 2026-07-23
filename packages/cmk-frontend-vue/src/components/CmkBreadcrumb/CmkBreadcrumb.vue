@@ -18,10 +18,15 @@ defineProps<{
       :key="item.link ?? index"
       :class="`cmk-breadcrumb__item${index === items.length - 1 ? '-final' : ''}`"
     >
-      <a v-if="item.link" :href="item.link" class="cmk-breadcrumb__interactive-item">
+      <a
+        v-if="item.link"
+        :href="item.link"
+        :title="item.title"
+        class="cmk-breadcrumb__interactive-item"
+      >
         {{ item.title }}
       </a>
-      <span v-else class="cmk-breadcrumb__static-item">
+      <span v-else :title="item.title" class="cmk-breadcrumb__static-item">
         {{ item.title }}
       </span>
     </div>
@@ -30,8 +35,27 @@ defineProps<{
 
 <style scoped>
 .cmk-breadcrumb {
-  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
   font-size: var(--font-size-normal);
+}
+
+.cmk-breadcrumb__item,
+.cmk-breadcrumb__item-final {
+  display: flex;
+  align-items: baseline;
+  flex: 1 1 0;
+  max-width: max-content;
+  min-width: 0;
+}
+
+.cmk-breadcrumb__static-item,
+.cmk-breadcrumb__interactive-item {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cmk-breadcrumb__static-item {
@@ -48,16 +72,11 @@ defineProps<{
   color: var(--font-color-breadcrumb-hover);
 }
 
-.cmk-breadcrumb__item,
-.cmk-breadcrumb__item-final {
-  display: inline-block;
-}
-
 .cmk-breadcrumb__item::after {
+  flex: 0 0 auto;
   color: var(--font-color-breadcrumb-inactive);
   content: '>';
   cursor: default;
-  display: inline-block;
   padding: 0 var(--spacing-half);
   text-decoration: none;
 }
