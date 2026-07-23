@@ -104,6 +104,7 @@ onMounted(() => {
       :no-results-hint="noElementsText"
       :disabled="disabled"
       width="fill"
+      floating
       @update:model-value="onSelect"
     />
   </div>
@@ -112,6 +113,7 @@ onMounted(() => {
 <style scoped>
 .graphing-graph-selector {
   min-width: 200px;
+  max-width: 240px;
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown, checkmk/vue-bem-naming-convention */
