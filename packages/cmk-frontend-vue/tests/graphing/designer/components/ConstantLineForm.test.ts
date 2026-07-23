@@ -16,7 +16,7 @@ test('entering a value completes a constant', async () => {
   const store = useGraphItems(PALETTE, [draft])
   render(ConstantLineForm, { props: { item: draft, store } })
 
-  await fireEvent.update(screen.getByPlaceholderText('Enter value'), '42')
+  await fireEvent.update(screen.getByRole('spinbutton', { name: 'Constant at' }), '42')
 
   expect(store.items.value[0]).toMatchObject({ type: 'constant', value: 42 })
 })

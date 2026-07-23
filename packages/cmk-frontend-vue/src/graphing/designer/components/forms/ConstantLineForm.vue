@@ -5,6 +5,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import usei18n from '@/lib/i18n'
+import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
 import CmkInput from '@/components/user-input/CmkInput.vue'
@@ -19,6 +20,8 @@ const { item, store } = defineProps<{
 
 const { _t } = usei18n()
 
+const valueInputId = useId()
+
 function onValueChange(value: number | undefined): void {
   store.replace({ ...item, value: value ?? null })
 }
@@ -27,11 +30,12 @@ function onValueChange(value: number | undefined): void {
 <template>
   <div class="graphing-constant-line-form">
     <div class="graphing-constant-line-form__field">
-      <CmkLabel variant="subtitle">{{ _t('Value') }}</CmkLabel>
+      <CmkLabel variant="subtitle" :for="valueInputId">{{ _t('Constant at') }}</CmkLabel>
       <CmkInput
+        :id="valueInputId"
         :model-value="item.value ?? undefined"
         type="number"
-        :placeholder="_t('Enter value')"
+        :placeholder="_t('Value')"
         @update:model-value="onValueChange"
       />
     </div>
@@ -49,6 +53,11 @@ function onValueChange(value: number | undefined): void {
 .graphing-constant-line-form__field {
   display: flex;
   flex-direction: column;
-  gap: var(--dimension-3);
+  gap: var(--dimension-4);
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown, checkmk/vue-bem-naming-convention */
+.graphing-constant-line-form__field :deep(input.cmk-input--number) {
+  width: 66px;
 }
 </style>
