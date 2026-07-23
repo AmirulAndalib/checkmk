@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
 "Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2026-07-22 12:38+0000\n"
+"PO-Revision-Date: 2026-07-23 00:47+0000\n"
 "Language-Team: German <https://translate.checkmk.com/projects/checkmk/dev/"
 "de/>\n"
 "Language: de\n"
@@ -1802,7 +1802,6 @@ msgstr ""
 "Synchronisation deaktivieren oder prüfen, ob Sie alle Erweiterungen "
 "benötigen.</p>"
 
-#, fuzzy
 msgid ""
 "<p>In distributed setups, Livestatus is used to transport the status "
 "information gathered in one site to the central site. Since Checkmk 1.6, it "
@@ -2947,7 +2946,6 @@ msgstr "APPEND"
 msgid "APT normal and security updates (Linux)"
 msgstr "Normale und Sicherheitsupdates für APT (Linux)"
 
-#, fuzzy
 msgid "APT updates"
 msgstr "APT-Updates"
 
@@ -2975,7 +2973,6 @@ msgstr "ASM-Passwort"
 msgid "ASM Role"
 msgstr "ASM-Rolle"
 
-#, fuzzy
 msgid "ASM authentication"
 msgstr "ASM-Authentifizierung"
 
@@ -2989,11 +2986,9 @@ msgstr ""
 "auf dem freien Mirror-Space basiert. Dies funktioniert nur für Diskgruppen "
 "mit normaler oder hoher Redundanz."
 
-#, fuzzy
 msgid "ASM disk group"
-msgstr "ASM Festplattengruppe"
+msgstr "ASM-Festplattengruppe"
 
-#, fuzzy
 msgid "ASM username"
 msgstr "ASM-Benutzername"
 
@@ -3006,7 +3001,6 @@ msgstr "AWS EC2 Instanzen"
 msgid "AWS S3 (object storage)"
 msgstr "AWS S3 (Objektspeicher)"
 
-#, fuzzy
 msgid "AWS S3 bucket"
 msgstr "AWS S3 Bucket"
 
@@ -3086,11 +3080,9 @@ msgstr "AWS/ElastiCache CPU-Auslastung"
 msgid "AWS/ElastiCache Memory"
 msgstr "AWS/ElastiCache Speicher"
 
-#, fuzzy
 msgid "AWS/ElastiCache connections"
-msgstr "AWS/ElastiCache Verbindungen"
+msgstr "AWS/ElastiCache-Verbindungen"
 
-#, fuzzy
 msgid "AWS/ElastiCache limits"
 msgstr "AWS/ElastiCache Limits"
 
@@ -3573,7 +3565,6 @@ msgstr "Alle quittieren"
 msgid "Acknowledge all failed notifications"
 msgstr "Alle fehlgeschlagenen Benachrichtigungen quittieren"
 
-#, fuzzy
 msgid "Acknowledge all incompatible Werks"
 msgstr "Alle inkompatiblen Werke quittieren"
 
