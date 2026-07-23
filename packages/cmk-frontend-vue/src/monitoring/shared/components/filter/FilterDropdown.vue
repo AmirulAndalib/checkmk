@@ -32,6 +32,7 @@ import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/type
 import { MONITORING_SERVICE } from '../MonitoringTableContext'
 import FilterBooleanGroup from './FilterBooleanGroup.vue'
 import FilterCheckboxList from './FilterCheckboxList.vue'
+import FilterColumnVisibility from './FilterColumnVisibility.vue'
 import FilterNumeric from './FilterNumeric.vue'
 import FilterStringInput from './FilterStringInput.vue'
 import type { ColumnFilterDefinition } from './types'
@@ -40,13 +41,15 @@ const FILTER_COMPONENTS: Record<ColumnFilterDefinition['type'], Component> = {
   'checkbox-list': FilterCheckboxList,
   'string-input': FilterStringInput,
   numeric: FilterNumeric,
-  'boolean-group': FilterBooleanGroup
+  'boolean-group': FilterBooleanGroup,
+  'column-visibility': FilterColumnVisibility
 }
 
 const props = defineProps<{
   definition: ColumnFilterDefinition
   /** Human-readable column name, used for the accessible popover label. */
   label: string
+  clearLabel?: string
 }>()
 
 const model = defineModel<ColumnFilterNode<FilterField> | undefined>({ default: undefined })
@@ -269,7 +272,7 @@ onBeforeUnmount(() => {
     >
       <div class="monitoring-filter-dropdown__content">
         <button class="monitoring-filter-dropdown__clear" @click="clear">
-          {{ _t('Clear') }}
+          {{ props.clearLabel ?? _t('Clear') }}
         </button>
 
         <hr class="monitoring-filter-dropdown__content-row-separator" />

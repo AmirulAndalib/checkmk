@@ -23,6 +23,7 @@ declare module '@tanstack/vue-table' {
     justify?: ColumnJustify
     filter?: ColumnFilterDefinition
     selectColumn?: boolean
+    hidden?: boolean
     /** The stretch column absorbs all remaining width. Ignored by MonitoringTable. */
     stretch?: boolean
   }

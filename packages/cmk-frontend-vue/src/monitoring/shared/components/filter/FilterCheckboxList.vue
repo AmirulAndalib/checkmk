@@ -22,6 +22,7 @@ import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
 import type { ColumnFilterNode, FilterField } from '@/monitoring/shared/api/types'
 
+import FilterSearchInput from './FilterSearchInput.vue'
 import type { CheckboxListFilter } from './types'
 
 type SelectAllState = 'checked' | 'indeterminate' | 'unchecked'
@@ -114,27 +115,15 @@ function toggleAll(): void {
   }
   setValues([...next])
 }
-
-// Escape clears a non-empty search field but keeps the dropdown open; an empty
-// field lets the event bubble to the dropdown's Escape handler, which closes it.
-function onSearchEscape(event: KeyboardEvent): void {
-  if (searchText.value) {
-    searchText.value = ''
-    event.stopPropagation()
-  }
-}
 </script>
 
 <template>
   <div class="monitoring-filter-checkbox-list">
-    <input
+    <FilterSearchInput
       v-if="showSearch"
       v-model="searchText"
-      type="text"
-      class="monitoring-filter-checkbox-list__search"
       :placeholder="_t('Filter values')"
       :aria-label="_t('Filter values')"
-      @keydown.escape="onSearchEscape"
     />
 
     <div class="monitoring-filter-checkbox-list__row monitoring-filter-checkbox-list__row--all">
@@ -175,23 +164,6 @@ function onSearchEscape(event: KeyboardEvent): void {
   display: flex;
   flex-direction: column;
   gap: var(--dimension-2);
-}
-
-.monitoring-filter-checkbox-list__search {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-  padding: var(--dimension-2) var(--dimension-4);
-  font: inherit;
-  color: var(--font-color);
-  background: var(--default-form-element-bg-color);
-  border: 1px solid var(--default-form-element-border-color);
-  border-radius: 2px;
-
-  &:focus-visible {
-    outline: 1px solid var(--success);
-    outline-offset: 1px;
-  }
 }
 
 .monitoring-filter-checkbox-list__options {

@@ -667,4 +667,78 @@ describe('MonitoringService', () => {
 
     expect(fetchBatch).toHaveBeenCalledTimes(1)
   })
+
+  describe('column visibility', () => {
+    it('hides columns flagged meta.hidden by default and leaves the rest visible', () => {
+      const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+      const service = new TestService(fetchBatch, {
+        columns: [
+          { id: 'select', header: '', meta: { selectColumn: true } },
+          { accessorKey: 'value', header: 'Value' },
+          { accessorKey: 'alias', header: 'Alias', meta: { hidden: true } }
+        ]
+      })
+
+      // Only flagged columns are present in the map; others default to visible.
+      expect(service.columnVisibility.value).toEqual({ alias: false })
+
+      service.stopPolling()
+    })
+
+    it('offers toggleable columns in order, excluding select and enableHiding:false', () => {
+      const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+      const service = new TestService(fetchBatch, {
+        columns: [
+          { id: 'select', header: '', meta: { selectColumn: true } },
+          { accessorKey: 'name', header: 'Host', enableHiding: false },
+          { accessorKey: 'address', header: 'IP address' },
+          { accessorKey: 'alias', header: 'Alias', meta: { hidden: true } }
+        ]
+      })
+
+      expect(service.toggleableColumns).toEqual([
+        { id: 'address', label: 'IP address' },
+        { id: 'alias', label: 'Alias' }
+      ])
+
+      service.stopPolling()
+    })
+
+    it('updateColumnVisibility replaces the map without triggering a refetch', async () => {
+      const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+      const service = new TestService(fetchBatch, {
+        columns: [{ accessorKey: 'alias', header: 'Alias', meta: { hidden: true } }]
+      })
+
+      await vi.advanceTimersByTimeAsync(0)
+      expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+      service.updateColumnVisibility({ alias: true })
+      await vi.advanceTimersByTimeAsync(0)
+
+      expect(service.columnVisibility.value).toEqual({ alias: true })
+      // Visibility is client-side, so it must not cause another server fetch.
+      expect(fetchBatch).toHaveBeenCalledTimes(1)
+
+      service.stopPolling()
+    })
+
+    it('resetColumnVisibility restores the default column set', () => {
+      const fetchBatch = vi.fn().mockResolvedValue(makeResponse([], 0, 0))
+      const service = new TestService(fetchBatch, {
+        columns: [
+          { accessorKey: 'address', header: 'IP address' },
+          { accessorKey: 'alias', header: 'Alias', meta: { hidden: true } }
+        ]
+      })
+
+      service.updateColumnVisibility({ alias: true, address: false })
+      expect(service.columnVisibility.value).toEqual({ alias: true, address: false })
+
+      service.resetColumnVisibility()
+      expect(service.columnVisibility.value).toEqual({ alias: false })
+
+      service.stopPolling()
+    })
+  })
 })

@@ -3,7 +3,12 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/vue-table'
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState
+} from '@tanstack/vue-table'
 import {
   type ComputedRef,
   type Ref,
@@ -14,6 +19,8 @@ import {
   watch
 } from 'vue'
 
+import { untranslated } from '@/lib/i18n'
+import type { TranslatedString } from '@/lib/i18nString'
 import type { KeyShortcutService } from '@/lib/keyShortcuts'
 import { ServiceBase } from '@/lib/service/base'
 
@@ -55,6 +62,60 @@ export interface MonitoringServiceOptions<T> {
 
 export type RequestedLimit = number | null
 
+export interface ToggleableColumn {
+  id: string
+  label: TranslatedString
+}
+
+export function columnId<T>(column: ColumnDef<T>): string | undefined {
+  if (column.id !== undefined) {
+    return column.id
+  }
+  if ('accessorKey' in column && column.accessorKey !== undefined) {
+    return String(column.accessorKey)
+  }
+  return undefined
+}
+
+function columnLabel<T>(column: ColumnDef<T>, id: string): string {
+  if (typeof column.header === 'string' && column.header !== '') {
+    return column.header
+  }
+  return column.meta?.headerTitle?.toString() ?? id
+}
+
+function isToggleable<T>(column: ColumnDef<T>): boolean {
+  return !column.meta?.selectColumn && column.enableHiding !== false
+}
+
+function buildToggleableColumns<T>(columns: ColumnDef<T>[]): ToggleableColumn[] {
+  const result: ToggleableColumn[] = []
+  for (const column of columns) {
+    if (!isToggleable(column)) {
+      continue
+    }
+    const id = columnId(column)
+    if (id === undefined) {
+      continue
+    }
+    result.push({ id, label: untranslated(columnLabel(column, id)) })
+  }
+  return result
+}
+
+function computeDefaultVisibility<T>(columns: ColumnDef<T>[]): VisibilityState {
+  const visibility: VisibilityState = {}
+  for (const column of columns) {
+    if (column.meta?.hidden) {
+      const id = columnId(column)
+      if (id !== undefined) {
+        visibility[id] = false
+      }
+    }
+  }
+  return visibility
+}
+
 export abstract class MonitoringService<T> extends ServiceBase {
   readonly items: Ref<T[]> = shallowRef<T[]>([])
   readonly matched: Ref<number> = ref(0)
@@ -71,6 +132,10 @@ export abstract class MonitoringService<T> extends ServiceBase {
    *  committed (or sent) query, which only changes on submit. */
   readonly committedSearchQuery: Ref<string> = ref('')
   readonly filterState: Ref<FilterNode | undefined> = ref(undefined)
+
+  readonly toggleableColumns: ToggleableColumn[]
+  readonly columnVisibility: Ref<VisibilityState> = ref<VisibilityState>({})
+  readonly defaultColumnVisibility: VisibilityState
 
   /** Owns all filter state: quick-filters and active conditions. */
   readonly filters: FilterStore
@@ -106,6 +171,10 @@ export abstract class MonitoringService<T> extends ServiceBase {
       limitTiers = [],
       mayRemoveLimit = false
     } = options
+
+    this.toggleableColumns = buildToggleableColumns(columns)
+    this.defaultColumnVisibility = computeDefaultVisibility(columns)
+    this.columnVisibility.value = { ...this.defaultColumnVisibility }
 
     const numericTiers: RequestedLimit[] = limitTiers.length
       ? [...limitTiers]
@@ -179,6 +248,14 @@ export abstract class MonitoringService<T> extends ServiceBase {
   updateSearch(searchQuery: string): void {
     this.searchQuery.value = searchQuery
     void this.fetch()
+  }
+
+  updateColumnVisibility(visibility: VisibilityState): void {
+    this.columnVisibility.value = visibility
+  }
+
+  resetColumnVisibility(): void {
+    this.columnVisibility.value = { ...this.defaultColumnVisibility }
   }
 
   updateFilters(node: FilterNode | undefined): void {

@@ -6,6 +6,7 @@
 import { Folder, Page } from '@ucl/_ucl/types/page'
 
 import UclActionFormPane from './UclActionFormPane.vue'
+import UclColumnPicker from './UclColumnPicker.vue'
 import UclColumnPinning from './UclColumnPinning.vue'
 import UclEditableTable from './UclEditableTable.vue'
 import UclMonitoringActionBar from './UclMonitoringActionBar.vue'
@@ -52,5 +53,6 @@ export const pages: Array<Folder | Page> = [
   new Page('Editable table', UclEditableTable),
   new Page('Table cell breakpoints', UclTableCellBreakpoints),
   new Page('Table column pinning', UclColumnPinning),
-  new Page('Table column filters', UclTableColumnFilters)
+  new Page('Table column filters', UclTableColumnFilters),
+  new Page('Column picker', UclColumnPicker)
 ]

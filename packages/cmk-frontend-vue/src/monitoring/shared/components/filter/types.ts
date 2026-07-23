@@ -70,6 +70,10 @@ export interface BooleanGroupFilter<F extends FilterField = FilterField> {
   groups: BooleanFilterGroup<F>[]
 }
 
+export interface ColumnVisibilityFilter {
+  type: 'column-visibility'
+}
+
 /**
  * Per-column filter description, injected via `columnDef.meta.filter`. The
  * `FilterDropdown` switches its rendered content on `type`.
@@ -83,6 +87,7 @@ export type ColumnFilterDefinition<F extends FilterField = FilterField> =
   | StringInputFilter<F>
   | NumericFilter<F>
   | BooleanGroupFilter<F>
+  | ColumnVisibilityFilter
 
 /**
  * The API field(s) a column filter targets: single-field filters expose one,
@@ -91,5 +96,8 @@ export type ColumnFilterDefinition<F extends FilterField = FilterField> =
  * a concrete filter shape — a new filter type extends this one function.
  */
 export function filterFields(filter: ColumnFilterDefinition): FilterField[] {
-  return 'groups' in filter ? filter.groups.map((group) => group.field) : [filter.field]
+  if ('groups' in filter) {
+    return filter.groups.map((group) => group.field)
+  }
+  return 'field' in filter ? [filter.field] : []
 }
