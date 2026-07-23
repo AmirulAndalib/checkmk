@@ -163,8 +163,13 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
 <template>
   <div class="graphing-custom-graph-designer-app">
     <header class="graphing-custom-graph-designer-app__header">
-      <CmkBreadcrumb :items="activeBreadcrumb" />
-      <GlobalRefreshControl class="graphing-custom-graph-designer-app__refresh" />
+      <div class="graphing-custom-graph-designer-app__topbar">
+        <CmkBreadcrumb
+          class="graphing-custom-graph-designer-app__breadcrumb"
+          :items="activeBreadcrumb"
+        />
+        <GlobalRefreshControl class="graphing-custom-graph-designer-app__refresh" />
+      </div>
 
       <DesignerHeader
         :selected="selectedGraph"
@@ -229,10 +234,21 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
   border-bottom: 1px solid var(--ux-theme-4);
 }
 
+.graphing-custom-graph-designer-app__topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--dimension-6);
+}
+
+.graphing-custom-graph-designer-app__breadcrumb {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .graphing-custom-graph-designer-app__refresh {
-  position: absolute;
-  top: var(--dimension-6);
-  right: var(--dimension-6);
+  flex: 0 0 auto;
+  height: 0;
+  overflow: visible;
 }
 
 .graphing-custom-graph-designer-app__content {
