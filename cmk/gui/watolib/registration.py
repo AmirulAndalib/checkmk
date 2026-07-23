@@ -130,12 +130,12 @@ def register(
     folder_validators_registry.register(
         FolderValidators(
             str(edition),
-            validate_edit_host=lambda s, n, a: None,
-            validate_create_hosts=lambda e, s: None,
-            validate_create_subfolder=lambda f, a: None,
-            validate_edit_folder=lambda f, a: None,
-            validate_move_hosts=lambda f, n, t: None,
-            validate_move_subfolder_to=lambda f, t: None,
+            validate_edit_host=lambda s, n, a, si: None,
+            validate_create_hosts=lambda e, s, si: None,
+            validate_create_subfolder=lambda f, a, si: None,
+            validate_edit_folder=lambda f, a, si: None,
+            validate_move_hosts=lambda f, n, t, si: None,
+            validate_move_subfolder_to=lambda f, t, si: None,
         )
     )
     _sync_remote_sites.register(automation_command_registry, cron_job_registry)

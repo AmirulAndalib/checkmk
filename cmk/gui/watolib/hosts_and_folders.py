@@ -2539,7 +2539,9 @@ class Folder:
         acting_user.need_permission("wato.manage_folders")
         self.permissions.need_permission("write", acting_user)
         self.need_unlocked_subfolders()
-        self.validators.validate_create_subfolder(self, attributes)
+        self.validators.validate_create_subfolder(
+            self, attributes, SiteConfigurations(self.tree.config.sites)
+        )
         _must_be_in_contactgroups(_get_cgconf_from_attributes(attributes)["groups"], acting_user)
 
         attributes = update_metadata(attributes, created_by=acting_user.id)
@@ -2616,7 +2618,9 @@ class Folder:
         target_folder.permissions.need_permission("write", acting_user)
         target_folder.need_unlocked_subfolders()
         subfolder.need_recursive_permission("write", acting_user)  # Inheritance is changed
-        self.validators.validate_move_subfolder_to(subfolder, target_folder)
+        self.validators.validate_move_subfolder_to(
+            subfolder, target_folder, SiteConfigurations(self.tree.config.sites)
+        )
         if os.path.exists(target_folder.filesystem_path() + "/" + subfolder.name()):
             raise MKUserError(
                 None,
@@ -2699,7 +2703,9 @@ class Folder:
         acting_user.need_permission("wato.edit_folders")
         self.permissions.need_permission("write", acting_user)
         self.need_unlocked()
-        self.validators.validate_edit_folder(self, new_attributes)
+        self.validators.validate_edit_folder(
+            self, new_attributes, SiteConfigurations(self.tree.config.sites)
+        )
 
         # For changing contact groups user needs write permission on parent folder
         new_cgconf = _get_cgconf_from_attributes(new_attributes)
@@ -2780,7 +2786,9 @@ class Folder:
         """
         # 1. Check preconditions
         self.prepare_create_hosts(acting_user=acting_user)
-        self.validators.validate_create_hosts(entries, self.site_id())
+        self.validators.validate_create_hosts(
+            entries, self.site_id(), SiteConfigurations(self.tree.config.sites)
+        )
 
         self.create_validated_hosts(
             [
@@ -3015,7 +3023,9 @@ class Folder:
         self.need_unlocked_hosts()
         target_folder.permissions.need_permission("write", acting_user)
         target_folder.need_unlocked_hosts()
-        self.validators.validate_move_hosts(self, host_names, target_folder)
+        self.validators.validate_move_hosts(
+            self, host_names, target_folder, SiteConfigurations(self.tree.config.sites)
+        )
 
         # 2. Actual modification
         for host_name in host_names:
@@ -3874,7 +3884,9 @@ class Host:
         self.need_unlocked()
 
         folder = self.folder()
-        folder.validators.validate_edit_host(folder.site_id(), self.name(), attributes)
+        folder.validators.validate_edit_host(
+            folder.site_id(), self.name(), attributes, SiteConfigurations(folder.tree.config.sites)
+        )
         _validate_contact_group_modification(
             _get_cgconf_from_attributes(self.attributes)["groups"],
             _get_cgconf_from_attributes(attributes)["groups"],
@@ -4386,16 +4398,28 @@ class FolderSiteStats:
 
 @dataclass(frozen=True)
 class FolderValidators:
+    """Edition specific validation of Setup folder and host changes
+
+    The callbacks get the site configurations passed explicitly: they are the
+    part of the config the validations (customer assignments of sites) are
+    based on, and the callbacks must not rely on a request context being
+    around (e.g. cmk-post-rename-site runs them unattended).
+    """
+
     ident: str
-    validate_edit_host: Callable[[SiteId, HostName, HostAttributes], None]
+    validate_edit_host: Callable[[SiteId, HostName, HostAttributes, SiteConfigurations], None]
     validate_create_hosts: Callable[
-        [Iterable[tuple[HostName, HostAttributes, Sequence[HostName] | None]], SiteId],
+        [
+            Iterable[tuple[HostName, HostAttributes, Sequence[HostName] | None]],
+            SiteId,
+            SiteConfigurations,
+        ],
         None,
     ]
-    validate_create_subfolder: Callable[[Folder, HostAttributes], None]
-    validate_edit_folder: Callable[[Folder, HostAttributes], None]
-    validate_move_hosts: Callable[[Folder, Iterable[HostName], Folder], None]
-    validate_move_subfolder_to: Callable[[Folder, Folder], None]
+    validate_create_subfolder: Callable[[Folder, HostAttributes, SiteConfigurations], None]
+    validate_edit_folder: Callable[[Folder, HostAttributes, SiteConfigurations], None]
+    validate_move_hosts: Callable[[Folder, Iterable[HostName], Folder, SiteConfigurations], None]
+    validate_move_subfolder_to: Callable[[Folder, Folder, SiteConfigurations], None]
 
 
 class FolderValidatorsRegistry(Registry[FolderValidators]):
