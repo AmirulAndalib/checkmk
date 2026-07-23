@@ -123,7 +123,7 @@ watch(
 )
 
 type Tab = 'appearance' | 'metrics'
-const activeTab = ref<Tab>('appearance')
+const activeTab = ref<Tab>('metrics')
 const TABS: { id: Tab; label: TranslatedString }[] = [
   { id: 'appearance', label: _t('Graph appearance') },
   { id: 'metrics', label: _t('Metrics selection') }

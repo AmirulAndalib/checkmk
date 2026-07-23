@@ -336,6 +336,7 @@ test('edit mode fetches hidden rows as visible and shows their stats', async () 
     )
   )
   await renderApp({ mode: 'edit' })
+  await userEvent.click(await screen.findByRole('tab', { name: 'Graph appearance' }))
 
   // The hidden row B still gets stats in the appearance table.
   expect((await screen.findAllByText(/123/)).length).toBeGreaterThan(0)
