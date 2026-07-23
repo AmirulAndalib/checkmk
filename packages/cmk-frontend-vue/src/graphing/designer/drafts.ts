@@ -100,7 +100,7 @@ export function newRrdMetricDraft(id: ItemId, color: string): DraftRRDMetricItem
     host_name: null,
     service_name: null,
     metric_name: null,
-    consolidation: 'avg'
+    consolidation: 'max'
   }
 }
 
@@ -114,7 +114,7 @@ export function newRrdQueryDraft(id: ItemId): DraftRRDQueryItem {
     visible: true,
     context: {},
     metric_name: null,
-    consolidation: 'avg'
+    consolidation: 'max'
   }
 }
 

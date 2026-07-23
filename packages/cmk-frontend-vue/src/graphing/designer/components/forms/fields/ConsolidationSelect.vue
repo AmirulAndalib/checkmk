@@ -7,6 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
+import useId from '@/lib/useId'
 
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkLabel from '@/components/CmkLabel.vue'
@@ -29,6 +30,8 @@ const emit = defineEmits<{
 const { _t } = usei18n()
 const labels = useConsolidationFunctionLabels()
 
+const consolidationId = useId()
+
 const suggestions = computed(() => ({
   type: 'fixed' as const,
   suggestions: CONSOLIDATION_FUNCTIONS.map((name) => ({ name, title: labels.value[name] }))
@@ -43,9 +46,10 @@ function onChange(value: string | null): void {
 
 <template>
   <div class="graphing-consolidation-select">
-    <CmkLabel variant="subtitle">{{ _t('Then consolidate by') }}</CmkLabel>
+    <CmkLabel variant="subtitle" :for="consolidationId">{{ _t('Then consolidate by') }}</CmkLabel>
     <CmkDropdown
       :model-value="modelValue"
+      :component-id="consolidationId"
       :options="suggestions"
       :label="_t('Consolidation function')"
       floating

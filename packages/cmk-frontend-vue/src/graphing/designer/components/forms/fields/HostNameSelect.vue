@@ -7,13 +7,16 @@ conditions defined in the file COPYING, which is part of this source code packag
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
 
 import usei18n from '@/lib/i18n'
+import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
+import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
-const { modelValue } = defineProps<{
+const { modelValue, required = false } = defineProps<{
   modelValue: string | null
+  required?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +24,8 @@ const emit = defineEmits<{
 }>()
 
 const { _t } = usei18n()
+
+const hostNameId = useId()
 
 const hostAutocompleter: Autocompleter = {
   fetch_method: 'rest_autocomplete',
@@ -30,8 +35,11 @@ const hostAutocompleter: Autocompleter = {
 
 <template>
   <div class="graphing-host-name-select">
-    <CmkLabel variant="subtitle">{{ _t('Host name') }}</CmkLabel>
+    <CmkLabel variant="subtitle" :for="hostNameId">
+      {{ _t('Host name') }}<CmkLabelRequired :show="required" space="before" />
+    </CmkLabel>
     <FormAutocompleter
+      :id="hostNameId"
       :model-value="modelValue"
       :autocompleter="hostAutocompleter"
       :size="0"

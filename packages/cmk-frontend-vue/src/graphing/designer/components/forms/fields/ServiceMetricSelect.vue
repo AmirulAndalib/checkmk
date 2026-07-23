@@ -9,6 +9,7 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
+import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
 import type { ConfiguredFilters } from '@/components/filter'
@@ -37,6 +38,8 @@ const emit = defineEmits<{
 
 const { _t } = usei18n()
 
+const metricId = useId()
+
 const metricAutocompleter = computed<Autocompleter>(() => ({
   fetch_method: 'rest_autocomplete',
   data: {
@@ -48,10 +51,11 @@ const metricAutocompleter = computed<Autocompleter>(() => ({
 
 <template>
   <div class="graphing-service-metric-select">
-    <CmkLabel variant="subtitle"
-      >{{ _t('Service metric') }}<CmkLabelRequired :show="required" space="before"
-    /></CmkLabel>
+    <CmkLabel variant="subtitle" :for="metricId">
+      {{ _t('Service metric') }}<CmkLabelRequired :show="required" space="before" />
+    </CmkLabel>
     <FormAutocompleter
+      :id="metricId"
       :model-value="modelValue"
       :autocompleter="metricAutocompleter"
       :size="0"

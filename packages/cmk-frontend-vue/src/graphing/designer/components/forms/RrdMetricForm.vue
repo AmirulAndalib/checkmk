@@ -59,15 +59,17 @@ function onConsolidationChange(value: ConsolidationFn): void {
 
 <template>
   <div class="graphing-rrd-metric-form">
-    <HostNameSelect :model-value="item.host_name" @update:model-value="onHostChange" />
+    <HostNameSelect :model-value="item.host_name" required @update:model-value="onHostChange" />
     <ServiceNameSelect
       :model-value="item.service_name"
       :host-name="item.host_name"
+      required
       @update:model-value="onServiceChange"
     />
     <ServiceMetricSelect
       :model-value="item.metric_name"
       :context="metricContext"
+      required
       @update:model-value="onMetricChange"
     />
     <ConsolidationSelect

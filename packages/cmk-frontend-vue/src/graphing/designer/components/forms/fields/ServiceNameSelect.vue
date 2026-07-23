@@ -8,16 +8,23 @@ import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_co
 import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
+import useId from '@/lib/useId'
 
 import CmkLabel from '@/components/CmkLabel.vue'
+import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
 
 import { hostServiceContext } from './utils'
 
-const { modelValue, hostName } = defineProps<{
+const {
+  modelValue,
+  hostName,
+  required = false
+} = defineProps<{
   modelValue: string | null
   hostName: string | null
+  required?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -25,6 +32,8 @@ const emit = defineEmits<{
 }>()
 
 const { _t } = usei18n()
+
+const serviceNameId = useId()
 
 const serviceAutocompleter = computed<Autocompleter>(() => ({
   fetch_method: 'rest_autocomplete',
@@ -41,8 +50,11 @@ const serviceAutocompleter = computed<Autocompleter>(() => ({
 
 <template>
   <div class="graphing-service-name-select">
-    <CmkLabel variant="subtitle">{{ _t('Service') }}</CmkLabel>
+    <CmkLabel variant="subtitle" :for="serviceNameId">
+      {{ _t('Service') }}<CmkLabelRequired :show="required" space="before" />
+    </CmkLabel>
     <FormAutocompleter
+      :id="serviceNameId"
       :model-value="modelValue"
       :autocompleter="serviceAutocompleter"
       :size="0"

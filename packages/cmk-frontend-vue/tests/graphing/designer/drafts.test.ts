@@ -104,7 +104,7 @@ describe('drafts and converters', () => {
     expect(draft.mirrored).toBe(false)
     expect(draft.visible).toBe(true)
     expect(draft.color).toBe('#123456')
-    expect(draft.consolidation).toBe('avg')
+    expect(draft.consolidation).toBe('max')
   })
 
   test('a fresh scalar draft starts as a warning threshold with an empty selection', () => {
@@ -135,7 +135,7 @@ describe('drafts and converters', () => {
       visible: true,
       context: {},
       metric_name: null,
-      consolidation: 'avg'
+      consolidation: 'max'
     })
   })
 

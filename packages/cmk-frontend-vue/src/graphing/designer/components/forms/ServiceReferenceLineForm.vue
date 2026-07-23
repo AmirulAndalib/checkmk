@@ -8,6 +8,7 @@ import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
+import useId from '@/lib/useId'
 
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkLabel from '@/components/CmkLabel.vue'
@@ -27,6 +28,8 @@ const { item, store, thresholds } = defineProps<{
 }>()
 
 const { _t } = usei18n()
+
+const thresholdId = useId()
 
 const SCALAR_TYPE_TITLES: Record<ScalarItem['scalar_type'], TranslatedString> = {
   warning: _t('Warning'),
@@ -79,22 +82,25 @@ function onMetricChange(metricName: string | null): void {
 
 <template>
   <div class="graphing-service-reference-line-form">
-    <HostNameSelect :model-value="item.host_name" @update:model-value="onHostChange" />
+    <HostNameSelect :model-value="item.host_name" required @update:model-value="onHostChange" />
     <ServiceNameSelect
       :model-value="item.service_name"
       :host-name="item.host_name"
+      required
       @update:model-value="onServiceChange"
     />
     <ServiceMetricSelect
       :model-value="item.metric_name"
       :context="metricContext"
+      required
       @update:model-value="onMetricChange"
     />
 
     <div class="graphing-service-reference-line-form__field">
-      <CmkLabel variant="subtitle">{{ _t('Threshold') }}</CmkLabel>
+      <CmkLabel variant="subtitle" :for="thresholdId">{{ _t('Threshold') }}</CmkLabel>
       <CmkDropdown
         :model-value="item.scalar_type"
+        :component-id="thresholdId"
         :options="scalarTypeSuggestions"
         :label="_t('Threshold type')"
         floating
