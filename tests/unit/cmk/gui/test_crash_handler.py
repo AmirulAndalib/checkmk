@@ -41,6 +41,32 @@ def test_gui_crash_report_from_exception_without_request_context(tmp_path: Path)
         )
 
 
+def test_gui_crash_report_strips_html_from_exc_value(tmp_path: Path) -> None:
+    try:
+        raise ValueError(
+            "Error running automation call <tt>bake-agents</tt> (exit code 2), error: "
+            "<pre>[ERROR] failed\nTraceback (most recent call last):\n  boom</pre>"
+        )
+    except ValueError:
+        report = GUICrashReport.from_exception(
+            version_info=VersionInfo(
+                core="test",
+                python_version="test",
+                edition="test",
+                python_paths=["foo", "bar"],
+                version="3.99",
+                time=0.0,
+                os="Foobuntu",
+            ),
+            crash_report_base_path=make_crash_report_base_path(tmp_path),
+        )
+    exc_value = report.crash_info["exc_value"]
+    assert "<" not in exc_value
+    assert exc_value.startswith(
+        "Error running automation call bake-agents (exit code 2), error: [ERROR] failed"
+    )
+
+
 @pytest.mark.usefixtures("request_context")
 def test_gui_crash_report_from_exception_with_request_context(tmp_path: Path) -> None:
     try:

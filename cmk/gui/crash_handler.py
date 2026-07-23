@@ -11,6 +11,7 @@ import cmk.utils.paths
 from cmk.ccc.site import omd_site
 from cmk.crash import (
     ABCCrashReport,
+    CrashInfo,
     CrashReportStore,
     make_crash_report_base_path,
     VersionInfo,
@@ -54,6 +55,15 @@ class GUICrashReport(ABCCrashReport[GUIDetails]):
     @classmethod
     def type(cls) -> str:
         return "gui"
+
+    @override
+    @classmethod
+    def make_crash_info(
+        cls, version_info: VersionInfo, details: GUIDetails
+    ) -> CrashInfo[GUIDetails]:
+        crash_info = super().make_crash_info(version_info, details)
+        crash_info["exc_value"] = escaping.strip_tags(crash_info["exc_value"])
+        return crash_info
 
     @classmethod
     def from_exception(
