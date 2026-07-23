@@ -14,7 +14,6 @@ import os
 import shlex
 import subprocess
 import sys
-import time
 import traceback
 from collections.abc import Iterator, Sequence
 from contextlib import suppress
@@ -464,12 +463,6 @@ def git_top_level() -> str:
 
 def something_in_git_index() -> bool:
     return any(line[0] == "M" for line in os.popen("git status --porcelain"))
-
-
-def add_comment(werk: Werk, title: str, comment: str) -> None:
-    werk.content.metadata["description"] += f"""
-{time.strftime("%F %T")}: {title}
-{comment}"""
 
 
 def list_werk(werk: Werk) -> None:
