@@ -5,7 +5,6 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import type { AttributeFilter } from 'cmk-shared-typing/typescript/attribute_filter'
 import type { GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
 import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
 import { ref, watch } from 'vue'
@@ -37,9 +36,7 @@ import {
   type ThreeLists,
   VALUE_IDENTS,
   buildAutocompleteContext,
-  fromAttributeFilter,
   fromModel,
-  toAttributeFilter,
   toModel
 } from './attributeFilterAdapter'
 
@@ -69,9 +66,6 @@ const scopeAttributes = defineModel<GraphLineQueryAttributes>('scopeAttributes',
 const dataPointAttributes = defineModel<GraphLineQueryAttributes>('dataPointAttributes', {
   default: []
 })
-const attributeFilter = defineModel<AttributeFilter | undefined>('attributeFilter', {
-  default: undefined
-})
 
 const LOCATION_TO_KIND: Record<string, AttributeKindKey> = {
   resource_attributes: 'resource',
@@ -85,22 +79,18 @@ const SECTION_TITLES: Record<AttributeKindKey, TranslatedString> = {
   data_point: _t('Data point')
 }
 
-// The pill model is the UI's source of truth; a config predating the single
-// filter arrives without it, so derive the pills from the three lists instead.
+// The flat pill model is the single source of truth; the three list models are
+// kept in sync from it.
 const filterModel = ref<AttributeFilterModel>(
-  attributeFilter.value
-    ? fromAttributeFilter(attributeFilter.value, () => randomId())
-    : toModel(
-        {
-          resource: resourceAttributes.value,
-          scope: scopeAttributes.value,
-          data_point: dataPointAttributes.value
-        },
-        () => randomId()
-      )
+  toModel(
+    {
+      resource: resourceAttributes.value,
+      scope: scopeAttributes.value,
+      data_point: dataPointAttributes.value
+    },
+    () => randomId()
+  )
 )
-// Populate the filter up front so an unedited form still submits it (watch fires only on change).
-attributeFilter.value = toAttributeFilter(filterModel.value)
 // A key may be offered under more than one attribute kind, so record the set of
 // kinds each suggested key belongs to (see `resolveAttributeKind`).
 const keyKindCache = new Map<string, Set<AttributeKindKey>>()
@@ -128,7 +118,6 @@ function attributesEqual(a: GraphLineQueryAttributes, b: GraphLineQueryAttribute
 watch(
   filterModel,
   (model) => {
-    attributeFilter.value = toAttributeFilter(model)
     const lists = fromModel(model)
     if (!attributesEqual(lists.resource, resourceAttributes.value)) {
       resourceAttributes.value = lists.resource

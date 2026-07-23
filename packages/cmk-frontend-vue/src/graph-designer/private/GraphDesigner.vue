@@ -9,6 +9,8 @@ import type { ConfigEntityType } from 'cmk-shared-typing/typescript/configuratio
 import {
   type GraphLine,
   type Query as GraphLineQuery,
+  type GraphLineQueryAttribute,
+  type GraphLineQueryAttributes,
   type GraphLines,
   type GraphOptions,
   type Operation,
@@ -325,12 +327,9 @@ function generateGraphLine(graphLine: GraphLine): GraphLine {
         line_type: graphLine.line_type,
         mirrored: graphLine.mirrored,
         metric_name: graphLine.metric_name,
-        resource_attributes: graphLine.resource_attributes ?? [],
-        scope_attributes: graphLine.scope_attributes ?? [],
-        data_point_attributes: graphLine.data_point_attributes ?? [],
-        ...(graphLine.attribute_filter !== undefined
-          ? { attribute_filter: graphLine.attribute_filter }
-          : {}),
+        resource_attributes: graphLine.resource_attributes,
+        scope_attributes: graphLine.scope_attributes,
+        data_point_attributes: graphLine.data_point_attributes,
         consolidation_function: graphLine.consolidation_function
       }
     case 'metric':
@@ -459,9 +458,6 @@ async function addQuery() {
       resource_attributes: dataQuery.value.resourceAttributes,
       scope_attributes: dataQuery.value.scopeAttributes,
       data_point_attributes: dataQuery.value.dataPointAttributes,
-      ...(dataQuery.value.attributeFilter !== undefined
-        ? { attribute_filter: dataQuery.value.attributeFilter }
-        : {}),
       consolidation_function: dataQuery.value.consolidationFunction
     })
     dataQuery.value = {
@@ -803,6 +799,10 @@ watch(
   { deep: true }
 )
 
+function compareQueryAttributes(a: GraphLineQueryAttribute[], b: GraphLineQueryAttribute[]) {
+  return a.length === b.length && a.every((element, index) => element === b[index])
+}
+
 function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationFunction): boolean {
   switch (a.function) {
     case 'gauge_last':
@@ -827,17 +827,12 @@ function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationF
   }
 }
 
-function sameAttributeFilter(
-  a: GraphLineQuery['attribute_filter'],
-  b: GraphLineQuery['attribute_filter']
-): boolean {
-  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
-}
-
 function sameQuery(a: GraphLineQuery, b: GraphLineQuery): boolean {
   return (
     a.metric_name === b.metric_name &&
-    sameAttributeFilter(a.attribute_filter, b.attribute_filter) &&
+    compareQueryAttributes(a.resource_attributes, b.resource_attributes) &&
+    compareQueryAttributes(a.scope_attributes, b.scope_attributes) &&
+    compareQueryAttributes(a.data_point_attributes, b.data_point_attributes) &&
     consolidationEquals(a.consolidation_function, b.consolidation_function)
   )
 }
@@ -872,6 +867,12 @@ function openSlideIn(graphLine: GraphLine) {
 function closeSlideIn() {
   slideInOpen.value = false
   graphLineQuery.value = null
+}
+
+function transformQueryAttributes(attributes: GraphLineQueryAttributes) {
+  return attributes.map((attr) => {
+    return { key: attr.key, value: attr.value }
+  })
 }
 
 function setLockedValue(catalog: Catalog) {
@@ -914,7 +915,11 @@ const slideInAPI = {
         const cf = graphLineQuery.value.consolidation_function
         const queryAttributes = {
           metric_name: graphLineQuery.value.metric_name,
-          attribute_filter: graphLineQuery.value.attribute_filter,
+          resource_attributes: transformQueryAttributes(graphLineQuery.value.resource_attributes),
+          scope_attributes: transformQueryAttributes(graphLineQuery.value.scope_attributes),
+          data_point_attributes: transformQueryAttributes(
+            graphLineQuery.value.data_point_attributes
+          ),
           aggregation_lookback: cf.lookback_seconds,
           aggregation_histogram_percentile: consolidationPercentile(cf),
           service_name_template:
@@ -1239,10 +1244,9 @@ const graphDesignerContentAsJson = computed(() => {
             {{ _t('Query') }}:
             <FormMetricBackendCustomQuery
               v-model:metric-name="graphLine.metric_name"
-              v-model:resource-attributes="graphLine.resource_attributes!"
-              v-model:scope-attributes="graphLine.scope_attributes!"
-              v-model:data-point-attributes="graphLine.data_point_attributes!"
-              v-model:attribute-filter="graphLine.attribute_filter"
+              v-model:resource-attributes="graphLine.resource_attributes"
+              v-model:scope-attributes="graphLine.scope_attributes"
+              v-model:data-point-attributes="graphLine.data_point_attributes"
               v-model:consolidation="graphLine.consolidation_function"
               :backend-validation="validateFormMetricBackendCustomQuery(undefined, graphLine)"
               :class="{ 'gd__yellow-border': hasLimitedReached(graphLine) }"
@@ -1349,7 +1353,6 @@ const graphDesignerContentAsJson = computed(() => {
           v-model:resource-attributes="dataQuery.resourceAttributes"
           v-model:scope-attributes="dataQuery.scopeAttributes"
           v-model:data-point-attributes="dataQuery.dataPointAttributes"
-          v-model:attribute-filter="dataQuery.attributeFilter"
           v-model:consolidation="dataQuery.consolidationFunction"
           :backend-validation="validateFormMetricBackendCustomQuery(dataQuery)"
         />

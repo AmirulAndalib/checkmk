@@ -45,7 +45,6 @@ import type {
 import { type PropType, type VNode, defineComponent, h } from 'vue'
 
 import usei18n from '@/lib/i18n'
-import { randomId } from '@/lib/randomId'
 
 import type { DualListElement } from '@/components/CmkDualList'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
@@ -59,8 +58,6 @@ import {
   groupIndexedValidations,
   groupNestedValidations
 } from '@/form/private/validation'
-
-import { fromAttributeFilter, fromModel } from '@/metric-backend/attributeFilterAdapter'
 
 import {
   type Operator,
@@ -207,34 +204,26 @@ function renderMetricBackendCustomQuery(value: MetricBackendCustomQuery): VNode 
 
   const renderAttributes = (
     title: string,
-    attributes: ReadonlyArray<{ key: string; value: string }>
+    attributes: typeof value.resource_attributes
   ): VNode | null => {
-    if (attributes.length === 0) {
+    if (!attributes || attributes.length === 0) {
       return null
     }
     const attributeText = attributes.map((attr) => `${attr.key}:${attr.value}`).join(', ')
     return h('tr', [h('td', { class: 'dict_title' }, [`${title}:`]), h('td', [attributeText])])
   }
 
-  const attributeLists = value.attribute_filter
-    ? fromModel(fromAttributeFilter(value.attribute_filter, () => randomId()))
-    : {
-        resource: value.resource_attributes ?? [],
-        scope: value.scope_attributes ?? [],
-        data_point: value.data_point_attributes ?? []
-      }
-
-  const resourceRow = renderAttributes('Resource Attributes', attributeLists.resource)
+  const resourceRow = renderAttributes('Resource Attributes', value.resource_attributes)
   if (resourceRow) {
     rows.push(resourceRow)
   }
 
-  const scopeRow = renderAttributes('Scope Attributes', attributeLists.scope)
+  const scopeRow = renderAttributes('Scope Attributes', value.scope_attributes)
   if (scopeRow) {
     rows.push(scopeRow)
   }
 
-  const dataPointRow = renderAttributes('Data Point Attributes', attributeLists.data_point)
+  const dataPointRow = renderAttributes('Data Point Attributes', value.data_point_attributes)
   if (dataPointRow) {
     rows.push(dataPointRow)
   }
