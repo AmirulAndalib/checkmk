@@ -39,7 +39,8 @@ export function useTrendChart(currentSpec: WidgetSpec | null): UseTrendChart {
   // and the flow monitoring mockups.
   const dimensionTitles: Record<Dimension, string> = {
     applications: _t('Top applications'),
-    autonomous_systems: _t('Top active ASN')
+    autonomous_systems: _t('Top active ASN'),
+    total_bandwidth: _t('Total bandwidth')
   }
 
   const currentContent =
@@ -80,7 +81,11 @@ export function useTrendChart(currentSpec: WidgetSpec | null): UseTrendChart {
 
   function validate(): boolean {
     limitToValidationErrors.value = []
-    if (limitTo.value < 1 || limitTo.value > MAX_SERIES) {
+    // Total bandwidth is a fixed two-series view; the top-N limit does not apply.
+    if (
+      dimension.value !== 'total_bandwidth' &&
+      (limitTo.value < 1 || limitTo.value > MAX_SERIES)
+    ) {
       limitToValidationErrors.value.push(`1 - ${MAX_SERIES}`)
     }
     return validateVisualization() && limitToValidationErrors.value.length === 0

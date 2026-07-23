@@ -179,7 +179,7 @@ class NetworkFlowKpiStatCardDashletConfig(DashletConfig):
     show_delta: bool
 
 
-NetworkFlowTrendChartDimension = Literal["applications", "autonomous_systems"]
+NetworkFlowTrendChartDimension = Literal["applications", "autonomous_systems", "total_bandwidth"]
 NetworkFlowTrendChartDisplayMode = Literal["lines", "stacked_area"]
 
 

@@ -137,8 +137,8 @@ class NetworkFlowTrendChartContent(BaseWidgetContent):
         "the top series of a dimension, with a statistics legend."
     )
     dimension: NetworkFlowTrendChartDimension = api_field(
-        description="Which dimension to break the traffic down into series (applications or "
-        "autonomous systems)."
+        description="Which dimension to break the traffic down into series (applications, "
+        "autonomous systems, or the total bandwidth split into ingress and egress)."
     )
     display_mode: NetworkFlowTrendChartDisplayMode = api_field(
         description="Whether to draw the series as separate lines or as cumulative stacked areas."

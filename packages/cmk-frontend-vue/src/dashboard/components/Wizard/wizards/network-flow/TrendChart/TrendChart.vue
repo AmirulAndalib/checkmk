@@ -39,7 +39,8 @@ const dimensionOptions: Suggestions = {
   type: 'fixed',
   suggestions: [
     { name: 'applications', title: _t('Applications') },
-    { name: 'autonomous_systems', title: _t('Autonomous systems') }
+    { name: 'autonomous_systems', title: _t('Autonomous systems') },
+    { name: 'total_bandwidth', title: _t('Total bandwidth') }
   ]
 }
 
@@ -95,7 +96,9 @@ defineExpose<GetValidWidgetProps>({ getValidWidgetProps })
             />
           </FieldComponent>
         </TableFormRow>
-        <TableFormRow>
+        <!-- Total bandwidth is a fixed two-series (ingress/egress) view, so a
+             top-N limit does not apply to it. -->
+        <TableFormRow v-if="handler.dimension.value !== 'total_bandwidth'">
           <FieldDescription>{{ _t('Limit to') }}</FieldDescription>
           <FieldComponent>
             <CmkInput
