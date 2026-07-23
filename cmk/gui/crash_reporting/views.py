@@ -30,6 +30,7 @@ from cmk.gui.painter.v0 import Cell, Painter
 from cmk.gui.painter_options import paint_age
 from cmk.gui.permissions import Permission, permission_registry
 from cmk.gui.type_defs import ColumnName, Row, Rows, SingleInfos, VisualContext
+from cmk.gui.utils import escaping
 from cmk.gui.utils.html import HTML
 from cmk.gui.utils.urls import makeuri_contextless
 from cmk.gui.view_utils import CellSpec
@@ -325,12 +326,15 @@ class PainterCrashException(Painter):
         return ["crash_exc_type", "crash_exc_value"]
 
     def render(self, row: Row, cell: Cell, user: LoggedInUser) -> CellSpec:
-        return (
-            None,
-            "{}: {}".format(row["crash_exc_type"], row["crash_exc_value"])
-            if user.may("general.see_crash_reports")
-            else _("Insufficient permissions to view exception details."),
-        )
+        if not user.may("general.see_crash_reports"):
+            return None, _("Insufficient permissions to view exception details.")
+        return None, self.summarize(row["crash_exc_type"], row["crash_exc_value"])
+
+    @staticmethod
+    def summarize(exc_type: str, exc_value: str) -> str:
+        plain_value = escaping.strip_tags(exc_value)
+        first_line = next((line.strip() for line in plain_value.splitlines() if line.strip()), "")
+        return f"{exc_type}: {first_line}"
 
 
 def _sort_crash_time(
