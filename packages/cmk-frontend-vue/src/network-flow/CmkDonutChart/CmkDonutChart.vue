@@ -137,9 +137,8 @@ const topSlice = computed(() => props.slices[0])
 .network-flow-cmk-donut-chart__figure {
   position: relative;
   flex: 0 0 auto;
-  align-self: stretch;
-  aspect-ratio: 1;
-  max-height: 100%;
+  width: min(60cqw, 100cqh);
+  height: min(60cqw, 100cqh);
 }
 
 .network-flow-cmk-donut-chart__svg {
