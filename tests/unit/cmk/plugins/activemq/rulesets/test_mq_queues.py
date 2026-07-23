@@ -7,7 +7,7 @@ from collections.abc import Mapping
 
 import pytest
 
-from cmk.plugins.mq.rulesets.mq_queues import _migrate
+from cmk.plugins.activemq.rulesets.mq_queues import _migrate
 
 
 @pytest.mark.parametrize(

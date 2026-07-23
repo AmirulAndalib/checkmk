@@ -8,7 +8,7 @@ from collections.abc import Sequence
 import pytest
 
 from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
-from cmk.plugins.mq.agent_based.mq_queues import (
+from cmk.plugins.activemq.agent_based.mq_queues import (
     check_mq_queues,
     discover_mq_queues,
     Params,
