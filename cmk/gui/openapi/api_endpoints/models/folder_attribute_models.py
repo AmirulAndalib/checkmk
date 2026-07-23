@@ -9,12 +9,14 @@ from typing import Annotated, Literal
 
 from pydantic import AfterValidator
 
+from cmk.ccc.version import Edition
 from cmk.gui.openapi.api_endpoints.models.attributes import (
     FolderCustomHostAttributesAndTagGroupsModel,
     HostContactGroupRequestModel,
     HostLabels,
     IPMIParametersModel,
     MetaDataModel,
+    MetricsAssociationModel,
     NetworkScanModel,
     NetworkScanResultModel,
     SNMPCredentialsConverter,
@@ -23,6 +25,7 @@ from cmk.gui.openapi.api_endpoints.models.attributes import (
 from cmk.gui.openapi.api_endpoints.models.host_attribute_models import BaseHostTagGroupModel
 from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
 from cmk.gui.openapi.framework.model.converter import HostConverter
+from cmk.gui.openapi.framework.model.restrict_editions import RestrictEditions
 from cmk.gui.openapi.framework.model.restrict_features import RestrictFeatures
 from cmk.gui.watolib.builtin_attributes import HostAttributeLabels
 from cmk.licensing.basics.options import OptionName
@@ -79,6 +82,13 @@ class BaseFolderAttributeModel:
             "will have precedence over any configured SNMP community rule. For this "
             "attribute to take effect, the attribute `tag_snmp_ds` needs to be set first."
         ),
+        default_factory=ApiOmitted,
+    )
+    metrics_association: Annotated[
+        MetricsAssociationModel | ApiOmitted,
+        RestrictEditions(supported_editions={Edition.ULTIMATE, Edition.ULTIMATEMT, Edition.CLOUD}),
+    ] = api_field(
+        description="Configuration for associating OpenTelemetry metrics with this folder.",
         default_factory=ApiOmitted,
     )
     labels: HostLabels | ApiOmitted = api_field(

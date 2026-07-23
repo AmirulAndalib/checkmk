@@ -5,7 +5,9 @@
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
+from cmk.ccc.version import Edition
 from cmk.gui.openapi.api_endpoints.models.folder_attribute_models import BaseFolderAttributeModel
+from cmk.gui.openapi.framework.model import ApiOmitted
 from cmk.licensing.basics.options import OptionName
 
 
@@ -45,3 +47,87 @@ def test_bake_agent_package_rejected_when_bakery_feature_disabled(
         TypeAdapter(  # astrein: disable=pydantic-type-adapter
             BaseFolderAttributeModel
         ).validate_python({"bake_agent_package": True})
+
+
+def test_metrics_association_enabled_multi_rule_validates_and_exposes_rules(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "cmk.gui.openapi.framework.model.restrict_editions.edition",
+        lambda _omd_root: Edition.ULTIMATE,
+    )
+    payload = {
+        "metrics_association": [
+            "enabled",
+            {
+                "host_name_lookup_rules": [
+                    {
+                        "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-a"}],
+                        "scope_attributes": [],
+                        "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
+                    },
+                    {
+                        "resource_attributes": [{"key": "k8s.pod.name", "value": "pod-b"}],
+                        "scope_attributes": [],
+                        "data_point_attributes": [],
+                        "host_name_template": "$RESOURCE_ATTR.k8s.pod.name$",
+                    },
+                ],
+            },
+        ]
+    }
+
+    model = TypeAdapter(  # astrein: disable=pydantic-type-adapter
+        BaseFolderAttributeModel
+    ).validate_python(payload)
+
+    assert not isinstance(model.metrics_association, ApiOmitted)
+    status, config = model.metrics_association
+    assert status == "enabled"
+    assert config is not None
+    rules = config.host_name_lookup_rules
+    assert [(f.key, f.value) for f in rules[0].resource_attributes] == [("k8s.pod.name", "pod-a")]
+    assert [(f.key, f.value) for f in rules[1].resource_attributes] == [("k8s.pod.name", "pod-b")]
+    assert rules[1].host_name_template == "$RESOURCE_ATTR.k8s.pod.name$"
+
+
+def test_metrics_association_disabled_validates(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "cmk.gui.openapi.framework.model.restrict_editions.edition",
+        lambda _omd_root: Edition.ULTIMATE,
+    )
+
+    model = TypeAdapter(  # astrein: disable=pydantic-type-adapter
+        BaseFolderAttributeModel
+    ).validate_python({"metrics_association": ["disabled", None]})
+
+    assert model.metrics_association == ("disabled", None)
+
+
+def test_metrics_association_empty_lookup_rules_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "cmk.gui.openapi.framework.model.restrict_editions.edition",
+        lambda _omd_root: Edition.ULTIMATE,
+    )
+
+    with pytest.raises(ValidationError):
+        TypeAdapter(  # astrein: disable=pydantic-type-adapter
+            BaseFolderAttributeModel
+        ).validate_python({"metrics_association": ["enabled", {"host_name_lookup_rules": []}]})
+
+
+def test_metrics_association_rejected_in_unsupported_edition(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "cmk.gui.openapi.framework.model.restrict_editions.edition",
+        lambda _omd_root: Edition.COMMUNITY,
+    )
+
+    with pytest.raises(ValidationError, match="not supported by this edition"):
+        TypeAdapter(  # astrein: disable=pydantic-type-adapter
+            BaseFolderAttributeModel
+        ).validate_python({"metrics_association": ["disabled", None]})
