@@ -67,7 +67,8 @@ function contentTypeToComponent(contentType: string): Component {
       'performance_graph',
       'single_timeseries',
       'combined_graph',
-      'average_scatterplot'
+      'average_scatterplot',
+      'problem_graph'
     ].includes(contentType) && cmkToken === undefined:
       return DashboardContentTimeSeriesGraph
     case CONTENT_FIGURE_TYPES.includes(contentType):

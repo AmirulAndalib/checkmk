@@ -18,9 +18,10 @@ import type {
   AverageScatterplotContent,
   CombinedGraphContent,
   PerformanceGraphContent,
+  ProblemGraphContent,
   SingleTimeseriesContent
 } from '@/dashboard/types/widget.ts'
-import GraphFigure from '@/graphing/components/GraphFigure/GraphFigure.vue'
+import { GraphFigure } from '@/graphing'
 
 import DashboardContentContainer from './DashboardContentContainer.vue'
 import type { ContentProps } from './types.ts'
@@ -35,6 +36,7 @@ const props =
       | SingleTimeseriesContent
       | CombinedGraphContent
       | AverageScatterplotContent
+      | ProblemGraphContent
     >
   >()
 
@@ -143,6 +145,15 @@ const discoverGraphs = async (): Promise<GraphDiscovery> => {
           }
         )
       )
+    case 'problem_graph':
+      return unwrap(
+        await client.POST('/domain-types/graph/actions/discover_problem_percentage_graphs/invoke', {
+          params: { header: { 'Content-Type': 'application/json' } },
+          body: {
+            context: props.effective_filter_context.filters
+          }
+        })
+      )
     default:
       staticAssertNever(content)
       return { graphs: [] }
@@ -201,6 +212,8 @@ const discoveryKey = computed(() => {
         colors: [content.metric_color, content.average_color, content.median_color],
         context: props.effective_filter_context.filters
       }
+    case 'problem_graph':
+      return { context: props.effective_filter_context.filters }
     default:
       staticAssertNever(content)
       return {}

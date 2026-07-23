@@ -4,3 +4,8 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 export { default as GraphGroup } from './components/GraphGroup.vue'
+export { default as GraphFigure } from './components/GraphFigure/GraphFigure.vue'
+export type { GraphFigureProps } from './components/GraphFigure/types'
+export type { TimerangeModel } from './components/GraphFigure/computeEpochTimeRange'
+export type { GraphCombinationMode } from './composables/useGraphData'
+export type { BurgerMenuGroup } from './types'

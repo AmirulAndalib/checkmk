@@ -12,10 +12,10 @@ import useTimer from '@/lib/useTimer.ts'
 
 import CmkIcon from '@/components/CmkIcon'
 
-import { type GraphCombinationMode, useGraphData } from '../../composables/useGraphData'
+import { useGraphData } from '../../composables/useGraphData'
 import { useGraphInteraction } from '../../composables/useGraphInteraction'
 import { useGraphVisibility } from '../../composables/useGraphVisibility'
-import type { BurgerMenuGroup, RequestedTimeRange, TimeRange } from '../../types.ts'
+import type { RequestedTimeRange, TimeRange } from '../../types.ts'
 import GraphBurgerMenu from '../GraphBurgerMenu.vue'
 import GraphTimestamp from '../GraphTimestamp.vue'
 import TimeSeriesGraph, { type GraphOptions, type Size } from '../TimeSeriesGraph'
@@ -23,31 +23,21 @@ import { deriveYAxis } from '../TimeSeriesGraph/yAxis'
 import type { ConsolidationFn } from '../consolidation'
 import { CANVAS_MARGIN_HORIZONTAL } from '../constants'
 import GraphLegendCompact from '../legend/GraphLegendCompact.vue'
-import { type TimerangeModel, computeEpochTimeRange } from './computeEpochTimeRange'
+import { computeEpochTimeRange } from './computeEpochTimeRange'
+import type { GraphFigureProps } from './types.ts'
 
 const MIN_FIGURE_SIZE = 50
 const REFRESH_INTERVAL_MS = 60_000
 const CONSOLIDATION_FUNCTION: ConsolidationFn = 'max'
 const FONT_SIZE_PT = 8
 
-const props = withDefaults(
-  defineProps<{
-    internal: string
-    timerange: TimerangeModel
-    combinationMode?: GraphCombinationMode | null
-    showLegend?: boolean
-    showTimestamp?: boolean
-    showBurgerMenu?: boolean
-    burgerMenuGroups?: BurgerMenuGroup[]
-  }>(),
-  {
-    combinationMode: null,
-    showLegend: false,
-    showTimestamp: false,
-    showBurgerMenu: false,
-    burgerMenuGroups: () => []
-  }
-)
+const props = withDefaults(defineProps<GraphFigureProps>(), {
+  combinationMode: null,
+  showLegend: false,
+  showTimestamp: false,
+  showBurgerMenu: false,
+  burgerMenuGroups: () => []
+})
 
 const { _t } = usei18n()
 
