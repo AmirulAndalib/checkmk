@@ -50,8 +50,7 @@ def test_hooks(site: Site) -> None:
         hooks += [
             "LIVEPROXYD",
             "MCP_SERVER",
-            "MCP_TRACE_FORWARD_TOKEN",
-            "MCP_TRACE_FORWARD_URL",
+            "MCP_TRACE_FORWARD",
         ]
 
     if not site.edition.is_cloud_edition():

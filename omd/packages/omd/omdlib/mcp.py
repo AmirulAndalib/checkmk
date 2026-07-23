@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import re
 from pathlib import Path
 
 from omdlib.config_api import Config, Hook, null_action
@@ -87,22 +86,13 @@ MCP_SERVER = Hook(
     choices=[("on", "enable"), ("off", "disable")],
 )
 
-# Additional OTLP target for the MCP server's traces, independent of the
-# site-wide TRACE_SEND pipeline: spans go to both. Empty (the default)
-# disables it. Same URL shape as TRACE_SEND_TARGET.
-MCP_TRACE_FORWARD_URL = Hook(
-    name="MCP_TRACE_FORWARD_URL",
-    choices=re.compile(r"^(|https?://[^\:]+:[0-9]{4,5})$"),
-    default=lambda _edition: "",
+# Opt-in gate for forwarding the MCP server's traces (usage data) to Checkmk's
+# central telemetry collector, independent of the site-wide TRACE_SEND
+# pipeline: spans go to both. The collector endpoint and its ingest-only
+# bearer token are built into the non-free MCP server code (cmk.mcp._tracing).
+MCP_TRACE_FORWARD = Hook(
+    name="MCP_TRACE_FORWARD",
+    default=lambda _edition: "off",
     activation=null_action,
-)
-
-# Bearer token sent as the Authorization header with every export to
-# MCP_TRACE_FORWARD_URL, for collectors that require authentication.
-# Empty (the default) sends no header. Charset per RFC 6750 token68.
-MCP_TRACE_FORWARD_TOKEN = Hook(
-    name="MCP_TRACE_FORWARD_TOKEN",
-    choices=re.compile(r"^[A-Za-z0-9._~+/-]*=*$"),
-    default=lambda _edition: "",
-    activation=null_action,
+    choices=[("on", "enable"), ("off", "disable")],
 )
