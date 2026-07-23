@@ -321,6 +321,12 @@ void main() {
                                     voteGerrit(vote: 0, identifier: "${changeInfo.commit}");
                                 }
                             }
+                            // Unstable: ssh connection fails, exit code 255
+                            // Failure:  rejected by Gerrit (conflict, unmet submit requirement)
+                            //           any other error
+                            if (!"${e.message}".contains("exit code 255")) {
+                                currentBuild.result = "FAILURE";
+                            }
                             throw e;
                         }
                     }
