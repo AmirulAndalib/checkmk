@@ -339,9 +339,6 @@ def _paint_time_graph_cmk(
         vue_html = HTMLWriter.render_vue_component(
             "cmk-graph-group",
             {
-                "site_id": row["site"],
-                "host_name": row["host_name"],
-                "service_name": row.get("service_description", "_HOST_"),
                 "initial_time_range_start": raw_time_range[0],
                 "initial_time_range_end": raw_time_range[1],
                 "graphs": vue_graphs,

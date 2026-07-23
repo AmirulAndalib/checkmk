@@ -25,9 +25,6 @@ const { _t } = usei18n()
 
 const props = withDefaults(
   defineProps<{
-    site_id: string
-    host_name: string
-    service_name: string
     initial_time_range_start: number
     initial_time_range_end: number
     graphs: CmkTimeSeriesGraph[]

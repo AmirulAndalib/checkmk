@@ -92,9 +92,6 @@ afterEach(() => {
 function renderGroup(graphs: CmkTimeSeriesGraph[] = [makeGraphDefinition('CPU utilization')]) {
   return render(GraphGroup, {
     props: {
-      site_id: 'my_site',
-      host_name: 'my-host',
-      service_name: 'CPU',
       initial_time_range_start: 1_000,
       initial_time_range_end: 2_000,
       graphs
