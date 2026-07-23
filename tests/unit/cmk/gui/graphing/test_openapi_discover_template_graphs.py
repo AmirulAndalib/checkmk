@@ -35,12 +35,10 @@ def test_discover_template_graphs_emits_fetchable_graphs(
         hostname="my-host", service_description="CPU load"
     )
     [graph] = resp.json["graphs"]
-    assert graph["graph_type"] == "template"
     assert graph["title"] == "t"
 
     # The graph's opaque definition feeds straight into the fetch_data action.
     fetch_resp = clients.Graph.fetch_data(
-        graph_type="template",
         internal=json.loads(graph["internal"]),
         requested_time_range={"start": 0, "end": 60, "step": 10},
         consolidation_function="max",

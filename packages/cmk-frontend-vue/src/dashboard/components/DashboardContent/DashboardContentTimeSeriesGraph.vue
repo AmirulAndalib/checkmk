@@ -259,7 +259,6 @@ onMounted(() => {
       </div>
       <GraphFigure
         v-else-if="shell"
-        :graph-type="shell.graph_type"
         :internal="shell.internal"
         :timerange="timerange"
         :combination-mode="combinationMode"

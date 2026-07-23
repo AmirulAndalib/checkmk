@@ -1261,7 +1261,6 @@ class GraphClient(RestApiClient):
 
     def fetch_data(
         self,
-        graph_type: str,
         internal: Mapping[str, object],
         requested_time_range: Mapping[str, int],
         consolidation_function: Literal["min", "max", "avg"],
@@ -1271,7 +1270,6 @@ class GraphClient(RestApiClient):
             "post",
             url=f"/domain-types/{self.domain}/actions/fetch_data/invoke",
             body={
-                "graph_type": graph_type,
                 # `internal` is an Annotated[..., Json] field, i.e. a JSON-encoded string on the wire
                 "internal": json.dumps(internal),
                 "requested_time_range": requested_time_range,

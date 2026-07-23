@@ -70,7 +70,6 @@ afterEach(() => {
 function renderFigure(props: Record<string, unknown> = {}) {
   return render(GraphFigure, {
     props: {
-      graphType: 'template',
       internal: '{"graphs": []}',
       timerange: { type: 'age', hours: 4 },
       ...props
@@ -101,7 +100,6 @@ test('fetches the definition via fetch_data with the max consolidation', async (
 
   await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))
   const body = postSpy.mock.calls[0][1].body
-  expect(body.graph_type).toBe('template')
   expect(body.internal).toBe('{"graphs": []}')
   expect(body.consolidation_function).toBe('max')
   expect(body.combination_mode).toBeNull()

@@ -56,7 +56,6 @@ function makeGraphDefinition(title: string): CmkTimeSeriesGraph {
       font_size_pt: 8
     },
     interaction: { burger: 'enabled', zoom: 'enabled', panning: 'enabled', hover: 'enabled' },
-    graph_type: 'template',
     internal: '{"graphs": []}'
   }
 }
@@ -128,7 +127,6 @@ test('fetches with the initial time range from props', async () => {
 
   await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))
   const body = postSpy.mock.calls[0][1].body
-  expect(body.graph_type).toBe('template')
   expect(body.internal).toBe('{"graphs": []}')
   expect(body.consolidation_function).toBe('avg')
   expect(body.requested_time_range).toEqual({ start: 1_000, end: 2_000, step: 60 })

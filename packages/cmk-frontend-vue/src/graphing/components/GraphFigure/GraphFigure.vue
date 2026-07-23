@@ -32,7 +32,6 @@ const FONT_SIZE_PT = 8
 
 const props = withDefaults(
   defineProps<{
-    graphType: string
     internal: string
     timerange: TimerangeModel
     combinationMode?: GraphCombinationMode | null
@@ -77,7 +76,7 @@ const plotWidth = computed(() =>
 const requestedTimeRange = ref<RequestedTimeRange>(computeEpochTimeRange(props.timerange))
 const zoomSessionActive = ref(false)
 
-const graphDefinitions = computed(() => [{ graph_type: props.graphType, internal: props.internal }])
+const graphDefinitions = computed(() => [{ internal: props.internal }])
 
 const { graphs, isLoading, error } = useGraphData(
   () => graphDefinitions.value,
@@ -105,7 +104,7 @@ watch(isLoading, (loading) => {
 })
 
 watch(
-  () => [props.graphType, props.internal, props.combinationMode, JSON.stringify(props.timerange)],
+  () => [props.internal, props.combinationMode, JSON.stringify(props.timerange)],
   () => {
     zoomSessionActive.value = false
     refresh()

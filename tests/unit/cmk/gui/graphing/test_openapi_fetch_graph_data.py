@@ -67,7 +67,6 @@ def test_fetch_graph_data_empty_graph_runs_end_to_end() -> None:
     # fixture.
     graph = Graph(name="g", title="t", kind="template")
     request = GraphFetchRequest(
-        graph_type="template",
         internal=serialize_graphs([graph]),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
@@ -81,7 +80,6 @@ def test_fetch_graph_data_empty_graph_runs_end_to_end() -> None:
 @pytest.mark.usefixtures("load_config")
 def test_fetch_graph_data_invalid_internal_raises_500() -> None:
     request = GraphFetchRequest(
-        graph_type="template",
         internal={"garbage": "data"},
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
@@ -96,7 +94,6 @@ def test_fetch_graph_data_invalid_internal_raises_500() -> None:
 def test_fetch_graph_data_unknown_graph_kind_raises_500() -> None:
     # Routing is by the graph's own kind; an unregistered kind has no dispatcher and fails evaluation.
     request = GraphFetchRequest(
-        graph_type="template",
         internal={"graphs": [{"kind": "does-not-exist"}]},
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
@@ -115,7 +112,6 @@ def test_fetch_graph_data_livestatus_failure_raises_503(
 
     monkeypatch.setattr(fetch_graph_data_module, "evaluate_graphs", _raise)
     request = GraphFetchRequest(
-        graph_type="template",
         internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
@@ -133,7 +129,6 @@ def test_fetch_graph_data_multiple_internal_graphs_raises_500() -> None:
         Graph(name="g2", title="t2", kind="template"),
     ]
     request = GraphFetchRequest(
-        graph_type="template",
         internal=serialize_graphs(graphs),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
@@ -168,7 +163,6 @@ def test_fetch_graph_data_passes_combination_mode_into_options(
     _capture_request(monkeypatch, captured)
     fetch_graph_data_v1(
         GraphFetchRequest(
-            graph_type="combined",
             internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",
@@ -186,7 +180,6 @@ def test_fetch_graph_data_omits_combination_mode_when_not_requested(
     _capture_request(monkeypatch, captured)
     fetch_graph_data_v1(
         GraphFetchRequest(
-            graph_type="template",
             internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",

@@ -96,9 +96,6 @@ class ApiHorizontalLine:
 class ApiDiscoveredGraph:
     """A discovered data-less graph definition."""
 
-    graph_type: str = api_field(
-        description="The graph type, selecting the engine evaluator.", example="template"
-    )
     internal: str = api_field(
         description=(
             "The self-contained graph definition needed to fetch the data, as JSON. Pass it "
@@ -114,7 +111,6 @@ class ApiDiscoveredGraph:
     @classmethod
     def from_graph(cls, graph: Graph) -> Self:
         return cls(
-            graph_type=graph.kind,
             internal=json.dumps(serialize_graphs([graph])),
             title=graph.title,
         )
@@ -138,9 +134,6 @@ class GraphsDiscoverResponse:
 
 @api_model
 class GraphFetchRequest:
-    graph_type: str = api_field(
-        description="The graph type, selecting the engine evaluator.", example="template"
-    )
     internal: Annotated[Mapping[str, object], Json] = api_field(
         description="The self-contained graph definition needed to recompute the data, as JSON.",
         example="<implementation detail>",

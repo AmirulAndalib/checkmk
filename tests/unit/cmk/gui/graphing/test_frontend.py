@@ -78,6 +78,5 @@ def test_to_cmk_time_series_graph_shell() -> None:
     # No evaluation happens here: the data (metrics/horizontal_lines) and the resampled range are
     # fetched separately, so the shell has a null time range.
     assert result.time_range is None
-    assert result.graph_type == "template"
     # The internal field is the opaque JSON serialization of the graph definition envelope.
     assert result.internal == json.dumps(serialize_graphs([graph]))

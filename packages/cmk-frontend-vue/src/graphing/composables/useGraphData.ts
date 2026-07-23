@@ -13,9 +13,10 @@ import type { HorizontalLine, Metric, TimeRange } from '../components/TimeSeries
 import type { ConsolidationFn } from '../components/consolidation'
 import type { RequestedTimeRange } from '../types'
 
-// The fetch endpoint only needs the self-contained definition; a caller holding a full
-// render shell additionally contributes its header title to the resolved graph.
-export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'graph_type' | 'internal'> &
+// The fetch endpoint only needs the self-contained definition (the graph kind is embedded in
+// `internal`); a caller holding a full render shell additionally contributes its header title to
+// the resolved graph.
+export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'internal'> &
   Partial<Pick<CmkTimeSeriesGraph, 'options'>>
 
 // How a combined graph folds the same metric across its matched services: aggregate
@@ -34,7 +35,7 @@ function computeStep(start: number, end: number, canvasWidth: number): number {
 }
 
 // Graph discovery (matching templates to a service) happens backend-only: the caller already
-// receives the self-contained `graph_type` + `internal` definitions via the initial page props
+// receives the self-contained `internal` definitions via the initial page props
 // (see build_template_graphs -> to_cmk_time_series_graph in cmk/gui/views/graph.py). This
 // composable only re-fetches evaluated data for those definitions as the requested range changes.
 export function useGraphData(
@@ -76,7 +77,6 @@ export function useGraphData(
             await client.POST('/domain-types/graph/actions/fetch_data/invoke', {
               params: { header: { 'Content-Type': 'application/json' } },
               body: {
-                graph_type: definition.graph_type,
                 internal: definition.internal,
                 requested_time_range: requestedTimeRange,
                 consolidation_function: consolidationFunction,
