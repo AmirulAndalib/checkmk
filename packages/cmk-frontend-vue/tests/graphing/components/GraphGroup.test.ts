@@ -129,6 +129,20 @@ test('fetches with the initial time range from props', async () => {
   expect(body.requested_time_range).toEqual({ start: 1_000, end: 2_000, step: 60 })
 })
 
+test('fetches with the combination mode from props', async () => {
+  render(GraphGroup, {
+    props: {
+      initial_time_range_start: 1_000,
+      initial_time_range_end: 2_000,
+      graphs: [makeGraphDefinition('CPU utilization')],
+      combination_mode: 'stacked' as const
+    }
+  })
+
+  await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))
+  expect(postSpy.mock.calls[0][1].body.combination_mode).toBe('stacked')
+})
+
 test('refetches when the global picker publishes a range', async () => {
   renderGroup()
   await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))

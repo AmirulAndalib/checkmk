@@ -15,7 +15,7 @@ import { ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
-import { useGraphData } from '../composables/useGraphData'
+import { type GraphCombinationMode, useGraphData } from '../composables/useGraphData'
 import { useRequestedTimeRange } from '../composables/useRequestedTimeRange'
 import GraphPanel from './GraphPanel.vue'
 import type { ConsolidationFn } from './consolidation'
@@ -28,11 +28,14 @@ const props = withDefaults(
     initial_time_range_start: number
     initial_time_range_end: number
     graphs: CmkTimeSeriesGraph[]
+    // How a combined graph folds the same metric across its matched services;
+    // null for graph types without a combination (e.g. template graphs).
+    combination_mode?: GraphCombinationMode | null
     // Outer figure width in CSS pixels (plot area + axis margins); the RRD step
     // resolution is derived from the resulting plot width.
     figure_width?: number
   }>(),
-  { figure_width: 800 }
+  { combination_mode: null, figure_width: 800 }
 )
 
 // Seeded from the backend-provided initial range, then follows the page's global time picker;
@@ -48,7 +51,8 @@ const { graphs, isLoading, error } = useGraphData(
   () => props.graphs,
   () => requestedTimeRange.value,
   () => props.figure_width - CANVAS_MARGIN_HORIZONTAL,
-  () => consolidationFn.value
+  () => consolidationFn.value,
+  () => props.combination_mode
 )
 </script>
 
