@@ -23,7 +23,6 @@ import type { CommitResult } from '../types'
 
 /** Common percentiles offered as a starting point; any value the user types in [0, 100] is added. */
 const COMMON_PERCENTILES = [50, 75, 90, 95, 99]
-const DEFAULT_PERCENTILE = '95'
 
 export interface TransformationEditor {
   selectedId: Ref<ItemId | null>
@@ -60,7 +59,7 @@ export function useTransformationEditor(
   const { describeItem } = useItemDescription()
 
   const selectedId = ref<ItemId | null>(null)
-  const percentile = ref<string | null>(DEFAULT_PERCENTILE)
+  const percentile = ref<string | null>(null)
   const errors = ref<string[]>([])
   const isEmpty = computed(() => selectedId.value === null)
 
@@ -102,7 +101,7 @@ export function useTransformationEditor(
         (v) => trimmed === '' || String(v).startsWith(trimmed) || v === num
       )
       return Promise.resolve(
-        new Response(matching.map((v) => ({ name: String(v), title: untranslated(`${v} %`) })))
+        new Response(matching.map((v) => ({ name: String(v), title: untranslated(String(v)) })))
       )
     }
   }
@@ -115,7 +114,7 @@ export function useTransformationEditor(
 
   function reset(): void {
     selectedId.value = null
-    percentile.value = DEFAULT_PERCENTILE
+    percentile.value = null
     errors.value = []
   }
 

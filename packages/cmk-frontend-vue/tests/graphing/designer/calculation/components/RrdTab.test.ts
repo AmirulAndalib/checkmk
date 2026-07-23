@@ -3,6 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen } from '@testing-library/vue'
 
 import RrdTab from '@/graphing/designer/calculation/components/RrdTab.vue'
@@ -112,9 +113,12 @@ test('transformation without a selected metric disables the calculate button', a
 })
 
 test('in transformation mode a badge click selects the metric', async () => {
+  const user = userEvent.setup()
   const { emitted } = renderTab()
   await fireEvent.click(screen.getByRole('button', { name: 'Toggle Transformation' }))
   await fireEvent.click(screen.getByRole('button', { name: 'Select A for the transformation' }))
+  await user.click(screen.getByRole('combobox', { name: 'Transformation' }))
+  await user.click(await screen.findByRole('option', { name: '95' }))
   await fireEvent.click(screen.getByRole('button', { name: 'Calculate & add' }))
   expect(emitted('add')).toEqual([
     [

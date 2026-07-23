@@ -72,10 +72,10 @@ function errorsOf(result: ReturnType<TransformationEditor['commit']>): string[] 
 
 test('commit builds a percentile AST when valid, explains the problem otherwise', () => {
   const editor = mountEditor()
+  editor.percentile.value = '90'
   expect(errorsOf(editor.commit())).toEqual(['Select the metric to transform.'])
 
   editor.selectItem('A')
-  editor.percentile.value = '90'
   expect(editor.commit()).toEqual({
     ast: { op: 'percentile', percentile: 90, operand: { op: 'ref', id: 'A' } }
   })
@@ -126,13 +126,19 @@ test('commit rejects an empty or whitespace percentile instead of reading it as 
   expect('errors' in editor.commit()).toBe(true)
 })
 
-test('reset clears the selection and restores the default percentile', () => {
+test('starts with no metric selected and no default percentile', () => {
+  const editor = mountEditor()
+  expect(editor.selectedId.value).toBeNull()
+  expect(editor.percentile.value).toBeNull()
+})
+
+test('reset clears the selection and the percentile', () => {
   const editor = mountEditor()
   editor.selectItem('A')
   editor.percentile.value = '50'
   editor.reset()
   expect(editor.selectedId.value).toBeNull()
-  expect(editor.percentile.value).toBe('95')
+  expect(editor.percentile.value).toBeNull()
 })
 
 async function suggestionNames(editor: TransformationEditor, query: string): Promise<string[]> {

@@ -72,8 +72,7 @@ const percentile = defineModel<string | null>('percentile', { required: true })
   grid-template-columns: 1fr minmax(10em, 12em);
   grid-template-areas:
     'metric-label transformation-label'
-    'metric percentile'
-    'errors errors';
+    'metric percentile';
   gap: var(--dimension-3) var(--dimension-4);
   flex: 1;
   align-items: end;
@@ -103,7 +102,7 @@ const percentile = defineModel<string | null>('percentile', { required: true })
 }
 
 .graphing-transformation-editor__errors {
-  grid-area: errors;
+  grid-column: 1 / -1;
 }
 
 /* CmkDropdown has no height prop; match the adjacent action-button height and re-center its label. */
