@@ -1366,6 +1366,20 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def discover_problem_percentage_graphs(
+        self,
+        context: Mapping[str, Mapping[str, str]],
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/discover_problem_percentage_graphs/invoke",
+            body={
+                "context": context,
+            },
+            expect_ok=expect_ok,
+        )
+
     def get_pin(self, expect_ok: bool = True) -> Response:
         return self.request(
             "get",
