@@ -41,11 +41,13 @@ export function computeYDomain(
   }
   if (flags.symmetric) {
     const extent = Math.max(Math.abs(yMin), Math.abs(yMax))
-    const bound = extent === 0 ? 0.5 : extent
+    const bound = extent === 0 ? 1 : extent
     return [-bound, bound]
   }
   if (yMin === yMax) {
-    return [yMin - 0.5, yMax + 0.5]
+    // A flat series widens upward only, so a graph flat at zero keeps its floor at zero
+    // instead of dipping into a negative range its data can never reach.
+    return [yMin, yMax + 1]
   }
   return [yMin, yMax]
 }
