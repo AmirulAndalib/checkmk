@@ -11,7 +11,7 @@
     "@internationalized/date": "^3.12.0",
     "@tanstack/vue-table": "^8.21.3",
     "@tanstack/vue-virtual": "^3.13.24",
-    "axios": "^1.18.1",
+    "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
     "cmk-ui-library": "workspace:*",
     "d3-array": "^3.2.4",
@@ -32,7 +32,7 @@
     "marked": "^17.0.6",
     "openapi-fetch": "^0.17.0",
     "reka-ui": "^2.9.6",
-    "sanitize-html": "^2.17.7",
+    "sanitize-html": "^2.18.1",
     "uuid": "^13.0.0",
     "vue-component-type-helpers": "^3.2.6",
     "vue-router": "^5.0.4",
@@ -72,7 +72,7 @@
     "rollup": "^4.60.1",
     "sass-embedded": "^1.99.0",
     "typescript": "^6.0.2",
-    "vite": "^7.3.2",
+    "vite": "^7.3.7",
     "vite-plugin-vue-devtools": "^8.1.1"
   },
   "msw": {
